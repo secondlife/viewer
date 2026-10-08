@@ -186,6 +186,8 @@ void LLAudioEngine_OpenAL::idle()
 {
     LLAudioEngine::idle();
 
+    updateStreamedSources();
+
     if (mDefaultDeviceChanged)
     {
         mDefaultDeviceChanged = false;
@@ -726,12 +728,22 @@ std::shared_ptr<LLStreamedAudioSource> LLAudioEngine_OpenAL::createStreamedSourc
     return source;
 }
 
+void LLAudioEngine_OpenAL::updateStreamedSources()
+{
+    for (auto& weak_source : mStreamedSources)
+    {
+        if (auto source = weak_source.lock())
+        {
+            source->updateAL();
+        }
+    }
+}
+
 LLStreamedAudioSourceOpenAL::LLStreamedAudioSourceOpenAL(U32 prebuffer_ms, bool spatial)
     : mSpatial(spatial),
       mChannels(spatial ? 1 : 2),
       mRing(RING_FRAMES * mChannels, 0.f),
-      mPrebufferFrames(llclamp(prebuffer_ms, 10U, MAX_LATENCY_MS / 2) * SAMPLE_RATE / 1000),
-      mMaxLatencyFrames(MAX_LATENCY_MS * SAMPLE_RATE / 1000)
+      mPrebufferMs(llclamp(prebuffer_ms, 10U, MAX_LATENCY_MS / 2))
 {
 }
 
@@ -753,9 +765,8 @@ bool LLStreamedAudioSourceOpenAL::initAL(LPALBUFFERCALLBACKSOFT buffer_callback_
         return false;
     }
 
-    buffer_callback_fn(mALBuffer, mSpatial ? AL_FORMAT_MONO_FLOAT32 : AL_FORMAT_STEREO_FLOAT32, SAMPLE_RATE,
-                       &LLStreamedAudioSourceOpenAL::bufferCallback, this);
-    alSourcei(mALSource, AL_BUFFER, mALBuffer);
+    mBufferCallbackFn = buffer_callback_fn;
+    specifyBuffer(DEFAULT_SAMPLE_RATE);
 
     // Starts pinned to the listener (a spatial source moves into the world on its first
     // setPositionGlobal()). Never distance-attenuated by OpenAL, either way: the caller's
@@ -780,6 +791,38 @@ bool LLStreamedAudioSourceOpenAL::initAL(LPALBUFFERCALLBACKSOFT buffer_callback_
         return false;
     }
     return true;
+}
+
+void LLStreamedAudioSourceOpenAL::specifyBuffer(U32 sample_rate)
+{
+    mBufferCallbackFn(mALBuffer, mSpatial ? AL_FORMAT_MONO_FLOAT32 : AL_FORMAT_STEREO_FLOAT32, sample_rate,
+                      &LLStreamedAudioSourceOpenAL::bufferCallback, this);
+    alSourcei(mALSource, AL_BUFFER, mALBuffer);
+    mPlayRate.store(sample_rate, std::memory_order_relaxed);
+}
+
+void LLStreamedAudioSourceOpenAL::updateAL()
+{
+    const U32 stream_rate = mStreamRate.load(std::memory_order_relaxed);
+    if (mALSource == AL_NONE || stream_rate == 0 || stream_rate == mPlayRate.load(std::memory_order_relaxed))
+    {
+        return;
+    }
+
+    // A callback buffer can only be re-specified while nothing is using it. Stopping the
+    // source also guarantees no fill() call is in flight while we're in here. Every other
+    // source property (gain, position, ...) survives this untouched.
+    alGetError();
+    alSourceStop(mALSource);
+    alSourcei(mALSource, AL_BUFFER, AL_NONE);
+    specifyBuffer(stream_rate);
+    alSourcePlay(mALSource);
+
+    ALenum error = alGetError();
+    if (error != AL_NO_ERROR)
+    {
+        LL_WARNS() << "Failed to switch streamed audio source to " << stream_rate << "Hz: AL error " << error << LL_ENDL;
+    }
 }
 
 void LLStreamedAudioSourceOpenAL::releaseAL()
@@ -831,10 +874,17 @@ void LLStreamedAudioSourceOpenAL::clearPosition()
 
 void LLStreamedAudioSourceOpenAL::pushPCM(const F32* interleaved, U32 frames, U32 sample_rate, U32 channels)
 {
-    if (sample_rate != SAMPLE_RATE || channels == 0)
+    if (sample_rate < MIN_SAMPLE_RATE || sample_rate > MAX_SAMPLE_RATE || channels == 0)
     {
         mFormatDrops.fetch_add(1, std::memory_order_relaxed);
         return;
+    }
+    // Picked up by updateAL() on the main thread. Anything already in the ring at the old
+    // rate plays at the new one -- at most a fraction of a second's pitch glitch, on what is
+    // in practice a once-per-stream event.
+    if (mStreamRate.load(std::memory_order_relaxed) != sample_rate)
+    {
+        mStreamRate.store(sample_rate, std::memory_order_relaxed);
     }
 
     const U64 write_pos = mWritePos.load(std::memory_order_relaxed);
@@ -894,7 +944,8 @@ LLStreamedAudioSource::Stats LLStreamedAudioSourceOpenAL::getStats() const
     stats.mFormatDrops = mFormatDrops.load(std::memory_order_relaxed);
     const U64 read_pos = mReadPos.load(std::memory_order_acquire);
     const U64 buffered = mWritePos.load(std::memory_order_acquire) - read_pos;
-    stats.mBufferedMs = (U32)(buffered * 1000 / SAMPLE_RATE);
+    stats.mSampleRate = mPlayRate.load(std::memory_order_relaxed);
+    stats.mBufferedMs = (U32)(buffered * 1000 / stats.mSampleRate);
     stats.mFramesPlayed = read_pos;
     if (mALSource != AL_NONE)
     {
@@ -923,9 +974,13 @@ void LLStreamedAudioSourceOpenAL::fill(F32* out, U32 frames) noexcept
     U64 read_pos = mReadPos.load(std::memory_order_relaxed);
     U64 available = write_pos - read_pos;
 
+    const U32 rate = mPlayRate.load(std::memory_order_relaxed);
+    const U64 prebuffer_frames = (U64)mPrebufferMs * rate / 1000;
+    const U64 max_latency_frames = (U64)MAX_LATENCY_MS * rate / 1000;
+
     if (!mPlaying)
     {
-        if (available < mPrebufferFrames)
+        if (available < prebuffer_frames)
         {
             std::fill(out, out + (size_t)frames * mChannels, 0.f);
             return;
@@ -933,11 +988,11 @@ void LLStreamedAudioSourceOpenAL::fill(F32* out, U32 frames) noexcept
         mPlaying = true;
     }
 
-    if (available > mMaxLatencyFrames)
+    if (available > max_latency_frames)
     {
         // The feeder's clock is running ahead of the device's, or a stall let a backlog
         // build up -- skip back to the prebuffer target instead of carrying that latency.
-        const U64 skip = available - mPrebufferFrames;
+        const U64 skip = available - prebuffer_frames;
         read_pos += skip;
         available -= skip;
         mSkippedFrames.fetch_add(skip, std::memory_order_relaxed);

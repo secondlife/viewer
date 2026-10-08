@@ -2847,9 +2847,10 @@ void LLViewerMediaImpl::updateVolume()
                     mEmbeddedBrowserAudio->clearPosition();
                 }
 
-                // Still tell the producer when this tab should be silent, so silence never
-                // depends on it having actually stopped its own output -- and so it can stop
-                // rendering audio nobody will hear. Same dedupe as the CEF path below.
+                // Still kept current for the producer, though a capturing producer ignores it
+                // (its own output stays muted for the slot's lifetime -- see
+                // kSlotFlagAudioCapture): it's what the slot falls back to if a reconnect
+                // lands on a producer that declines capture. Same dedupe as the CEF path below.
                 bool should_mute = (volume <= 0.0f);
                 if (should_mute != mEmbeddedBrowserMuted)
                 {
