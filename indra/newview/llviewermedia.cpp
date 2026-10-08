@@ -2203,7 +2203,9 @@ void LLViewerMediaImpl::createMediaSource()
         static LLCachedControl<bool> audio_via_viewer(gSavedSettings, "EmbeddedBrowserAudioViaViewer");
         static LLCachedControl<U32> audio_prebuffer_ms(gSavedSettings, "EmbeddedBrowserAudioPrebufferMs");
         static LLCachedControl<bool> audio_test_tone(gSavedSettings, "EmbeddedBrowserProducerAudioTestTone");
-        const bool spatial = !mUsedInUI && !isParcelMedia();
+        // HUD media has no world position to pan from (see calculateInterest()), so it
+        // keeps its stereo too rather than being mixed down only to play from the listener.
+        const bool spatial = !mUsedInUI && !isParcelMedia() && !isAttachedToHUD();
         // Development scaffolding, goes with the test tone itself: every captured tab plays
         // one, and the always-present UI pages (search, destinations, ...) drown out the
         // prim media whose positioning is actually being tested -- so under the test tone,
