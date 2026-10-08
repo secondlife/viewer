@@ -33,7 +33,6 @@
 #include "llappviewer.h"
 #include "llaudioengine.h"  // for gAudiop
 #include "llcallbacklist.h"
-#include "llapr.h" // TEMPORARY DIAGNOSTIC -- see updateEmbeddedBrowserEvents()'s own comment
 #include "lldir.h"
 #include "lldiriterator.h"
 #include "llembeddedbrowser.h"
@@ -2148,8 +2147,7 @@ void LLViewerMediaImpl::createMediaSource()
         // Matches loadURI()'s legacy-plugin behavior: data: URIs need their payload
         // re-escaped (see LLURI::escapePathAndData()'s dedicated data: handling) to parse
         // correctly -- plain http(s) URLs pass through this unchanged either way.
-        mEmbeddedBrowserId = LLEmbeddedBrowser::getInstance()->create(LLURI::escapePathAndData(mMediaURL), width, height, mUsedInUI, mEmbeddedBrowserBackend,
-                                                                       gSavedSettings.getBOOL("EmbeddedBrowserCefAudioCapture"));
+        mEmbeddedBrowserId = LLEmbeddedBrowser::getInstance()->create(LLURI::escapePathAndData(mMediaURL), width, height, mUsedInUI, mEmbeddedBrowserBackend);
         // setPageZoomFactor() may have already updated mZoomFactor before this tab
         // existed (e.g. ensureMediaSourceExists()'s own call, which runs right before
         // this) -- apply whatever it currently is now that there's a real tab to send
@@ -2756,19 +2754,6 @@ void LLViewerMediaImpl::updateVolume()
                     mEmbeddedBrowserVolume = send_volume;
                     LLEmbeddedBrowser::getInstance()->setVolume(mEmbeddedBrowserId, send_volume);
                 }
-            }
-            else if (gSavedSettings.getBOOL("EmbeddedBrowserCefAudioCapture"))
-            {
-                // Raw PCM capture (CefAudioHandler) is on for this tab -- its native CEF
-                // audio output was muted once, permanently, at slot-creation time in
-                // llcefproducer.cpp specifically to avoid double playback once the
-                // colleague's OpenAL path takes over. Neither the hard setMuted() cutoff
-                // nor the JS-injected volume approximation below belong here any more --
-                // sending setMuted(false) as a capturing tab comes back into proximity
-                // range would silently un-mute its native output again (real double
-                // playback), and the JS hack would attenuate the very audio this path is
-                // supposed to deliver at full level for the Viewer's own distance/volume
-                // handling (on the captured PCM, via OpenAL) to apply once, not twice.
             }
             else
             {
@@ -4347,112 +4332,8 @@ static ECursorType cursorTypeFromEmbeddedBrowserCursor(unsigned int cef_cursor_t
     }
 }
 
-// ============================================================================
-// TEMPORARY DIAGNOSTIC -- not part of the real feature, remove once real
-// end-to-end verification of CEF audio-PCM capture (EmbeddedBrowserCefAudioCapture)
-// is done. Drains LLEmbeddedBrowser::popAudioPacket() into a PER-TAB accumulator,
-// keyed by embedded-browser id -- several simultaneous audio-capturing tabs each
-// get their own independent WAV file rather than one shared, interleaved mess
-// (2026-10-08: this started mattering for real once testing needed more than one
-// simultaneously-capturing tab at a time). Periodically rewrites each tab's WAV
-// file so the result survives even if the viewer is force-quit mid-test. Planar
-// float32 -> interleaved int16 (clamped), standard PCM so any media player can
-// open it directly. See doc/Embedded_Browser.md for the real feature this is
-// verifying.
-namespace {
-    struct AudioCaptureDiagState {
-        std::vector<std::int16_t> samples;
-        std::uint32_t sampleRate = 0;
-        std::uint32_t channels = 0;
-        int flushCounter = 0;
-    };
-    std::map<unsigned int, AudioCaptureDiagState> gAudioCaptureDiagByTab;
-
-    void writeAudioCaptureDiagWav(unsigned int tabId, AudioCaptureDiagState& state)
-    {
-        if (state.samples.empty() || state.sampleRate == 0 || state.channels == 0)
-        {
-            return;
-        }
-        std::string path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-            "cef_audio_capture_test_" + std::to_string(tabId) + ".wav");
-        LLAPRFile file;
-        if (file.open(path, LL_APR_WB) != APR_SUCCESS)
-        {
-            return;
-        }
-        const std::uint32_t data_bytes = std::uint32_t(state.samples.size() * sizeof(std::int16_t));
-        const std::uint32_t byte_rate = state.sampleRate * state.channels * 2;
-        const std::uint16_t block_align = std::uint16_t(state.channels * 2);
-        const std::uint32_t riff_size = 36 + data_bytes;
-
-        auto write_u32 = [&](std::uint32_t v) { file.write(&v, 4); };
-        auto write_u16 = [&](std::uint16_t v) { file.write(&v, 2); };
-
-        file.write("RIFF", 4);
-        write_u32(riff_size);
-        file.write("WAVEfmt ", 8);
-        write_u32(16);                      // fmt chunk size
-        write_u16(1);                       // PCM
-        write_u16(std::uint16_t(state.channels));
-        write_u32(state.sampleRate);
-        write_u32(byte_rate);
-        write_u16(block_align);
-        write_u16(16);                      // bits per sample
-        file.write("data", 4);
-        write_u32(data_bytes);
-        file.write(state.samples.data(), S32(data_bytes));
-
-        LL_INFOS("Media") << path << ": wrote " << data_bytes << " bytes ("
-                           << state.samples.size() / state.channels << " frames @ "
-                           << state.sampleRate << "Hz, " << state.channels
-                           << "ch) for tab " << tabId << LL_ENDL;
-    }
-}
-// ============================================================================
-
 void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
 {
-    // TEMPORARY DIAGNOSTIC -- see the block above. Drain every frame, regardless of
-    // suspend/visible, matching popEvent()'s own unconditional drain just below.
-    if (gSavedSettings.getBOOL("EmbeddedBrowserCefAudioCapture"))
-    {
-        AudioCaptureDiagState& state = gAudioCaptureDiagByTab[mEmbeddedBrowserId];
-        LLEmbeddedBrowserAudioPacket packet;
-        while (LLEmbeddedBrowser::getInstance()->popAudioPacket(mEmbeddedBrowserId, packet))
-        {
-            if (state.samples.empty())
-            {
-                state.channels = packet.mChannels;
-                // Real rate, now threaded through LLEmbeddedBrowserAudioPacket itself
-                // (was hardcoded here, guessed wrong at first -- 48000 instead of CEF's
-                // real 44100 -- which made captured audio play back slightly fast/sharp).
-                state.sampleRate = packet.mSampleRate;
-            }
-
-            const std::size_t base = state.samples.size();
-            state.samples.resize(base + packet.mSamples.size());
-            for (unsigned int ch = 0; ch < packet.mChannels; ++ch)
-            {
-                for (unsigned int f = 0; f < packet.mFrames; ++f)
-                {
-                    const float s = packet.mSamples[std::size_t(ch) * packet.mFrames + f];
-                    const float clamped = llclamp(s, -1.f, 1.f);
-                    state.samples[base + std::size_t(f) * packet.mChannels + ch] =
-                        std::int16_t(clamped * 32767.f);
-                }
-            }
-        }
-        // Rewrite the file roughly once a second (assuming ~every-frame calls at
-        // ~60fps) rather than on every single packet -- survives a force-quit without
-        // rewriting a multi-MB file every tick.
-        if (++state.flushCounter >= 60)
-        {
-            state.flushCounter = 0;
-            writeAudioCaptureDiagWav(mEmbeddedBrowserId, state);
-        }
-    }
-
     LLEmbeddedBrowserEvent event;
     while (LLEmbeddedBrowser::getInstance()->popEvent(mEmbeddedBrowserId, event))
     {
@@ -4463,11 +4344,7 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
                 break;
 
             case LLEmbeddedBrowserEventType::LoadEnd:
-                // See updateVolume()'s own comment -- a raw-PCM-capturing tab's native
-                // audio stays permanently muted and untouched by the JS volume hack,
-                // so there's nothing for this setup script to usefully do there.
-                if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef &&
-                    !gSavedSettings.getBOOL("EmbeddedBrowserCefAudioCapture"))
+                if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef)
                 {
                     // A fresh page has a fresh DOM/JS global scope -- any earlier
                     // MutationObserver this tab registered is gone with it, so the

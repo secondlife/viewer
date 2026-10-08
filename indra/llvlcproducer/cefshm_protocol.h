@@ -169,12 +169,6 @@ namespace cefshm_demo
         // CEF-only (JS bridge) -- no LibVLC equivalent at all; never sent or handled here.
         kEventJSQuery = 41,
         kRespondToQuery = 42,
-
-        // CEF-only, no LibVLC equivalent -- this producer never sends any of these. See
-        // indra/llcefproducer/cefshm_protocol.h's own longer comment for what they carry.
-        kAudioStreamStarted = 43,
-        kAudioPacket = 44,
-        kAudioStreamStopped = 45,
     };
 
     inline std::uint32_t pack_u32(std::uint8_t* d, std::uint32_t v)
@@ -227,16 +221,14 @@ namespace cefshm_demo
     }
 
     // Only the unpack half is needed here -- this producer never sends a slot request,
-    // only receives one. audioCapture (a 12th byte) is unpacked for completeness but
-    // unused here -- CEF audio capture has no LibVLC equivalent.
+    // only receives one.
     inline bool unpack_request_slot(const std::uint8_t* d, std::size_t n, bool& isUI,
                                      std::uint32_t& maxWidth, std::uint32_t& maxHeight,
-                                     std::uint8_t& backend, bool& audioOnly, bool& audioCapture)
+                                     std::uint8_t& backend, bool& audioOnly)
     {
         isUI = (n == 0) || (d[0] != 0);
         backend = (n >= 10) ? d[9] : 0;
         audioOnly = (n >= 11) && (d[10] != 0);
-        audioCapture = (n >= 12) && (d[11] != 0);
         if (n < 9) return false;
         return unpack_u32(d + 1, n - 1, maxWidth) && unpack_u32(d + 5, n - 5, maxHeight);
     }
