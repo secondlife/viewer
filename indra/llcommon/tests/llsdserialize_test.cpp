@@ -2291,10 +2291,9 @@ namespace tut
         std::ostringstream ostr;
         S32 rv = mFormatter->format(mSD, ostr);
         ensure_equals("stress integer/real interleave returns success", rv, (S32)(1 + 200 * 5));
-        // Make sure no exception/early-bailout occurred and we actually
-        // produced the expected number of closing tags.
-        ensure("stress output contains all integer entries",
-            ostr.str().find("<integer>199</integer>") != std::string::npos ||
-            ostr.str().find("<integer>-199</integer>") != std::string::npos);
+        std::istringstream istr(ostr.str());
+        LLSD parsed;
+        ensure_equals("stress output parses all entries", LLSDSerialize::fromXML(parsed, istr), rv);
+        ensure_equals("stress integer/real interleave round-trip", parsed, mSD);
     }
 }
