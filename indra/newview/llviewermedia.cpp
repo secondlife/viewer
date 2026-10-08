@@ -2191,9 +2191,6 @@ void LLViewerMediaImpl::createMediaSource()
             << ", url=" << backend_log_url
             << LL_ENDL;
 
-        // Matches loadURI()'s legacy-plugin behavior: data: URIs need their payload
-        // re-escaped (see LLURI::escapePathAndData()'s dedicated data: handling) to parse
-        // correctly -- plain http(s) URLs pass through this unchanged either way.
         // Ask the producer to hand this tab's audio to us (see mEmbeddedBrowserAudio) only
         // if there's actually somewhere to play it -- no audio engine, or one that can't do
         // caller-fed streams, leaves the producer playing it itself exactly as before.
@@ -2202,21 +2199,17 @@ void LLViewerMediaImpl::createMediaSource()
         // media have no position and stay stereo.
         static LLCachedControl<bool> audio_via_viewer(gSavedSettings, "EmbeddedBrowserAudioViaViewer");
         static LLCachedControl<U32> audio_prebuffer_ms(gSavedSettings, "EmbeddedBrowserAudioPrebufferMs");
-        static LLCachedControl<bool> audio_test_tone(gSavedSettings, "EmbeddedBrowserProducerAudioTestTone");
         // HUD media has no world position to pan from (see calculateInterest()), so it
         // keeps its stereo too rather than being mixed down only to play from the listener.
         const bool spatial = !mUsedInUI && !isParcelMedia() && !isAttachedToHUD();
-        // Development scaffolding, goes with the test tone itself: every captured tab plays
-        // one, and the always-present UI pages (search, destinations, ...) drown out the
-        // prim media whose positioning is actually being tested -- so under the test tone,
-        // only spatial media is captured; everything else keeps playing its real audio
-        // through the producer as before.
-        if (audio_via_viewer() && gAudiop && mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef &&
-            (spatial || !audio_test_tone()))
+        if (audio_via_viewer() && gAudiop && mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef)
         {
             mEmbeddedBrowserAudio = gAudiop->createStreamedSource(audio_prebuffer_ms(), spatial);
         }
 
+        // Matches loadURI()'s legacy-plugin behavior: data: URIs need their payload
+        // re-escaped (see LLURI::escapePathAndData()'s dedicated data: handling) to parse
+        // correctly -- plain http(s) URLs pass through this unchanged either way.
         mEmbeddedBrowserId = LLEmbeddedBrowser::getInstance()->create(LLURI::escapePathAndData(mMediaURL), width, height, mUsedInUI,
                                                                        mEmbeddedBrowserBackend, mEmbeddedBrowserAudio != nullptr);
         if (mEmbeddedBrowserAudio)

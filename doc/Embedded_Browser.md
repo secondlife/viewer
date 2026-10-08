@@ -1010,15 +1010,9 @@ uncaptured media fade identically. Master volume is left out of that gain
 **Settings.**
 - `EmbeddedBrowserAudioViaViewer` - request capture for new tabs (off).
 - `EmbeddedBrowserAudioPrebufferMs` - see Buffering (40).
-- `EmbeddedBrowserProducerAudioTestTone` - development only: launches
-  SLCefProducer with `--audio-test-tone`, so every captured slot plays a
-  generated tone (440Hz left / 660Hz right on slot 0, higher per slot)
-  instead of its real audio. Only spatial (prim) media requests capture
-  under this, so the always-present UI pages don't drown out what's being
-  tested.
 
-All three take effect for tabs (and the producer) created after the change -
-pass them as `--set <name> 1` to be sure they're in effect from startup.
+Both take effect for tabs created after the change - pass them as
+`--set <name> <value>` to be sure they're in effect from startup.
 
 **Diagnostics.** In the Viewer log: `EmbeddedBrowser` -
 `Audio capture granted on llcefshm_audio_<N>` once a tab's audio channel is
@@ -1028,8 +1022,15 @@ counts when a tab goes away, plus (at debug level) a line every 5 seconds per
 captured tab comparing the gain asked for with what OpenAL reports is
 actually in effect. Media debug info gains `audio` (`viewer`/`producer`) and
 the same stream stats. In `slcefproducer_log.txt`, a slot's connect line says
-`audio capture (test tone)` when granted, and its disconnect line gives
-packets sent and dropped.
+`audio capture` when granted, `audio stream started` gives CEF's capture
+format each time a stream starts, and the disconnect line gives packets sent
+and dropped.
+
+The transport was brought up against a generated stereo test tone in place
+of CEF's audio (since removed - see git history for `--audio-test-tone`); a
+standalone llshmframe harness that requests a capture slot, loads a Web Audio
+page and checks the `kAudioPacket` stream that comes back is the quickest way
+to exercise the producer half again without the Viewer.
 
 ## Known limitations, as of this writing
 

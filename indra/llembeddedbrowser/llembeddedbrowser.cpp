@@ -1178,15 +1178,6 @@ bool LLEmbeddedBrowser::launchProducer(LLEmbeddedBrowserBackend backend)
         // browser-context cache/cookie-store concept at all, so there's nothing for it to
         // be told where to put.
         params.args.add("--cache-dir=" + gDirUtilp->add(gDirUtilp->getCacheDir(false), "cef_profile"));
-
-        // Development scaffolding: until llCefBrowser's own audio-capture interface is
-        // wired into SLCefProducer, this is the only way it grants audio capture at all
-        // (see g_audio_test_tone in llcefproducer.cpp) -- every captured tab then plays a
-        // generated tone through the Viewer's OpenAL path instead of its real audio.
-        if (gSavedSettings.getBOOL("EmbeddedBrowserProducerAudioTestTone"))
-        {
-            params.args.add("--audio-test-tone");
-        }
     }
 
     LLProcessPtr proc = LLProcess::create(params);
