@@ -37,6 +37,7 @@ LLFloaterConversationLog::LLFloaterConversationLog(const LLSD& key)
     mConversationLogList(NULL)
 {
     mCommitCallbackRegistrar.add("CallLog.Action",  boost::bind(&LLFloaterConversationLog::onCustomAction,  this, _2));
+    mEnableCallbackRegistrar.add("CallLog.Enable",  boost::bind(&LLFloaterConversationLog::isActionEnabled, this, _2));
     mEnableCallbackRegistrar.add("CallLog.Check",   boost::bind(&LLFloaterConversationLog::isActionChecked, this, _2));
 }
 
@@ -116,6 +117,7 @@ void LLFloaterConversationLog::onCustomAction (const LLSD& userdata)
 
 bool LLFloaterConversationLog::isActionEnabled(const LLSD& userdata)
 {
+    // Disable nearby history while account state or transcript deletion suppresses it.
     if (userdata.asString() == "view_nearby_chat_history")
     {
         return !LLChatServiceHistory::historySuppressed();

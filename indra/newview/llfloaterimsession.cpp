@@ -354,6 +354,8 @@ bool LLFloaterIMSession::postBuild()
 {
     bool result = LLFloaterIMSessionTab::postBuild();
 
+    mChatServiceLoadingPanel = getChildView("chat_service_loading");
+
     mInputEditor->setMaxTextLength(1023);
     mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2, _3, _4, _5));
     mInputEditor->setFocusReceivedCallback( boost::bind(onInputEditorFocusReceived, _1, this) );
@@ -375,8 +377,6 @@ bool LLFloaterIMSession::postBuild()
     //see LLFloaterIMPanel for how it is done (IB)
 
     initIMFloater();
-    getChild<LLTextBox>("chat_service_loading_text")->setValue(
-        LLTrans::getString("loading_chat_logs"));
 
     return result;
 }
@@ -1120,17 +1120,23 @@ void LLFloaterIMSession::processSessionUpdate(const LLSD& session_update)
 // virtual
 void LLFloaterIMSession::draw()
 {
+    // The cache follows preference changes without looking up the setting each frame.
+    static LLCachedControl<bool> show_history(gSavedPerAccountSettings, "LogShowHistory");
+
     // The floater presents both model-owned local reads and account-scoped service
     // work without scheduling either source from draw().
     const bool loading =
         mSession &&
         mIsP2PChat &&
-        gSavedPerAccountSettings.getBOOL("LogShowHistory") &&
+        show_history &&
         (mSession->isChatHistoryLoading() ||
          LLChatServiceHistory::getSnapshot(mSession->mOtherParticipantID).service_work_active);
 
     // The widget animates in draw(); hiding its panel suspends that work.
-    getChildView("chat_service_loading")->setVisible(loading);
+    if (mChatServiceLoadingPanel->getVisible() != loading)
+    {
+        mChatServiceLoadingPanel->setVisible(loading);
+    }
 
     // add people who were added via dropPerson()
     if (!mPendingParticipants.empty())
