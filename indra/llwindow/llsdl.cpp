@@ -93,7 +93,6 @@ void init_sdl(const std::string& app_name)
 #endif
 
 #if LL_SDL_WINDOW
-    // For linux we SDL_INIT_VIDEO and _AUDIO
     std::initializer_list<std::tuple< char const*, char const * > > hintList =
             {
                     {SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR,"0"},
@@ -111,19 +110,7 @@ void init_sdl(const std::string& app_name)
     std::initializer_list<std::tuple<uint32_t, char const*, bool>> initList=
             {
                 {SDL_INIT_VIDEO,"SDL_INIT_VIDEO", true},
-                {SDL_INIT_JOYSTICK,"SDL_INIT_JOYSTICK", true},
-                {SDL_INIT_GAMEPAD,"SDL_INIT_GAMEPAD", true},
             };
-#else
-    // For non-linux platforms we still SDL_INIT_VIDEO because it is a pre-requisite
-    // for SDL_INIT_GAMECONTROLLER.
-    std::initializer_list<std::tuple<uint32_t, char const*, bool>> initList=
-            {
-                {SDL_INIT_VIDEO,"SDL_INIT_VIDEO", false},
-            };
-#endif // LL_LINUX
-    // We SDL_INIT_GAMECONTROLLER later in the startup process to make it
-    // more likely we'll catch initial SDL_CONTROLLERDEVICEADDED events.
 
     for (auto subSystem : initList)
     {
@@ -138,6 +125,9 @@ void init_sdl(const std::string& app_name)
             }
         }
     }
+#endif // LL_SDL_WINDOW
+    // We SDL_INIT_GAMECONTROLLER later in the startup process to make it
+    // more likely we'll catch initial SDL_CONTROLLERDEVICEADDED events.
 }
 
 void quit_sdl()
@@ -145,5 +135,14 @@ void quit_sdl()
 #if LL_WINDOWS && defined(LL_SDL_WINDOW)
     SDL_UnregisterApp();
 #endif
-    SDL_Quit();
+
+    // When SDL_MAIN_USE_CALLBACKS is in effect (gSDLMainHandled=true), the
+    // SDL framework owns SDL_Init/SDL_Quit around the SDL_App* callbacks.
+    // Calling SDL_Quit() here would run before SDL's own SDL_Quit at process
+    // exit — SDL3 makes this idempotent, but it's still the wrong owner.
+    // Only quit ourselves when we initialised SDL ourselves.
+    if (!gSDLMainHandled)
+    {
+        SDL_Quit();
+    }
 }

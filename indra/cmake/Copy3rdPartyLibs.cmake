@@ -34,6 +34,7 @@ if(WINDOWS)
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         openjp2.dll
+        SDL3.dll
         )
 
     # Filenames are different for 32/64 bit BugSplat file and we don't
@@ -146,6 +147,7 @@ elseif(DARWIN)
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         libndofdev.dylib
+        libSDL3.dylib
        )
 
     if (TARGET ll::discord_sdk)
