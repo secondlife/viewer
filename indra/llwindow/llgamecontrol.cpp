@@ -590,7 +590,7 @@ namespace
         g_nextSend = std::min(g_nextSend, (U64)totalTime() + getMinSendPeriod());
     }
 
-    bool g_sendToServer = false;
+    bool g_sendToServer = true;
     LLGameControl::AgentControlMode g_agentControlMode = LLGameControl::CONTROL_MODE_AVATAR;
 
     // Set alongside g_agentControlMode by LLAgent::updateGameControlMode(); see
@@ -874,7 +874,7 @@ namespace
 
         LLSD settings;
         settings[GC_COMMENT] = "GameControl settings";
-        settings[GC_SENDTOSERVER] = false;
+        settings[GC_SENDTOSERVER] = true;
         settings[GC_MODEMAPPINGS] = buildDefaultModeMappings();
         settings[GC_DEVICES][GC_DEFAULT_DEVICE] = device;
         return settings;
@@ -4301,7 +4301,7 @@ std::string LLGameControl::stringifyDeviceOptions(const std::string& name,
 // static
 void LLGameControl::initByDefault()
 {
-    g_sendToServer = false;
+    g_sendToServer = true;
     g_agentControlMode = CONTROL_MODE_AVATAR;
     g_gameControlSettings = buildDefaultGameControlSettings();
     g_manager.resetDeviceOptionsToDefaults();
