@@ -140,6 +140,8 @@ void LLFloaterConversationPreview::setPages(std::list<LLSD>* messages, const std
         // Publish the new page range together so draw() never renders stale bounds.
         mPageSpinner->setEnabled(true);
         mPageSpinner->setMaxValue((F32)(last_page+1));
+        // Force forceSetValue() below to refresh the displayed text even if the value is unchanged
+        mPageSpinner->clear();
         // Refresh the displayed page even while the editor has focus.
         mPageSpinner->forceSetValue((F32)(mCurrentPage+1));
         mPageSpinner->resetDirty();
