@@ -2234,16 +2234,66 @@ namespace tut
                         { return LLSDSerialize::fromNotation(data, istr, max_bytes) > 0; });
     }
 
-/*==========================================================================*|
     template<> template<>
-    void TestPythonCompatibleObject::test<13>()
+    void sd_xml_object::test<13>()
     {
-        set_test_name("from Python binary using fromBinary()");
-        // We don't expect this to work because format_binary() emits a
-        // header, but fromBinary() won't recognize a header.
-        fromPythonUsing("format_binary",
-                        [](std::istream& istr, LLSD& data, llssize max_bytes)
-                        { return LLSDSerialize::fromBinary(data, istr, max_bytes) > 0; });
+        // Streaming integer values while the formatter's stream precision
+        // is set to 25 (done internally by LLSDXMLFormatter::format()
+        // to preserve TypeReal round-tripping) must not corrupt std::num_put's
+        // internal sprintf_s buffer sizing.
+        std::string expected;
+
+        // Boundary integer values most likely to stress internal
+        // format-string / buffer-size computations.
+        mSD = (LLSD::Integer)0;
+        expected = "<llsd><integer>0</integer></llsd>\n";
+        xml_test("integer zero under high precision", expected);
+
+        mSD = (LLSD::Integer)-1;
+        expected = "<llsd><integer>-1</integer></llsd>\n";
+        xml_test("negative integer under high precision", expected);
+
+        mSD = std::numeric_limits<LLSD::Integer>::max();
+        expected = "<llsd><integer>" + std::to_string(std::numeric_limits<LLSD::Integer>::max())
+            + "</integer></llsd>\n";
+        xml_test("INT_MAX under high precision", expected);
+
+        mSD = std::numeric_limits<LLSD::Integer>::min();
+        expected = "<llsd><integer>" + std::to_string(std::numeric_limits<LLSD::Integer>::min())
+            + "</integer></llsd>\n";
+        xml_test("INT_MIN under high precision", expected);
+
+        // Non-boolalpha boolean path also streams a raw int (0/1) while
+        // precision(25) is active - exercise it explicitly here too.
+        mFormatter->boolalpha(false);
+        mSD = true;
+        expected = "<llsd><boolean>1</boolean></llsd>\n";
+        xml_test("bool-as-int under high precision", expected);
+
+        // Nested/repeated formatting: many integers interleaved with reals
+        // in the same ostream, matching the real-world pattern in
+        // LLVOCache::writeGenericExtrasToCache where a single stream is
+        // reused across many map/array entries containing both ints and
+        // reals, repeatedly entering and leaving the TypeReal precision(25)
+        // context.
+        LLSD array = LLSD::emptyArray();
+        for (S32 i = 0; i < 200; ++i)
+        {
+            LLSD entry = LLSD::emptyMap();
+            entry["index"] = i;
+            entry["neg"] = -i;
+            entry["big"] = std::numeric_limits<LLSD::Integer>::max() - i;
+            entry["value"] = (LLSD::Real)(i)+0.123456789012345;
+            array.append(entry);
+        }
+        mSD = array;
+
+        std::ostringstream ostr;
+        S32 rv = mFormatter->format(mSD, ostr);
+        ensure_equals("stress integer/real interleave returns success", rv, (S32)(1 + 200 * 5));
+        std::istringstream istr(ostr.str());
+        LLSD parsed;
+        ensure_equals("stress output parses all entries", LLSDSerialize::fromXML(parsed, istr), rv);
+        ensure_equals("stress integer/real interleave round-trip", parsed, mSD);
     }
-|*==========================================================================*/
 }
