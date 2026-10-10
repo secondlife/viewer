@@ -124,8 +124,16 @@ public:
     TPACKETID   getPacketOutID() const;
     bool        getTrusted() const;
     F32         getAgeInSeconds() const;
-    S32         getUnackedPacketCount() const   { return mUnackedPacketCount; }
-    S32         getUnackedPacketBytes() const   { return mUnackedPacketBytes; }
+    S32             getUnackedPacketCount() const
+    {
+        std::lock_guard<std::mutex> lock(mDataMutex);
+        return mUnackedPacketCount;
+    }
+    S32             getUnackedPacketBytes() const
+    {
+        std::lock_guard<std::mutex> lock(mDataMutex);
+        return mUnackedPacketBytes;
+    }
     F64Seconds  getNextPingSendTime() const { return mNextPingSendTime; }
     U32         getLastPacketGap() const { return mLastPacketGap; }
     LLHost      getHost() const { return mHost; }
@@ -212,7 +220,7 @@ protected:
     void    (*mTimeoutCallback)(const LLHost &host, void *user_data);
     void    *mTimeoutUserData;
 
-    bool    mTrusted;                   // Is this circuit trusted?
+    std::atomic<bool> mTrusted;         // Is this circuit trusted?
     bool    mbAllowTimeout;             // Machines can "pause" circuits, forcing them not to be dropped
 
     bool    mbAlive;                    // Indicates whether a circuit is "alive", i.e. responded to pings
@@ -279,6 +287,11 @@ protected:
 
     const F32Seconds mHeartbeatInterval;
     const F32Seconds mHeartbeatTimeout;
+
+    // This mutex guards mUnackedPackets, mFinalRetryPackets,
+    // mRecentlyReceivedReliablePackets, mAcks,
+    // mPacketsInID, mHighestPacketID, counters
+    mutable std::mutex mDataMutex;
 };
 
 
@@ -313,24 +326,14 @@ public:
 
     typedef std::map<LLHost, LLCircuitData*> circuit_data_map;
 
-    /**
-     * @brief This method gets an iterator range starting after key in
-     * the circuit data map.
-     *
-     * @param key The the host before first.
-     * @param first[out] The first matching value after key. This
-     * value will equal end if there are no entries.
-     * @param end[out] The end of the iteration sequence.
-     */
-    void getCircuitRange(
-        const LLHost& key,
-        circuit_data_map::iterator& first,
-        circuit_data_map::iterator& end);
-
     // Lists that optimize how many circuits we need to traverse a frame
     // HACK - this should become protected eventually, but stupid !@$@# message system/circuit classes are jumbling things up.
     circuit_data_map mUnackedCircuitMap; // Map of circuits with unacked data
     circuit_data_map mSendAckMap; // Map of circuits which need to send acks
+
+    // This mutex guards mCircuitData, mUnackedCircuitMap,
+    // mSendAckMap, mPingSet, mLastCircuit
+    mutable std::mutex mCircuitMutex;
 protected:
     circuit_data_map mCircuitData;
 
@@ -342,6 +345,29 @@ protected:
     // optimize the many, many times we call findCircuit. This may be
     // set in otherwise const methods, so it is declared mutable.
     mutable LLCircuitData* mLastCircuit;
+
+    // Deferred-deletion graveyard.
+    //
+    // removeCircuitData() can be called (from the main thread) for a
+    // circuit that LLUDPReceiverThread is still actively using (e.g. it
+    // has already looked up the LLCircuitData* via findCircuit() and is
+    // mid-way through decode/dispatch for that host when DisableSimulator
+    // comes in). Deleting the LLCircuitData immediately would leave the
+    // UDP thread holding a dangling pointer.
+    //
+    // Instead, removeCircuitData() unlinks the circuit from all the live
+    // lookup structures,but defers the actual `delete` for a brief period.
+    struct GraveyardEntry
+    {
+        LLCircuitData* mCircuit;
+        F64            mCleanupTime; // when to clean the circuit up
+    };
+    std::vector<GraveyardEntry> mGraveyard;
+
+    // Actually deletes any circuits in the graveyard that were queued for
+    // removal on an earlier frame. Main thread only; called once per frame
+    // from updateWatchDogTimers().
+    void            reapGraveyard();
 
 private:
     const F32Seconds mHeartbeatInterval;

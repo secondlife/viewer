@@ -383,10 +383,12 @@ void do_startup_frame()
         constexpr U64 MAX_STARTUP_FRAME_TIME = 2000; // usec
         constexpr U64 MAX_STARTUP_FRAME_MESSAGES = 100;
         S32 num_messages = 0;
-        bool needs_drain = false;
-        LockMessageChecker lmc(gMessageSystem);
-        while (lmc.checkAllMessages(gFrameCount, gServicePump))
+
+        std::unique_ptr<LLDecodedMessage> decoded;
+        while (gMessageSystem->tryPopDecoded(decoded))
         {
+            gMessageSystem->dispatchDecoded(*decoded);
+
             if (gDoDisconnect)
             {
                 // We're disconnecting, don't process any more messages from the server
@@ -397,14 +399,14 @@ void do_startup_frame()
             if (++num_messages >= MAX_STARTUP_FRAME_MESSAGES
                 || (totalTime() - t0) > MAX_STARTUP_FRAME_TIME)
             {
-                needs_drain = true;
                 break;
             }
         }
-        if (needs_drain || gMessageSystem->getNumBufferedPackets() > 0)
-        {
-             gMessageSystem->drainUdpSocket();
-        }
+
+        gServicePump->pump();
+        gServicePump->callback();
+
+        LockMessageChecker lmc(gMessageSystem);
         lmc.processAcks();
     }
     // ...then call display_startup()
@@ -416,11 +418,22 @@ void pump_idle_startup_network(void)
     // while there are message to process:
     //     process one then call display_startup()
     {
-        LockMessageChecker lmc(gMessageSystem);
-        while (lmc.checkAllMessages(gFrameCount, gServicePump))
+        std::unique_ptr<LLDecodedMessage> decoded;
+        while (gMessageSystem->tryPopDecoded(decoded))
         {
+            gMessageSystem->dispatchDecoded(*decoded);
             display_startup();
+
+            if (gDoDisconnect)
+            {
+                break;
+            }
         }
+
+        gServicePump->pump();
+        gServicePump->callback();
+
+        LockMessageChecker lmc(gMessageSystem);
         lmc.processAcks();
     }
     // finally call one last display_startup()
@@ -1696,7 +1709,9 @@ bool idle_startup()
 
         // *Note: this is where gWorldMap used to be initialized.
 
-        // register null callbacks for audio until the audio system is initialized
+        // Register null callbacks for audio until the audio system is initialized
+        // Note that until process_sound_trigger starts working with setHandlerFuncThrdFast
+        // this one also should stay setHandlerFuncFast.
         gMessageSystem->setHandlerFuncFast(_PREHASH_SoundTrigger, null_message_callback, NULL);
         gMessageSystem->setHandlerFuncFast(_PREHASH_AttachedSound, null_message_callback, NULL);
         do_startup_frame();
@@ -3044,11 +3059,11 @@ void register_viewer_callbacks(LLMessageSystem* msg)
     msg->setHandlerFuncFast(_PREHASH_AvatarPicksReply,      LLAvatarPropertiesProcessor::processAvatarPicksReply);
     msg->setHandlerFuncFast(_PREHASH_AvatarClassifiedReply, LLAvatarPropertiesProcessor::processAvatarClassifiedsReply);
 
-    msg->setHandlerFuncFast(_PREHASH_CreateGroupReply,      LLGroupMgr::processCreateGroupReply);
-    msg->setHandlerFuncFast(_PREHASH_JoinGroupReply,        LLGroupMgr::processJoinGroupReply);
-    msg->setHandlerFuncFast(_PREHASH_EjectGroupMemberReply, LLGroupMgr::processEjectGroupMemberReply);
-    msg->setHandlerFuncFast(_PREHASH_LeaveGroupReply,       LLGroupMgr::processLeaveGroupReply);
-    msg->setHandlerFuncFast(_PREHASH_GroupProfileReply,     LLGroupMgr::processGroupPropertiesReply);
+    msg->setHandlerFuncThrdFast(_PREHASH_CreateGroupReply,      LLGroupMgr::processCreateGroupReply);
+    msg->setHandlerFuncThrdFast(_PREHASH_JoinGroupReply,        LLGroupMgr::processJoinGroupReply);
+    msg->setHandlerFuncThrdFast(_PREHASH_EjectGroupMemberReply, LLGroupMgr::processEjectGroupMemberReply);
+    msg->setHandlerFuncThrdFast(_PREHASH_LeaveGroupReply,       LLGroupMgr::processLeaveGroupReply);
+    msg->setHandlerFuncThrdFast(_PREHASH_GroupProfileReply,     LLGroupMgr::processGroupPropertiesReply);
 
     // ratings deprecated
     //msg->setHandlerFuncFast(_PREHASH_ReputationIndividualReply,    LLFloaterRate::processReputationIndividualReply);
