@@ -141,8 +141,10 @@ namespace cefshm_demo
                           // 1x1-geometry, frame-less pattern the control channel itself already uses).
                           // audioCapture (a 12th byte) asks for this slot's audio as PCM over its
                           // audio channel instead of libvlc playing it directly -- see
-                          // indra/llcefproducer/cefshm_protocol.h. Not yet honoured here: this
-                          // producer always replies with kSlotAssigned flags 0 for now.
+                          // indra/llcefproducer/cefshm_protocol.h. Honoured here too: libvlc's
+                          // decoded audio comes back through libvlc_audio_set_callbacks() (see
+                          // LibVlcTabManager::PopAudio()), for prim-media tabs and audio-only
+                          // slots alike.
         kSetOpenIDCookie = 26, // CEF only -- LibVLC has no cookie-store concept at all. Never sent
                           // here; kept in the enum only so it stays word-for-word identical to
                           // every other copy of this header.

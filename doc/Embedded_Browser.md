@@ -921,14 +921,16 @@ gives every tab a real, continuous gain (the full `MediaRollOff*` curve, no
 JS injection), and lets **prim media sound from its object's position in the
 world**, panned (and HRTF'd, where enabled) by OpenAL.
 
-**Status (2026-10-08):** done for CEF - the transport, SLCefProducer's real
-audio capture (llCefBrowser v1.51.0's `CefAudioHandler` callbacks),
-Viewer-side playback and prim-media spatialization. Viewer-side playback and
-spatialization were verified in-world against a generated test tone; real CEF
-capture was verified separately against a standalone harness. Still to do:
-SLVlcProducer prim media (`libvlc_audio_set_callbacks()`) and
-parcel/streaming music. **On by default** (`EmbeddedBrowserAudioViaViewer`);
-turning it off puts CEF back to playing its own audio, exactly as before.
+**Status (2026-10-12):** done for both producers' prim/UI media - the
+transport, SLCefProducer's real audio capture (llCefBrowser v1.51.0's
+`CefAudioHandler` callbacks), SLVlcProducer's (`libvlc_audio_set_callbacks()`),
+Viewer-side playback and prim-media spatialization. CEF media was verified
+in-world with several YouTube prims playing at once; LibVLC capture was
+verified against a standalone harness (in-world RTSP/RTMP prim media not yet).
+Still to do: parcel/streaming music, whose `LLStreamingAudio_LibVLC` client
+doesn't request capture yet - SLVlcProducer already captures audio-only slots
+fine when asked. **On by default** (`EmbeddedBrowserAudioViaViewer`); turning
+it off puts both producers back to playing their own audio, exactly as before.
 
 This supersedes an earlier, parallel take on the CEF half
 (`EmbeddedBrowserCefAudioCapture`/`LLEmbeddedBrowser::popAudioPacket()`, which
@@ -971,7 +973,23 @@ llCefBrowser's `OnAudioStreamPacket` fires on CEF's own audio-capture thread,
 not the UI thread, so SLCefProducer's callback only interleaves the planar
 samples into a small per-slot queue (`CefAudioQueue`, capped at 500ms) that
 the main loop drains every tick - shared-owned, so a callback still in flight
-when its slot is freed finds it closed rather than dangling. On the Viewer side, a
+when its slot is freed finds it closed rather than dangling. SLVlcProducer is
+the same shape: libvlc's audio callbacks queue on libvlc's own audio thread,
+and `LibVlcTabManager::PopAudio()` drains from the main loop. Two
+LibVLC-specific details:
+- **libvlc 3.0's audio-callback output always delivers 16-bit integer
+  samples** (`"S16N"`), whatever format `libvlc_audio_set_format()` asks for -
+  only its rate and channel count are honored - so `audio_play_cb` converts to
+  float on the way in.
+- **libvlc decodes ahead of real time**, so each block is held until within
+  50ms of its own play time (libvlc passes one with every block, on
+  `libvlc_clock()`) rather than sent the moment it's decoded; released early, a
+  burst would overrun the Viewer's latency cap and be skipped. While paused,
+  nothing is released, and on resume what's still queued is re-timed by the
+  pause's length. This also keeps the audio roughly in step with libvlc's own
+  video, which is presented against the same clock.
+
+On the Viewer side, a
 tab's existing update thread drains its audio segment straight into an
 `LLEmbeddedBrowserAudioSink` (implemented in newview, since
 `llembeddedbrowser` sits below `llaudio`), which pushes into an

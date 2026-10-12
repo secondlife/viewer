@@ -46,7 +46,8 @@
 // LibVlcTabManager's own constructor/destructor already own the one shared
 // libvlc_instance_t's whole lifetime.
 //
-// Channel names: llvlcshm_view_0 .. llvlcshm_view_<slot_count - 1>.
+// Channel names: llvlcshm_view_0 .. llvlcshm_view_<slot_count - 1>, plus
+// llvlcshm_audio_<N> for any slot granted audio capture (see kSlotFlagAudioCapture).
 
 #include <shmframe/llshmframe.h>
 #include "cefshm_protocol.h"
@@ -185,7 +186,102 @@ struct Slot
     // interval first.
     std::uint32_t                 target_fps = 0;
     std::chrono::steady_clock::time_point last_publish;
+
+    // This slot's audio channel (see kAudioChannelPrefix) -- null unless the consumer asked
+    // for audio capture and this producer granted it, in which case libvlc hands this
+    // slot's decoded audio to LibVlcTabManager::PopAudio() instead of playing it, and
+    // kSetVolume/kSetMuted are ignored (see kSlotFlagAudioCapture). Only ever sent on from
+    // the main loop, keeping its command ring single-writer as llshmframe requires.
+    std::unique_ptr<LLPublisher> audioPub;
+    std::vector<std::uint8_t>    audioBuf;     // one packed kAudioPacket, reused across sends
+    std::vector<float>           audioSamples; // one popped block, reused across ticks
+    std::uint32_t                audio_seq = 0;
+    std::uint64_t                audio_dropped = 0; // packets lost to a full ring
+    bool                         audio_streaming = false; // between a first packet and the next stop, for logging
 };
+
+// Creates a slot's audio channel (see kAudioChannelPrefix). Returns null on failure -- the
+// caller then just declines audio capture for that slot rather than failing it outright.
+std::unique_ptr<LLPublisher> create_audio_publisher(int index)
+{
+    LLConfig cfg;
+    cfg.name              = kAudioChannelPrefix + std::to_string(index);
+    cfg.max_width         = 1; // never publishes a frame, only exchanges commands
+    cfg.max_height        = 1;
+    cfg.command_slots     = kAudioCommandSlots;
+    cfg.max_command_bytes = kAudioMaxCommandBytes;
+
+    LLStatus st{};
+    auto pub = LLPublisher::create(cfg, &st);
+    if (!pub) {
+        log_error("slot " + std::to_string(index) + " (" + cfg.name + "): " + to_string(st) +
+                  " -- declining audio capture");
+        return pub;
+    }
+
+    // The consumer opens this the moment kSlotAssigned arrives, often before the main
+    // loop's next heartbeat -- see SLCefProducer's identical create_audio_publisher() for
+    // why it must already look alive by then.
+    pub->heartbeat();
+    return pub;
+}
+
+// Sends interleaved audio as however many kAudioPackets it takes to stay within
+// kAudioMaxCommandBytes -- libvlc hands over blocks of whatever size it decoded.
+void send_audio(Slot& s, const float* interleaved, std::uint32_t frames, std::uint32_t sampleRate,
+                std::uint8_t channels, std::int64_t ptsUs)
+{
+    const std::uint32_t max_frames = std::min<std::uint32_t>(
+        (kAudioMaxCommandBytes - kAudioPacketHeaderBytes) / (std::uint32_t(channels) * sizeof(float)), 0xFFFFu);
+
+    for (std::uint32_t offset = 0; offset < frames;) {
+        const std::uint32_t n = std::min(frames - offset, max_frames);
+        s.audioBuf.resize(kAudioPacketHeaderBytes + std::size_t(n) * channels * sizeof(float));
+        const std::uint32_t bytes = pack_audio_packet(s.audioBuf.data(), s.audio_seq,
+                                                      ptsUs + std::int64_t(offset) * 1000000 / sampleRate,
+                                                      sampleRate, channels, std::uint16_t(n),
+                                                      interleaved + std::size_t(offset) * channels);
+        if (!s.audioPub->send(kAudioPacket, s.audioBuf.data(), bytes)) {
+            ++s.audio_dropped; // ring full -- the consumer is behind; seq still advances
+        }
+        ++s.audio_seq;
+        offset += n;
+    }
+}
+
+// Forwards whatever captured audio libvlc has made due since the last tick (see
+// LibVlcTabManager::PopAudio()) onto this slot's audio channel. Called once per tick.
+void pump_vlc_audio(Slot& s, int index, LibVlcTabManager& vlcMgr)
+{
+    const bool subscribed = s.audioPub->has_subscriber();
+
+    std::uint32_t frames = 0;
+    std::int64_t pts_us = 0;
+    while (vlcMgr.PopAudio(s.vlcHandle, s.audioSamples, frames, pts_us)) {
+        if (!s.audio_streaming) {
+            s.audio_streaming = true;
+            log_info("slot " + std::to_string(index) + ": audio stream started, " +
+                     std::to_string(LibVlcTabManager::kCaptureSampleRate) + "Hz, " +
+                     std::to_string(LibVlcTabManager::kCaptureChannels) + " channel(s)");
+        }
+        // Still drained with nobody attached, so audio never piles up -- just not sent.
+        if (subscribed) {
+            send_audio(s, s.audioSamples.data(), frames, LibVlcTabManager::kCaptureSampleRate,
+                       std::uint8_t(LibVlcTabManager::kCaptureChannels), pts_us);
+        }
+    }
+
+    if (vlcMgr.ConsumeAudioStopped(s.vlcHandle)) {
+        if (s.audio_streaming) {
+            s.audio_streaming = false;
+            log_info("slot " + std::to_string(index) + ": audio stream stopped (" + std::to_string(s.audio_seq) +
+                     " packets sent on this slot so far)");
+        }
+        if (subscribed) {
+            s.audioPub->send(kAudioStreamStopped);
+        }
+    }
+}
 
 // How many slots are currently allocated (pub != null), out of the fixed
 // total -- appended to every connect/disconnect log line so a human watching
@@ -220,7 +316,7 @@ std::string priority_tier_label(std::uint8_t tier)
 // (see the per-slot dispatch loop).
 bool allocate_slot(Slot& s, int index, LLConfig cfg, LibVlcTabManager& vlcMgr,
                     std::chrono::steady_clock::time_point now, const std::vector<Slot>& slots,
-                    bool audio_only)
+                    bool audio_only, bool audio_capture)
 {
     cfg.name              = kChannelPrefix + std::to_string(index);
     cfg.max_command_bytes = kMaxCommandBytes;
@@ -241,9 +337,18 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, LibVlcTabManager& vlcMgr,
         return false;
     }
 
+    // Granted whenever asked for and the audio channel could be created -- declining just
+    // leaves libvlc playing this slot's audio itself, exactly as for a consumer that never
+    // asked.
+    std::unique_ptr<LLPublisher> audio_pub;
+    if (audio_capture) {
+        audio_pub = create_audio_publisher(index);
+    }
+    const bool capturing = (audio_pub != nullptr);
+
     VlcTabHandle vlcHandle = audio_only
-        ? vlcMgr.CreateAudioTrack()
-        : vlcMgr.CreateTab(int(kDefaultWidth), int(kDefaultHeight), int(cfg.max_width), int(cfg.max_height));
+        ? vlcMgr.CreateAudioTrack(capturing)
+        : vlcMgr.CreateTab(int(kDefaultWidth), int(kDefaultHeight), int(cfg.max_width), int(cfg.max_height), capturing);
     if (!vlcHandle.IsValid()) {
         log_error("slot " + std::to_string(index) + ": LibVlcTabManager::" +
                   (audio_only ? "CreateAudioTrack" : "CreateTab") + " failed");
@@ -259,10 +364,11 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, LibVlcTabManager& vlcMgr,
     s.max_height     = cfg.max_height;
     s.had_subscriber = false;
     s.last_active    = now;
+    s.audioPub       = std::move(audio_pub);
 
     log_connect("slot " + std::to_string(index) + " connected" + (audio_only ? " (audio-only)" : "") +
                 ", ceiling " + std::to_string(cfg.max_width) + "x" + std::to_string(cfg.max_height) +
-                active_slot_suffix(slots));
+                (s.audioPub ? ", audio capture" : "") + active_slot_suffix(slots));
 
     // One-shot, sent before any frames: lets the consumer show which libvlc build is
     // actually in play without needing to link libvlc itself just to read its version
@@ -281,11 +387,19 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, LibVlcTabManager& vlcMgr,
 void free_slot(Slot& s, int index, LibVlcTabManager& vlcMgr,
                 const std::string& reason, std::vector<Slot>& slots)
 {
+    std::string audio_stats;
+    if (s.audioPub) {
+        audio_stats = ", " + std::to_string(s.audio_seq) + " audio packets, " + std::to_string(s.audio_dropped) + " dropped";
+        if (const std::uint64_t stalled = vlcMgr.GetAudioDroppedFrames(s.vlcHandle)) {
+            audio_stats += " (+" + std::to_string(stalled) + " frames dropped in a stall)";
+        }
+    }
     vlcMgr.DestroyTab(s.vlcHandle);
     s = Slot{};
     // Logged after clearing s (which is slots[index]) so the count already
     // reflects this slot's release, matching allocate_slot()'s own log.
-    log_disconnect("slot " + std::to_string(index) + " disconnected (" + reason + ")" + active_slot_suffix(slots));
+    log_disconnect("slot " + std::to_string(index) + " disconnected (" + reason + audio_stats + ")" +
+                   active_slot_suffix(slots));
 }
 
 // action == GLFW_RELEASE (0) means button-up; anything else (GLFW_PRESS=1,
@@ -514,7 +628,7 @@ int run_producer(int argc, char** argv)
             std::uint32_t requested_max_height = kMaxHeight;
             std::uint8_t backend_byte = 0;
             bool audio_only = false;
-            bool audio_capture = false; // not yet honoured -- kSlotAssigned below always replies flags 0
+            bool audio_capture = false;
             unpack_request_slot(cmd.data.data(), cmd.data.size(), isUI, requested_max_width,
                                  requested_max_height, backend_byte, audio_only, audio_capture);
             // An audio-only request's max_width/max_height are irrelevant -- allocate_slot()
@@ -538,7 +652,7 @@ int run_producer(int argc, char** argv)
                 {
                     if (slots[std::size_t(i)].pub) continue; // not free
                     any_free = true;
-                    if (allocate_slot(slots[std::size_t(i)], i, slot_cfg, vlcMgr, now, slots, audio_only))
+                    if (allocate_slot(slots[std::size_t(i)], i, slot_cfg, vlcMgr, now, slots, audio_only, audio_capture))
                     {
                         free_index = i;
                         break;
@@ -561,9 +675,12 @@ int run_producer(int argc, char** argv)
             // exist -- see the sibling SLCefProducer's own identical comment on the
             // memory-ordering reasoning for why this is safe without an explicit
             // fence.
-            std::uint8_t payload[4];
-            pack_u32(payload, std::uint32_t(free_index));
-            control->send(kSlotAssigned, payload, 4, cmd.id);
+            // The flags byte is what tells the consumer whether audio capture is actually
+            // on -- it may have asked and been declined (see allocate_slot()).
+            std::uint8_t payload[5];
+            const std::uint8_t flags = slots[std::size_t(free_index)].audioPub ? kSlotFlagAudioCapture : 0;
+            const std::uint32_t payload_len = pack_slot_assigned(payload, std::uint32_t(free_index), flags);
+            control->send(kSlotAssigned, payload, payload_len, cmd.id);
         }
 
         for (std::size_t i = 0; i < slots.size(); ++i)
@@ -652,13 +769,16 @@ int run_producer(int argc, char** argv)
                     break;
                 }
                 case kSetVolume: {
-                    if (!cmd.data.empty()) vlcMgr.SetVolume(s.vlcHandle, int(cmd.data[0]));
+                    // A capturing slot's volume is the consumer's own gain -- libvlc's stays
+                    // at 100% (see kSlotFlagAudioCapture).
+                    if (!cmd.data.empty() && !s.audioPub) vlcMgr.SetVolume(s.vlcHandle, int(cmd.data[0]));
                     break;
                 }
                 case kSetMuted: {
                     // Maps to volume 0/100 -- see kSetMuted's own comment in
-                    // cefshm_protocol.h on why this is honoured here too.
-                    if (!cmd.data.empty()) vlcMgr.SetVolume(s.vlcHandle, cmd.data[0] != 0 ? 0 : 100);
+                    // cefshm_protocol.h on why this is honoured here too. Ignored while
+                    // capturing, like kSetVolume above.
+                    if (!cmd.data.empty() && !s.audioPub) vlcMgr.SetVolume(s.vlcHandle, cmd.data[0] != 0 ? 0 : 100);
                     break;
                 }
                 case kMouseButton: {
@@ -745,6 +865,11 @@ int run_producer(int argc, char** argv)
             if (vlcMgr.ConsumePlaybackStateChange(s.vlcHandle, now_playing)) {
                 std::uint8_t payload[1] = { now_playing ? std::uint8_t(1) : std::uint8_t(0) };
                 s.pub->send(kEventPlaybackStateChanged, payload, 1);
+            }
+
+            if (s.audioPub) {
+                s.audioPub->heartbeat(); // never commits a frame, so this is its only liveness signal
+                pump_vlc_audio(s, int(i), vlcMgr);
             }
         }
 

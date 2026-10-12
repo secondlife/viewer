@@ -2194,15 +2194,16 @@ void LLViewerMediaImpl::createMediaSource()
         // Ask the producer to hand this tab's audio to us (see mEmbeddedBrowserAudio) only
         // if there's actually somewhere to play it -- no audio engine, or one that can't do
         // caller-fed streams, leaves the producer playing it itself exactly as before.
-        // CEF only for now: SLVlcProducer doesn't grant capture yet. Prim media is
-        // positioned in the world (see mEmbeddedBrowserAudioPositionGlobal); UI and parcel
-        // media have no position and stay stereo.
+        // Both backends: SLCefProducer captures via CEF's CefAudioHandler, SLVlcProducer
+        // via libvlc's audio callbacks. Prim media is positioned in the world (see
+        // mEmbeddedBrowserAudioPositionGlobal); UI and parcel media have no position and
+        // stay stereo.
         static LLCachedControl<bool> audio_via_viewer(gSavedSettings, "EmbeddedBrowserAudioViaViewer");
         static LLCachedControl<U32> audio_prebuffer_ms(gSavedSettings, "EmbeddedBrowserAudioPrebufferMs");
         // HUD media has no world position to pan from (see calculateInterest()), so it
         // keeps its stereo too rather than being mixed down only to play from the listener.
         const bool spatial = !mUsedInUI && !isParcelMedia() && !isAttachedToHUD();
-        if (audio_via_viewer() && gAudiop && mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef)
+        if (audio_via_viewer() && gAudiop)
         {
             mEmbeddedBrowserAudio = gAudiop->createStreamedSource(audio_prebuffer_ms(), spatial);
         }
@@ -2838,8 +2839,9 @@ void LLViewerMediaImpl::updateVolume()
                 // afterwards: often 0, since a tab created during the login/teleport progress
                 // screen (sOnlyAudibleTextureID) or out of range starts out silent. Setting
                 // mEmbeddedBrowserCefVolume also makes LoadEnd's per-navigation re-injection
-                // (see updateEmbeddedBrowserEvents()) use 1.0 from here on.
-                if (mEmbeddedBrowserCefVolume != 1.f)
+                // (see updateEmbeddedBrowserEvents()) use 1.0 from here on. CEF only -- a
+                // LibVLC slot has no page/DOM to script.
+                if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef && mEmbeddedBrowserCefVolume != 1.f)
                 {
                     mEmbeddedBrowserCefVolume = 1.f;
                     executeJavaScript(buildEmbeddedBrowserVolumeUpdateScript(1.f));
