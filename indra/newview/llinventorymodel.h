@@ -35,6 +35,7 @@
 #include "llassettype.h"
 #include "llfoldertype.h"
 #include "llframetimer.h"
+#include "llinventorycache.h"
 #include "lluuid.h"
 #include "llpermissionsflags.h"
 #include "llviewerinventory.h"
@@ -105,6 +106,8 @@ public:
 
     typedef std::vector<LLPointer<LLViewerInventoryCategory> > cat_array_t;
     typedef std::vector<LLPointer<LLViewerInventoryItem> > item_array_t;
+    typedef std::unordered_map<LLUUID, LLPointer<LLViewerInventoryCategory> > cat_map_t;
+    typedef std::unordered_map<LLUUID, LLPointer<LLViewerInventoryItem>>     item_map_t;
     typedef std::set<LLUUID> changed_items_t;
 
     // Rider: This is using the old responder patter.  It should be refactored to
@@ -207,19 +210,6 @@ public:
     void buildParentChildMap(); // brute force method to rebuild the entire parent-child relations
     void createCommonSystemCategories();
 
-    // Async cache loading: parses cache file on a worker thread, then
-    // merges results into the live inventory model on the main thread.
-    struct LLCacheLoadResult
-    {
-        cat_array_t     mCategories;
-        item_array_t    mItems;
-        changed_items_t mCategoriesToUpdate;
-        bool            mIsCacheObsolete = true;
-        std::string     mInventoryFilename;
-        std::string     mGzipFilename;
-        bool            mRemoveInventoryFile = false;
-    };
-
     // gunzip the cache file (if present) and parse it via loadFromFile().
     // Touches only local state / filesystem, no gInventory access,
     // so it is safe to call off the main thread.
@@ -268,8 +258,6 @@ private:
     // the inventory using several different identifiers.
     // mInventory member data is the 'master' list of inventory, and
     // mCategoryMap and mItemMap store uuid->object mappings.
-    typedef std::unordered_map<LLUUID, LLPointer<LLViewerInventoryCategory> > cat_map_t;
-    typedef std::unordered_map<LLUUID, LLPointer<LLViewerInventoryItem>>     item_map_t;
     cat_map_t mCategoryMap;
     item_map_t mItemMap;
     // This last set of indices is used to map parents to children.
@@ -733,14 +721,18 @@ public:
     // File I/O
     //--------------------------------------------------------------------
 protected:
+
     static bool loadFromFile(const std::string& filename,
-                             cat_array_t& categories,
-                             item_array_t& items,
+                             cat_map_t& categories,
+                             item_map_t& items,
                              changed_items_t& cats_to_update,
+                             uuid_set_t& priority_cats,
+                             std::unordered_map<LLUUID, uuid_vec_t>& child_item_ids,
                              bool& is_cache_obsolete);
     static bool saveToFile(const std::string& filename,
                            const cat_array_t& categories,
-                           const item_array_t& items);
+                           const item_array_t& items,
+                           const uuid_set_t& priority_cats);
 
     //--------------------------------------------------------------------
     // Message handling functionality
