@@ -1070,6 +1070,7 @@ set(viewer_HEADER_FILES
     llinventoryitemslist.h
     llinventorylistener.h
     llinventorylistitem.h
+    llinventorycache.h
     llinventorymodel.h
     llinventorymodelbackgroundfetch.h
     llinventoryobserver.h

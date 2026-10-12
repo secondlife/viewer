@@ -79,7 +79,7 @@
 
 // Increment this if the inventory contents change in a non-backwards-compatible way.
 // For viewer 2, the addition of link items makes a pre-viewer-2 cache incorrect.
-const S32 LLInventoryModel::sCurrentInvCacheVersion = 5;
+const S32 LLInventoryModel::sCurrentInvCacheVersion = 6;
 bool LLInventoryModel::sFirstTimeInViewer2 = true;
 
 S32 LLInventoryModel::sPendingSystemFolders = 0;
@@ -1674,6 +1674,10 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat, U32 
         {
             mask |= LLInventoryObserver::LABEL;
         }
+        if (old_cat->getIsFavorite() != cat->getIsFavorite())
+        {
+            mask |= LLInventoryObserver::UPDATE_FAVORITE;
+        }
         old_cat->copyViewerCategory(cat);
         addChangedMask(mask, cat->getUUID());
     }
@@ -2349,6 +2353,8 @@ void LLInventoryModel::cache(
     cat_array_t categories;
     categories.push_back(root_cat);
     item_array_t items;
+    uuid_set_t priority_cats;
+    bool gather_priority_categories = agent_id == gAgentID;
 
     // Lambda to check if a category should be cached
     // Only cache if it has known version and matching descendent counts
@@ -2414,6 +2420,25 @@ void LLInventoryModel::cache(
 
                 const LLUUID& child_id = child_cat->getUUID();
 
+                LLFolderType::EType cat_type = child_cat->getPreferredType();
+                // For simplicity sake (to avoid lookup), consider everything
+                // sans marketplace, FT_OUTFIT and FT_NONE as important.
+                // It is generally a good idea to load 'singleton' folders
+                // first, regardles of how important they are.
+                // FT_CALLINGCARD are not a singletons, but they are used for
+                // friendlist, so consider such folders important too.
+                // Similar case with FT_LANDMARK, which are used for teleport
+                // history and favorites bar.
+                if (gather_priority_categories
+                    && cat_type != LLFolderType::FT_OUTFIT
+                    && cat_type != LLFolderType::FT_NONE
+                    && cat_type != LLFolderType::FT_MARKETPLACE_LISTINGS
+                    && cat_type != LLFolderType::FT_MARKETPLACE_STOCK
+                    && cat_type != LLFolderType::FT_MARKETPLACE_VERSION)
+                {
+                    priority_cats.insert(child_id);
+                }
+
                 // Only process each folder once
                 if (processed_folders.insert(child_id).second)
                 {
@@ -2437,10 +2462,30 @@ void LLInventoryModel::cache(
         return;
     }
 
+    if (gather_priority_categories)
+    {
+        // Gather upload categories which are user defined.
+        priority_cats.insert(gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::assetTypeToFolderType(LLAssetType::AT_TEXTURE)));
+        priority_cats.insert(gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::assetTypeToFolderType(LLAssetType::AT_MATERIAL)));
+        priority_cats.insert(gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::assetTypeToFolderType(LLAssetType::AT_SOUND)));
+        priority_cats.insert(gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::assetTypeToFolderType(LLAssetType::AT_ANIMATION)));
+        priority_cats.insert(gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::assetTypeToFolderType(LLAssetType::AT_OBJECT)));
+
+        // Outfit data
+        if (LLAppearanceMgr::instanceExists())
+        {
+            const LLUUID base_outfit_id = LLAppearanceMgr::getInstance()->getBaseOutfitUUID();
+            if (base_outfit_id.notNull())
+            {
+                priority_cats.insert(base_outfit_id);
+            }
+        }
+    }
+
     // Use temporary file to avoid potential conflicts with other
     // instances (even a 'read only' instance unzips into a file)
     std::string temp_file = gDirUtilp->getTempFilename();
-    if (!saveToFile(temp_file, categories, items))
+    if (!saveToFile(temp_file, categories, items, priority_cats))
     {
         LL_WARNS(LOG_INV) << "Failed to save inventory cache for " << parent_folder_id << LL_ENDL;
         LLFile::remove(temp_file);
@@ -2858,7 +2903,7 @@ bool LLInventoryModel::loadSkeleton(
     if(!temp_cats.empty())
     {
         update_map_t child_counts;
-        item_array_t possible_broken_links;
+        item_map_t possible_broken_links;
         cat_set_t invalid_categories; // Used to mark categories that weren't successfully loaded.
         const S32 NO_VERSION = LLViewerInventoryCategory::VERSION_UNKNOWN;
 
@@ -2877,13 +2922,15 @@ bool LLInventoryModel::loadSkeleton(
         mCacheLoadResults.erase(found);
         mCacheLoadRequested.erase(owner_id); // mask as completed for waitForCacheResult
 
-        cat_array_t& categories = cache_result->mCategories;
-        item_array_t& items = cache_result->mItems;
+        cat_map_t& categories = cache_result->mCategories;
+        item_map_t& items = cache_result->mItems;
         changed_items_t& categories_to_update = cache_result->mCategoriesToUpdate;
         bool is_cache_obsolete = cache_result->mIsCacheObsolete;
         const std::string& inventory_filename = cache_result->mInventoryFilename;
         const std::string& gzip_filename = cache_result->mGzipFilename;
         bool remove_inventory_file = cache_result->mRemoveInventoryFile;
+        const uuid_set_t& priority_cats = cache_result->mPriorityCats;
+        bool is_library = owner_id == ALEXANDRIA_LINDEN_ID;
 
         if (!is_cache_obsolete)
         {
@@ -2892,21 +2939,34 @@ bool LLInventoryModel::loadSkeleton(
             // found to generate a set of categories we should add. We
             // will go through each category loaded and if the version
             // does not match, invalidate the version.
+            //
+            // Only folders present in priority_cats or with special properties
+            // are merged against the cache here - everything else is left
+            // at NO_VERSION with no children added, exactly as it would be
+            // with an empty cache. Everything else should be loaded later.
             cat_set_t::iterator not_cached = temp_cats.end();
             uuid_set_t cached_ids;
-            for (auto& cat : categories)
+            for (auto& cat_pair : categories)
             {
+                LLViewerInventoryCategory* cat = cat_pair.second;
+
                 cat_set_t::iterator cit = temp_cats.find(cat);
                 if (cit == temp_cats.end())
                 {
-                    continue; // cache corruption?? not sure why this happens -SJB
+                    // Cache corruption?? not sure why this happens -SJB
+                    // Make sure deferred cache load won't reuse this folder's contents
+                    cat->setVersion(NO_VERSION);
+                    continue;
                 }
                 LLViewerInventoryCategory* tcat = *cit;
 
                 if (categories_to_update.find(tcat->getUUID()) != categories_to_update.end())
                 {
                     tcat->setVersion(NO_VERSION);
+                    // Make sure deferred cache load won't reuse this folder's contents
+                    cat->setVersion(NO_VERSION);
                     LL_WARNS() << "folder to update: " << tcat->getName() << LL_ENDL;
+                    continue;
                 }
 
                 // we can safely ignore anything loaded from file, but
@@ -2915,27 +2975,60 @@ bool LLInventoryModel::loadSkeleton(
                 {
                     continue;
                 }
-                else if (cat->getVersion() != tcat->getVersion())
+
+                if (cat->getVersion() != tcat->getVersion())
                 {
                     // if the cached version does not match the server version,
                     // throw away the version we have so we can fetch the
                     // correct contents the next time the viewer opens the folder.
                     tcat->setVersion(NO_VERSION);
+                    // Make sure deferred cache load won't reuse this folder's contents
+                    cat->setVersion(NO_VERSION);
+                    continue;
                 }
-                else
-                {
-                    cached_ids.insert(tcat->getUUID());
 
-                    // At the moment download does not provide a thumbnail
-                    // uuid or favorite, use values from cache
-                    tcat->setThumbnailUUID(cat->getThumbnailUUID());
-                    tcat->setFavorite(cat->getIsFavorite());
+                if (is_library)
+                {
+                    // library has no critical content, defer
+                    cache_result->mValidDeferredCats.insert(tcat->getUUID());
+                    continue;
                 }
+
+                if (priority_cats.find(cat->getUUID()) == priority_cats.end())
+                {
+                    // not a known priority folder, check it directly.
+                    if (cat->getPreferredType() == LLFolderType::FT_OUTFIT
+                        || cat->getPreferredType() == LLFolderType::FT_NONE)
+                    {
+                        // Outfit and user-defined folders are never priority folders,
+                        // unless specified in priority_cats.
+                        // Defer to background fetch.
+                        cache_result->mValidDeferredCats.insert(tcat->getUUID());
+                        continue;
+                    }
+                    else if (cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_LISTINGS
+                        || cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK
+                        || cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_VERSION)
+                    {
+                        // Marketplace folders are never priority folders.
+                        // Defer to background fetch.
+                        cache_result->mValidDeferredCats.insert(tcat->getUUID());
+                        continue;
+                    }
+                    // Other folders are considered priority folders
+                }
+
+                cached_ids.insert(tcat->getUUID());
+                cache_result->mNumCatsLoaded++;
+
+                // At the moment download does not provide a thumbnail
+                // uuid or favorite, use values from cache
+                tcat->setThumbnailUUID(cat->getThumbnailUUID());
+                tcat->setFavorite(cat->getIsFavorite());
             }
 
             // go ahead and add the cats returned during the download
             std::set<LLUUID>::const_iterator not_cached_id = cached_ids.end();
-            cached_category_count = cached_ids.size();
             for(cat_set_t::iterator it = temp_cats.begin(); it != temp_cats.end(); ++it)
             {
                 if(cached_ids.find((*it)->getUUID()) == not_cached_id)
@@ -2947,70 +3040,167 @@ bool LLInventoryModel::loadSkeleton(
                     llvic->setVersion(NO_VERSION);
                 }
                 addCategory(*it);
+                cached_category_count++;
                 ++child_counts[(*it)->getParentUUID()];
             }
+
+            auto resolve_link = [this, &categories](LLViewerInventoryItem* link_item, std::vector<LLViewerInventoryItem*>& chain, item_map_t& item_source) -> bool
+            {
+                uuid_set_t seen;
+                LLViewerInventoryItem* current = link_item;
+                while (current)
+                {
+                    if (mItemMap.find(current->getUUID()) != mItemMap.end())
+                    {
+                        // Already committed to the live model
+                        return true;
+                    }
+
+                    cat_map_t::iterator parent_it = mCategoryMap.find(current->getParentUUID());
+                    if (parent_it == mCategoryMap.end())
+                    {
+                        // An orphan, can't resolve.
+                        return false;
+                    }
+
+                    cat_map_t::const_iterator cached_parent_it = categories.find(current->getParentUUID());
+                    if (cached_parent_it == categories.end()
+                        || cached_parent_it->second->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
+                    {
+                        // Parent folder's cached version isn't confirmed - we
+                        // can't trust that this link's target still belongs
+                        // there, so don't follow it.
+                        return false;
+                    }
+
+                    if (current->getActualType() != LLAssetType::AT_LINK)
+                    {
+                        // Reached a non-link item that isn't in mItemMap
+                        // yet - final target, needs to be added.
+                        chain.push_back(current);
+                        return true;
+                    }
+
+                    if (!seen.insert(current->getUUID()).second)
+                    {
+                        // Cycle - can't resolve.
+                        return false;
+                    }
+                    chain.push_back(current);
+
+                    auto next_it = item_source.find(current->getLinkedUUID());
+                    if (next_it == item_source.end())
+                    {
+                        // Next link/target isn't present in cache at all.
+                        return false;
+                    }
+                    current = next_it->second.get();
+                }
+                return false;
+            };
 
             // Add all the items loaded which are parented to a
             // category with a correctly cached parent
             S32 bad_link_count = 0;
             S32 good_link_count = 0;
             S32 recovered_link_count = 0;
+            item_map_t linked_items;
             cat_map_t::iterator unparented = mCategoryMap.end();
-            for(item_array_t::const_iterator item_iter = items.begin();
-                item_iter != items.end();
-                ++item_iter)
+            for (const LLUUID& parent_id : cached_ids)
             {
-                LLViewerInventoryItem *item = (*item_iter).get();
-                const cat_map_t::iterator cit = mCategoryMap.find(item->getParentUUID());
-
-                if(cit != unparented)
+                auto child_it = cache_result->mChildItemIds.find(parent_id);
+                if (child_it == cache_result->mChildItemIds.end())
                 {
-                    const LLViewerInventoryCategory* cat = cit->second.get();
-                    if(cat->getVersion() != NO_VERSION)
+                    continue;
+                }
+
+                const cat_map_t::iterator cit = mCategoryMap.find(parent_id);
+                if (cit == unparented)
+                {
+                    // Shouldn't happen - parent_id came from addCategory() above.
+                    llassert(false);
+                    continue;
+                }
+
+                const LLViewerInventoryCategory* cat = cit->second.get();
+                if (cat->getVersion() == NO_VERSION)
+                {
+                    // Guard against cached_ids/temp_cats getting out of sync -
+                    // shouldn't normally trigger, as they wouldn't have gotten into cached_ids.
+                    llassert(false);
+                    continue;
+                }
+
+                for (const LLUUID& item_id : child_it->second)
+                {
+                    auto item_it = items.find(item_id);
+                    if (item_it == items.end())
                     {
-                        // This can happen if the linked object's baseobj is removed from the cache but the linked object is still in the cache.
-                        if (item->getIsBrokenLink())
+                        continue;
+                    }
+                    LLViewerInventoryItem* item = item_it->second.get();
+
+                    // This can happen if the linked object's baseobj is removed from the cache but the linked object is still in the cache.
+                    if (item->getIsBrokenLink())
+                    {
+                        if (item->getActualType() == LLAssetType::AT_LINK)
                         {
-                            //bad_link_count++;
+                            //Do bad_link_count++ later, as we are not sure if this one is dead yet.
                             LL_DEBUGS(LOG_INV) << "Attempted to add cached link item without baseobj present ( name: "
-                                               << item->getName() << " itemID: " << item->getUUID()
-                                               << " assetID: " << item->getAssetUUID()
-                                               << " ).  Ignoring and invalidating " << cat->getName() << " . " << LL_ENDL;
-                            possible_broken_links.push_back(item);
+                                << item->getName() << " itemID: " << item->getUUID()
+                                << " assetID: " << item->getAssetUUID()
+                                << " ).  Ignoring and invalidating " << cat->getName() << " . " << LL_ENDL;
+                            possible_broken_links[item->getUUID()] = item;
                             continue;
                         }
-                        else if (item->getIsLinkType())
+                        else
                         {
-                            good_link_count++;
+                            // All folders were loaded prior to items, so this is a broken link.
+                            bad_link_count++;
+                            const cat_map_t::iterator cit = mCategoryMap.find(item->getParentUUID());
+                            invalid_categories.insert(cit->second);
                         }
-                        addItem(item);
-                        cached_item_count += 1;
-                        ++child_counts[cat->getUUID()];
                     }
+                    else if (item->getIsLinkType())
+                    {
+                        good_link_count++;
+                    }
+                    addItem(item);
+                    cached_item_count += 1;
+                    ++child_counts[cat->getUUID()];
                 }
             }
+
             if (possible_broken_links.size() > 0)
             {
-                for(item_array_t::const_iterator item_iter = possible_broken_links.begin();
+                for(item_map_t::const_iterator item_iter = possible_broken_links.begin();
                     item_iter != possible_broken_links.end();
                     ++item_iter)
                 {
-                    LLViewerInventoryItem *item = (*item_iter).get();
+                    LLViewerInventoryItem *item = item_iter->second.get();
                     const cat_map_t::iterator cit = mCategoryMap.find(item->getParentUUID());
                     const LLViewerInventoryCategory* cat = cit->second.get();
-                    if (item->getIsBrokenLink())
+
+                    std::vector<LLViewerInventoryItem*> chain;
+                    // Check if link still needs loading
+                    if (resolve_link(item, chain, items))
                     {
-                        bad_link_count++;
-                        invalid_categories.insert(cit->second);
-                        //LL_INFOS(LOG_INV) << "link still broken: " << item->getName() << " in folder " << cat->getName() << LL_ENDL;
+                        // If chain is not empty, we got a valid chain, add it all.
+                        // If chain is empty, everything is already loaded.
+                        for (auto chain_it = chain.rbegin(); chain_it != chain.rend(); ++chain_it)
+                        {
+                            // Note that folder we are adding to potentially is NO_VERSION
+                            LLViewerInventoryItem* chain_item = *chain_it;
+                            addItem(chain_item);
+                            cached_item_count += 1;
+                            ++child_counts[cat->getUUID()];
+                        }
+                        recovered_link_count++;
                     }
                     else
                     {
-                        // was marked as broken because of loading order, its actually fine to load
-                        addItem(item);
-                        cached_item_count += 1;
-                        ++child_counts[cat->getUUID()];
-                        recovered_link_count++;
+                        bad_link_count++;
+                        invalid_categories.insert(cit->second);
                     }
                 }
 
@@ -3082,7 +3272,20 @@ bool LLInventoryModel::loadSkeleton(
             LL_WARNS(LOG_INV) << "Inv cache out of date, removing" << LL_ENDL;
             LLFile::remove(gzip_filename);
         }
-        categories.clear(); // will unref and delete entries
+
+        if (!is_cache_obsolete && !cache_result->mValidDeferredCats.empty())
+        {
+            cache_result->mPriorityCats.clear(); // clear priority cats since we already handled them
+            // Hand off the remaining cache contents to background fetch.
+            LLInventoryModelBackgroundFetch::getInstance()->setDeferredCache(owner_id, cache_result);
+        }
+        else
+        {
+            categories.clear(); // will unref and delete entries
+        }
+
+        cache_result->mNumCatsLoaded += (S32)cached_category_count;
+        cache_result->mNumItemsLoaded += (S32)cached_item_count;
     }
 
     LL_INFOS(LOG_INV) << "Successfully loaded " << cached_category_count
@@ -3380,7 +3583,7 @@ void LLInventoryModel::buildParentChildMap()
 }
 
 // static
-std::shared_ptr<LLInventoryModel::LLCacheLoadResult>
+std::shared_ptr<LLCacheLoadResult>
 LLInventoryModel::loadCacheResultFromDisk(const LLUUID& owner_id)
 {
     LL_PROFILE_ZONE_SCOPED;
@@ -3427,7 +3630,17 @@ LLInventoryModel::loadCacheResultFromDisk(const LLUUID& owner_id)
         result->mCategories,
         result->mItems,
         result->mCategoriesToUpdate,
+        result->mPriorityCats,
+        result->mChildItemIds,
         result->mIsCacheObsolete);
+
+    bool has_priority_folders = owner_id != ALEXANDRIA_LINDEN_ID;
+    if (!has_priority_folders)
+    {
+        // Library can wait, should be empty since cache()
+        // isn't saving priority cats for the library.
+        result->mPriorityCats.clear();
+    }
 
     return result;
 }
@@ -3436,7 +3649,7 @@ LLInventoryModel::loadCacheResultFromDisk(const LLUUID& owner_id)
 void LLInventoryModel::loadInventoryCacheAsync(const LLUUID& owner_id)
 {
     std::function<void(std::shared_ptr<LLCacheLoadResult>)> cb =
-        [owner_id](std::shared_ptr<LLInventoryModel::LLCacheLoadResult> result)
+        [owner_id](std::shared_ptr<LLCacheLoadResult> result)
     {
         gInventory.setCacheLoadResult(owner_id, result);
     };
@@ -3663,9 +3876,11 @@ bool LLUUIDAndName::operator>(const LLUUIDAndName& rhs) const
 
 // static
 bool LLInventoryModel::loadFromFile(const std::string& filename,
-                                    LLInventoryModel::cat_array_t& categories,
-                                    LLInventoryModel::item_array_t& items,
-                                    LLInventoryModel::changed_items_t& cats_to_update,
+                                    cat_map_t& categories,
+                                    item_map_t& items,
+                                    changed_items_t& cats_to_update,
+                                    uuid_set_t& priority_cats,
+                                    std::unordered_map<LLUUID, uuid_vec_t> &child_item_ids,
                                     bool &is_cache_obsolete)
 {
     LL_PROFILE_ZONE_NAMED("inventory load from file");
@@ -3735,7 +3950,7 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
                     LLPointer<LLViewerInventoryCategory> inv_cat = new LLViewerInventoryCategory(LLUUID::null);
                     if (inv_cat->importLLSDMap(*iter))
                     {
-                        categories.push_back(inv_cat);
+                        categories.emplace(inv_cat->getUUID(), inv_cat);
                     }
                 }
             }
@@ -3767,18 +3982,24 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
                             }
                             else
                             {
-                                items.push_back(inv_item);
+                                child_item_ids[inv_item->getParentUUID()].push_back(inv_item->getUUID());
+                                items.emplace(inv_item->getUUID(), inv_item);
                             }
                         }
                     }
+                }
+            }
+        }
 
-                    //      TODO(brad) - figure out how to reenable this without breaking everything else
-                    //      static constexpr U64 BATCH_SIZE = 512U;
-                    //      if ((++lines_count % BATCH_SIZE) == 0)
-                    //      {
-                    //          // SL-19968 - make sure message system code gets a chance to run every so often
-                    //          pump_idle_startup_network();
-                    //      }
+        {
+            const LLSD& priority_cats_llsd = inventory["priority_cats"];
+            if (priority_cats_llsd.isArray())
+            {
+                LLSD::array_const_iterator iter = priority_cats_llsd.beginArray();
+                LLSD::array_const_iterator end = priority_cats_llsd.endArray();
+                for (; iter != end; ++iter)
+                {
+                    priority_cats.insert((*iter).asUUID());
                 }
             }
         }
@@ -3792,7 +4013,8 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 // static
 bool LLInventoryModel::saveToFile(const std::string& filename,
     const cat_array_t& categories,
-    const item_array_t& items)
+    const item_array_t& items,
+    const uuid_set_t& priority_cats)
 {
     if (filename.empty())
     {
@@ -3853,6 +4075,13 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
             item->asLLSD(sd);
             item_array.append(sd);
         }
+
+        LLSD& priority_array = inventory["priority_cats"];
+        for (const LLUUID& cat_uuid : priority_cats)
+        {
+            priority_array.append(cat_uuid);
+        }
+
         fileSD << LLSDOStreamer<LLSDBinaryFormatter>(inventory) << std::endl;
         if (fileSD.fail())
         {
