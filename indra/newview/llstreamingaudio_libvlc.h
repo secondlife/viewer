@@ -38,11 +38,16 @@
 
 #include "llstreamingaudio.h"
 
+#include <atomic>
 #include <chrono>
 #include <cstdint>
 #include <memory>
+#include <mutex>
 #include <string>
+#include <thread>
+#include <vector>
 
+class LLStreamedAudioSource;
 class LLSubscriber;
 
 class LLStreamingAudio_LibVLC : public LLStreamingAudioInterface
@@ -88,6 +93,14 @@ private:
     // needed.
     void sendReplayBurst();
 
+    // Viewer-side playback of the stream (see mAudio): creates it the first time it's
+    // possible, along with mAudioThread. Main thread.
+    void ensureAudioStream();
+    // mAudioThread's body, and one pass of it -- drains mAudioSub into mAudio. The second
+    // runs with mAudioSubMutex held.
+    void audioThreadLoop();
+    void pumpAudio();
+
     State mState = State::NotConnected;
     std::unique_ptr<LLSubscriber> mCtrl; // control-channel claim, held only during the handshake
     std::unique_ptr<LLSubscriber> mSub;  // per-view channel once Connected
@@ -108,6 +121,29 @@ private:
     // snapping to "stopped") through a brief SLVlcProducer crash/relaunch window, matching
     // sendReplayBurst()'s own self-healing intent.
     bool mCachedWirePlaying = false;
+
+    // Viewer-side playback (EmbeddedBrowserAudioViaViewer): SLVlcProducer hands this
+    // stream's decoded audio over on its own audio channel (see kSlotFlagAudioCapture in
+    // cefshm_protocol.h) and it plays through OpenAL here, non-positionally -- instead of
+    // libvlc playing it itself. Null if that isn't possible (no audio engine, or one that
+    // can't do caller-fed streams), in which case capture is never requested.
+    std::shared_ptr<LLStreamedAudioSource> mAudio;
+
+    // Drains the audio channel on its own thread rather than in update(): update() only
+    // runs once per frame, so any frame hitch longer than the stream's prebuffer would be
+    // an audible dropout -- the same reason LLEmbeddedBrowserTab drains on its own thread.
+    // The main-thread state machine still owns connecting; it just hands this thread the
+    // audio channel (mAudioSub) once a connection grants capture, and takes it back on
+    // disconnect.
+    std::thread mAudioThread;
+    std::atomic<bool> mAudioThreadQuit{ false };
+    std::mutex mAudioSubMutex;           // guards everything below
+    std::unique_ptr<LLSubscriber> mAudioSub;
+    std::string mAudioChannelName;
+    std::chrono::steady_clock::time_point mNextAudioClaimAttempt{};
+    std::chrono::steady_clock::time_point mAudioClaimDeadline{};
+    bool mAudioClaimLogged = false;
+    std::vector<float> mAudioScratch;    // aligned copy of one packet's samples
 };
 
 #endif // LL_STREAMINGAUDIO_LIBVLC_H

@@ -939,10 +939,14 @@ transport, SLCefProducer's real audio capture (llCefBrowser v1.51.0's
 Viewer-side playback and prim-media spatialization. CEF media was verified
 in-world with several YouTube prims playing at once; LibVLC capture was
 verified against a standalone harness (in-world RTSP/RTMP prim media not yet).
-Still to do: parcel/streaming music, whose `LLStreamingAudio_LibVLC` client
-doesn't request capture yet - SLVlcProducer already captures audio-only slots
-fine when asked. **On by default** (`EmbeddedBrowserAudioViaViewer`); turning
-it off puts both producers back to playing their own audio, exactly as before.
+Parcel/streaming music goes the same way: `LLStreamingAudio_LibVLC` requests
+capture on its audio-only SLVlcProducer slot and plays the result through a
+non-positional stream (not yet verified in-world). It drains its audio channel
+on a thread of its own, since its `update()` only runs once per frame, and
+takes the master volume back out of the music gain it's given, since OpenAL
+applies master itself. **On by default** (`EmbeddedBrowserAudioViaViewer`);
+turning it off puts both producers back to playing their own audio, exactly
+as before.
 
 This supersedes an earlier, parallel take on the CEF half
 (`EmbeddedBrowserCefAudioCapture`/`LLEmbeddedBrowser::popAudioPacket()`, which
