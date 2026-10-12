@@ -451,6 +451,7 @@ public:
     static void predAvatarNameResolution(const LLWebRTCVoiceClient::sessionStatePtr_t &session, LLUUID id, std::string name);
 
     boost::signals2::connection mAvatarNameCacheConnection;
+    boost::signals2::connection mStopMicCaptureOnMuteConnection;
 
 private:
     // init or restart the WebRTC device interface.
