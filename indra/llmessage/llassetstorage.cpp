@@ -1019,7 +1019,8 @@ void LLAssetStorage::processUploadComplete(LLMessageSystem *msg, void **user_dat
 {
     // Note that this gets called on an UDP thread, not main thread!
     // See LLUDPReceiverThread
-    LLAssetStorage  *this_ptr = (LLAssetStorage *)user_data;
+    //
+    // user_data points to LLAssetStorage
     LLUUID          uuid;
     S8              asset_type_s8;
     LLAssetType::EType asset_type;

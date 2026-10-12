@@ -1031,33 +1031,33 @@ bool LLCircuitData::updateWatchDogTimers(LLMessageSystem *msgsys)
     // Check to see if anything on our lost list is old enough to
     // be considered lost
 
-    LLCircuitData::packet_time_map::iterator it;
     U64Microseconds timeout = llmin(LL_MAX_LOST_TIMEOUT, F32Seconds(getPingDelayAveraged()) * LL_LOST_TIMEOUT_FACTOR);
 
     U64Microseconds mt_usec = LLMessageSystem::getMessageTimeUsecs();
-    for (it = mPotentialLostPackets.begin(); it != mPotentialLostPackets.end(); )
     {
-        U64Microseconds delta_t_usec = mt_usec - (*it).second;
-        if (delta_t_usec > timeout)
+        std::lock_guard<std::mutex> lock(mDataMutex);
+        LLCircuitData::packet_time_map::iterator it;
+        for (it = mPotentialLostPackets.begin(); it != mPotentialLostPackets.end(); )
         {
-            // let's call this one a loss!
+            U64Microseconds delta_t_usec = mt_usec - (*it).second;
+            if (delta_t_usec > timeout)
             {
-                std::lock_guard<std::mutex> lock(mDataMutex);
+                // let's call this one a loss!
                 mPacketsLost++;
+                gMessageSystem->mLostPackets++;
+                if (gMessageSystem->mVerboseLog)
+                {
+                    std::ostringstream str;
+                    str << "MSG: <- " << mHost << "\tLOST PACKET:\t"
+                        << (*it).first;
+                    LL_INFOS() << str.str() << LL_ENDL;
+                }
+                mPotentialLostPackets.erase(it++);
             }
-            gMessageSystem->mLostPackets++;
-            if(gMessageSystem->mVerboseLog)
+            else
             {
-                std::ostringstream str;
-                str << "MSG: <- " << mHost << "\tLOST PACKET:\t"
-                    << (*it).first;
-                LL_INFOS() << str.str() << LL_ENDL;
+                ++it;
             }
-            mPotentialLostPackets.erase(it++);
-        }
-        else
-        {
-            ++it;
         }
     }
 
@@ -1143,20 +1143,25 @@ bool LLCircuitData::checkCircuitTimeout()
 // correctly place the packet in the correct list to be acked later.
 bool LLCircuitData::collectRAck(TPACKETID packet_num)
 {
-    std::lock_guard<std::mutex> data_lock(mDataMutex);
-    if (mAcks.empty())
+    bool need_to_register = false;
+    {
+        std::lock_guard<std::mutex> data_lock(mDataMutex);
+        need_to_register = mAcks.empty();
+
+        mAcks.push_back(packet_num);
+        if (mAckCreationTime == 0)
+        {
+            mAckCreationTime = getAgeInSeconds();
+        }
+    }
+
+    if (need_to_register)
     {
         std::lock_guard<std::mutex> circuit_lock(gMessageSystem->mCircuitInfo.mCircuitMutex);
         // First extra ack, we need to add ourselves to the list of circuits that need to send acks
         gMessageSystem->mCircuitInfo.mSendAckMap[mHost] = this;
     }
 
-    mAcks.push_back(packet_num);
-    std::lock_guard<std::mutex> circuit_lock(gMessageSystem->mCircuitInfo.mCircuitMutex);
-    if (mAckCreationTime == 0)
-    {
-        mAckCreationTime = getAgeInSeconds();
-    }
     return true;
 }
 

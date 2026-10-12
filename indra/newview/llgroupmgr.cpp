@@ -1404,7 +1404,16 @@ void LLGroupMgr::processEjectGroupMemberReply(LLMessageSystem* msg, void ** data
         LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
         if (!main_queue)
         {
-            LL_ERRS() << "LLGroupMgr::processEjectGroupMemberReply() - no main queue!" << LL_ENDL;
+            if (LLApp::isQuitting())
+            {
+                LL_INFOS() << "LLGroupMgr::processEjectGroupMemberReply() - no main queue!" << LL_ENDL;
+            }
+            else
+            {
+                // Technically unsafe to do LL_ERRS here, as main thread will keep working for a bit,
+                // but this situation shouldn't be possible, so just covering all bases.
+                LL_ERRS() << "LLGroupMgr::processEjectGroupMemberReply() - no main queue!" << LL_ENDL;
+            }
             return;
         }
         main_queue->post(
