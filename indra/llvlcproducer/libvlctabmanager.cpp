@@ -31,6 +31,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <deque>
 #include <mutex>
 
 namespace
@@ -89,6 +90,15 @@ namespace
     // longer to rebuild -- still corrupted. This is a second, independent grace period
     // layered on top of that one, not a replacement for it.
     constexpr std::chrono::milliseconds kPostApplyGraceDelay{ 400 };
+
+    // Captured audio (see LibVlcTabManager::PopAudio()): a block is released this far
+    // ahead of its own play time, to cover the trip to the consumer and its own
+    // prebuffer, rather than the moment libvlc decodes it.
+    constexpr std::int64_t kAudioReleaseLeadUs = 50000;
+    // How much captured audio may pile up unread before the oldest is dropped. Generous:
+    // libvlc legitimately decodes well ahead of play time, and all of that sits here
+    // until due -- this only bites if the main loop stops draining altogether.
+    constexpr std::uint64_t kAudioMaxQueuedMs = 4000;
 
     // One heap-allocated Tab per slot, addressed via VlcTabHandle::index -- never moved
     // or reallocated once created (see LibVlcTabManager::Impl::mTabs' own comment):
@@ -160,7 +170,112 @@ namespace
         // Play/Pause/Stop command.
         std::atomic<bool> playStateChangedPending{ false };
         std::atomic<bool> playStateIsPlaying{ false };
+
+        // Captured audio (see LibVlcTabManager::PopAudio()) -- set once per tab by
+        // CreateTab()/CreateAudioTrack(), applied by every Open(). The queue is filled by
+        // audio_play_cb on libvlc's own audio thread and drained by PopAudio() on the main
+        // thread -- the same handoff the frame buffer above uses, and for the same reason.
+        bool audioCapture = false;
+        struct AudioBlock
+        {
+            std::vector<float> samples; // frames * kCaptureChannels, interleaved
+            std::uint32_t      frames = 0;
+            std::int64_t       ptsUs = 0;
+        };
+        std::mutex audioMutex;
+        std::deque<AudioBlock> audioQueue;
+        std::uint64_t audioQueuedFrames = 0;
+        std::uint64_t audioDroppedFrames = 0;
+        std::atomic<bool> audioStoppedPending{ false };
+        // Between audio_pause_cb and audio_resume_cb, under audioMutex: nothing is released
+        // while paused (libvlc's clock keeps running, so queued blocks would otherwise keep
+        // coming due), and on resume what's still queued is re-timed by the pause's length.
+        bool audioPaused = false;
+        std::int64_t audioPausePtsUs = 0;
     };
+
+    // libvlc's audio callbacks (libvlc_audio_set_callbacks()) for a capturing tab -- all
+    // on libvlc's own audio thread, so they only ever queue or flag.
+    //
+    // samples is interleaved signed 16-bit, native-endian -- not whatever format was asked
+    // for: libvlc 3.0's amem output (what these callbacks run on) only ever delivers "S16N",
+    // ignoring libvlc_audio_set_format()'s format argument (only its rate and channel count
+    // apply). Reading it as float -- what an earlier version did -- produced garbage, and read
+    // twice as many bytes as libvlc had actually provided.
+    void audio_play_cb(void* data, const void* samples, unsigned count, int64_t pts)
+    {
+        Tab* t = static_cast<Tab*>(data);
+        if (count == 0 || !samples) return;
+
+        Tab::AudioBlock block;
+        block.frames = count;
+        block.ptsUs = pts;
+        const std::size_t sample_count = std::size_t(count) * LibVlcTabManager::kCaptureChannels;
+        const std::int16_t* src = static_cast<const std::int16_t*>(samples);
+        block.samples.resize(sample_count);
+        for (std::size_t i = 0; i < sample_count; ++i)
+        {
+            block.samples[i] = float(src[i]) * (1.0f / 32768.0f);
+        }
+
+        std::lock_guard<std::mutex> lock(t->audioMutex);
+        t->audioQueuedFrames += count;
+        t->audioQueue.push_back(std::move(block));
+        const std::uint64_t max_frames = std::uint64_t(LibVlcTabManager::kCaptureSampleRate) * kAudioMaxQueuedMs / 1000;
+        while (t->audioQueuedFrames > max_frames && t->audioQueue.size() > 1)
+        {
+            t->audioQueuedFrames -= t->audioQueue.front().frames;
+            t->audioDroppedFrames += t->audioQueue.front().frames;
+            t->audioQueue.pop_front();
+        }
+    }
+    void audio_pause_cb(void* data, int64_t pts)
+    {
+        Tab* t = static_cast<Tab*>(data);
+        {
+            std::lock_guard<std::mutex> lock(t->audioMutex);
+            t->audioPaused = true;
+            t->audioPausePtsUs = pts;
+        }
+        t->audioStoppedPending = true;
+    }
+    void audio_resume_cb(void* data, int64_t pts)
+    {
+        // Blocks queued before the pause were timed against the clock as it stood then;
+        // shift them by however long the pause lasted so they play out in order from here.
+        Tab* t = static_cast<Tab*>(data);
+        std::lock_guard<std::mutex> lock(t->audioMutex);
+        if (t->audioPaused && t->audioPausePtsUs > 0 && pts > t->audioPausePtsUs)
+        {
+            const std::int64_t paused_for = pts - t->audioPausePtsUs;
+            for (Tab::AudioBlock& block : t->audioQueue)
+            {
+                if (block.ptsUs > 0) block.ptsUs += paused_for;
+            }
+        }
+        t->audioPaused = false;
+    }
+    void audio_flush_cb(void* data, int64_t /*pts*/)
+    {
+        // A seek or track change: whatever was queued for the old position is now wrong.
+        Tab* t = static_cast<Tab*>(data);
+        std::lock_guard<std::mutex> lock(t->audioMutex);
+        t->audioQueue.clear();
+        t->audioQueuedFrames = 0;
+    }
+    void audio_drain_cb(void* data)
+    {
+        // End of stream -- what's already queued still plays out as it comes due.
+        static_cast<Tab*>(data)->audioStoppedPending = true;
+    }
+
+    void clearAudio(Tab& t)
+    {
+        std::lock_guard<std::mutex> lock(t.audioMutex);
+        t.audioQueue.clear();
+        t.audioQueuedFrames = 0;
+        t.audioPaused = false;
+    }
 
     void* lock_cb(void* opaque, void** planes)
     {
@@ -278,7 +393,7 @@ public:
         }
     }
 
-    VlcTabHandle CreateTab(int width, int height, int maxWidth, int maxHeight)
+    VlcTabHandle CreateTab(int width, int height, int maxWidth, int maxHeight, bool audioCapture)
     {
         if (!mLibVLC)
         {
@@ -305,6 +420,8 @@ public:
         // the player would still run, but no frame would ever be produced. Confirmed as
         // the real cause of a reported "RTSP video just doesn't render" bug.
         t.audioOnly = false;
+        t.audioCapture = audioCapture;
+        resetAudio(t);
         t.generation++;
         t.player = nullptr;
         t.frameDirty = false;
@@ -337,7 +454,7 @@ public:
         return h;
     }
 
-    VlcTabHandle CreateAudioTrack()
+    VlcTabHandle CreateAudioTrack(bool audioCapture)
     {
         if (!mLibVLC)
         {
@@ -357,6 +474,8 @@ public:
         Tab& t = *mTabs[index];
         t.live = true;
         t.audioOnly = true;
+        t.audioCapture = audioCapture;
+        resetAudio(t);
         t.generation++;
         t.player = nullptr;
         t.frameDirty = false;
@@ -393,6 +512,7 @@ public:
         Tab* t = find(handle);
         if (!t) return;
         closePlayer(*t);
+        resetAudio(*t);
         t->live = false;
         t->pixels.clear();
         t->width = t->height = 0;
@@ -472,6 +592,20 @@ public:
             t->pendingHeight = t->height;
             t->hasPendingResize = false;
         }
+        if (t->audioCapture)
+        {
+            // Decoded audio comes to us (see PopAudio()) instead of going to libvlc's own
+            // audio output -- resampled/remixed to one fixed rate and channel count,
+            // whatever the source is. "S16N" because that's all libvlc 3.0's amem output
+            // delivers regardless of what's asked for (see audio_play_cb). Must be set
+            // before libvlc_media_player_play() below. No volume callback: libvlc
+            // applies its own software volume, which stays at its default 100% since a
+            // capturing slot ignores kSetVolume/kSetMuted (see kSlotFlagAudioCapture).
+            libvlc_audio_set_callbacks(t->player, &audio_play_cb, &audio_pause_cb, &audio_resume_cb,
+                                       &audio_flush_cb, &audio_drain_cb, t);
+            libvlc_audio_set_format(t->player, "S16N", kCaptureSampleRate, kCaptureChannels);
+        }
+
         // Reset for the same reason -- Open() can run again on an already-live tab (a
         // URL change), and a stale timestamp from that tab's PREVIOUS lifetime must not
         // delay this new player's very first frame.
@@ -709,7 +843,54 @@ public:
         return true;
     }
 
+    bool PopAudio(VlcTabHandle handle, std::vector<float>& out_samples, std::uint32_t& out_frames,
+                  std::int64_t& out_ptsUs)
+    {
+        Tab* t = find(handle);
+        if (!t || !t->audioCapture) return false;
+
+        std::lock_guard<std::mutex> lock(t->audioMutex);
+        if (t->audioPaused || t->audioQueue.empty()) return false;
+        Tab::AudioBlock& block = t->audioQueue.front();
+        // pts is on libvlc's own clock (see libvlc_delay()); a block with none is due now.
+        if (block.ptsUs > 0 && block.ptsUs - libvlc_clock() > kAudioReleaseLeadUs) return false;
+
+        out_samples.swap(block.samples);
+        out_frames = block.frames;
+        out_ptsUs = block.ptsUs;
+        t->audioQueuedFrames -= block.frames;
+        t->audioQueue.pop_front();
+        return true;
+    }
+
+    bool ConsumeAudioStopped(VlcTabHandle handle)
+    {
+        Tab* t = find(handle);
+        if (!t) return false;
+        return t->audioStoppedPending.exchange(false);
+    }
+
+    std::uint64_t GetAudioDroppedFrames(VlcTabHandle handle) const
+    {
+        const Tab* t = find(handle);
+        if (!t) return 0;
+        std::lock_guard<std::mutex> lock(const_cast<Tab*>(t)->audioMutex);
+        return t->audioDroppedFrames;
+    }
+
 private:
+    // Clears a tab's captured-audio state -- on (re)creation and destruction, never while
+    // a player that could still be calling audio_play_cb exists.
+    static void resetAudio(Tab& t)
+    {
+        clearAudio(t);
+        {
+            std::lock_guard<std::mutex> lock(t.audioMutex);
+            t.audioDroppedFrames = 0;
+        }
+        t.audioStoppedPending = false;
+    }
+
     Tab* find(VlcTabHandle handle)
     {
         if (!handle.IsValid() || handle.index >= mTabs.size()) return nullptr;
@@ -734,6 +915,13 @@ private:
             libvlc_media_player_release(t.player);
             t.player = nullptr;
             t.currentUrl.clear();
+            if (t.audioCapture)
+            {
+                // Nothing queued belongs to whatever plays next, and the consumer should
+                // treat the gap as a deliberate stop rather than an underrun.
+                clearAudio(t);
+                t.audioStoppedPending = true;
+            }
         }
         t.loadStartPending = false;
         t.loadEndPending = false;
@@ -768,8 +956,11 @@ bool LibVlcTabManager::IsReady() const { return mImpl->IsReady(); }
 
 std::string LibVlcTabManager::GetVersion() const { return mImpl->GetVersion(); }
 
-VlcTabHandle LibVlcTabManager::CreateTab(int width, int height, int maxWidth, int maxHeight) { return mImpl->CreateTab(width, height, maxWidth, maxHeight); }
-VlcTabHandle LibVlcTabManager::CreateAudioTrack() { return mImpl->CreateAudioTrack(); }
+VlcTabHandle LibVlcTabManager::CreateTab(int width, int height, int maxWidth, int maxHeight, bool audioCapture)
+{
+    return mImpl->CreateTab(width, height, maxWidth, maxHeight, audioCapture);
+}
+VlcTabHandle LibVlcTabManager::CreateAudioTrack(bool audioCapture) { return mImpl->CreateAudioTrack(audioCapture); }
 void LibVlcTabManager::DestroyTab(VlcTabHandle handle) { mImpl->DestroyTab(handle); }
 void LibVlcTabManager::DestroyAll() { mImpl->DestroyAll(); }
 bool LibVlcTabManager::IsValid(VlcTabHandle handle) const { return mImpl->IsValid(handle); }
@@ -793,3 +984,10 @@ bool LibVlcTabManager::ConsumePlaybackStateChange(VlcTabHandle handle, bool& out
 {
     return mImpl->ConsumePlaybackStateChange(handle, out_playing);
 }
+bool LibVlcTabManager::PopAudio(VlcTabHandle handle, std::vector<float>& out_samples, std::uint32_t& out_frames,
+                                std::int64_t& out_ptsUs)
+{
+    return mImpl->PopAudio(handle, out_samples, out_frames, out_ptsUs);
+}
+bool LibVlcTabManager::ConsumeAudioStopped(VlcTabHandle handle) { return mImpl->ConsumeAudioStopped(handle); }
+std::uint64_t LibVlcTabManager::GetAudioDroppedFrames(VlcTabHandle handle) const { return mImpl->GetAudioDroppedFrames(handle); }
