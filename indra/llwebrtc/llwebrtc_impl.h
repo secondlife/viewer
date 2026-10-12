@@ -243,7 +243,13 @@ public:
     int32_t StopPlayout() override { return inner_->StopPlayout(); }
     bool    Playing() const override { return inner_->Playing(); }
 
-    int32_t InitRecording() override { return inner_->InitRecording(); }
+    int32_t InitRecording() override {
+    // Ignore webrtc.lib's InitRecording (sent when a send stream starts), as
+    // with StartRecording/StopRecording: it would leave capture initialised even
+    // while we hold capture off. The app initialises capture itself via ForceInitRecording.
+        return 0;
+    }
+    int32_t ForceInitRecording() { return inner_->InitRecording(); }
     bool    RecordingIsInitialized() const override { return inner_->RecordingIsInitialized(); }
     int32_t StartRecording() override {
         // ignore start recording as webrtc.lib will
@@ -442,6 +448,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     void setRenderDevice(const std::string& id) override;
 
     void setVoiceEnabled(bool enable) override;
+    void setStopCaptureOnMute(bool stop) override;
 
     void setTuningMode(bool enable) override;
     float getTuningAudioLevel() override;
@@ -521,8 +528,9 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     void freePeerConnection(LLWebRTCPeerConnectionInterface* peer_connection);
 
     // Start playout once a connection's audio is established (playout is gated
-    // on there being a connection to render).  Capture is not touched here --
-    // it follows voice-enabled state, not connection state.  Safe to call from
+    // on there being a connection to render).  Capture normally follows
+    // voice-enabled state, not connection state; the exception is "stop capture
+    // while muted", where it's also started here if unmuted.  Safe to call from
     // any thread (work is posted to the worker thread).
     void startPlayout();
 
@@ -572,6 +580,11 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     // Whether voice is enabled; gates whether the capture/playout devices run.
     bool                                                       mVoiceEnabled;
     float                                                      mGain;
+    std::atomic<bool>                                          mStopCaptureOnMute{ false };
+    // True once any connection's audio has been established, until the last
+    // connection is freed (not a count of currently-connected peers). Used to
+    // hold capture off until a call is actually up.
+    std::atomic<bool>                                          mAudioEstablished{ false };
 
     LLCustomProcessorStatePtr                                  mPeerCustomProcessor;
 
