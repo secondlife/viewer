@@ -66,7 +66,6 @@
 #include "llconversationlog.h"
 #if LL_WINDOWS
 #include "lldxhardware.h"
-#include <shellapi.h>
 #endif
 #include "lltexturestats.h"
 #include "lltrace.h"
@@ -2363,12 +2362,6 @@ void errorHandler(const std::string& title_string, const std::string& message_st
     }
 }
 
-namespace
-{
-    std::string getStartupLogFileName();
-    std::string getOldLogFileName(const std::string& log_file);
-}
-
 void LLAppViewer::initLoggingAndGetLastDuration()
 {
     //
@@ -2388,22 +2381,19 @@ void LLAppViewer::initLoggingAndGetLastDuration()
         if (!gGPUBenchmarkMode)
         {
             LLFile::mkdir(gDirUtilp->getDumpLogsDirPath());
-
-            LLUUID uid;
-            uid.generate();
-            // Is this even useful?
-            // Originally this wa used to store states, but I don't think it's practical with bugsplat attributes.
-            // So it just spams files now.
-            LLError::logToFile(gDirUtilp->getDumpLogsDirPath(uid.asString() + ".log"));
+            LLError::logToFile(gDirUtilp->getDumpLogsDirPath(gDirUtilp->getDumpDirSessionUUID().asString() + ".log"));
         }
     }
     else
     {
         // Remove the last ".old" log file.
-        std::string log_file = getStartupLogFileName();
-        std::string old_log_file = getOldLogFileName(log_file);
+        std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
+            "SecondLife.old");
         LLFile::remove(old_log_file);
 
+        // Get name of the log file
+        std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
+            "SecondLife.log");
         /*
         * Before touching any log files, compute the duration of the last run
         * by comparing the ctime of the previous start marker file with the ctime
@@ -2450,7 +2440,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
         // Rename current log file to ".old"
         LLFile::rename(log_file, old_log_file);
 
-        // Set the log file.
+        // Set the log file to SecondLife.log
         LLError::logToFile(log_file);
         LL_INFOS() << "Started logging to " << log_file << LL_ENDL;
         if (!duration_log_msg.empty())
@@ -2588,76 +2578,6 @@ namespace
         OSMessageBox(STRINGIZE(LLTrans::getString("MBCmdLineError") << clp.getErrorMessage()),
                      LLStringUtil::null,
                      OSMB_OK);
-    }
-
-    std::string getStartupLogFileName()
-    {
-        if (LLControlVariable* user_log_file = gSavedSettings.getControl("UserLogFile"))
-        {
-            std::string log_file = user_log_file->getValue().asString();
-            if (!log_file.empty())
-            {
-                return log_file;
-            }
-        }
-
-#if LL_WINDOWS
-        int argc = 0;
-        LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
-        if (argv)
-        {
-            std::string log_file;
-            for (int i = 1; i < argc; ++i)
-            {
-                std::string option = ll_convert_wide_to_string(argv[i]);
-                if ((option == "--logfile" || option == "-logfile" || option == "/logfile") &&
-                    i + 1 < argc)
-                {
-                    log_file = ll_convert_wide_to_string(argv[i + 1]);
-                }
-                else if (option.compare(0, 10, "--logfile=") == 0)
-                {
-                    log_file = option.substr(10);
-                }
-                else if (option.compare(0, 9, "-logfile=") == 0)
-                {
-                    log_file = option.substr(9);
-                }
-                else if (option.compare(0, 9, "/logfile:") == 0)
-                {
-                    log_file = option.substr(9);
-                }
-            }
-            LocalFree(argv);
-
-            if (!log_file.empty())
-            {
-                return log_file;
-            }
-        }
-#endif
-
-        return gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log");
-    }
-
-    std::string getOldLogFileName(const std::string& log_file)
-    {
-        std::string old_log_file = log_file;
-        size_t separator = old_log_file.find_last_of("/\\");
-        size_t basename_start = (separator == std::string::npos) ? 0 : separator + 1;
-        size_t extension = old_log_file.find_last_of('.');
-
-        if (extension != std::string::npos &&
-            extension > basename_start)
-        {
-            old_log_file.replace(extension, std::string::npos, ".old");
-        }
-        else
-        {
-            old_log_file += ".old";
-        }
-
-        return old_log_file;
     }
 } // anonymous namespace
 
@@ -3175,6 +3095,42 @@ bool LLAppViewer::initConfiguration()
     gLastRunVersion = gSavedSettings.getString("LastRunVersion");
 
     loadColorSettings();
+
+    // Command line could have updated UserLogFile
+    std::string log_filename = gSavedSettings.getString("UserLogFile");
+    if (!log_filename.empty() && LLError::logFileName() != log_filename)
+    {
+        if (mSecondInstance)
+        {
+            // Second instances must not write to the primary
+            // instance's log file.
+            const LLUUID& uid = gDirUtilp->getDumpDirSessionUUID();
+            std::string dir;
+            std::string base(log_filename);
+
+            size_t slash_pos = log_filename.find_last_of("/\\");
+            if (slash_pos != std::string::npos)
+            {
+                dir = log_filename.substr(0, slash_pos + 1);
+                base = log_filename.substr(slash_pos + 1);
+            }
+
+            size_t dot_pos = base.find_last_of('.');
+            if (dot_pos != std::string::npos)
+            {
+                base = base.substr(0, dot_pos) + "_" + uid.asString() + base.substr(dot_pos);
+            }
+            else
+            {
+                base += "_" + uid.asString();
+            }
+
+            log_filename = dir + base;
+        }
+        LLFile::remove(log_filename);
+        LLError::logToFile(log_filename);
+        LL_INFOS("Settings") << "Logging switched to " << log_filename << LL_ENDL;
+    }
 
     // Let anyone else who cares know that we've populated our settings
     // variables.

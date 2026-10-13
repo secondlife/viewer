@@ -2858,48 +2858,36 @@ bool LLInventoryModel::loadSkeleton(
     if(!temp_cats.empty())
     {
         update_map_t child_counts;
-        cat_array_t categories;
-        item_array_t items;
-        changed_items_t categories_to_update;
         item_array_t possible_broken_links;
         cat_set_t invalid_categories; // Used to mark categories that weren't successfully loaded.
-        std::string inventory_filename = getInvCacheAddres(owner_id);
         const S32 NO_VERSION = LLViewerInventoryCategory::VERSION_UNKNOWN;
-        std::string gzip_filename(inventory_filename);
-        gzip_filename.append(".gz");
-        LLFILE* fp = LLFile::fopen(gzip_filename, LLFILE_MODE("rb"));
-        bool remove_inventory_file = false;
-        if (LLAppViewer::instance()->isSecondInstance())
+
+        // The caller (llstartup.cpp, STATE_INVENTORY_SKEL) must only call
+        // loadSkeleton() after waitForCacheResult(owner_id) has returned
+        // true.
+        auto found = mCacheLoadResults.find(owner_id);
+        llassert(found != mCacheLoadResults.end());
+        if (found == mCacheLoadResults.end())
         {
-            // Safeguard viewer against trying to unpack file twice
-            // ex: user logs into two accounts simultaneously, so two
-            // viewers are trying to unpack library into same file
-            //
-            // Would be better to do it in gunzip_file, but it doesn't
-            // have access to llfilesystem
-            inventory_filename = gDirUtilp->getTempFilename();
-            remove_inventory_file = true;
+            LL_ERRS(LOG_INV) << "loadSkeleton() called for " << owner_id
+                << " without a ready async cache result!" << LL_ENDL;
+            return false;
         }
-        if(fp)
+        std::shared_ptr<LLCacheLoadResult> cache_result = found->second;
+        mCacheLoadResults.erase(found);
+        mCacheLoadRequested.erase(owner_id); // mask as completed for waitForCacheResult
+
+        cat_array_t& categories = cache_result->mCategories;
+        item_array_t& items = cache_result->mItems;
+        changed_items_t& categories_to_update = cache_result->mCategoriesToUpdate;
+        bool is_cache_obsolete = cache_result->mIsCacheObsolete;
+        const std::string& inventory_filename = cache_result->mInventoryFilename;
+        const std::string& gzip_filename = cache_result->mGzipFilename;
+        bool remove_inventory_file = cache_result->mRemoveInventoryFile;
+
+        if (!is_cache_obsolete)
         {
-            fclose(fp);
-            fp = NULL;
-            if(gunzip_file(gzip_filename, inventory_filename))
-            {
-                // we only want to remove the inventory file if it was
-                // gzipped before we loaded, and we successfully
-                // gunziped it.
-                remove_inventory_file = true;
-            }
-            else
-            {
-                LL_INFOS(LOG_INV) << "Unable to gunzip " << gzip_filename << LL_ENDL;
-            }
-        }
-        bool is_cache_obsolete = false;
-        if (loadFromFile(inventory_filename, categories, items, categories_to_update, is_cache_obsolete))
-        {
-            LL_PROFILE_ZONE_NAMED("loadFromFile");
+            LL_PROFILE_ZONE_NAMED("loadFromFile - merge");
             // We were able to find a cache of files. So, use what we
             // found to generate a set of categories we should add. We
             // will go through each category loaded and if the version
@@ -3102,14 +3090,28 @@ bool LLInventoryModel::loadSkeleton(
                       << " after " << timer.getElapsedTimeF32() << " seconds."
                       << LL_ENDL;
 
+    // Note that this is the time on main thread, does not include
+    // time in a thread or time polling
     const F32 elapsed = timer.getElapsedTimeF32();
+
+    F32 skel_wait_time = elapsed;
+    auto wait_timer_it = mCacheWaitTimers.find(owner_id);
+    if (wait_timer_it != mCacheWaitTimers.end())
+    {
+        skel_wait_time = wait_timer_it->second.getElapsedTimeF32();
+        skel_wait_time = llmax(0.f, skel_wait_time - elapsed);
+        mCacheWaitTimers.erase(wait_timer_it);
+    }
+
     if (owner_id == mLibraryOwnerID)
     {
         mLibrarySkeletonLoadTime = elapsed;
+        mLibrarySkeletonWaitTime = skel_wait_time;
     }
     else
     {
         mAgentSkeletonLoadTime = elapsed;
+        mAgentSkeletonWaitTime = skel_wait_time;
     }
 
     return rv;
@@ -3375,6 +3377,165 @@ void LLInventoryModel::buildParentChildMap()
             // observers start firing.
         }
     }
+}
+
+// static
+std::shared_ptr<LLInventoryModel::LLCacheLoadResult>
+LLInventoryModel::loadCacheResultFromDisk(const LLUUID& owner_id)
+{
+    LL_PROFILE_ZONE_SCOPED;
+
+    // Cache by default is packed into a gzip file.
+    auto result = std::make_shared<LLCacheLoadResult>();
+    result->mGzipFilename = getInvCacheAddres(owner_id);
+    result->mGzipFilename.append(".gz");
+
+    // Safeguard viewer against trying to unpack file twice
+    // into same location and from leaving large inventory
+    // files on disk by using a temporary file.
+    //
+    // ex: user logs into two accounts simultaneously, so two
+    // viewers are not trying to unpack library into same file.
+    // Or after a failed login user attempts to login while
+    // gunzip_file from previous run is still working, there
+    // should be no conflict.
+    //
+    // Would be better to do it in gunzip_file, but it doesn't
+    // have access to llfilesystem
+    result->mInventoryFilename = gDirUtilp->getTempFilename();
+    result->mRemoveInventoryFile = false; // assume that it does not exist.
+
+    LLFILE* fp = LLFile::fopen(result->mGzipFilename, LLFILE_MODE("rb"));
+    if (fp)
+    {
+        fclose(fp);
+        fp = NULL;
+        if (gunzip_file(result->mGzipFilename, result->mInventoryFilename))
+        {
+            // we only want to remove the inventory file if it was
+            // gzipped before we loaded, and we successfully
+            // gunziped it.
+            result->mRemoveInventoryFile = true;
+        }
+        else
+        {
+            LL_INFOS(LOG_INV) << "Unable to gunzip " << result->mGzipFilename << LL_ENDL;
+        }
+    }
+
+    loadFromFile(result->mInventoryFilename,
+        result->mCategories,
+        result->mItems,
+        result->mCategoriesToUpdate,
+        result->mIsCacheObsolete);
+
+    return result;
+}
+
+// static
+void LLInventoryModel::loadInventoryCacheAsync(const LLUUID& owner_id)
+{
+    std::function<void(std::shared_ptr<LLCacheLoadResult>)> cb =
+        [owner_id](std::shared_ptr<LLInventoryModel::LLCacheLoadResult> result)
+    {
+        gInventory.setCacheLoadResult(owner_id, result);
+    };
+    // Remove any stale requests or results.
+    gInventory.mCacheLoadRequested.erase(owner_id);
+    auto found = gInventory.mCacheLoadResults.find(owner_id);
+    if (found != gInventory.mCacheLoadResults.end())
+    {
+        const auto& result = found->second;
+        if (result && result->mRemoveInventoryFile)
+        {
+            LLFile::remove(result->mInventoryFilename);
+        }
+        gInventory.mCacheLoadResults.erase(found);
+    }
+
+    gInventory.mCacheLoadRequested.insert(owner_id);
+
+    LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+    LL::WorkQueue::ptr_t general_queue = LL::WorkQueue::getInstance("General");
+    llassert_always(main_queue);
+    llassert_always(general_queue);
+
+    S32 generation = gInventory.mCacheLoadGeneration;
+    bool posted = main_queue->postTo(
+        general_queue,
+        [owner_id]() // runs on "General" worker thread
+    {
+        return loadCacheResultFromDisk(owner_id);
+    },
+        [cb, generation](std::shared_ptr<LLCacheLoadResult> result) // back on main thread
+    {
+        if (generation != gInventory.mCacheLoadGeneration)
+        {
+            // reset_login() happened while this was in flight; drop it.
+            LL_DEBUGS(LOG_INV) << "Discarding stale async inventory cache load" << LL_ENDL;
+            if (result && result->mRemoveInventoryFile)
+            {
+                LLFile::remove(result->mInventoryFilename);
+            }
+            return;
+        }
+        cb(result);
+    });
+    if (!posted)
+    {
+        LL_WARNS() << "Failed to post async inventory cache load for " << owner_id << "" << LL_ENDL;
+        cb(loadCacheResultFromDisk(owner_id));
+    }
+}
+
+void LLInventoryModel::setCacheLoadResult(const LLUUID& owner_id, std::shared_ptr<LLCacheLoadResult> result)
+{
+    // Called on the main thread (via the postTo() callback above). Stash
+    // by owner_id; loadSkeleton() will pick it up when the matching
+    // skeleton arrives.
+    mCacheLoadResults[owner_id] = result;
+}
+
+LLInventoryModel::ECacheLoadResult LLInventoryModel::waitForCacheResult(const LLUUID& owner_id)
+{
+    if (mCacheLoadRequested.find(owner_id) == mCacheLoadRequested.end())
+    {
+        // Assume that the call was already made then processed
+        return CACHE_PROCESSED;
+    }
+
+    // Lazily start (once) the timer used to measure the full wait duration,
+    // from the first time we started waiting for this owner_id's cache
+    // result, until loadSkeleton() consumes it.
+    mCacheWaitTimers.try_emplace(owner_id);
+
+    if (mCacheLoadResults.find(owner_id) == mCacheLoadResults.end())
+    {
+        // No result yet, wait.
+        return CACHE_WAIT;
+    }
+    return CACHE_READY_TO_PROCESS;
+}
+
+void LLInventoryModel::cancelCacheLoad()
+{
+    // We can't un-post work already queued on "General", but any
+    // already-posted postTo() callback checks mCacheLoadGeneration
+    // on main thread and will no-op once it lands.
+    mCacheLoadGeneration++;
+
+    for (const auto& entry : mCacheLoadResults)
+    {
+        const auto& result = entry.second;
+        if (result && result->mRemoveInventoryFile)
+        {
+            LLFile::remove(result->mInventoryFilename);
+        }
+    }
+
+    mCacheLoadResults.clear();
+    mCacheLoadRequested.clear();
+    mCacheWaitTimers.clear();
 }
 
 // Would normally do this at construction but that's too early

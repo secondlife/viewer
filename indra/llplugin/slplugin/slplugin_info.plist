@@ -6,7 +6,15 @@
 	<string>English</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleExecutable</key>
+	<string>SLPlugin</string>
+	<key>CFBundleName</key>
+	<string>SLPlugin</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>LSUIElement</key>
-	<string>1</string>
+	<true/>
 </dict>
 </plist>

@@ -4441,6 +4441,8 @@ LLAppearanceMgr::LLAppearanceMgr():
     mUnlockOutfitTimer = std::make_unique<LLOutfitUnLockTimer>((F32)gSavedSettings.getS32(
             "OutfitOperationsTimeout"));
 
+    // has an order dependency?
+    // Todo: cleanup gIdleCallbacks and outfit_observer
     gIdleCallbacks.addFunction(&LLAttachmentsMgr::onIdle, NULL);
     gIdleCallbacks.addFunction(&LLAppearanceMgr::onIdle, NULL); //sheduling appearance update requests
 }
