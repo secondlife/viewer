@@ -89,6 +89,8 @@ public:
 LLBuyCurrencyHTMLHandler gBuyCurrencyHTMLHandler;
 
 bool LLBuyCurrencyHTML::sWebFloaterEnabled = false;
+bool LLBuyCurrencyHTML::sAddPaymentEnabled = false;
+LLFetchAvatarPaymentInfo* LLBuyCurrencyHTML::sPaymentInfoRequest = NULL;
 
 ////////////////////////////////////////////////////////////////////////////////
 // static
@@ -110,11 +112,37 @@ static void checkFeatureFlag_coro(std::string check_url)
 }
 
 // static
+static void checkAddPaymentFlag_coro(std::string check_url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("CheckBuyCurrencyAddPaymentURL", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
+
+    // a redirect to some other page that answers 200 must not read as enabled
+    LLCore::HttpOptions::ptr_t httpOptions = std::make_shared<LLCore::HttpOptions>();
+    httpOptions->setRetries(0);
+    httpOptions->setFollowRedirects(false);
+
+    LLSD result = httpAdapter->getRawAndSuspend(httpRequest, check_url, httpOptions);
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    LLBuyCurrencyHTML::sAddPaymentEnabled = status.isHttpStatus() && status.getType() == 200;
+    LL_INFOS("LLBuyCurrency") << "Add payment probe returned " << status.toString()
+        << ", in-floater add payment " << (LLBuyCurrencyHTML::sAddPaymentEnabled ? "enabled" : "disabled") << LL_ENDL;
+}
+
+// static
 void LLBuyCurrencyHTML::checkFeatureFlag()
 {
     std::string check_url = LLFloaterBuyCurrencyHTML::buildURL();
     LLCoros::instance().launch("checkFeatureFlag_coro",
         [check_url]() { checkFeatureFlag_coro(check_url); });
+
+    std::string add_payment_url = gSavedSettings.getString("BuyCurrencyAddPaymentURL");
+    LLCoros::instance().launch("checkAddPaymentFlag_coro",
+        [add_payment_url]() { checkAddPaymentFlag_coro(add_payment_url); });
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -124,15 +152,7 @@ void LLBuyCurrencyHTML::checkFeatureFlag()
 // the case where the amount is not requested.
 void LLBuyCurrencyHTML::openCurrencyFloater()
 {
-    if (gSavedSettings.getBOOL("BuyCurrencyHTML") && sWebFloaterEnabled)
-    {
-        LLBuyCurrencyHTML::showDialog();
-    }
-    else
-    {
-        // legacy version
-        LLFloaterBuyCurrency::buyCurrency();
-    }
+    routeCurrencyRequest(false, LLStringUtil::null, 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -142,19 +162,68 @@ void LLBuyCurrencyHTML::openCurrencyFloater()
 // the case where the amount and a string to display are requested.
 void LLBuyCurrencyHTML::openCurrencyFloater( const std::string& message, S32 sum )
 {
-    if (gSavedSettings.getBOOL("BuyCurrencyHTML") && sWebFloaterEnabled)
+    routeCurrencyRequest(true, message, sum);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// static
+// Without the in-floater add payment flow, the web floater is opened only for
+// residents with payment info on file; the rest go to the LindeX payment page.
+void LLBuyCurrencyHTML::routeCurrencyRequest( bool has_target, const std::string& message, S32 sum )
+{
+    if (!gSavedSettings.getBOOL("BuyCurrencyHTML") || !sWebFloaterEnabled)
     {
-        LLBuyCurrencyHTML::showDialog(sum - gStatusBar->getBalance());
-        LLFloaterBuyCurrencyHTML* floater = dynamic_cast<LLFloaterBuyCurrencyHTML*>(LLFloaterReg::getInstance("buy_currency_html"));
-        if (floater)
+        // legacy version, which runs its own payment info check
+        if (has_target)
         {
-            floater->setFallbackContext(message, sum);
+            LLFloaterBuyCurrency::buyCurrency(message, sum);
         }
+        else
+        {
+            LLFloaterBuyCurrency::buyCurrency();
+        }
+    }
+    else if (sAddPaymentEnabled)
+    {
+        openWebFloater(has_target, message, sum);
     }
     else
     {
-        // legacy version
-        LLFloaterBuyCurrency::buyCurrency( message, sum );
+        delete sPaymentInfoRequest;
+        sPaymentInfoRequest = new LLFetchAvatarPaymentInfo(
+            [has_target, message, sum](bool has_piof)
+            {
+                delete sPaymentInfoRequest;
+                sPaymentInfoRequest = NULL;
+
+                if (has_piof)
+                {
+                    openWebFloater(has_target, message, sum);
+                }
+                else
+                {
+                    LL_INFOS("LLBuyCurrency") << "No payment info on file, opening payment method page" << LL_ENDL;
+                    LLFloaterBuyCurrency::openPaymentMethodPage();
+                }
+            });
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// static
+void LLBuyCurrencyHTML::openWebFloater( bool has_target, const std::string& message, S32 sum )
+{
+    if (!has_target)
+    {
+        LLBuyCurrencyHTML::showDialog();
+        return;
+    }
+
+    LLBuyCurrencyHTML::showDialog(sum - gStatusBar->getBalance());
+    LLFloaterBuyCurrencyHTML* floater = dynamic_cast<LLFloaterBuyCurrencyHTML*>(LLFloaterReg::getInstance("buy_currency_html"));
+    if (floater)
+    {
+        floater->setFallbackContext(message, sum);
     }
 }
 

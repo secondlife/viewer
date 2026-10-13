@@ -600,10 +600,13 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
     void init(LLWebRTCImpl * webrtc_impl);
     // Posts closeOnSignalingThread() and returns immediately.
     void terminate();
+
     // The actual close.  Signaling thread only.  Callable directly (via a
     // BlockingCall) when the caller needs the connection to be fully closed
     // before it continues -- see LLWebRTCImpl::terminate().
-    void closeOnSignalingThread();
+    // webrtc_terminate indicates we're shutting down the webrtc library,
+    // if not, we'll be reusing the peer connection for a reconnection
+    void closeOnSignalingThread(bool webrtc_terminate);
 
     virtual void AddRef() const override = 0;
     virtual webrtc::RefCountReleaseStatus Release() const override = 0;

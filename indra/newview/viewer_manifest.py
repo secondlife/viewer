@@ -143,6 +143,9 @@ class ViewerManifest(LLManifest):
                                  "settings_install.xml",
                                  src="environment")
 
+            # Include the full Luau license in the packaged viewer.
+            with self.prefix(src=pkgdir):
+                self.path("LICENSES/luau.txt")
 
             with self.prefix(src_dst="character"):
                 self.path("*.llm")
