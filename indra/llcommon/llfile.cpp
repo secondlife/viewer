@@ -188,7 +188,7 @@ std::string strerr(int errn)
 
 #if LL_WINDOWS && 0 // turn on to debug file-locking problems
 #define PROCESS_LOCKING_CHECK 1
-static void find_locking_process(const std::string& filename)
+static void find_locking_process(const std::filesystem::path& filename)
 {
     // Only do any of this stuff (before LL_ENDL) if it will be logged.
     LL_DEBUGS("LLFile") << "";
@@ -200,14 +200,14 @@ static void find_locking_process(const std::string& filename)
     }
     else
     {
-        std::string tf(TEMP);
-        tf += "handle.tmp";
+        std::filesystem::path tf = fsyspath(TEMP) / "handle.tmp";
+        std::string utf8name = fsyspath(filename).string();
         // http://technet.microsoft.com/en-us/sysinternals/bb896655
-        std::string cmd(STRINGIZE("handle \"" << filename
-                        // "openfiles /query /v | fgrep -i \"" << filename
-                        << "\" > \"" << tf << '"'));
+        std::string cmd(STRINGIZE("handle \"" << utf8name
+                        // "openfiles /query /v | fgrep -i \"" << utf8name
+                        << "\" > \"" << fsyspath(tf).string() << '"'));
         LL_CONT << cmd;
-        if (system(cmd.c_str()) != 0)
+        if (_wsystem(ll_convert<std::wstring>(cmd).c_str()) != 0)
         {
             LL_CONT << "\nDownload 'handle.exe' from http://technet.microsoft.com/en-us/sysinternals/bb896655";
         }
@@ -238,7 +238,7 @@ static int warnif(std::string_view desc, const std::filesystem::path& filename, 
         // EEXIST. Don't log a warning if caller explicitly says this errno is okay.
         if (errn != suppress_warning)
         {
-            LL_WARNS("LLFile") << "Couldn't " << desc << " '" << filename << "' (errno " << errn << "): " << strerr(errn) << LL_ENDL;
+            LL_WARNS("LLFile") << "Couldn't " << desc << " '" << fsyspath(filename).string() << "' (errno " << errn << "): " << strerr(errn) << LL_ENDL;
         }
 #if PROCESS_LOCKING_CHECK
         // If the problem is "Permission denied," maybe it's because another
@@ -267,7 +267,7 @@ static int warnif(std::string_view desc, const std::filesystem::path& filename, 
         // Don't warn if caller explicitly says this errno is okay.
         if (errn != suppress_warning)
         {
-            LL_WARNS("LLFile") << "Couldn't " << desc << " '" << filename << "' (errno " << errn << "): " << ec.message() << LL_ENDL;
+            LL_WARNS("LLFile") << "Couldn't " << desc << " '" << fsyspath(filename).string() << "' (errno " << errn << "): " << ec.message() << LL_ENDL;
         }
 #if PROCESS_LOCKING_CHECK
         // Try to detect locked files by other processes
@@ -988,7 +988,7 @@ bool LLFile::copy(const std::filesystem::path& source_path, const std::filesyste
     bool copied = std::filesystem::copy_file(source_path, target_path, options, ec);
     if (!copied)
     {
-        warnif(STRINGIZE("copy failed, to '" << target_path << "' from"), source_path, ec);
+        warnif(STRINGIZE("copy failed, to '" << fsyspath(target_path).string() << "' from"), source_path, ec);
     }
     return copied;
 }

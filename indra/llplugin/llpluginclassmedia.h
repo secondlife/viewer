@@ -324,8 +324,12 @@ public:
     std::string getHoverText() const { return mHoverText; };
     std::string getHoverLink() const { return mHoverLink; };
 
-    // these are valid during MEDIA_EVENT_LINK_HOVERED
+    // These are valid during MEDIA_EVENT_FILE_DOWNLOAD
     std::string getFileDownloadFilename() const { return mFileDownloadFilename; }
+
+    // these are valid during MEDIA_EVENT_FILE_DOWNLOAD_PROGRESS
+    int getFileDownloadProgressPercent() const { return mFileDownloadProgressPercent; }
+    bool getFileDownloadProgressComplete() const { return mFileDownloadProgressComplete; }
 
 
     const std::string& getMediaName() const { return mMediaName; };
@@ -488,6 +492,8 @@ protected:
     std::string     mHoverText;
     std::string     mHoverLink;
     std::string     mFileDownloadFilename;
+    int             mFileDownloadProgressPercent = 0;
+    bool            mFileDownloadProgressComplete = false;
     bool            mIsMultipleFilePick;
 
     /////////////////////////////////////////

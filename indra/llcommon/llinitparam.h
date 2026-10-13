@@ -45,7 +45,6 @@ namespace LLTypeTags
     template <typename INNER_TYPE, int _SORT_ORDER>
     struct TypeTagBase
     {
-        typedef void        is_tag_t;
         typedef INNER_TYPE  inner_t;
         static const int    SORT_ORDER=_SORT_ORDER;
     };
@@ -68,16 +67,10 @@ namespace LLTypeTags
         typedef typename REST::template Cons<Swap<ITEM, typename REST::inner_t>::value_t>::value_t value_t;
     };
 
-    template<typename T, typename SORTABLE = void>
+    template<typename T>
     struct IsSortable
     {
         static const bool value = false;
-    };
-
-    template<typename T>
-    struct IsSortable<T, typename T::is_tag_t>
-    {
-        static const bool value = true;
     };
 
     template<typename ITEM, typename REST, bool IS_REST_SORTABLE = IsSortable<REST>::value>
@@ -2830,5 +2823,26 @@ namespace LLInitParam
     };
 }
 
+namespace LLTypeTags
+{
+    // After BaseBlock so Sequential, Atomic, and Lazy are in scope.
+    template<typename T>
+    struct IsSortable<LLInitParam::BaseBlock::Sequential<T> >
+    {
+        static const bool value = true;
+    };
+
+    template<typename T>
+    struct IsSortable<LLInitParam::BaseBlock::Atomic<T> >
+    {
+        static const bool value = true;
+    };
+
+    template<typename T, typename BLOCK_T>
+    struct IsSortable<LLInitParam::BaseBlock::Lazy<T, BLOCK_T> >
+    {
+        static const bool value = true;
+    };
+}
 
 #endif // LL_LLPARAM_H
