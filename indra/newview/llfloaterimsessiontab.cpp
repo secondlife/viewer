@@ -1070,6 +1070,14 @@ void LLFloaterIMSessionTab::reshapeChatLayoutPanel()
 // static
 void LLFloaterIMSessionTab::processChatHistoryStyleUpdate(bool clean_messages/* = false*/)
 {
+    if (clean_messages)
+    {
+        // Model-owned direct history is reloaded once, including sessions without a floater.
+        LLIMModel::instance().reloadDirectHistories();
+    }
+
+    // P2P floaters render the model reload above; other floaters retain their
+    // existing clean-and-reload behavior.
     LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("impanel");
     for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin();
             iter != inst_list.end(); ++iter)
@@ -1077,7 +1085,11 @@ void LLFloaterIMSessionTab::processChatHistoryStyleUpdate(bool clean_messages/* 
         LLFloaterIMSession* floater = dynamic_cast<LLFloaterIMSession*>(*iter);
         if (floater)
         {
-            floater->reloadMessages(clean_messages);
+            LLIMModel::LLIMSession* session =
+                LLIMModel::instance().findIMSession(floater->mSessionID);
+            const bool reload_model = clean_messages &&
+                (!session || !session->isP2P());
+            floater->reloadMessages(reload_model);
         }
     }
 
