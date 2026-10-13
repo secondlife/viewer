@@ -194,7 +194,7 @@ private:
     boost::signals2::connection mLocationHistoryConnection;
     boost::signals2::connection mRegionCrossingSlot;
     LLPathfindingNavMesh::navmesh_slot_t mNavMeshSlot;
-    bool mIsNavMeshDirty;
+    bool mIsNavMeshDirty = false;
     LLUIImage* mLandmarkImageOn;
     LLUIImage* mLandmarkImageOff;
     LLPointer<LLUIImage> mIconMaturityGeneral;
@@ -206,7 +206,7 @@ private:
     std::string mEditLandmarkTooltip;
     // this field holds a human-readable form of the location string, it is needed to be able to compare copy-pated value and real location
     std::string mHumanReadableLocation;
-    bool isHumanReadableLocationVisible;
+    bool isHumanReadableLocationVisible = false;
     std::string mMaturityHelpTopic;
 };
 

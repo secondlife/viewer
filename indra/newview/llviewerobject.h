@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWEROBJECT_H
-#define LL_LLVIEWEROBJECT_H
+#pragma once
 
 #include <map>
 #include <unordered_map>
@@ -427,10 +426,12 @@ public:
     virtual F32 getStreamingCost() const;
     virtual bool getCostData(LLMeshCostData& costs) const;
     virtual U32 getTriangleCount(S32* vcount = NULL) const;
+    virtual U32 getLODTriangleCount(S32 lod);
     virtual U32 getHighLODTriangleCount();
     F32 recursiveGetScaledSurfaceArea() const;
 
     U32 recursiveGetTriangleCount(S32* vcount = NULL) const;
+    void recursiveGetLODTriangleCount(S32 &high_lod, S32 &medium_lod, S32 &low_lod, S32 &lowest_lod);
 
     void setObjectCost(F32 cost);
     F32 getObjectCost();
@@ -549,7 +550,20 @@ public:
     // save a script, which involves removing the old one, and rezzing
     // in the new one. This method should be called with the asset id
     // of the new and old script AFTER the bytecode has been saved.
-    void saveScript(const LLViewerInventoryItem* item, bool active, bool is_new);
+    // The simulator treats the script as new when item->getAssetUUID().isNull() is true; in that case
+    // template_id will be used (if non-null) to copy an existing script asset, otherwise the
+    // script subtype in the item will be used to select the correct template.
+    void saveScript(const LLViewerInventoryItem* item, bool active, bool is_new, const LLUUID& template_id);
+
+    void createInventoryItem(
+        LLAssetType::EType asset_type,
+        LLInventoryType::EType inventory_type,
+        U8 sub_type,
+        const std::string& name,
+        const std::string& description,
+        const LLPermissions& permissions,
+        const LLSD& params,
+        std::function<void(bool, const LLSD&)> callback);
 
     // move an inventory item out of the task and into agent
     // inventory. This operation is based on messaging. No permissions
@@ -731,6 +745,8 @@ private:
     void fetchInventoryDelayed(const F64 &time_seconds);
     static void fetchInventoryDelayedCoro(const LLUUID task_inv, const F64 time_seconds);
     static void fetchInventoryFromCapCoro(const LLUUID task_inv);
+    static void createInventoryItemCoro(const std::string cap_url, const LLSD body,
+                                        std::function<void(bool, const LLSD&)> callback);
 
 public:
     //
@@ -1108,5 +1124,3 @@ public:
     virtual void updateDrawable(bool force_damped);
 };
 
-
-#endif

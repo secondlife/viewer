@@ -49,10 +49,10 @@ public:
     LLLOCALE_ID         getLocale() const                       { return mLocale; }
 
     char                getDecimalPoint() const;
-    char                getThousandsSeparator() const;
+    std::string         getThousandsSeparator() const;
 
     char                getMonetaryDecimalPoint() const;
-    char                getMonetaryThousandsSeparator() const;
+    std::string         getMonetaryThousandsSeparator() const;
     std::string         getMonetaryString( S32 input ) const;
     void                getIntegerString( std::string& output, S32 input ) const;
 

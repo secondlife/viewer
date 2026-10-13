@@ -211,7 +211,16 @@ void LLXYVector::draw()
         mGhostY = pointY;
     }
 
-    if (abs(mValueX) >= mIncrementX || abs(mValueY) >= mIncrementY)
+    S32 dx = abs(pointX - centerX);
+    S32 dy = abs(pointY - centerY);
+    bool draw_arrow =
+        (abs(mValueX) >= mIncrementX || abs(mValueY) >= mIncrementY)
+        && (dx >= 1 || dy >= 1); // At least 1 pixel displacement
+
+    // Todo: Arrow doesn't display well with small values.
+    // Ex: (0.1, 0.05) will point to the right, as if it is (0.1, 0.0)
+    // as position will be offset by a single pixes on X, and 0 pixels on Y.
+    if (draw_arrow)
     {
         // draw the vector arrow
         drawArrow(centerX, centerY, pointX, pointY, mArrowColor);

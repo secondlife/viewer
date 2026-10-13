@@ -1,0 +1,1140 @@
+<?xml version="1.0" ?>
+<llsd>
+<map>
+    <key>skindata</key>
+    <map>
+      <key>270bb701-8643-c4b3-6a93-7a2b6503b30a</key>
+      <map>
+        <key>joint_names</key>
+        <array>
+          <string>mTail1</string>
+          <string>mPelvis</string>
+          <string>mTail2</string>
+          <string>mTorso</string>
+          <string>mSpine2</string>
+          <string>mSpine1</string>
+          <string>mHipLeft</string>
+          <string>mKneeLeft</string>
+          <string>mHipRight</string>
+          <string>mKneeRight</string>
+          <string>mChest</string>
+          <string>mSpine4</string>
+          <string>mSpine3</string>
+          <string>mShoulderRight</string>
+          <string>mCollarRight</string>
+          <string>mShoulderLeft</string>
+          <string>mCollarLeft</string>
+          <string>mElbowRight</string>
+          <string>mElbowLeft</string>
+          <string>mNeck</string>
+          <string>mAnkleRight</string>
+          <string>mAnkleLeft</string>
+        </array>
+        <key>joint_offset</key>
+        <array>
+          <array>
+            <real>-0.12795400619506836</real>
+            <real>0.0</real>
+            <real>0.001858999952673912</real>
+          </array>
+          <array>
+            <real>0.0</real>
+            <real>0.0</real>
+            <real>1.081987977027893</real>
+          </array>
+          <array>
+            <real>-0.018850000575184822</real>
+            <real>0.0</real>
+            <real>-0.09493499994277954</real>
+          </array>
+          <array>
+            <real>0.0</real>
+            <real>0.0</real>
+            <real>0.08407299965620041</real>
+          </array>
+          <array>
+            <real>0.0</real>
+            <real>0.0</real>
+            <real>-0.08407299965620041</real>
+          </array>
+          <array>
+            <real>0.0</real>
+            <real>0.0</real>
+            <real>0.08407299965620041</real>
+          </array>
+          <array>
+            <real>0.03375700116157532</real>
+            <real>0.12676499783992767</real>
+            <real>-0.04099800065159798</real>
+          </array>
+          <array>
+            <real>-0.0008870000019669533</real>
+            <real>-0.04556800052523613</real>
+            <real>-0.4910529851913452</real>
+          </array>
+          <array>
+            <real>0.03361999988555908</real>
+            <real>-0.1288059949874878</real>
+            <real>-0.041085999459028244</real>
+          </array>
+          <array>
+            <real>-0.0007800000021234155</real>
+            <real>0.04863499850034714</real>
+            <real>-0.4909220039844513</real>
+          </array>
+          <array>
+            <real>-0.01536799967288971</real>
+            <real>0.0</real>
+            <real>0.20487700402736664</real>
+          </array>
+          <array>
+            <real>0.01536799967288971</real>
+            <real>0.0</real>
+            <real>-0.20487700402736664</real>
+          </array>
+          <array>
+            <real>-0.01536799967288971</real>
+            <real>0.0</real>
+            <real>0.20487700402736664</real>
+          </array>
+          <array>
+            <real>0.0</real>
+            <real>-0.07941800355911255</real>
+            <real>0.0</real>
+          </array>
+          <array>
+            <real>-0.020927000790834427</real>
+            <real>-0.08500000089406967</real>
+            <real>0.16539600491523743</real>
+          </array>
+          <array>
+            <real>0.0</real>
+            <real>0.07900000363588333</real>
+            <real>0.0</real>
+          </array>
+          <array>
+            <real>-0.020927000790834427</real>
+            <real>0.08466500043869019</real>
+            <real>0.16539600491523743</real>
+          </array>
+          <array>
+            <real>0.0</real>
+            <real>-0.24799999594688416</real>
+            <real>0.0</real>
+          </array>
+          <array>
+            <real>0.0</real>
+            <real>0.24799999594688416</real>
+            <real>0.0</real>
+          </array>
+          <array>
+            <real>-0.00950700044631958</real>
+            <real>0.0</real>
+            <real>0.25110799074172974</real>
+          </array>
+          <array>
+            <real>-0.02886899933218956</real>
+            <real>0.0</real>
+            <real>-0.4684939980506897</real>
+          </array>
+          <array>
+            <real>-0.028886999934911728</real>
+            <real>0.0013780000153928995</real>
+            <real>-0.4684489965438843</real>
+          </array>
+        </array>
+        <key>pelvis_offset</key>
+        <real>0.0</real>
+      </map>
+    </map>
+    <key>wearables</key>
+    <array>
+      <array>
+        <map>
+          <key>agent_id</key>
+          <string>de494a4f-f01a-47a4-98cf-c94ef9ecca38</string>
+          <key>asset_id</key>
+          <string>7e3e76fc-7fa4-ec8f-a785-8956dbce6e72</string>
+          <key>contents</key>
+          <string>LLWearable version 22
+Fashionista Male - Shape (new)
+
+	permissions 0
+	{
+		base_mask	7fffffff
+		owner_mask	7fffffff
+		group_mask	00000000
+		everyone_mask	00000000
+		next_owner_mask	00082000
+		creator_id	1f8f7642-ce98-4d1b-9314-e2bc98b6538d
+		owner_id	1f8f7642-ce98-4d1b-9314-e2bc98b6538d
+		last_owner_id	1f8f7642-ce98-4d1b-9314-e2bc98b6538d
+		group_id	00000000-0000-0000-0000-000000000000
+	}
+	sale_info	0
+	{
+		sale_type	not
+		sale_price	10
+	}
+type 0
+parameters 142
+1 0
+2 .16
+4 -.23
+5 -.1
+6 -.3
+7 0
+8 0
+10 0
+11 .04
+12 0
+13 0
+14 0
+15 0
+17 0
+18 0
+19 -.1
+20 .56
+21 .07
+22 0
+23 .42
+24 -.66
+25 .51
+26 0
+27 .02
+28 .6
+29 0
+30 0
+32 1
+33 -.41
+34 .4
+35 0
+36 -.49
+37 0
+38 .42
+40 1
+80 1
+100 1
+104 0
+105 .5
+106 0
+107 0
+151 .16
+152 0
+153 1
+155 -.13
+156 0
+157 0
+185 -.44
+186 0
+187 0
+188 0
+189 0
+193 .5
+194 -.12
+195 -.06
+196 -.59
+505 .65
+506 -.04
+507 0
+515 -.2
+517 .12
+518 -.3
+626 0
+627 0
+629 .5
+630 0
+631 0
+633 .01
+634 .01
+635 .01
+637 .01
+646 0
+647 0
+648 0
+649 .5
+650 -.67
+651 .03
+652 .49
+653 .26
+655 -.08
+656 0
+657 .03
+658 0
+659 .51
+660 0
+661 0
+662 .5
+663 -.2
+664 .13
+665 .04
+675 .03
+676 -.43
+677 .34
+678 .37
+679 -.08
+680 -.08
+681 -.08
+682 .5
+683 -.14
+684 0
+685 .14
+686 -.68
+687 -.09
+688 -.09
+689 -.34
+690 .33
+691 -.09
+692 .24
+693 .1
+694 -.08
+695 -.09
+753 .06
+756 -.08
+758 -1.05
+759 .67
+760 0
+764 -.5
+765 1.02
+767 .08
+768 .08
+769 .52
+770 0
+772 0
+773 .5
+794 0
+795 .41
+796 0
+797 .15
+798 0
+799 .45
+841 0
+842 -.8
+843 0
+853 0
+854 .06
+855 -.43
+879 -.1
+880 -.82
+1103 0
+1104 0
+1105 0
+11001 0
+textures 0
+</string>
+          <key>created_at</key>
+          <integer>1724256027</integer>
+          <key>desc</key>
+          <string />
+          <key>flags</key>
+          <integer>256</integer>
+          <key>inv_type</key>
+          <integer>18</integer>
+          <key>item_id</key>
+          <string>8bbf11b0-b86b-3b4c-8c5c-c84902425f42</string>
+          <key>metadata</key>
+          <map>
+          </map>
+          <key>name</key>
+          <string>Leonard - Shape</string>
+          <key>parent_id</key>
+          <string>056f26cf-a9d9-39b9-a90c-f7b0fcd92347</string>
+          <key>permissions</key>
+          <map>
+            <key>base_mask</key>
+            <integer>573440</integer>
+            <key>creator_id</key>
+            <string>ba2a564a-f0f1-4b82-9c61-b7520bfcd09f</string>
+            <key>everyone_mask</key>
+            <integer>524288</integer>
+            <key>group_id</key>
+            <string>00000000-0000-0000-0000-000000000000</string>
+            <key>group_mask</key>
+            <integer>540672</integer>
+            <key>last_owner_id</key>
+            <string>ba2a564a-f0f1-4b82-9c61-b7520bfcd09f</string>
+            <key>next_owner_mask</key>
+            <integer>573440</integer>
+            <key>owner_id</key>
+            <string>de494a4f-f01a-47a4-98cf-c94ef9ecca38</string>
+            <key>owner_mask</key>
+            <integer>573440</integer>
+          </map>
+          <key>sale_info</key>
+          <map>
+            <key>sale_price</key>
+            <integer>10</integer>
+            <key>sale_type</key>
+            <integer>0</integer>
+          </map>
+          <key>type</key>
+          <integer>13</integer>
+          <key>wearable_type</key>
+          <integer>0</integer>
+        </map>
+      </array>
+      <array>
+        <map>
+          <key>agent_id</key>
+          <string>de494a4f-f01a-47a4-98cf-c94ef9ecca38</string>
+          <key>asset_id</key>
+          <string>9e675544-77c0-0db6-3694-462be7460b76</string>
+          <key>contents</key>
+          <string>LLWearable version 22
+Formal Male - Skin (less old)
+
+	permissions 0
+	{
+		base_mask	7fffffff
+		owner_mask	7fffffff
+		group_mask	00000000
+		everyone_mask	00000000
+		next_owner_mask	00082000
+		creator_id	1f8f7642-ce98-4d1b-9314-e2bc98b6538d
+		owner_id	1f8f7642-ce98-4d1b-9314-e2bc98b6538d
+		last_owner_id	1f8f7642-ce98-4d1b-9314-e2bc98b6538d
+		group_id	00000000-0000-0000-0000-000000000000
+	}
+	sale_info	0
+	{
+		sale_type	not
+		sale_price	10
+	}
+type 1
+parameters 37
+108 0
+110 0
+111 0
+116 0
+117 0
+118 0
+125 0
+126 0
+150 0
+158 0
+159 0
+161 0
+162 0
+163 0
+165 0
+700 .25
+701 0
+702 0
+703 0
+704 0
+705 .5
+706 .6
+707 0
+708 0
+709 0
+710 0
+711 .5
+712 0
+713 .7
+714 0
+715 0
+775 0
+776 0
+777 0
+873 0
+874 0
+878 0
+textures 3
+0 a21d4081-601e-f9f0-0acc-9192c72863dc
+5 a85bf749-952d-3835-d9ac-a307c780930c
+6 ab169525-d46c-918b-3195-7f2b92fd76c5
+</string>
+          <key>created_at</key>
+          <integer>1724256027</integer>
+          <key>desc</key>
+          <string />
+          <key>flags</key>
+          <integer>257</integer>
+          <key>inv_type</key>
+          <integer>18</integer>
+          <key>item_id</key>
+          <string>9e6c5696-cae0-337e-a5c6-aa6fede08ec6</string>
+          <key>metadata</key>
+          <map>
+          </map>
+          <key>name</key>
+          <string>Leonard - Skin</string>
+          <key>parent_id</key>
+          <string>056f26cf-a9d9-39b9-a90c-f7b0fcd92347</string>
+          <key>permissions</key>
+          <map>
+            <key>base_mask</key>
+            <integer>557056</integer>
+            <key>creator_id</key>
+            <string>ba2a564a-f0f1-4b82-9c61-b7520bfcd09f</string>
+            <key>everyone_mask</key>
+            <integer>524288</integer>
+            <key>group_id</key>
+            <string>00000000-0000-0000-0000-000000000000</string>
+            <key>group_mask</key>
+            <integer>524288</integer>
+            <key>last_owner_id</key>
+            <string>ba2a564a-f0f1-4b82-9c61-b7520bfcd09f</string>
+            <key>next_owner_mask</key>
+            <integer>557056</integer>
+            <key>owner_id</key>
+            <string>de494a4f-f01a-47a4-98cf-c94ef9ecca38</string>
+            <key>owner_mask</key>
+            <integer>557056</integer>
+          </map>
+          <key>sale_info</key>
+          <map>
+            <key>sale_price</key>
+            <integer>10</integer>
+            <key>sale_type</key>
+            <integer>0</integer>
+          </map>
+          <key>type</key>
+          <integer>13</integer>
+          <key>wearable_type</key>
+          <integer>1</integer>
+        </map>
+      </array>
+      <array>
+        <map>
+          <key>agent_id</key>
+          <string>de494a4f-f01a-47a4-98cf-c94ef9ecca38</string>
+          <key>asset_id</key>
+          <string>0b935621-92da-099e-a248-cfbfa3624c68</string>
+          <key>contents</key>
+          <string>LLWearable version 22
+Fashionista Male - Brows (new)
+
+	permissions 0
+	{
+		base_mask	00082000
+		owner_mask	00082000
+		group_mask	00000000
+		everyone_mask	00000000
+		next_owner_mask	00082000
+		creator_id	1f8f7642-ce98-4d1b-9314-e2bc98b6538d
+		owner_id	1f8f7642-ce98-4d1b-9314-e2bc98b6538d
+		last_owner_id	1f8f7642-ce98-4d1b-9314-e2bc98b6538d
+		group_id	00000000-0000-0000-0000-000000000000
+	}
+	sale_info	0
+	{
+		sale_type	not
+		sale_price	10
+	}
+type 2
+parameters 90
+16 .41
+31 1.04
+112 0
+113 0
+114 0
+115 0
+119 .5
+130 0
+131 0
+132 0
+133 0
+134 0
+135 0
+136 0
+137 .5
+140 0
+141 0
+142 0
+143 -4
+144 1
+145 0
+146 1
+147 0
+148 1
+149 0
+166 0
+167 0
+168 0
+169 0
+171 0
+172 1
+173 0
+174 1
+175 0
+176 1
+177 0
+178 0
+179 1
+180 0
+181 -1
+182 -1
+183 -1
+184 0
+190 0
+191 0
+192 0
+400 .75
+640 -.01
+641 .2
+642 0
+643 0
+644 .24
+645 0
+674 -.3
+750 .65
+751 0
+752 .5
+754 0
+755 .05
+757 -1.6
+761 1.3
+762 0
+763 0
+771 -.08
+774 0
+782 0
+783 0
+784 0
+785 0
+786 0
+787 0
+788 0
+789 0
+790 0
+870 -.11
+871 -.4
+872 .52
+1000 .5
+1001 .5
+1002 .65
+1003 .65
+1004 0
+1005 0
+1006 0
+1007 0
+1008 0
+1009 0
+1010 0
+1011 0
+1012 .25
+textures 1
+4 3cc3add8-6ff0-0640-79ba-b15137f64008
+</string>
+          <key>created_at</key>
+          <integer>1724256027</integer>
+          <key>desc</key>
+          <string />
+          <key>flags</key>
+          <integer>258</integer>
+          <key>inv_type</key>
+          <integer>18</integer>
+          <key>item_id</key>
+          <string>3ddd2d41-fbe4-3076-9732-c5f3b12973b1</string>
+          <key>metadata</key>
+          <map>
+          </map>
+          <key>name</key>
+          <string>Leonard - Brows</string>
+          <key>parent_id</key>
+          <string>056f26cf-a9d9-39b9-a90c-f7b0fcd92347</string>
+          <key>permissions</key>
+          <map>
+            <key>base_mask</key>
+            <integer>557056</integer>
+            <key>creator_id</key>
+            <string>ba2a564a-f0f1-4b82-9c61-b7520bfcd09f</string>
+            <key>everyone_mask</key>
+            <integer>524288</integer>
+            <key>group_id</key>
+            <string>00000000-0000-0000-0000-000000000000</string>
+            <key>group_mask</key>
+            <integer>524288</integer>
+            <key>last_owner_id</key>
+            <string>ba2a564a-f0f1-4b82-9c61-b7520bfcd09f</string>
+            <key>next_owner_mask</key>
+            <integer>557056</integer>
+            <key>owner_id</key>
+            <string>de494a4f-f01a-47a4-98cf-c94ef9ecca38</string>
+            <key>owner_mask</key>
+            <integer>557056</integer>
+          </map>
+          <key>sale_info</key>
+          <map>
+            <key>sale_price</key>
+            <integer>10</integer>
+            <key>sale_type</key>
+            <integer>0</integer>
+          </map>
+          <key>type</key>
+          <integer>13</integer>
+          <key>wearable_type</key>
+          <integer>2</integer>
+        </map>
+      </array>
+      <array>
+        <map>
+          <key>agent_id</key>
+          <string>de494a4f-f01a-47a4-98cf-c94ef9ecca38</string>
+          <key>asset_id</key>
+          <string>052ca46d-9612-7a43-25a9-d7c8a5387cf6</string>
+          <key>contents</key>
+          <string>LLWearable version 22
+Fashionista Male - Eyes
+
+	permissions 0
+	{
+		base_mask	7fffffff
+		owner_mask	7fffffff
+		group_mask	00000000
+		everyone_mask	00000000
+		next_owner_mask	00082000
+		creator_id	1f8f7642-ce98-4d1b-9314-e2bc98b6538d
+		owner_id	1f8f7642-ce98-4d1b-9314-e2bc98b6538d
+		last_owner_id	1f8f7642-ce98-4d1b-9314-e2bc98b6538d
+		group_id	00000000-0000-0000-0000-000000000000
+	}
+	sale_info	0
+	{
+		sale_type	not
+		sale_price	10
+	}
+type 3
+parameters 2
+98 1
+99 0
+textures 1
+3 579e320c-0f16-2a1d-2018-2a00cc657068
+</string>
+          <key>created_at</key>
+          <integer>1724256027</integer>
+          <key>desc</key>
+          <string />
+          <key>flags</key>
+          <integer>259</integer>
+          <key>inv_type</key>
+          <integer>18</integer>
+          <key>item_id</key>
+          <string>9d4e7072-0e92-39a1-95a4-b5330450b1ee</string>
+          <key>metadata</key>
+          <map>
+          </map>
+          <key>name</key>
+          <string>Leonard - Eyes</string>
+          <key>parent_id</key>
+          <string>056f26cf-a9d9-39b9-a90c-f7b0fcd92347</string>
+          <key>permissions</key>
+          <map>
+            <key>base_mask</key>
+            <integer>557056</integer>
+            <key>creator_id</key>
+            <string>ba2a564a-f0f1-4b82-9c61-b7520bfcd09f</string>
+            <key>everyone_mask</key>
+            <integer>524288</integer>
+            <key>group_id</key>
+            <string>00000000-0000-0000-0000-000000000000</string>
+            <key>group_mask</key>
+            <integer>524288</integer>
+            <key>last_owner_id</key>
+            <string>ba2a564a-f0f1-4b82-9c61-b7520bfcd09f</string>
+            <key>next_owner_mask</key>
+            <integer>557056</integer>
+            <key>owner_id</key>
+            <string>de494a4f-f01a-47a4-98cf-c94ef9ecca38</string>
+            <key>owner_mask</key>
+            <integer>557056</integer>
+          </map>
+          <key>sale_info</key>
+          <map>
+            <key>sale_price</key>
+            <integer>10</integer>
+            <key>sale_type</key>
+            <integer>0</integer>
+          </map>
+          <key>type</key>
+          <integer>13</integer>
+          <key>wearable_type</key>
+          <integer>3</integer>
+        </map>
+      </array>
+      <array>
+      </array>
+      <array>
+      </array>
+      <array>
+        <map>
+          <key>agent_id</key>
+          <string>de494a4f-f01a-47a4-98cf-c94ef9ecca38</string>
+          <key>asset_id</key>
+          <string>5f049939-bb34-ad27-66cb-38c9151a105d</string>
+          <key>contents</key>
+          <string>LLWearable version 22
+Fashionista Male - Shoe Base
+
+	permissions 0
+	{
+		base_mask	7fffffff
+		owner_mask	7fffffff
+		group_mask	00000000
+		everyone_mask	00000000
+		next_owner_mask	00082000
+		creator_id	73ecef5a-3110-4e95-92bc-da0ae7598652
+		owner_id	73ecef5a-3110-4e95-92bc-da0ae7598652
+		last_owner_id	73ecef5a-3110-4e95-92bc-da0ae7598652
+		group_id	00000000-0000-0000-0000-000000000000
+	}
+	sale_info	0
+	{
+		sale_type	not
+		sale_price	10
+	}
+type 6
+parameters 20
+197 0
+198 0
+500 0
+501 .1
+502 .1
+503 .1
+508 -.52
+509 1
+510 0
+511 .82
+512 0
+513 0
+514 .09
+616 .3
+654 .06
+812 1
+813 1
+817 1
+1052 .3
+1053 .3
+textures 1
+7 8dcd4a48-2d37-4909-9f78-f7a9eb4ef903
+</string>
+          <key>created_at</key>
+          <integer>1724256027</integer>
+          <key>desc</key>
+          <string>@600</string>
+          <key>flags</key>
+          <integer>262</integer>
+          <key>inv_type</key>
+          <integer>18</integer>
+          <key>item_id</key>
+          <string>dc5e279a-4a34-36ee-9075-028df446392c</string>
+          <key>metadata</key>
+          <map>
+          </map>
+          <key>name</key>
+          <string>Leonard - Shoes BASE</string>
+          <key>parent_id</key>
+          <string>056f26cf-a9d9-39b9-a90c-f7b0fcd92347</string>
+          <key>permissions</key>
+          <map>
+            <key>base_mask</key>
+            <integer>557056</integer>
+            <key>creator_id</key>
+            <string>ba2a564a-f0f1-4b82-9c61-b7520bfcd09f</string>
+            <key>everyone_mask</key>
+            <integer>524288</integer>
+            <key>group_id</key>
+            <string>00000000-0000-0000-0000-000000000000</string>
+            <key>group_mask</key>
+            <integer>524288</integer>
+            <key>last_owner_id</key>
+            <string>ba2a564a-f0f1-4b82-9c61-b7520bfcd09f</string>
+            <key>next_owner_mask</key>
+            <integer>557056</integer>
+            <key>owner_id</key>
+            <string>de494a4f-f01a-47a4-98cf-c94ef9ecca38</string>
+            <key>owner_mask</key>
+            <integer>557056</integer>
+          </map>
+          <key>sale_info</key>
+          <map>
+            <key>sale_price</key>
+            <integer>10</integer>
+            <key>sale_type</key>
+            <integer>0</integer>
+          </map>
+          <key>type</key>
+          <integer>5</integer>
+          <key>wearable_type</key>
+          <integer>6</integer>
+        </map>
+      </array>
+      <array>
+      </array>
+      <array>
+      </array>
+      <array>
+      </array>
+      <array>
+      </array>
+      <array>
+      </array>
+      <array>
+      </array>
+      <array>
+        <map>
+          <key>agent_id</key>
+          <string>de494a4f-f01a-47a4-98cf-c94ef9ecca38</string>
+          <key>asset_id</key>
+          <string>ab0bd2c6-3776-7ea6-264f-102842c6328b</string>
+          <key>contents</key>
+          <string>LLWearable version 22
+Fashionista Female - Heels Alpha
+
+	permissions 0
+	{
+		base_mask	7fffffff
+		owner_mask	7fffffff
+		group_mask	00000000
+		everyone_mask	00000000
+		next_owner_mask	00082000
+		creator_id	73ecef5a-3110-4e95-92bc-da0ae7598652
+		owner_id	73ecef5a-3110-4e95-92bc-da0ae7598652
+		last_owner_id	73ecef5a-3110-4e95-92bc-da0ae7598652
+		group_id	00000000-0000-0000-0000-000000000000
+	}
+	sale_info	0
+	{
+		sale_type	not
+		sale_price	10
+	}
+type 13
+parameters 0
+textures 5
+21 b5b09502-8305-af43-cc4e-7238cb715b11
+22 5748decc-f629-461c-9a36-a35a221fe21f
+23 5748decc-f629-461c-9a36-a35a221fe21f
+24 5748decc-f629-461c-9a36-a35a221fe21f
+25 5748decc-f629-461c-9a36-a35a221fe21f
+</string>
+          <key>created_at</key>
+          <integer>1724256027</integer>
+          <key>desc</key>
+          <string>@1300</string>
+          <key>flags</key>
+          <integer>269</integer>
+          <key>inv_type</key>
+          <integer>18</integer>
+          <key>item_id</key>
+          <string>b76dde5f-0da2-3e21-b505-d587b16ddb3c</string>
+          <key>metadata</key>
+          <map>
+          </map>
+          <key>name</key>
+          <string>Leonard - Shoes ALPHA</string>
+          <key>parent_id</key>
+          <string>056f26cf-a9d9-39b9-a90c-f7b0fcd92347</string>
+          <key>permissions</key>
+          <map>
+            <key>base_mask</key>
+            <integer>557056</integer>
+            <key>creator_id</key>
+            <string>ba2a564a-f0f1-4b82-9c61-b7520bfcd09f</string>
+            <key>everyone_mask</key>
+            <integer>524288</integer>
+            <key>group_id</key>
+            <string>00000000-0000-0000-0000-000000000000</string>
+            <key>group_mask</key>
+            <integer>524288</integer>
+            <key>last_owner_id</key>
+            <string>ba2a564a-f0f1-4b82-9c61-b7520bfcd09f</string>
+            <key>next_owner_mask</key>
+            <integer>557056</integer>
+            <key>owner_id</key>
+            <string>de494a4f-f01a-47a4-98cf-c94ef9ecca38</string>
+            <key>owner_mask</key>
+            <integer>557056</integer>
+          </map>
+          <key>sale_info</key>
+          <map>
+            <key>sale_price</key>
+            <integer>10</integer>
+            <key>sale_type</key>
+            <integer>0</integer>
+          </map>
+          <key>type</key>
+          <integer>5</integer>
+          <key>wearable_type</key>
+          <integer>13</integer>
+        </map>
+        <map>
+          <key>agent_id</key>
+          <string>de494a4f-f01a-47a4-98cf-c94ef9ecca38</string>
+          <key>asset_id</key>
+          <string>cb80f44f-8265-f56b-c812-ddf729cee73b</string>
+          <key>contents</key>
+          <string>LLWearable version 22
+New Alpha
+
+	permissions 0
+	{
+		base_mask	7fffffff
+		owner_mask	7fffffff
+		group_mask	00000000
+		everyone_mask	00000000
+		next_owner_mask	00082000
+		creator_id	8b1453d6-ec45-4434-bee3-1c4d6fe1bc55
+		owner_id	8b1453d6-ec45-4434-bee3-1c4d6fe1bc55
+		last_owner_id	8b1453d6-ec45-4434-bee3-1c4d6fe1bc55
+		group_id	00000000-0000-0000-0000-000000000000
+	}
+	sale_info	0
+	{
+		sale_type	not
+		sale_price	10
+	}
+type 13
+parameters 0
+textures 5
+21 d9413239-769d-abc9-e929-4fa98f52c07b
+22 b5d465f9-ca8e-8ba4-efd8-ee8929c592b8
+23 5748decc-f629-461c-9a36-a35a221fe21f
+24 5748decc-f629-461c-9a36-a35a221fe21f
+25 5748decc-f629-461c-9a36-a35a221fe21f
+</string>
+          <key>created_at</key>
+          <integer>1724256027</integer>
+          <key>desc</key>
+          <string>@1301</string>
+          <key>flags</key>
+          <integer>269</integer>
+          <key>inv_type</key>
+          <integer>18</integer>
+          <key>item_id</key>
+          <string>efc7da55-02ba-3286-8458-780aede51b49</string>
+          <key>metadata</key>
+          <map>
+          </map>
+          <key>name</key>
+          <string>Leonard - Suit Alpha</string>
+          <key>parent_id</key>
+          <string>056f26cf-a9d9-39b9-a90c-f7b0fcd92347</string>
+          <key>permissions</key>
+          <map>
+            <key>base_mask</key>
+            <integer>557056</integer>
+            <key>creator_id</key>
+            <string>ba2a564a-f0f1-4b82-9c61-b7520bfcd09f</string>
+            <key>everyone_mask</key>
+            <integer>524288</integer>
+            <key>group_id</key>
+            <string>00000000-0000-0000-0000-000000000000</string>
+            <key>group_mask</key>
+            <integer>524288</integer>
+            <key>last_owner_id</key>
+            <string>ba2a564a-f0f1-4b82-9c61-b7520bfcd09f</string>
+            <key>next_owner_mask</key>
+            <integer>557056</integer>
+            <key>owner_id</key>
+            <string>de494a4f-f01a-47a4-98cf-c94ef9ecca38</string>
+            <key>owner_mask</key>
+            <integer>557056</integer>
+          </map>
+          <key>sale_info</key>
+          <map>
+            <key>sale_price</key>
+            <integer>10</integer>
+            <key>sale_type</key>
+            <integer>0</integer>
+          </map>
+          <key>type</key>
+          <integer>5</integer>
+          <key>wearable_type</key>
+          <integer>13</integer>
+        </map>
+        <map>
+          <key>agent_id</key>
+          <string>de494a4f-f01a-47a4-98cf-c94ef9ecca38</string>
+          <key>asset_id</key>
+          <string>f235a6a9-062a-bb40-46c2-c8a7bec95fbf</string>
+          <key>contents</key>
+          <string>LLWearable version 22
+System Eyelash Remover
+
+	permissions 0
+	{
+		base_mask	7fffffff
+		owner_mask	7fffffff
+		group_mask	00000000
+		everyone_mask	00000000
+		next_owner_mask	00082000
+		creator_id	1f8f7642-ce98-4d1b-9314-e2bc98b6538d
+		owner_id	1f8f7642-ce98-4d1b-9314-e2bc98b6538d
+		last_owner_id	1f8f7642-ce98-4d1b-9314-e2bc98b6538d
+		group_id	00000000-0000-0000-0000-000000000000
+	}
+	sale_info	0
+	{
+		sale_type	not
+		sale_price	10
+	}
+type 13
+parameters 0
+textures 5
+21 5748decc-f629-461c-9a36-a35a221fe21f
+22 5748decc-f629-461c-9a36-a35a221fe21f
+23 9e460914-daed-b03f-0f2a-afbe67833b11
+24 5748decc-f629-461c-9a36-a35a221fe21f
+25 5748decc-f629-461c-9a36-a35a221fe21f
+</string>
+          <key>created_at</key>
+          <integer>1724256027</integer>
+          <key>desc</key>
+          <string>@1302</string>
+          <key>flags</key>
+          <integer>269</integer>
+          <key>inv_type</key>
+          <integer>18</integer>
+          <key>item_id</key>
+          <string>624f9c12-72e8-3409-a3f3-b3fe8f496b13</string>
+          <key>metadata</key>
+          <map>
+          </map>
+          <key>name</key>
+          <string>System Eyelash Remover</string>
+          <key>parent_id</key>
+          <string>056f26cf-a9d9-39b9-a90c-f7b0fcd92347</string>
+          <key>permissions</key>
+          <map>
+            <key>base_mask</key>
+            <integer>557056</integer>
+            <key>creator_id</key>
+            <string>ba2a564a-f0f1-4b82-9c61-b7520bfcd09f</string>
+            <key>everyone_mask</key>
+            <integer>524288</integer>
+            <key>group_id</key>
+            <string>00000000-0000-0000-0000-000000000000</string>
+            <key>group_mask</key>
+            <integer>524288</integer>
+            <key>last_owner_id</key>
+            <string>ba2a564a-f0f1-4b82-9c61-b7520bfcd09f</string>
+            <key>next_owner_mask</key>
+            <integer>557056</integer>
+            <key>owner_id</key>
+            <string>de494a4f-f01a-47a4-98cf-c94ef9ecca38</string>
+            <key>owner_mask</key>
+            <integer>557056</integer>
+          </map>
+          <key>sale_info</key>
+          <map>
+            <key>sale_price</key>
+            <integer>10</integer>
+            <key>sale_type</key>
+            <integer>0</integer>
+          </map>
+          <key>type</key>
+          <integer>5</integer>
+          <key>wearable_type</key>
+          <integer>13</integer>
+        </map>
+      </array>
+      <array>
+      </array>
+      <array>
+      </array>
+      <array>
+      </array>
+    </array>
+  </map>
+</llsd>

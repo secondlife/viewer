@@ -1109,7 +1109,6 @@ Vérifiez votre connexion Internet et réessayez dans quelques minutes, cliquez 
 		Votre personnage va apparaître dans un moment.
 
 Pour marcher, utilisez les flèches de direction.
-Appuyez sur F1 pour obtenir de l'aide ou en savoir plus sur [SECOND_LIFE].
 Choisissez un avatar homme ou femme.
 Vous pourrez revenir sur votre décision plus tard.
 		<usetemplate name="okcancelbuttons" notext="Femme" yestext="Homme"/>

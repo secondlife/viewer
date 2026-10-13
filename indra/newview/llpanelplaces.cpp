@@ -84,6 +84,7 @@ static const std::string LANDMARK_INFO_TYPE         = "landmark";
 static const std::string REMOTE_PLACE_INFO_TYPE     = "remote_place";
 static const std::string TELEPORT_HISTORY_INFO_TYPE = "teleport_history";
 static const std::string LANDMARK_TAB_INFO_TYPE     = "open_landmark_tab";
+static const std::string TELEPORT_HISTORY_TAB_INFO_TYPE = "open_teleport_history_tab";
 
 // Support for secondlife:///app/parcel/{UUID}/about SLapps
 class LLParcelHandler : public LLCommandHandler
@@ -409,6 +410,15 @@ void LLPanelPlaces::onOpen(const LLSD& key)
             // Update the active tab
             onTabSelected();
             // Update the buttons at the bottom of the panel
+            updateVerbs();
+        }
+        else if (key_type == TELEPORT_HISTORY_TAB_INFO_TYPE)
+        {
+            // toggle twice, similar to LANDMARK_TAB_INFO_TYPE
+            togglePlaceInfoPanel(false);
+            mPlaceInfoType = key_type;
+            togglePlaceInfoPanel(false);
+            onTabSelected();
             updateVerbs();
         }
         else if (key_type == CREATE_PICK_TYPE)
@@ -1101,6 +1111,18 @@ void LLPanelPlaces::togglePlaceInfoPanel(bool visible)
                 {
                     landmarks_panel->resetSelection();
                 }
+            }
+        }
+    }
+    else if (mPlaceInfoType == TELEPORT_HISTORY_TAB_INFO_TYPE)
+    {
+        mLandmarkInfo->setVisible(false);
+        mPlaceProfile->setVisible(false);
+        if (!visible)
+        {
+            if (LLPanel* teleport_history_panel = mTabContainer->getPanelByName("Teleport History"))
+            {
+                mTabContainer->selectTabPanel(teleport_history_panel);
             }
         }
     }

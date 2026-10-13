@@ -167,7 +167,8 @@ LLMuteList::LLMuteList() :
     mLoadState(ML_INITIAL),
     mLoadSource(MLS_NONE),
     mRequestStartTime(0.f),
-    mTriedCacheFallback(false)
+    mTriedCacheFallback(false),
+    mTriedRegionChangeRetry(false)
 {
     gGenericDispatcher.addHandler("emptymutelist", &sDispatchEmptyMuteList);
 
@@ -683,7 +684,7 @@ bool LLMuteList::loadFromFile(const std::string& filename, EMuteListSource sourc
         return false;
     }
 
-    LLFILE* fp = LLFile::fopen(filename, "rb");     /*Flawfinder: ignore*/
+    LLFILE* fp = LLFile::fopen(filename, LLFILE_MODE("rb"));     /*Flawfinder: ignore*/
     if (!fp)
     {
         LL_WARNS() << "Couldn't open mute list " << filename << LL_ENDL;
@@ -750,7 +751,7 @@ bool LLMuteList::saveToFile(const std::string& filename)
         return false;
     }
 
-    LLFILE* fp = LLFile::fopen(filename, "wb");     /*Flawfinder: ignore*/
+    LLFILE* fp = LLFile::fopen(filename, LLFILE_MODE("wb"));     /*Flawfinder: ignore*/
     if (!fp)
     {
         LL_WARNS() << "Couldn't open mute list " << filename << LL_ENDL;
@@ -857,6 +858,9 @@ void LLMuteList::requestFromServer(const LLUUID& agent_id)
         // Guard against potentially writing back to disk since we're not recovering our connection
         mLoadState = ML_LOADED;
         mLoadSource = MLS_FALLBACK_CACHE;
+        // This code path means we have disconnected/crashed before our request has been sent.
+        // As a result we do not NEED to do anything more than set these state values.
+        // cache() is liable to be called on shutdown, but since we've set a dirty state it will avoid writing to disk.
         return;
     }
     if (!gAgent.getRegion())
@@ -879,7 +883,7 @@ void LLMuteList::requestFromServer(const LLUUID& agent_id)
 void LLMuteList::cache(const LLUUID& agent_id)
 {
     // Write to disk even if empty, but never from degraded fallback state.
-    if (isLoaded() && mLoadSource != MLS_FALLBACK_CACHE)
+    if (isLoaded() && !isLoadedDegraded())
     {
         const std::string filename = getCacheFilename(agent_id);
         saveToFile(filename);
@@ -1080,7 +1084,7 @@ LLRenderMuteList::LLRenderMuteList()
 bool LLRenderMuteList::saveToFile()
 {
     std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "render_mute_settings.txt");
-    LLFILE* fp = LLFile::fopen(filename, "wb");
+    LLFILE* fp = LLFile::fopen(filename, LLFILE_MODE("wb"));
     if (!fp)
     {
         LL_WARNS() << "Couldn't open render mute list file: " << filename << LL_ENDL;
@@ -1105,7 +1109,7 @@ bool LLRenderMuteList::loadFromFile()
     LL_PROFILE_ZONE_SCOPED;
 
     std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "render_mute_settings.txt");
-    LLFILE* fp = LLFile::fopen(filename, "rb");
+    LLFILE* fp = LLFile::fopen(filename, LLFILE_MODE("rb"));
     if (!fp)
     {
         LL_WARNS() << "Couldn't open render mute list file: " << filename << LL_ENDL;

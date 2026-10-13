@@ -27,10 +27,10 @@
 out vec3 vary_AdditiveColor;
 out vec3 vary_AtmosAttenuation;
 
-vec3 additive_color;
-vec3 atmos_attenuation;
-vec3 sunlit_color;
-vec3 amblit_color;
+vec3 additive_color = vec3(1.0, 1.0, 1.0);
+vec3 atmos_attenuation = vec3(1.0, 1.0, 1.0);
+vec3 sunlit_color = vec3(1.0, 1.0, 1.0);
+vec3 amblit_color = vec3(1.0, 1.0, 1.0);
 
 vec3 getSunlitColor()
 {

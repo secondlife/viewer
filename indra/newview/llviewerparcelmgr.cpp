@@ -309,6 +309,14 @@ void LLViewerParcelMgr::resetSegments(U8* segments)
 void LLViewerParcelMgr::writeHighlightSegments(F32 west, F32 south, F32 east,
                                                F32 north)
 {
+    if (west < 0 || south < 0 || east < 0 || north < 0)
+    {
+        LL_WARNS() << "Invalid parcel edge coordinates provided to writeHighlightSegments- "
+            << "west: " << west << ", south: " << south << ", east: " << east << ", north: " << north
+            << LL_ENDL;
+        return;
+    }
+
     S32 x, y;
     S32 min_x = ll_round( west / PARCEL_GRID_STEP_METERS );
     S32 max_x = ll_round( east / PARCEL_GRID_STEP_METERS );

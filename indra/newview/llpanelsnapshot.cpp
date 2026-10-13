@@ -64,7 +64,12 @@ bool LLPanelSnapshot::postBuild()
 {
     S32 w = getTypedPreviewWidth();
     S32 h = getTypedPreviewHeight();
-    getChild<LLUICtrl>("save_btn")->setLabelArg("[UPLOAD_COST]", std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost(w, h)));
+    LLUICtrl *save_btn = findChild<LLUICtrl>("save_btn");
+    if (save_btn)
+    {
+        // Not all snapshot floaters have a save button
+        save_btn->setLabelArg("[UPLOAD_COST]", std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost(w, h)));
+    }
     getChild<LLUICtrl>(getImageSizeComboName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onResolutionComboCommit, this, _1));
     if (!getWidthSpinnerName().empty())
     {
@@ -193,7 +198,11 @@ void LLPanelSnapshot::updateImageQualityLevel()
         quality_lvl = LLTrans::getString("snapshot_quality_very_high");
     }
 
-    getChild<LLTextBox>("image_quality_level")->setTextArg("[QLVL]", quality_lvl);
+    LLTextBox* quality_lvl_ctrl = findChild<LLTextBox>("image_quality_level");
+    if (quality_lvl_ctrl)
+    {
+        quality_lvl_ctrl->setTextArg("[QLVL]", quality_lvl);
+    }
 }
 
 void LLPanelSnapshot::goBack()

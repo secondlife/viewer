@@ -23,6 +23,8 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+#include "linden_common.h"
+
 #include "llexperiencecache.h"
 
 #include "llavatarname.h"

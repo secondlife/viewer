@@ -269,13 +269,22 @@ void LLUrlAction::reportAbuse(std::string url)
     }
 }
 
+void LLUrlAction::reportAbuseObj(std::string url)
+{
+    std::string object_id = getObjectId(url);
+    if (LLUUID::validate(object_id))
+    {
+        executeSLURL("secondlife:///app/object/" + object_id + "/reportAbuse");
+    }
+}
+
 void LLUrlAction::blockObject(std::string url)
 {
     std::string object_id = getObjectId(url);
     std::string object_name = getObjectName(url);
     if (LLUUID::validate(object_id))
     {
-        executeSLURL("secondlife:///app/agent/" + object_id + "/block/" + LLURI::escape(object_name));
+        executeSLURL("secondlife:///app/object/" + object_id + "/block/" + LLURI::escape(object_name));
     }
 }
 
@@ -285,6 +294,6 @@ void LLUrlAction::unblockObject(std::string url)
     std::string object_name = getObjectName(url);
     if (LLUUID::validate(object_id))
     {
-        executeSLURL("secondlife:///app/agent/" + object_id + "/unblock/" + object_name);
+        executeSLURL("secondlife:///app/object/" + object_id + "/unblock/" + LLURI::escape(object_name));
     }
 }

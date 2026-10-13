@@ -234,7 +234,7 @@ private:
     LLCheckBoxCtrl*         mEventsMatureCheck = nullptr;
     LLCheckBoxCtrl*         mEventsAdultCheck = nullptr;
 
-    LLUICtrl*               mAvatarIcon = nullptr;
+    LLUICtrl*               mFriendAvatarIcon = nullptr;
     LLUICtrl*               mLandmarkIcon = nullptr;
     LLUICtrl*               mLocationIcon = nullptr;
 

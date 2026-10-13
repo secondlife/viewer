@@ -24,6 +24,8 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
 #include "llstoredmessage.h"
 
 LLStoredMessage::LLStoredMessage(const std::string& name, const LLSD& message) : mMessage(message), mName(name)

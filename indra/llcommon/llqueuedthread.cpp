@@ -222,6 +222,33 @@ void LLQueuedThread::waitOnPending()
     return;
 }
 
+void LLQueuedThread::waitOnPending(F32 max_time_sec)
+{
+    LLTimer wait_timer;
+    wait_timer.reset();
+    while (1)
+    {
+        update(0);
+
+        if (mIdleThread)
+        {
+            break;
+        }
+
+        if (wait_timer.getElapsedTimeF64() >= max_time_sec)
+        {
+            LL_WARNS() << "waitOnPending() timed out after " << max_time_sec
+                << " seconds in thread: " << mName << LL_ENDL;
+            break;
+        }
+
+        if (mThreaded)
+        {
+            yield();
+        }
+    }
+}
+
 // MAIN thread
 void LLQueuedThread::printQueueStats()
 {

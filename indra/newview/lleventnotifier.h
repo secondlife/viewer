@@ -47,7 +47,7 @@ struct LLEventInfo
     std::string mSimName;
     LLVector3d  mPosGlobal;
     F64         mUnixTime; // seconds from 1970
-    BOOL        mHasCover;
+    bool        mHasCover;
     U32         mCover;
     U32         mEventFlags;
 };

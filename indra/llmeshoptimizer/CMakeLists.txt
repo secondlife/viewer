@@ -30,5 +30,9 @@ target_link_libraries(llmeshoptimizer
         llmath
         ll::meshoptimizer)
 
+if (USE_PRECOMPILED_HEADERS)
+  target_precompile_headers(llmeshoptimizer REUSE_FROM llprecompiled)
+endif ()
+
 # Add tests
 

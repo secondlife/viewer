@@ -40,9 +40,10 @@ class LLViewerObject;
 //-----------------------------------------------------------------------------
 // class LLViewerJointAttachment
 //-----------------------------------------------------------------------------
-class LLViewerJointAttachment :
+class alignas(16) LLViewerJointAttachment :
     public LLViewerJoint
 {
+    LL_ALIGN_NEW
 public:
     LLViewerJointAttachment();
     virtual ~LLViewerJointAttachment();

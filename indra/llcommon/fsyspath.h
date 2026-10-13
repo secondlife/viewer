@@ -57,7 +57,7 @@ class fsyspath: public std::filesystem::path
 
 public:
     // default
-    fsyspath() {}
+    fsyspath() = default;
     // construct from UTF-8 encoded string
     fsyspath(const std::string& path): fsyspath(std::string_view(path)) {}
     fsyspath(const char* path):        fsyspath(std::string_view(path)) {}
@@ -66,8 +66,10 @@ public:
     {}
     // construct from existing path
     fsyspath(const super& path): super(path) {}
+    fsyspath(super&& path) : super(std::move(path)) {}
 
     fsyspath& operator=(const super& p)       { super::operator=(p); return *this; }
+    fsyspath& operator=(super&& p)            { super::operator=(std::move(p)); return *this; }
     fsyspath& operator=(const std::string& p) { return (*this) = std::string_view(p); }
     fsyspath& operator=(const char* p)        { return (*this) = std::string_view(p); }
     fsyspath& operator=(std::string_view p)

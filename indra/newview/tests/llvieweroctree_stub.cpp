@@ -35,7 +35,7 @@ bool LLViewerOctreeCull::checkObjects(const OctreeNode* branch, const LLViewerOc
 void LLViewerOctreeCull::processGroup(LLViewerOctreeGroup* group) {}
 
 
-bool LLViewerOctreeGroup::boundObjects(BOOL empty, LLVector4a& minOut, LLVector4a& maxOut) { return false; }
+bool LLViewerOctreeGroup::boundObjects(bool empty, LLVector4a& minOut, LLVector4a& maxOut) { return false; }
 void LLViewerOctreeGroup::unbound() {}
 void LLViewerOctreeGroup::rebound() {}
 void LLViewerOctreeGroup::handleInsertion(const TreeNode* node, LLViewerOctreeEntry* obj) {}
@@ -55,8 +55,8 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 void LLOcclusionCullingGroup::setOcclusionState(U32 state, S32 mode) {}
 void LLOcclusionCullingGroup::clearOcclusionState(U32 state, S32 mode) {}
 void LLOcclusionCullingGroup::handleChildAddition(const OctreeNode *parent, OctreeNode *child) {}
-BOOL LLOcclusionCullingGroup::isRecentlyVisible() const { return FALSE; }
-BOOL LLOcclusionCullingGroup::isAnyRecentlyVisible() const { return FALSE; }
+bool LLOcclusionCullingGroup::isRecentlyVisible() const { return false; }
+bool LLOcclusionCullingGroup::isAnyRecentlyVisible() const { return false; }
 
 
 LLViewerOctreeGroup::LLViewerOctreeGroup(OctreeNode* node) : mOctreeNode(node) {}
@@ -81,6 +81,6 @@ LLViewerOctreePartition::LLViewerOctreePartition() = default;
 LLViewerOctreePartition::~LLViewerOctreePartition() = default;
 void LLViewerOctreePartition::cleanup() {}
 
-BOOL LLViewerOctreeGroup::isRecentlyVisible() const { return FALSE; }
+bool LLViewerOctreeGroup::isRecentlyVisible() const { return false; }
 
 

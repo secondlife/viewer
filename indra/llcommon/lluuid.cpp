@@ -151,6 +151,48 @@ U32 janky_fast_random_seeded_bytes(U32 seed, U32 val)
 }
 #endif
 
+void LLUUID::to_chars(char* out) const
+{
+    snprintf(out, UUID_STR_LENGTH, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                   (U8)(mData[0]),
+                   (U8)(mData[1]),
+                   (U8)(mData[2]),
+                   (U8)(mData[3]),
+                   (U8)(mData[4]),
+                   (U8)(mData[5]),
+                   (U8)(mData[6]),
+                   (U8)(mData[7]),
+                   (U8)(mData[8]),
+                   (U8)(mData[9]),
+                   (U8)(mData[10]),
+                   (U8)(mData[11]),
+                   (U8)(mData[12]),
+                   (U8)(mData[13]),
+                   (U8)(mData[14]),
+                   (U8)(mData[15]));
+}
+
+void LLUUID::to_wchars(wchar_t* out) const
+{
+    swprintf(out, UUID_STR_LENGTH, L"%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                   (U8)(mData[0]),
+                   (U8)(mData[1]),
+                   (U8)(mData[2]),
+                   (U8)(mData[3]),
+                   (U8)(mData[4]),
+                   (U8)(mData[5]),
+                   (U8)(mData[6]),
+                   (U8)(mData[7]),
+                   (U8)(mData[8]),
+                   (U8)(mData[9]),
+                   (U8)(mData[10]),
+                   (U8)(mData[11]),
+                   (U8)(mData[12]),
+                   (U8)(mData[13]),
+                   (U8)(mData[14]),
+                   (U8)(mData[15]));
+}
+
 // Common to all UUID implementations
 void LLUUID::toString(std::string& out) const
 {
@@ -405,8 +447,8 @@ LLUUID LLUUID::combine(const LLUUID& other) const
 
 std::ostream& operator<<(std::ostream& s, const LLUUID& uuid)
 {
-    std::string uuid_str;
-    uuid.toString(uuid_str);
+    char uuid_str[UUID_STR_LENGTH];
+    uuid.to_chars(uuid_str);
     s << uuid_str;
     return s;
 }

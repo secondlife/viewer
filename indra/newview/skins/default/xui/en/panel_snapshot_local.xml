@@ -75,6 +75,26 @@
          name="1600x1200"
          value="[i1600,i1200]" />
         <combo_box.item
+         label="1920x1080"
+         name="1920x1080"
+         value="[i1920,i1080]" />
+        <combo_box.item
+         label="2560x1440"
+         name="2560x1440"
+         value="[i2560,i1440]" />
+        <combo_box.item
+         label="3840x2160"
+         name="3840x2160"
+         value="[i3840,i2160]" />
+        <combo_box.item
+         label="5120x2880"
+         name="5120x2880"
+         value="[i5120,i2880]" />
+        <combo_box.item
+         label="7680x4320"
+         name="7680x4320"
+         value="[i7680,i4320]" />
+        <combo_box.item
          label="Custom"
          name="Custom"
          value="[i-1,i-1]" />

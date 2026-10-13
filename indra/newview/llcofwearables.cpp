@@ -292,7 +292,8 @@ LLCOFWearables::LLCOFWearables() : LLPanel(),
     mBodyPartsTab(NULL),
     mLastSelectedTab(NULL),
     mAccordionCtrl(NULL),
-    mCOFVersion(-1)
+    mCOFVersion(-1),
+    mRefreshPending(false)
 {
     mClothingMenu = new CofClothingContextMenu(this);
     mAttachmentMenu = new CofAttachmentContextMenu(this);
@@ -325,6 +326,10 @@ bool LLCOFWearables::postBuild()
     mAttachments->setCommitOnSelectionChange(true);
     mClothing->setCommitOnSelectionChange(true);
     mBodyParts->setCommitOnSelectionChange(true);
+
+    mClothing->setReorderValidateCallback(boost::bind(&LLCOFWearables::canReorderClothing, this, _1, _2));
+    mClothing->setReorderCallback(boost::bind(&LLCOFWearables::onClothingReordered, this, _1, _2));
+    mClothing->setReorderEndedCallback(boost::bind(&LLCOFWearables::onReorderEnded, this));
 
     //clothing is sorted according to its position relatively to the body
     mAttachments->setComparator(&WEARABLE_NAME_COMPARATOR);
@@ -377,6 +382,50 @@ void LLCOFWearables::onSelectionChange(LLFlatListView* selected_list)
     onCommit();
 }
 
+bool LLCOFWearables::canReorderClothing(const LLSD& dragged_value, const LLSD& neighbour_value)
+{
+    LLViewerInventoryItem* dragged = gInventory.getItem(dragged_value.asUUID());
+    LLViewerInventoryItem* neighbour = gInventory.getItem(neighbour_value.asUUID());
+    if (!dragged || !neighbour) return false; // reject placeholder/dummy rows
+    if (!dragged->isWearableType() || !neighbour->isWearableType()) return false;
+
+    return dragged->getWearableType() == neighbour->getWearableType();
+}
+
+void LLCOFWearables::onClothingReordered(const LLSD& dragged_value, S32 /*new_index*/)
+{
+    LLViewerInventoryItem* item = gInventory.getItem(dragged_value.asUUID());
+    if (!item || !item->isWearableType()) return;
+
+    LLWearableType::EType type = item->getWearableType();
+
+    // Persist the affected type group's full order from the list's current order
+    // (furthest-to-closest), which covers both single- and multi-row drags.
+    uuid_vec_t ordered_link_ids;
+    std::vector<LLSD> values;
+    mClothing->getValues(values);
+    for (const LLSD& value : values)
+    {
+        LLViewerInventoryItem* other = gInventory.getItem(value.asUUID());
+        if (!other || !other->isWearableType() || other->getWearableType() != type) continue;
+
+        ordered_link_ids.push_back(value.asUUID());
+    }
+
+    if (ordered_link_ids.size() < 2) return;
+
+    LLAppearanceMgr::getInstance()->reorderWearableGroup(type, ordered_link_ids);
+}
+
+void LLCOFWearables::onReorderEnded()
+{
+    // Run a refresh that arrived (and was skipped) while the drag was active.
+    if (mRefreshPending)
+    {
+        refresh();
+    }
+}
+
 void LLCOFWearables::onAccordionTabStateChanged(LLUICtrl* ctrl, const LLSD& expanded)
 {
     bool had_selected_items = mClothing->numSelected() || mAttachments->numSelected() || mBodyParts->numSelected();
@@ -401,6 +450,15 @@ void LLCOFWearables::onAccordionTabStateChanged(LLUICtrl* ctrl, const LLSD& expa
 
 void LLCOFWearables::refresh()
 {
+    // Don't rebuild mid-drag, clearing the list would cancel the active reorder.
+    // Remember it so onReorderEnded() can re-run the skipped refresh on release.
+    if (mClothing && mClothing->isReorderActive())
+    {
+        mRefreshPending = true;
+        return;
+    }
+    mRefreshPending = false;
+
     const LLUUID cof_id = LLAppearanceMgr::instance().getCOF();
     if (cof_id.isNull())
     {
@@ -559,6 +617,12 @@ LLPanelClothingListItem* LLCOFWearables::buildClothingListItem(LLViewerInventory
 
     item_panel->setShowMoveUpButton(!first);
     item_panel->setShowMoveDownButton(!last);
+
+    // hint that rows in a multi-layer group can be dragged to reorder
+    if (!(first && last))
+    {
+        item_panel->setToolTip(LLTrans::getString("ReorderClothingTooltip"));
+    }
 
     //setting callbacks
     //*TODO move that item panel's inner structure disclosing stuff into the panels

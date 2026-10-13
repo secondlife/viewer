@@ -508,6 +508,16 @@ void LLPluginProcessParent::idle(void)
                     else if (!mProcess && !mProcessCreationRequested)
                     {
                         mProcessCreationRequested = true;
+#if LL_DARWIN
+                        // On darwin process should be created from main thread, otherwise it can
+                        // cause a fork-lock deadlock. Relevant to both, boost and apr.
+                        // Alternatively can remake process creation to use posix_spawn
+                        if (!(mProcess = LLProcess::create(mProcessParams)))
+                        {
+                            mProcessCreationRequested = false;
+                            errorState();
+                        }
+#else
                         LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
                         // *NOTE: main_queue->postTo casts this refcounted smart pointer to a weak
                         // pointer
@@ -558,6 +568,7 @@ void LLPluginProcessParent::idle(void)
                                 errorState();
                             }
                         }
+#endif
                     }
 
                     if (mProcess)

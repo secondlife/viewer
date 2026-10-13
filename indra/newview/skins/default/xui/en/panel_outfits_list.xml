@@ -24,7 +24,7 @@
      width="309">
        <no_matched_tabs_text
          name="no_matched_outfits_msg"
-         value="Didn't find what you're looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search]."
+         value="No matching items."
          v_pad="10"/>
        <no_visible_tabs_text
          name="no_outfits_msg"

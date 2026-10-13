@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -46,10 +46,15 @@ public:
     bool reportCrashToBugsplat(void* pExcepInfo) override;
     bool reportCustomToBugsplat(const std::string& description) override;
 
+    // returns true if other windows were found and are still running.
+    static bool sendShutdownToOtherInstances(const std::wstring& install_dir);
+
 protected:
     bool initWindow() override; // Override to initialize the viewer's window.
     void initLoggingAndGetLastDuration() override; // Override to clean stack_trace info.
     void initConsole() override; // Initialize OS level debugging console.
+    void cleanupConsole() override;
+
     bool initHardwareTest() override; // Win32 uses DX9 to test hardware.
     bool initParseCommandLine(LLCommandLineParser& clp) override;
 

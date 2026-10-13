@@ -252,6 +252,7 @@ void LLCoros::setStackSize(S32 stacksize)
 
 void LLCoros::printActiveCoroutines(const std::string& when)
 {
+    LL_PROFILE_ZONE_SCOPED;
     LL_INFOS("LLCoros") << "Number of active coroutines " << when
                         << ": " << CoroData::instanceCount() << LL_ENDL;
     if (CoroData::instanceCount() > 0)

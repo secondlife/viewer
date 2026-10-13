@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -651,9 +651,11 @@ bool LLFolderView::startDrag()
 
 void LLFolderView::commitRename( const LLSD& data )
 {
+    // Intentionally doesn't check mRenamer->getVisible(),
+    // since this can be called from 'focus lost' event.
+    // Ex: clicking inworld should commit the rename.
     finishRenamingItem();
     arrange( NULL, NULL );
-
 }
 
 void LLFolderView::draw()
@@ -727,13 +729,17 @@ void LLFolderView::draw()
 
 void LLFolderView::finishRenamingItem( void )
 {
-    if(!mRenamer)
+    if (!mRenamer)
     {
         return;
     }
     if( mRenameItem )
     {
         mRenameItem->rename( mRenamer->getText() );
+        // Clear text to avoid duplicate renames.
+        // Ex: 'return' key will trigger rename from handleKeyHere
+        // and might trigger commitRename from focus lost event.
+        mRenamer->setText(LLStringUtil::null);
     }
 
     closeRenamer();
@@ -1423,6 +1429,7 @@ bool LLFolderView::search(LLFolderViewItem* first_item, const std::string &searc
             }
         }
 
+        // Note: for inventory getSearchableName should already be 'upper' case.
         std::string current_item_label(search_item->getViewModelItem()->getSearchableName());
         LLStringUtil::toUpper(current_item_label);
         auto search_string_length = llmin(upper_case_string.size(), current_item_label.size());

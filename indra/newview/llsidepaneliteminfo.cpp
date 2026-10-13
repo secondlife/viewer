@@ -129,8 +129,9 @@ LLSidepanelItemInfo::LLSidepanelItemInfo(const LLPanel::Params& p)
     , mObjectInventoryObserver(NULL)
     , mUpdatePendingId(-1)
     , mIsDirty(false) /*Not ready*/
-    , mParentFloater(NULL)
-    , mLabelItemDesc(NULL)
+    , mParentFloater(nullptr)
+    , mLabelItemDescMultiLine(nullptr)
+    , mLabelItemDescSingleLine(nullptr)
 {
     gInventory.addObserver(this);
     gIdleCallbacks.addFunction(&LLSidepanelItemInfo::onIdle, (void*)this);
@@ -161,11 +162,14 @@ bool LLSidepanelItemInfo::postBuild()
     mItemTypeIcon = getChild<LLIconCtrl>("item_type_icon");
     mLabelOwnerName = getChild<LLTextBox>("LabelOwnerName");
     mLabelCreatorName = getChild<LLTextBox>("LabelCreatorName");
-    mLabelItemDesc = getChild<LLTextEditor>("LabelItemDesc");
+    mLabelItemDescMultiLine = getChild<LLTextEditor>("LabelItemDescMultiLine");
+    mLabelItemDescSingleLine = getChild<LLLineEditor>("LabelItemDescSingleLine");
 
     getChild<LLLineEditor>("LabelItemName")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
     getChild<LLUICtrl>("LabelItemName")->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitName,this));
-    mLabelItemDesc->setCommitCallback(boost::bind(&LLSidepanelItemInfo:: onCommitDescription, this));
+    mLabelItemDescMultiLine->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitDescription, this));
+    mLabelItemDescSingleLine->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onCommitDescription, this));
+
     // Thumnail edition
     mChangeThumbnailBtn->setCommitCallback(boost::bind(&LLSidepanelItemInfo::onEditThumbnail, this));
     // acquired date
@@ -346,9 +350,16 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
     getChildView("LabelItemName")->setEnabled(is_modifiable && !is_calling_card); // for now, don't allow rename of calling cards
     getChild<LLUICtrl>("LabelItemName")->setValue(item->getName());
     getChildView("LabelItemDescTitle")->setEnabled(true);
-    getChildView("LabelItemDesc")->setEnabled(is_modifiable);
-    getChild<LLUICtrl>("LabelItemDesc")->setValue(item->getDescription());
     getChild<LLUICtrl>("item_thumbnail")->setValue(item->getThumbnailUUID());
+
+    // Rezzable objects do not support multiline descriptions.
+    const bool is_object = item->getInventoryType() == LLInventoryType::IT_OBJECT;
+    mLabelItemDescMultiLine->setEnabled(!is_object && is_modifiable);
+    mLabelItemDescSingleLine->setEnabled(is_object && is_modifiable);
+    mLabelItemDescMultiLine->setValue(item->getDescription());
+    mLabelItemDescSingleLine->setValue(item->getDescription());
+    mLabelItemDescMultiLine->setVisible(!is_object);
+    mLabelItemDescSingleLine->setVisible(is_object);
 
     LLUIImagePtr icon_img = LLInventoryIcon::getIcon(item->getType(), item->getInventoryType(), item->getFlags(), false);
     mItemTypeIcon->setImage(icon_img);
@@ -928,7 +939,7 @@ void LLSidepanelItemInfo::onCommitDescription()
     LLViewerInventoryItem* item = findItem();
     if(!item) return;
 
-    if(!mLabelItemDesc)
+    if (!mLabelItemDescMultiLine) // either both are set or none, so just check one
     {
         return;
     }
@@ -937,10 +948,18 @@ void LLSidepanelItemInfo::onCommitDescription()
         return;
     }
     std::string old_desc = item->getDescription();
-    std::string new_desc = mLabelItemDesc->getText();
+    std::string new_desc;
+    if (mLabelItemDescMultiLine->getVisible())
+    {
+        new_desc = mLabelItemDescMultiLine->getText();
+    }
+    else
+    {
+        new_desc = mLabelItemDescSingleLine->getText();
+    }
     if(old_desc != new_desc)
     {
-        mLabelItemDesc->setSelectAllOnFocusReceived(false);
+        mLabelItemDescMultiLine->setSelectAllOnFocusReceived(false);
         LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 
         new_item->setDescription(new_desc);
@@ -1197,13 +1216,4 @@ LLViewerInventoryItem* LLSidepanelItemInfo::findItem() const
         }
     }
     return item;
-}
-
-// virtual
-void LLSidepanelItemInfo::save()
-{
-    onCommitName();
-    onCommitDescription();
-    updatePermissions();
-    updateSaleInfo();
 }

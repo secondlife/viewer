@@ -118,6 +118,9 @@ void LLTemplateMessageReader::getData(const char *blockname, const char *varname
     {
         switch( vardata_size )
         {
+        case 0:
+            // This is here to prevent a memcpy from a null value which is undefined behavior.
+            break;
         case 1:
             *((U8*)datap) = *((U8*)vardata.getData());
             break;

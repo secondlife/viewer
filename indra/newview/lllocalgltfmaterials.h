@@ -30,6 +30,7 @@
 #include "lleventtimer.h"
 #include "llpointer.h"
 #include "llgltfmateriallist.h"
+#include <filesystem>
 
 class LLScrollListCtrl;
 class LLGLTFMaterial;
@@ -73,7 +74,7 @@ private: /* members */
     std::string mShortName;
     LLUUID      mTrackingID;
     LLUUID      mWorldID;
-    LLSD        mLastModified;
+    std::filesystem::file_time_type mLastModified;
     EExtension  mExtension;
     ELinkStatus mLinkStatus;
     S32         mUpdateRetries;

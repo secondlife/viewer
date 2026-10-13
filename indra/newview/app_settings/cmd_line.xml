@@ -90,6 +90,12 @@
       <string>ConnectAsGod</string>
     </map>
 
+    <key>gpubenchmark</key>
+    <map>
+      <key>desc</key>
+      <string>Run GPU memory bandwidth benchmark, print result to stdout, and exit. Used internally by the viewer to isolate benchmark from the main process.</string>
+    </map>
+
     <key>graphicslevel</key>
     <map>
       <key>desc</key>

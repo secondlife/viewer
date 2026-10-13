@@ -5439,9 +5439,6 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	<string name="Command_Grid_Status_Label">
 		Estado del Grid
 	</string>
-	<string name="Command_HowTo_Label">
-		Cómo
-	</string>
 	<string name="Command_Inventory_Label">
 		Inventario
 	</string>
@@ -5537,9 +5534,6 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	</string>
 	<string name="Command_Grid_Status_Tooltip">
 		Mostrar el estado actual del Grid
-	</string>
-	<string name="Command_HowTo_Tooltip">
-		Cómo hacer las tareas habituales
 	</string>
 	<string name="Command_Inventory_Tooltip">
 		Ver y usar tus pertenencias
