@@ -351,6 +351,8 @@ public:
 
     bool avatarHoverHeightEnabled() const;
 
+    bool groupChatPostLinksEnabled() const;
+
     typedef enum
     {
         CACHE_MISS_TYPE_TOTAL = 0,  // total cache miss - object not in cache
