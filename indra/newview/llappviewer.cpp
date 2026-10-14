@@ -5461,10 +5461,18 @@ void LLAppViewer::idle()
         else
         {
             // Recompute canonical controller state (also populates the internal
-            // state consumed below) and send it to the server when it changed.
+            // state consumed below) and send it to the server when it changed,
+            // but only if the agent's region advertises support for it (the
+            // "GameControlEnabled" simulator feature).  While unsupported the
+            // resend deadline is left untouched, so the first frame after the
+            // feature appears sends immediately.
             if (LLGameControl::computeFinalStateAndCheckForChanges())
             {
-                sendGameControlData();
+                LLViewerRegion* regionp = gAgent.getRegion();
+                if (regionp && regionp->gameControlEnabled())
+                {
+                    sendGameControlData();
+                }
             }
 
             // Drive the local avatar from the controller.  In Avatar/Captive
