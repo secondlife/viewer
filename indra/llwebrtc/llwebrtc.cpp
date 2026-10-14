@@ -45,8 +45,8 @@
 namespace llwebrtc
 {
 #if WEBRTC_WIN
-static int16_t PLAYOUT_DEVICE_DEFAULT = webrtc::AudioDeviceModule::kDefaultCommunicationDevice;
-static int16_t RECORD_DEVICE_DEFAULT  = webrtc::AudioDeviceModule::kDefaultCommunicationDevice;
+static int16_t PLAYOUT_DEVICE_DEFAULT = webrtc::AudioDeviceModule::kDefaultDevice;
+static int16_t RECORD_DEVICE_DEFAULT  = webrtc::AudioDeviceModule::kDefaultDevice;
 #else
 static int16_t PLAYOUT_DEVICE_DEFAULT = 0;
 static int16_t RECORD_DEVICE_DEFAULT  = 0;
@@ -695,7 +695,9 @@ void LLWebRTCImpl::workerStartRecording()
     // disable before InitRecording so the recording stream is configured to
     // use only WebRTC's software APM.
     workerDisableBuiltInAudioProcessing();
-    mDeviceModule->ForceInitRecording();
+    // With "stop capture while muted", capture as media; otherwise as communications.
+    mDeviceModule->ForceInitRecording(mStopCaptureOnMute.load() ? webrtc::AudioDeviceModule::AudioCategory::kMedia
+                                                                : webrtc::AudioDeviceModule::AudioCategory::kCommunications);
     mDeviceModule->ForceStartRecording();
 }
 
