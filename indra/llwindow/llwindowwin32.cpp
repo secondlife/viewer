@@ -420,7 +420,7 @@ LLImeField captureImeField(HIMC himc, U32 indexes, DWORD flag)
     field.bytes.resize(static_cast<size_t>(size));
     const LONG received = LLWinImm::getCompositionString(
         himc, flag, field.bytes.data(), static_cast<DWORD>(field.bytes.size()));
-    if (received < 0 || received > size)
+    if (received != size)
     {
         field.bytes.clear();
         field.available = false;
