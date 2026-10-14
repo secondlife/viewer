@@ -2454,11 +2454,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5b2462db0ffe83850d84b841dd3b6badd208d71a</string>
+              <string>516b69b841109d38bd14286d28a8d77ee67e1c52</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m144.7559.06.21/webrtc-m144.7559.06.21.38613467899-darwin64-38613467899.tar.zst</string>
+              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m144.7559.06.22/webrtc-m144.7559.06.22.38629291819-darwin64-38629291819.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2468,11 +2468,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ce6dbbd5b84925ccb1783f24157d6ba1c5139e2d</string>
+              <string>69429645f9f5eb0080546af0f4e32082f285a852</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m144.7559.06.21/webrtc-m144.7559.06.21.38613467899-linux64-38613467899.tar.zst</string>
+              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m144.7559.06.22/webrtc-m144.7559.06.22.38629291819-linux64-38629291819.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2482,11 +2482,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8109a3123a9d75734b5d5a04a95602abf491476b</string>
+              <string>a9ef8bafede7a26d561faca7d770a31aebeda3a5</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m144.7559.06.21/webrtc-m144.7559.06.21.38613467899-windows64-38613467899.tar.zst</string>
+              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m144.7559.06.22/webrtc-m144.7559.06.22.38629291819-windows64-38629291819.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2499,7 +2499,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2011, The WebRTC project authors. All rights reserved.</string>
         <key>version</key>
-        <string>m144.7559.06.21.38613467899</string>
+        <string>m144.7559.06.22.38629291819</string>
         <key>name</key>
         <string>webrtc</string>
         <key>vcs_branch</key>
