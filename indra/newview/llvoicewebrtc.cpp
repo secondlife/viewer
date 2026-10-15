@@ -2606,6 +2606,12 @@ void LLVoiceWebRTCConnection::OnIceCandidate(const llwebrtc::LLWebRTCIceCandidat
 
 void LLVoiceWebRTCConnection::processIceUpdates()
 {
+    // Don't launch a coroutine on every tick; only do so when there's actually ice data to send and we're not shutting down.
+    if (LLWebRTCVoiceClient::isShuttingDown() || (mIceCandidates.empty() && !mIceCompleted))
+    {
+        return;
+    }
+
     mOutstandingRequests++;
 
     LLCoros::getInstance()->launch("LLVoiceWebRTCConnection::processIceUpdatesCoro",
