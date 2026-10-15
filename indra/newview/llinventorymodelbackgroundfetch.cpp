@@ -458,6 +458,12 @@ bool LLInventoryModelBackgroundFetch::applyDeferredCache(const LLUUID& cat_id)
     // create/update path (same as AISUpdate::doUpdate()'s "CREATE ITEMS"
     // loop) so observers/listeners waiting on these specific items get
     // notified.
+    //
+    // TODO: Potentially we can load a limited amount from mChildItemIds,
+    // reschedule the folderand leave the rest for the next. Set version
+    // only after all children are done. But before doing so need to verify
+    // it won't cause problems for callbacks. AIS doesn't do it either, it's
+    // better to do both cache and AIS at the same time.
     S32 added_items = 0;
     S32 skipped_items = 0;
     S32 missing_items = 0;
