@@ -1074,13 +1074,12 @@ void LLWebRTCImpl::intSetMute(bool mute, int delay_ms)
             return;
         }
 
+        mDeviceModule->ForceStopRecording();
         if (start)
         {
-            workerStartRecording();
-        }
-        else if (mStopCaptureOnMute.load())
-        {
-            mDeviceModule->ForceStopRecording();
+            mDeviceModule->ForceInitRecording(mStopCaptureOnMute.load() ? webrtc::AudioDeviceModule::AudioCategory::kMedia
+                                                                        : webrtc::AudioDeviceModule::AudioCategory::kCommunications);
+            mDeviceModule->ForceStartRecording();
         }
     };
 

@@ -245,9 +245,9 @@ public:
 
     int32_t InitRecording(AudioCategory category = AudioCategory::kMedia) override
     {
-    // Ignore webrtc.lib's InitRecording (sent when a send stream starts), as
-    // with StartRecording/StopRecording: it would leave capture initialised even
-    // while we hold capture off. The app initialises capture itself via ForceInitRecording.
+        // Ignore webrtc.lib's InitRecording (sent when a send stream starts), as
+        // with StartRecording/StopRecording: it would leave capture initialised even
+        // while we hold capture off. The app initialises capture itself via ForceInitRecording.
         return 0;
     }
     int32_t ForceInitRecording(AudioCategory category = AudioCategory::kMedia) { return inner_->InitRecording(category); }
