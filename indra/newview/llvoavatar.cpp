@@ -3027,6 +3027,27 @@ static void override_bbox(LLDrawable* drawable, LLVector4a* extents)
     drawable->movePartition();
 }
 
+// camera-axis depth of this avatar, stamped onto every rigged alpha bridge
+// (attachments below, animesh in LLControlAvatar::idleUpdate) so its alpha
+// interleaves with world alpha (LLDrawPoolAlpha::renderAlpha). From the
+// animated extents, so avatars sharing a sit target still order
+// deterministically; pulled a quarter of the bounds toward the camera to match
+// the metric LLSpatialPartition::calcDistance stamps onto world alpha groups.
+F32 LLVOAvatar::calcRiggedAlphaDepth() const
+{
+    LLViewerCamera* camera = LLViewerCamera::getInstance();
+    const LLVector3& at_axis = camera->getAtAxis();
+    if (mLastAnimExtents[0] == LLVector3() || mLastAnimExtents[1] == LLVector3())
+    { // extents not computed yet
+        return (getRenderPosition() - camera->getOrigin()) * at_axis;
+    }
+
+    const LLVector3 center = (mLastAnimExtents[0] + mLastAnimExtents[1]) * 0.5f;
+    const LLVector3 half = (mLastAnimExtents[1] - mLastAnimExtents[0]) * 0.5f;
+    return (center - camera->getOrigin()) * at_axis -
+           0.25f * (half * at_axis.scaledVec(at_axis));
+}
+
 void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
@@ -3044,6 +3065,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
     if (detailed_update)
     {
         U32 draw_order = 0;
+        const F32 rigged_depth = calcRiggedAlphaDepth();
         bool attachment_selected = LLSelectMgr::getInstance()->getSelection()->getObjectCount() > 0 && LLSelectMgr::getInstance()->getSelection()->isAttachment();
         for (const auto& [attachment_point_id, attachment] : mAttachmentPoints)
         {
@@ -3104,13 +3126,19 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
                             bridge->setState(LLDrawable::MOVE_UNDAMPED);
                             bridge->updateMove();
                             bridge->setState(LLDrawable::EARLY_MOVE);
+                        }
 
-                            LLSpatialGroup* group = attached_object->mDrawable->getSpatialGroup();
-                            if (group)
-                            { //set draw order of group
-                                group->mAvatarp = this;
-                                group->mRenderOrder = draw_order++;
-                            }
+                        //stamp the attachment's draw order; LLPipeline::postSort
+                        //fans it out to the bridge's alpha groups, sorting the
+                        //wearer's whole ensemble at one avatar depth. HUD alpha
+                        //sorts in HUD space, so unrigged HUDs stay unstamped.
+                        //Stale-safe: mUpdatePeriod > 1 implies isImpostor(),
+                        //whose attachments never enter the live alpha streams
+                        if (rigged || !attached_object->isHUDAttachment())
+                        {
+                            bridge->mAvatarp = this;
+                            bridge->mRenderOrder = draw_order++;
+                            bridge->mAvatarDepth = rigged_depth;
                         }
                     }
 
