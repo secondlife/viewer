@@ -48,6 +48,7 @@
 // static
 bool LLXMLNode::sStripEscapedStrings = true;
 bool LLXMLNode::sStripWhitespaceValues = false;
+thread_local std::string LLXMLNode::sLastXMLFileError;
 
 LLXMLNode::LLXMLNode() :
     mID(""),
@@ -577,6 +578,7 @@ bool LLXMLNode::updateNode(
 
     if (!node || !update_node)
     {
+        sLastXMLFileError = "updateNode failed - node invalid";
         LL_WARNS() << "Node invalid" << LL_ENDL;
         return false;
     }
@@ -654,16 +656,48 @@ bool LLXMLNode::updateNode(
 }
 
 // static
+std::string LLXMLNode::getLastFileError()
+{
+    return sLastXMLFileError;
+}
+
+// static
 bool LLXMLNode::parseFile(const std::string& filename, LLXMLNodePtr& node, LLXMLNode* defaults_tree)
 {
-    std::string xml = LLFile::getContents(filename);
+    sLastXMLFileError.clear();
+
+    std::error_code ec;
+    std::string xml = LLFile::getContents(filename, ec);
     if (xml.empty())
     {
-        LL_WARNS("XMLNode") << "no XML file: " << filename << LL_ENDL;
+        std::ostringstream msg;
+        if (ec)
+        {
+            // File exists but could not be read: permissions, I/O error,
+            // translocated/quarantined bundle on macOS, truncated download,
+            // read-only or vanished volume, etc. ec carries the OS-level
+            // reason.
+            msg << "Unable to read XML file: " << filename
+                << " (" << ec.message() << ", code " << ec.value()
+                << ", category " << ec.category().name() << ")";
+        }
+        else
+        {
+            msg << "no XML file: " << filename;
+        }
+        sLastXMLFileError = msg.str();
+        LL_WARNS("XMLNode") << sLastXMLFileError << LL_ENDL;
     }
     else if (parseBuffer(xml.data(), xml.size(), node, defaults_tree))
     {
         return true;
+    }
+    else
+    {
+        // parseBuffer() already populated sLastXMLFileError with the
+        // specific XML parse failure; just annotate it with the filename.
+        sLastXMLFileError = "Error parsing XML file: " + filename +
+            " (" + sLastXMLFileError + ")";
     }
 
     node = nullptr;
@@ -677,6 +711,8 @@ bool LLXMLNode::parseBuffer(
     LLXMLNodePtr& node,
     LLXMLNode* defaults)
 {
+    sLastXMLFileError.clear();
+
     // Init
     XML_Parser my_parser = XML_ParserCreate(NULL);
     XML_SetElementHandler(my_parser, StartXMLNode, EndXMLNode);
@@ -694,11 +730,13 @@ bool LLXMLNode::parseBuffer(
     bool success = XML_STATUS_OK == XML_Parse(my_parser, buffer, (int)length, true);
     if (!success)
     {
-        LL_WARNS() << "Error parsing xml error code: "
-                << XML_ErrorString(XML_GetErrorCode(my_parser))
-                << " on line " << XML_GetCurrentLineNumber(my_parser)
-                << ", column " << XML_GetCurrentColumnNumber(my_parser)
-                << LL_ENDL;
+        std::ostringstream msg;
+        msg << "Error parsing xml error code: "
+            << XML_ErrorString(XML_GetErrorCode(my_parser))
+            << " on line " << XML_GetCurrentLineNumber(my_parser)
+            << ", column " << XML_GetCurrentColumnNumber(my_parser);
+        sLastXMLFileError = msg.str();
+        LL_WARNS() << sLastXMLFileError << LL_ENDL;
     }
 
     // Deinit
@@ -709,9 +747,9 @@ bool LLXMLNode::parseBuffer(
 
     if (!file_node->mChildren || file_node->mChildren->map.size() != 1)
     {
-        LL_WARNS() << "Parse failure - wrong number of top-level nodes xml."
-                << LL_ENDL;
-        node = NULL ;
+        sLastXMLFileError = "Parse failure - wrong number of top-level nodes xml.";
+        LL_WARNS() << sLastXMLFileError << LL_ENDL;
+        node = NULL;
         return false;
     }
 
@@ -730,6 +768,7 @@ bool LLXMLNode::parseStream(
     LLXMLNodePtr& node,
     LLXMLNode* defaults)
 {
+    sLastXMLFileError.clear();
     // Init
     XML_Parser my_parser = XML_ParserCreate(NULL);
     XML_SetElementHandler(my_parser, StartXMLNode, EndXMLNode);
@@ -746,6 +785,7 @@ bool LLXMLNode::parseStream(
     const int BUFSIZE = 1024;
     U8* buffer = new U8[BUFSIZE];
 
+    bool success = true;
     while(str.good())
     {
         str.read((char*)buffer, BUFSIZE);
@@ -753,10 +793,13 @@ bool LLXMLNode::parseStream(
 
         if (XML_Parse(my_parser, (const char *)buffer, count, !str.good()) != XML_STATUS_OK)
         {
-            LL_WARNS() << "Error parsing xml error code: "
-                    << XML_ErrorString(XML_GetErrorCode(my_parser))
-                    << " on lne " << XML_GetCurrentLineNumber(my_parser)
-                    << LL_ENDL;
+            std::ostringstream msg;
+            msg << "Error parsing xml error code: "
+                << XML_ErrorString(XML_GetErrorCode(my_parser))
+                << " on lne " << XML_GetCurrentLineNumber(my_parser);
+            sLastXMLFileError = msg.str();
+            LL_WARNS() << sLastXMLFileError << LL_ENDL;
+            success = false;
             break;
         }
     }
@@ -766,10 +809,16 @@ bool LLXMLNode::parseStream(
     // Deinit
     XML_ParserFree(my_parser);
 
+    if (!success)
+    {
+        node = NULL;
+        return false;
+    }
+
     if (!file_node->mChildren || file_node->mChildren->map.size() != 1)
     {
-        LL_WARNS() << "Parse failure - wrong number of top-level nodes xml."
-                << LL_ENDL;
+        sLastXMLFileError = "Parse failure - wrong number of top-level nodes xml.";
+        LL_WARNS() << sLastXMLFileError << LL_ENDL;
         node = NULL;
         return false;
     }
