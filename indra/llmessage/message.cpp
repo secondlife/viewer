@@ -3581,8 +3581,18 @@ void LLMessageSystem::dispatchDecoded(LLDecodedMessage& msg)
     sLastReceivingIF = msg.mReceivingInterface;
     sCurrentRecvPacketID = msg.mPacketID;
     sIncomingCompressedSize = msg.mCompressedSize;
-    ackDecoded(msg);
-    dispatch_decoded_impl<LockMessageReader>(this, msg, mDispatchMessageReader, mMessageReader);
+    const bool had_circuit = mCircuitInfo.findCircuit(msg.mSender) != nullptr;
+    if (had_circuit)
+    {
+        ackDecoded(msg);
+    }
+    const bool dispatched = dispatch_decoded_impl<LockMessageReader>(
+        this, msg, mDispatchMessageReader, mMessageReader);
+    if (dispatched && !had_circuit)
+    {
+        markDecodedReceived(msg.mSender, msg.mPacketID, msg.mReliable);
+        ackDecoded(msg);
+    }
 }
 
 void LLMessageSystem::ackDecoded(const LLDecodedMessage& msg)
