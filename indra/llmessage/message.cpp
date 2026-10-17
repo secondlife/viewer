@@ -493,8 +493,6 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
 
     S32 compressed_size = zeroCodeExpand(&buffer, &receive_size);
 
-    LLHost host = pkt.getHost();
-    LLCircuitData* cdp = mCircuitInfo.findCircuit(host);
     const TPACKETID recv_packet_id = ntohl(*((U32*)(&buffer[1])));
     const bool recv_reliable = (buffer[0] & LL_RELIABLE_FLAG) != 0;
     const bool recv_resent = (buffer[0] & LL_RESENT_FLAG) != 0;
@@ -502,6 +500,8 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
     sTrueReceiveSize = pkt.getSize();
     sIncomingCompressedSize = compressed_size;
     sCurrentRecvPacketID = recv_packet_id;
+    LLHost host = pkt.getHost();
+    LLCircuitData* cdp = findCircuit(host, true);
 
     // UseCircuitCode is allowed in even from an invalid circuit, so that
     // we can toss circuits around; everything else requires cdp.
