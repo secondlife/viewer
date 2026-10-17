@@ -881,72 +881,95 @@ void LLCacheName::Impl::processPendingAsks()
 
 void LLCacheName::Impl::processPendingReplies()
 {
-    // Only called from the main thread. Copy out what's needed to invoke
-    // callbacks/signals without holding mMutex (they may call back into
-    // LLCacheName), then re-lock to do the actual sends and queue cleanup.
+    // Only called from the main thread.
+    //
+    // Detach-then-process pattern: under a single brief lock, swap the
+    // *entire* mReplyQueue out into a local list, and -- for each reply --
+    // decide whether its entry is in mCache yet.
+    //
+    //  - If not ready, put it straight back onto (the now-empty)
+    //    mReplyQueue so it's retried on a later tick, same as before.
+    //  - If ready, snapshot the LLCacheNameEntry data into local_ready and
+    //    mark the reply done().
+    //
+    // No other thread ever removes from mReplyQueue (only addPending()
+    // appends to it, under mMutex), so once a PendingReply* is swapped out
+    // here, it is exclusively owned by this function from that point on --
+    // nothing else can observe or mutate it, or the snapshot taken from
+    // mCache for it. This means the signal-invocation and the
+    // send/cleanup phases below can safely run completely unlocked and
+    // need never re-acquire mMutex or re-query mCache: there is nothing
+    // left that could race.
     struct ReplyInfo
     {
         PendingReply* reply;
+        LLUUID            id;         // captured before reply->done() nulls it
         bool          isGroup;
         std::string   name;
+        LLCacheNameEntry  entry;      // for ReplySender
     };
     std::vector<ReplyInfo> to_signal;
+    ReplyQueue             to_delete;  // all of these end up done()
 
     {
         LLMutexLock lock(&mMutex);
-        for (ReplyQueue::iterator it = mReplyQueue.begin(); it != mReplyQueue.end(); ++it)
+        ReplyQueue local_queue;
+        local_queue.swap(mReplyQueue);
+
+        for (ReplyQueue::iterator it = local_queue.begin(); it != local_queue.end(); )
         {
             PendingReply* reply = *it;
             LLCacheNameEntry* entry = get_ptr_in_map(mCache, reply->mID);
-            if (!entry) continue;
+            if (!entry)
+            {
+                // Not ready yet; put it back for a later round. Still
+                // under the same lock, so this is consistent with
+                // whatever addPending() may be concurrently appending.
+                mReplyQueue.push_back(reply);
+                it = local_queue.erase(it);
+                continue;
+            }
 
-            if (!entry->mIsGroup)
-            {
-                to_signal.push_back({ reply, false,
-                    LLCacheName::buildFullName(entry->mFirstName, entry->mLastName) });
-            }
-            else
-            {
-                to_signal.push_back({ reply, true, entry->mGroupName });
-            }
+            std::string full_name = entry->mIsGroup
+                ? entry->mGroupName
+                : LLCacheName::buildFullName(entry->mFirstName, entry->mLastName);
+
+            to_signal.push_back({ reply, reply->mID, entry->mIsGroup, full_name, *entry });
+            reply->done();
+            ++it;
         }
+
+        to_delete.swap(local_queue);
     }
 
-    // First call all the callbacks, because they might send messages.
+    // Fire callbacks/signals. Fully unlocked: observers may call back into
+    // LLCacheName (e.g. getFullName()), and there is no remaining shared
+    // state here to race against -- every reply we're about to signal was
+    // already exclusively removed from mReplyQueue above.
     // Todo: needs cleanup logic, otherwise invalid ids might stay here indefinitely
     for (auto& info : to_signal)
     {
-        (info.reply->mSignal)(info.reply->mID, info.name, info.isGroup);
+        (info.reply->mSignal)(info.id, info.name, info.isGroup);
     }
 
     // Forward on all replies, if needed. This is the only place mMsg's
     // builder is used for reply traffic, and it only ever runs here, on
     // the main thread.
-    LLMutexLock lock(&mMutex);
     ReplySender sender(mMsg);
-    for(ReplyQueue::iterator it = mReplyQueue.begin(); it != mReplyQueue.end(); ++it)
+    for (auto& info : to_signal)
     {
-        PendingReply* reply = *it;
-        LLCacheNameEntry* entry = get_ptr_in_map(mCache, reply->mID);
-        if(!entry) continue;
-
+        PendingReply* reply = info.reply;
         if (reply->mHost.isOk())
         {
-            sender.send(reply->mID, *entry, reply->mHost);
+            sender.send(info.id, info.entry, reply->mHost);
         }
-
-        reply->done();
     }
 
-    for(ReplyQueue::iterator it = mReplyQueue.begin(); it != mReplyQueue.end(); )
+    // Every PendingReply* in to_delete was already marked done() above and
+    // is exclusively owned here -- no lock needed to delete them.
+    for (PendingReply* reply : to_delete)
     {
-        ReplyQueue::iterator curit = it++;
-        PendingReply* reply = *curit;
-        if (reply->isDone())
-        {
-            delete reply;
-            mReplyQueue.erase(curit);
-        }
+        delete reply;
     }
 }
 
