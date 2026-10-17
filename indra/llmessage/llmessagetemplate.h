@@ -284,6 +284,9 @@ enum EMsgDeprecation
 
 class LLMessageTemplate
 {
+private:
+    struct HandlerCallState;
+
 public:
     LLMessageTemplate(const char *name, U32 message_number, EMsgFrequency freq)
         :
@@ -435,26 +438,32 @@ public:
 
     void setHandlerFunc(void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data)
     {
+        std::shared_ptr<HandlerCallState> old_state;
         {
             std::unique_lock<std::shared_mutex> lock(sHandlerMutex);
+            old_state = mHandlerCallState;
+            mHandlerCallState = std::make_shared<HandlerCallState>();
             mHandlerFunc = handler_func;
             mUserData = user_data;
             mHandleOnUdpThread = false;
         }
-        waitForHandlerCalls();
+        waitForHandlerCalls(old_state);
     }
 
     // Same as setHandlerFunc(), but for handlers that are safe to run
     // directly on LLUDPReceiverThread.
     void setHandlerFuncThrd(void (*handler_func)(LLMessageSystem* msgsystem, void** user_data), void** user_data)
     {
+        std::shared_ptr<HandlerCallState> old_state;
         {
             std::unique_lock<std::shared_mutex> lock(sHandlerMutex);
+            old_state = mHandlerCallState;
+            mHandlerCallState = std::make_shared<HandlerCallState>();
             mHandlerFunc = handler_func;
             mUserData = user_data;
             mHandleOnUdpThread = handler_func != nullptr;
         }
-        waitForHandlerCalls();
+        waitForHandlerCalls(old_state);
     }
 
     bool callHandlerFunc(LLMessageSystem *msgsystem) const
@@ -468,18 +477,21 @@ public:
         // without deadlocking.
         void (*handler_func)(LLMessageSystem*, void**);
         void** user_data;
+        std::shared_ptr<HandlerCallState> call_state;
         {
             std::shared_lock<std::shared_mutex> lock(sHandlerMutex);
             handler_func = mHandlerFunc;
             user_data = mUserData;
             if (handler_func)
             {
-                mActiveHandlerCalls.fetch_add(1, std::memory_order_acquire);
+                call_state = mHandlerCallState;
+                std::lock_guard<std::mutex> call_lock(call_state->mMutex);
+                ++call_state->mActiveCalls;
             }
         }
         if (handler_func)
         {
-            HandlerCallGuard guard(this);
+            HandlerCallGuard guard(this, call_state);
             handler_func(msgsystem, user_data);
             return true;
         }
@@ -497,6 +509,7 @@ public:
     {
         void (*handler_func)(LLMessageSystem*, void**);
         void** user_data;
+        std::shared_ptr<HandlerCallState> call_state;
         {
             std::shared_lock<std::shared_mutex> lock(sHandlerMutex);
             // If handler is null, treat as if handled, as there is no point in passing it to
@@ -509,12 +522,14 @@ public:
             user_data = mUserData;
             if (handler_func)
             {
-                mActiveHandlerCalls.fetch_add(1, std::memory_order_acquire);
+                call_state = mHandlerCallState;
+                std::lock_guard<std::mutex> call_lock(call_state->mMutex);
+                ++call_state->mActiveCalls;
             }
         }
         if (handler_func)
         {
-            HandlerCallGuard guard(this);
+            HandlerCallGuard guard(this, call_state);
             handler_func(msgsystem, user_data);
         }
         // If there is no handler, treat as if handled, as there is no point in
@@ -608,11 +623,20 @@ public:
     bool                                    mBanFromUntrusted;
 
 private:
+    struct HandlerCallState
+    {
+        std::mutex mMutex;
+        std::condition_variable mQuiesced;
+        U32 mActiveCalls = 0;
+    };
+
     class HandlerCallGuard
     {
     public:
-        explicit HandlerCallGuard(const LLMessageTemplate* message_template)
+        HandlerCallGuard(const LLMessageTemplate* message_template,
+                         std::shared_ptr<HandlerCallState> state)
         : mTemplate(message_template),
+          mState(std::move(state)),
           mPreviousTemplate(sInvokingTemplate)
         {
             sInvokingTemplate = message_template;
@@ -621,19 +645,20 @@ private:
         ~HandlerCallGuard()
         {
             sInvokingTemplate = mPreviousTemplate;
-            std::lock_guard<std::mutex> lock(mTemplate->mHandlerQuiesceMutex);
-            if (mTemplate->mActiveHandlerCalls.fetch_sub(1, std::memory_order_release) == 1)
+            std::lock_guard<std::mutex> lock(mState->mMutex);
+            if (--mState->mActiveCalls == 0)
             {
-                mTemplate->mHandlerQuiesced.notify_all();
+                mState->mQuiesced.notify_all();
             }
         }
 
     private:
         const LLMessageTemplate* mTemplate;
+        std::shared_ptr<HandlerCallState> mState;
         const LLMessageTemplate* mPreviousTemplate;
     };
 
-    void waitForHandlerCalls() const
+    void waitForHandlerCalls(const std::shared_ptr<HandlerCallState>& state) const
     {
         // A handler is allowed to replace its own registration. It is itself
         // the only call that cannot have quiesced yet, so waiting here would
@@ -644,10 +669,10 @@ private:
             return;
         }
 
-        std::unique_lock<std::mutex> lock(mHandlerQuiesceMutex);
-        mHandlerQuiesced.wait(lock, [this]()
+        std::unique_lock<std::mutex> lock(state->mMutex);
+        state->mQuiesced.wait(lock, [&state]()
         {
-            return mActiveHandlerCalls.load(std::memory_order_acquire) == 0;
+            return state->mActiveCalls == 0;
         });
     }
 
@@ -685,9 +710,7 @@ private:
     // a shared mutex is enough for all templates
     static inline std::shared_mutex         sHandlerMutex;
     static inline thread_local const LLMessageTemplate* sInvokingTemplate = nullptr;
-    mutable std::atomic<U32>                mActiveHandlerCalls { 0 };
-    mutable std::mutex                      mHandlerQuiesceMutex;
-    mutable std::condition_variable         mHandlerQuiesced;
+    std::shared_ptr<HandlerCallState>       mHandlerCallState = std::make_shared<HandlerCallState>();
     // message handler function (this is set by each application)
     void                                    (*mHandlerFunc)(LLMessageSystem *msgsystem, void **user_data);
     void                                    **mUserData;

@@ -384,7 +384,7 @@ void do_startup_frame()
         constexpr U64 MAX_STARTUP_FRAME_MESSAGES = 100;
         S32 num_messages = 0;
 
-        gMessageSystem->resetReceiveCounts();
+        gMessageSystem->beginReceiveCounts();
         std::unique_ptr<LLDecodedMessage> decoded;
         while (gMessageSystem->tryPopDecoded(decoded))
         {
@@ -419,7 +419,7 @@ void pump_idle_startup_network(void)
     // while there are message to process:
     //     process one then call display_startup()
     {
-        gMessageSystem->resetReceiveCounts();
+        gMessageSystem->beginReceiveCounts();
         std::unique_ptr<LLDecodedMessage> decoded;
         while (gMessageSystem->tryPopDecoded(decoded))
         {

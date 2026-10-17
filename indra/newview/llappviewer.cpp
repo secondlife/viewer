@@ -6023,7 +6023,7 @@ void LLAppViewer::idleNetwork()
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("idle network");
 
-        gMessageSystem->resetReceiveCounts();
+        gMessageSystem->beginReceiveCounts();
         LLTimer check_message_timer;
         S32 total_decoded = 0;
 
