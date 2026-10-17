@@ -137,7 +137,11 @@ public:
     F64Seconds  getNextPingSendTime() const { return mNextPingSendTime; }
     U32         getLastPacketGap() const { return mLastPacketGap; }
     LLHost      getHost() const { return mHost; }
-    F64Seconds  getLastPacketInTime() const     { return mLastPacketInTime; }
+    F64Seconds  getLastPacketInTime() const
+    {
+        std::lock_guard<std::mutex> lock(mDataMutex);
+        return mLastPacketInTime;
+    }
 
     LLThrottleGroup &getThrottleGroup()     {   return mThrottles; }
 
@@ -289,7 +293,7 @@ protected:
     const F32Seconds mHeartbeatTimeout;
 
     // This mutex guards mUnackedPackets, mFinalRetryPackets,
-    // mRecentlyReceivedReliablePackets, mAcks,
+    // mRecentlyReceivedReliablePackets, mAcks, mLastPacketInTime,
     // mPacketsInID, mHighestPacketID, counters
     mutable std::mutex mDataMutex;
 };
