@@ -537,7 +537,7 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
     if (!cdp &&
         (mTemplateMessageReader->getMessageName() != _PREHASH_UseCircuitCode))
     {
-        logMsgFromInvalidCircuit(host, pkt.getPacketIDChecked());
+        logMsgFromInvalidCircuit(host, recv_reliable);
         return nullptr;
     }
 
