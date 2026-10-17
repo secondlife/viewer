@@ -621,6 +621,7 @@ private:
         ~HandlerCallGuard()
         {
             sInvokingTemplate = mPreviousTemplate;
+            std::lock_guard<std::mutex> lock(mTemplate->mHandlerQuiesceMutex);
             if (mTemplate->mActiveHandlerCalls.fetch_sub(1, std::memory_order_release) == 1)
             {
                 mTemplate->mHandlerQuiesced.notify_all();
