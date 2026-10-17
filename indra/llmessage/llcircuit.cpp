@@ -1150,28 +1150,21 @@ bool LLCircuitData::checkCircuitTimeout()
 // correctly place the packet in the correct list to be acked later.
 bool LLCircuitData::collectRAck(TPACKETID packet_num)
 {
-    bool need_to_register = false;
+    LLCircuit& circuit = gMessageSystem->mCircuitInfo;
+    std::lock_guard<std::mutex> circuit_lock(circuit.mCircuitMutex);
+    auto it = circuit.mCircuitData.find(mHost);
+    if (it == circuit.mCircuitData.end() || it->second != this)
     {
-        std::lock_guard<std::mutex> data_lock(mDataMutex);
-        need_to_register = mAcks.empty();
-
-        mAcks.push_back(packet_num);
-        if (mAckCreationTime == 0)
-        {
-            mAckCreationTime = getAgeInSeconds();
-        }
+        return false;
     }
 
-    if (need_to_register)
+    std::lock_guard<std::mutex> data_lock(mDataMutex);
+    if (mAcks.empty())
     {
-        std::lock_guard<std::mutex> circuit_lock(gMessageSystem->mCircuitInfo.mCircuitMutex);
-        // First extra ack, we need to add ourselves to the list of circuits that need to send acks
-        auto it = gMessageSystem->mCircuitInfo.mCircuitData.find(mHost);
-        if (it != gMessageSystem->mCircuitInfo.mCircuitData.end() && it->second == this)
-        {
-            gMessageSystem->mCircuitInfo.mSendAckMap[mHost] = this;
-        }
+        circuit.mSendAckMap[mHost] = this;
+        mAckCreationTime = getAgeInSeconds();
     }
+    mAcks.push_back(packet_num);
 
     return true;
 }
@@ -1181,7 +1174,8 @@ bool LLCircuitData::collectRAck(TPACKETID packet_num)
 void LLCircuit::sendAcks(F32 collect_time)
 {
     collect_time = llclamp(collect_time, 0.f, LL_COLLECT_ACK_TIME_MAX);
-    std::vector<LLCircuitData*> circuits_to_flush; // Collect while holding mCircuitMutex
+    typedef std::pair<LLHost, std::vector<TPACKETID>> pending_acks_t;
+    std::vector<pending_acks_t> pending_acks;
     {
         std::lock_guard<std::mutex> circuit_lock(mCircuitMutex);
         circuit_data_map::iterator it = mSendAckMap.begin();
@@ -1196,23 +1190,20 @@ void LLCircuit::sendAcks(F32 collect_time)
             {
                 if (count > 0)
                 {
-                    circuits_to_flush.push_back(cd);
+                    pending_acks.emplace_back(cd->mHost, std::vector<TPACKETID>());
+                    pending_acks.back().second.swap(cd->mAcks);
+                    cd->mAckCreationTime = 0.f;
                 }
-                // remove data map
                 mSendAckMap.erase(cur_it);
             }
         }
     }
 
-    for (LLCircuitData* cd : circuits_to_flush)
+    // Message building and sending can re-enter circuit code.
+    for (pending_acks_t& pending : pending_acks)
     {
-        std::vector<TPACKETID> acks;
-        {
-            std::lock_guard<std::mutex> data_lock(cd->mDataMutex);
-            acks.swap(cd->mAcks);
-            cd->mAckCreationTime = 0.f;
-        }
-
+        const LLHost& host = pending.first;
+        const std::vector<TPACKETID>& acks = pending.second;
         S32 count = (S32)acks.size();
 
         // send the packet acks
@@ -1228,19 +1219,19 @@ void LLCircuit::sendAcks(F32 collect_time)
             ++acks_this_packet;
             if (acks_this_packet > 250)
             {
-                gMessageSystem->sendMessage(cd->mHost);
+                gMessageSystem->sendMessage(host);
                 acks_this_packet = 0;
             }
         }
         if (acks_this_packet > 0)
         {
-            gMessageSystem->sendMessage(cd->mHost);
+            gMessageSystem->sendMessage(host);
         }
 
         if (gMessageSystem->mVerboseLog)
         {
             std::ostringstream str;
-            str << "MSG: -> " << cd->mHost << "\tPACKET ACKS:\t";
+            str << "MSG: -> " << host << "\tPACKET ACKS:\t";
             std::ostream_iterator<TPACKETID> append(str, " ");
             std::copy(acks.begin(), acks.end(), append);
             LL_INFOS() << str.str() << LL_ENDL;

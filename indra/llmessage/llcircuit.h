@@ -338,7 +338,8 @@ public:
     circuit_data_map mSendAckMap; // Map of circuits which need to send acks
 
     // This mutex guards mCircuitData, mUnackedCircuitMap,
-    // mSendAckMap, mPingSet, mLastCircuit
+    // mSendAckMap, mPingSet, mLastCircuit. Code needing this mutex and an
+    // LLCircuitData::mDataMutex must acquire mCircuitMutex first.
     mutable std::mutex mCircuitMutex;
 protected:
     circuit_data_map mCircuitData;
