@@ -83,7 +83,7 @@
          font="SansSerif"
          halign="left"
          name="lst_action"
-         value="Strafe left" />
+         value="Strafe Left" />
     </rows>
     <rows
      name="slide_right"
@@ -93,7 +93,7 @@
          font="SansSerif"
          halign="left"
          name="lst_action"
-         value="Strafe right" />
+         value="Strafe Right" />
     </rows>
     <rows
      name="jump"
@@ -174,6 +174,17 @@
          halign="left"
          name="lst_action"
          value="Fly/Stop flying" />
+    </rows>
+    <rows
+     name="toggle_flycam"
+     value="toggle_flycam">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         tool_tip="Turn flycam on or off"
+         value="Toggle flycam" />
     </rows>
     <rows
      name="toggle_sit"
