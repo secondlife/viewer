@@ -201,10 +201,12 @@ protected:
 
     void            setAlive(bool b_alive);
     void            setAllowTimeout(bool allow);
+    void            cleanupTransferConnection();
 
 protected:
     // Identification for this circuit.
     LLHost mHost;
+    bool mTransferConnectionCleaned;
     LLUUID mRemoteID;
     LLUUID mRemoteSessionID;
 

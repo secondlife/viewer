@@ -77,6 +77,7 @@ LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id,
     mbAllowTimeout(true),
     mbAlive(true),
     mBlocked(false),
+    mTransferConnectionCleaned(false),
     mPingTime(0.0),
     mLastPingSendTime(0.0),
     mLastPingReceivedTime(0.0),
@@ -129,7 +130,7 @@ LLCircuitData::~LLCircuitData()
     LLReliablePacket *packetp = NULL;
 
     // Clean up all pending transfers.
-    gTransferManager.cleanupConnection(mHost);
+    cleanupTransferConnection();
 
     // remove all pending reliable messages on this circuit
     std::vector<TPACKETID> doomed;
@@ -253,6 +254,16 @@ void LLCircuitData::ackReliablePacket(TPACKETID packet_num)
     }
 }
 
+
+
+void LLCircuitData::cleanupTransferConnection()
+{
+    if (!mTransferConnectionCleaned)
+    {
+        gTransferManager.cleanupConnection(mHost);
+        mTransferConnectionCleaned = true;
+    }
+}
 
 
 S32 LLCircuitData::resendUnackedPackets(const F64Seconds now)
@@ -482,6 +493,7 @@ void LLCircuit::removeCircuitData(const LLHost &host)
 
         // Don't delete cdp yet: LLUDPReceiverThread may still hold a
         // pointer to this circuit.
+        cdp->cleanupTransferConnection();
         constexpr F64 GRAVEYARD_LIFETIME_SECONDS = 5;
         mGraveyard.push_back({ cdp, LLTimer::getTotalSeconds() + GRAVEYARD_LIFETIME_SECONDS });
     }
