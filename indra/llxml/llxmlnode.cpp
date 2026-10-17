@@ -48,7 +48,7 @@
 // static
 bool LLXMLNode::sStripEscapedStrings = true;
 bool LLXMLNode::sStripWhitespaceValues = false;
-std::string LLXMLNode::sLastXMLFileError;
+thread_local std::string LLXMLNode::sLastXMLFileError;
 
 LLXMLNode::LLXMLNode() :
     mID(""),
