@@ -486,7 +486,9 @@ public:
         void** user_data;
         {
             std::shared_lock<std::shared_mutex> lock(sHandlerMutex);
-            if (!mHandleOnUdpThread)
+            // If handler is null, treat as if handled, as there is no point in passing it to
+            // main thread, which is just going to ignore the message.
+            if (!mHandleOnUdpThread && mHandlerFunc)
             {
                 return false;
             }
