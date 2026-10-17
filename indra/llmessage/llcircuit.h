@@ -300,6 +300,8 @@ protected:
 class LLCircuit
 {
 public:
+    friend class LLCircuitData;
+
     // CREATORS
     LLCircuit(const F32Seconds circuit_heartbeat_interval, const F32Seconds circuit_timeout);
     ~LLCircuit();

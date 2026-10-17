@@ -1166,7 +1166,11 @@ bool LLCircuitData::collectRAck(TPACKETID packet_num)
     {
         std::lock_guard<std::mutex> circuit_lock(gMessageSystem->mCircuitInfo.mCircuitMutex);
         // First extra ack, we need to add ourselves to the list of circuits that need to send acks
-        gMessageSystem->mCircuitInfo.mSendAckMap[mHost] = this;
+        auto it = gMessageSystem->mCircuitInfo.mCircuitData.find(mHost);
+        if (it != gMessageSystem->mCircuitInfo.mCircuitData.end() && it->second == this)
+        {
+            gMessageSystem->mCircuitInfo.mSendAckMap[mHost] = this;
+        }
     }
 
     return true;
