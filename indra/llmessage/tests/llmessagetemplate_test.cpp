@@ -28,6 +28,10 @@
 #include "lltut.h"
 #include "llmessagetemplate.h"
 
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <mutex>
 #include <thread>
 #include <vector>
 
@@ -140,5 +144,60 @@ namespace tut
         ensure_equals("assigned receive count", assigned.getReceiveCount(), (U32)1);
         ensure_equals("assigned decoded", assigned.getTotalDecoded(), (U32)1);
         ensure_equals("assigned name", std::string(assigned.mName), std::string("TestMessage"));
+    }
+
+    template<> template<>
+    void messagetemplate_object_t::test<5>()
+    {
+        struct CallbackState
+        {
+            std::mutex mutex;
+            std::condition_variable entered;
+            std::condition_variable release;
+            bool is_entered = false;
+            bool may_return = false;
+        } state;
+
+        auto handler = [](LLMessageSystem*, void** user_data)
+        {
+            CallbackState* callback_state = reinterpret_cast<CallbackState*>(user_data);
+            std::unique_lock<std::mutex> lock(callback_state->mutex);
+            callback_state->is_entered = true;
+            callback_state->entered.notify_one();
+            callback_state->release.wait(lock, [callback_state]()
+            {
+                return callback_state->may_return;
+            });
+        };
+
+        mTemplate.setHandlerFuncThrd(handler, reinterpret_cast<void**>(&state));
+        std::thread callback([this]()
+        {
+            mTemplate.callHandlerFuncIfThreaded(nullptr);
+        });
+
+        {
+            std::unique_lock<std::mutex> lock(state.mutex);
+            state.entered.wait(lock, [&state]() { return state.is_entered; });
+        }
+
+        std::atomic<bool> unregistered{ false };
+        std::thread unregister([this, &unregistered]()
+        {
+            mTemplate.setHandlerFuncThrd(nullptr, nullptr);
+            unregistered.store(true);
+        });
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        ensure("unregistration waits for active callback", !unregistered.load());
+
+        {
+            std::lock_guard<std::mutex> lock(state.mutex);
+            state.may_return = true;
+        }
+        state.release.notify_one();
+        callback.join();
+        unregister.join();
+        ensure("unregistration completes after callback", unregistered.load());
     }
 }

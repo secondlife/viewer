@@ -32,6 +32,8 @@
 #include "llindexedvector.h"
 #include "llmsgvariabletype.h"
 #include <atomic>
+#include <condition_variable>
+#include <mutex>
 #include <shared_mutex>
 
 class LLMsgVarData
@@ -433,20 +435,26 @@ public:
 
     void setHandlerFunc(void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data)
     {
-        std::unique_lock<std::shared_mutex> lock(sHandlerMutex);
-        mHandlerFunc = handler_func;
-        mUserData = user_data;
-        mHandleOnUdpThread = false;
+        {
+            std::unique_lock<std::shared_mutex> lock(sHandlerMutex);
+            mHandlerFunc = handler_func;
+            mUserData = user_data;
+            mHandleOnUdpThread = false;
+        }
+        waitForHandlerCalls();
     }
 
     // Same as setHandlerFunc(), but for handlers that are safe to run
     // directly on LLUDPReceiverThread.
     void setHandlerFuncThrd(void (*handler_func)(LLMessageSystem* msgsystem, void** user_data), void** user_data)
     {
-        std::unique_lock<std::shared_mutex> lock(sHandlerMutex);
-        mHandlerFunc = handler_func;
-        mUserData = user_data;
-        mHandleOnUdpThread = true;
+        {
+            std::unique_lock<std::shared_mutex> lock(sHandlerMutex);
+            mHandlerFunc = handler_func;
+            mUserData = user_data;
+            mHandleOnUdpThread = handler_func != nullptr;
+        }
+        waitForHandlerCalls();
     }
 
     bool callHandlerFunc(LLMessageSystem *msgsystem) const
@@ -464,9 +472,14 @@ public:
             std::shared_lock<std::shared_mutex> lock(sHandlerMutex);
             handler_func = mHandlerFunc;
             user_data = mUserData;
+            if (handler_func)
+            {
+                mActiveHandlerCalls.fetch_add(1, std::memory_order_acquire);
+            }
         }
         if (handler_func)
         {
+            HandlerCallGuard guard(this);
             handler_func(msgsystem, user_data);
             return true;
         }
@@ -494,9 +507,14 @@ public:
             }
             handler_func = mHandlerFunc;
             user_data = mUserData;
+            if (handler_func)
+            {
+                mActiveHandlerCalls.fetch_add(1, std::memory_order_acquire);
+            }
         }
         if (handler_func)
         {
+            HandlerCallGuard guard(this);
             handler_func(msgsystem, user_data);
         }
         // If there is no handler, treat as if handled, as there is no point in
@@ -590,6 +608,48 @@ public:
     bool                                    mBanFromUntrusted;
 
 private:
+    class HandlerCallGuard
+    {
+    public:
+        explicit HandlerCallGuard(const LLMessageTemplate* message_template)
+        : mTemplate(message_template),
+          mPreviousTemplate(sInvokingTemplate)
+        {
+            sInvokingTemplate = message_template;
+        }
+
+        ~HandlerCallGuard()
+        {
+            sInvokingTemplate = mPreviousTemplate;
+            if (mTemplate->mActiveHandlerCalls.fetch_sub(1, std::memory_order_release) == 1)
+            {
+                mTemplate->mHandlerQuiesced.notify_all();
+            }
+        }
+
+    private:
+        const LLMessageTemplate* mTemplate;
+        const LLMessageTemplate* mPreviousTemplate;
+    };
+
+    void waitForHandlerCalls() const
+    {
+        // A handler is allowed to replace its own registration. It is itself
+        // the only call that cannot have quiesced yet, so waiting here would
+        // deadlock; the call guard keeps that invocation accounted for until
+        // it returns.
+        if (sInvokingTemplate == this)
+        {
+            return;
+        }
+
+        std::unique_lock<std::mutex> lock(mHandlerQuiesceMutex);
+        mHandlerQuiesced.wait(lock, [this]()
+        {
+            return mActiveHandlerCalls.load(std::memory_order_acquire) == 0;
+        });
+    }
+
     // Written from LLUDPReceiverThread, read and reset from the main thread.
     // Use the record*()/get*()/reset*() accessors above.
     std::atomic<U32>                        mReceiveCount;      // how many of this template have been received since last reset
@@ -623,6 +683,10 @@ private:
     // Since setHandlerFunc are mostly startup specific, one-time init,
     // a shared mutex is enough for all templates
     static inline std::shared_mutex         sHandlerMutex;
+    static inline thread_local const LLMessageTemplate* sInvokingTemplate = nullptr;
+    mutable std::atomic<U32>                mActiveHandlerCalls { 0 };
+    mutable std::mutex                      mHandlerQuiesceMutex;
+    mutable std::condition_variable         mHandlerQuiesced;
     // message handler function (this is set by each application)
     void                                    (*mHandlerFunc)(LLMessageSystem *msgsystem, void **user_data);
     void                                    **mUserData;

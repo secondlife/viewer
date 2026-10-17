@@ -299,7 +299,6 @@ LLCacheName::~LLCacheName()
 {
     if (gMessageSystem != nullptr)
     {
-        LLMutexLock lock(&impl.mMutex); // Delay cleanup if any callbacks are still running.
         gMessageSystem->setHandlerFuncThrdFast(_PREHASH_UUIDNameRequest, nullptr, nullptr);
         gMessageSystem->setHandlerFuncThrdFast(_PREHASH_UUIDNameReply, nullptr, nullptr);
         gMessageSystem->setHandlerFuncThrdFast(_PREHASH_UUIDGroupNameRequest, nullptr, nullptr);
