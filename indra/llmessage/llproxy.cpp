@@ -39,7 +39,7 @@
 // We want this to be static to avoid excessive indirection on every
 // incoming packet just to do a simple bool test. The getter for this
 // member is also static
-bool LLProxy::sUDPProxyEnabled = false;
+std::atomic_bool LLProxy::sUDPProxyEnabled{ false };
 LLProxy* LLProxy::sProxyInstance = NULL;
 
 // Some helpful TCP static functions.
@@ -237,7 +237,7 @@ S32 LLProxy::startSOCKSProxy(LLHost host)
     else
     {
         // Connection was successful.
-        sUDPProxyEnabled = true;
+        sUDPProxyEnabled.store(true, std::memory_order_release);
     }
 
     return status;
@@ -252,7 +252,7 @@ S32 LLProxy::startSOCKSProxy(LLHost host)
  */
 void LLProxy::stopSOCKSProxy()
 {
-    sUDPProxyEnabled = false;
+    sUDPProxyEnabled.store(false, std::memory_order_release);
 
     // If the SOCKS proxy is requested to stop and we are using that for HTTP as well
     // then we must shut down any HTTP proxy operations. But it is allowable if web

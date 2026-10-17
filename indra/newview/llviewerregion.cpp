@@ -2111,7 +2111,7 @@ void LLViewerRegion::updateNetStats()
     F32 dt = mImpl->mLastNetUpdate.getElapsedTimeAndResetF32();
 
     LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(mImpl->mHost);
-    if (!cdp)
+    if (!cdp || !cdp->isAlive())
     {
         mAlive = false;
         return;
