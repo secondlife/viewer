@@ -929,6 +929,7 @@ public:
     // tryDispatchDecodedOnThread().
     bool isHandledOnUdpThread(const LLDecodedMessage& msg) const;
     void ackDecoded(const LLDecodedMessage& msg);
+    void markDecodedReceived(const LLHost& sender, TPACKETID packet_id, bool reliable);
 
     bool tryPopDecoded(std::unique_ptr<LLDecodedMessage>& out)
     {
@@ -938,13 +939,13 @@ public:
         }
         return mDecodedQueue->tryPop(out);
     }
-    void pushDecoded(std::unique_ptr<LLDecodedMessage> msg)
+    bool pushDecoded(std::unique_ptr<LLDecodedMessage>& msg)
     {
         const bool reliable = msg->mReliable;
         auto& queue = reliable ? mReliableDecodedQueue : mDecodedQueue;
         if (queue->tryPush(std::move(msg)))
         {
-            return;
+            return true;
         }
         if (reliable)
         {
@@ -955,6 +956,7 @@ public:
         {
             LL_WARNS("Messaging") << "Decoded message queue is full; dropping an unreliable message" << LL_ENDL;
         }
+        return false;
     }
     size_t getNumDecodedPending() const
     {

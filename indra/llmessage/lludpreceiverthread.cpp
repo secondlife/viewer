@@ -123,10 +123,17 @@ void LLUDPReceiverThread::run()
                     // message goes to the main thread's queue.
                     if (!gMessageSystem->tryDispatchDecodedOnThread(*decoded))
                     {
-                        gMessageSystem->pushDecoded(std::move(decoded));
+                        const LLHost sender = decoded->mSender;
+                        const TPACKETID packet_id = decoded->mPacketID;
+                        const bool reliable = decoded->mReliable;
+                        if (gMessageSystem->pushDecoded(decoded))
+                        {
+                            gMessageSystem->markDecodedReceived(sender, packet_id, reliable);
+                        }
                     }
                     else
                     {
+                        gMessageSystem->markDecodedReceived(decoded->mSender, decoded->mPacketID, decoded->mReliable);
                         gMessageSystem->ackDecoded(*decoded);
                     }
                 }

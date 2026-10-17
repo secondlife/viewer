@@ -601,13 +601,6 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
     mPacketsIn++;
     mBytesIn += pkt.getSize();
 
-    if (cdp && recv_reliable)
-    {
-        std::lock_guard<std::mutex> lock(cdp->mDataMutex);
-        cdp->mRecentlyReceivedReliablePackets[recv_packet_id] = getMessageTimeUsecs();
-        mReliablePacketsIn++;
-    }
-
     return decoded;
 }
 
@@ -3602,6 +3595,19 @@ void LLMessageSystem::ackDecoded(const LLDecodedMessage& msg)
         }
     }
 }
+
+void LLMessageSystem::markDecodedReceived(const LLHost& sender, TPACKETID packet_id, bool reliable)
+    {
+        if (reliable)
+        {
+            if (LLCircuitData* cdp = mCircuitInfo.findCircuit(sender))
+            {
+                std::lock_guard<std::mutex> lock(cdp->mDataMutex);
+                cdp->mRecentlyReceivedReliablePackets[packet_id] = getMessageTimeUsecs();
+                mReliablePacketsIn++;
+            }
+        }
+    }
 
 bool LLMessageSystem::tryDispatchDecodedOnThread(LLDecodedMessage& msg)
 {
