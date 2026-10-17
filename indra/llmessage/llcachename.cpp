@@ -278,6 +278,8 @@ public:
 };
 
 
+bool LLCacheName::sShuttingDown = false;
+
 /// --------------------------------------------------------------------------
 /// class LLCacheName
 /// ---------------------------------------------------------------------------
@@ -297,13 +299,11 @@ LLCacheName::LLCacheName(LLMessageSystem* msg, const LLHost& upstream_host)
 
 LLCacheName::~LLCacheName()
 {
-    if (gMessageSystem != nullptr)
+    // Stop message processing
+    sShuttingDown = true;
     {
         LLMutexLock lock(&impl.mMutex); // Delay cleanup if any callbacks are still running.
-        gMessageSystem->setHandlerFuncThrdFast(_PREHASH_UUIDNameRequest, nullptr, nullptr);
-        gMessageSystem->setHandlerFuncThrdFast(_PREHASH_UUIDNameReply, nullptr, nullptr);
-        gMessageSystem->setHandlerFuncThrdFast(_PREHASH_UUIDGroupNameRequest, nullptr, nullptr);
-        gMessageSystem->setHandlerFuncThrdFast(_PREHASH_UUIDGroupNameReply, nullptr, nullptr);
+        mCacheName.clear();
     }
     delete &impl;
 }
@@ -322,6 +322,7 @@ LLCacheName::Impl::Impl(LLMessageSystem* msg)
         _PREHASH_UUIDGroupNameRequest, handleUUIDGroupNameRequest, (void**)this);
     mMsg->setHandlerFuncThrdFast(
         _PREHASH_UUIDGroupNameReply, handleUUIDGroupNameReply, (void**)this);
+    LLCacheName::sShuttingDown = false;
 }
 
 
@@ -1177,20 +1178,24 @@ void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
 
 void LLCacheName::Impl::handleUUIDNameReply(LLMessageSystem* msg, void** userData)
 {
+    if (LLCacheName::sShuttingDown) return;
     ((LLCacheName::Impl*)userData)->processUUIDReply(msg, false);
 }
 
 void LLCacheName::Impl::handleUUIDNameRequest(LLMessageSystem* msg, void** userData)
 {
+    if (LLCacheName::sShuttingDown) return;
     ((LLCacheName::Impl*)userData)->processUUIDRequest(msg, false);
 }
 
 void LLCacheName::Impl::handleUUIDGroupNameRequest(LLMessageSystem* msg, void** userData)
 {
+    if (LLCacheName::sShuttingDown) return;
     ((LLCacheName::Impl*)userData)->processUUIDRequest(msg, true);
 }
 
 void LLCacheName::Impl::handleUUIDGroupNameReply(LLMessageSystem* msg, void** userData)
 {
+    if (LLCacheName::sShuttingDown) return;
     ((LLCacheName::Impl*)userData)->processUUIDReply(msg, true);
 }
