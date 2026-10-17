@@ -955,8 +955,9 @@ public:
         catch (const LLThreadSafeQueueInterrupt&)
         {
             // Queue closed during shutdown; drop silently.
+            return false;
         }
-        return false;
+        return true;
     }
     size_t getNumDecodedPending() const
     {
