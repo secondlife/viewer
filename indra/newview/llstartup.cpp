@@ -384,6 +384,7 @@ void do_startup_frame()
         constexpr U64 MAX_STARTUP_FRAME_MESSAGES = 100;
         S32 num_messages = 0;
 
+        gMessageSystem->resetReceiveCounts();
         std::unique_ptr<LLDecodedMessage> decoded;
         while (gMessageSystem->tryPopDecoded(decoded))
         {
@@ -418,6 +419,7 @@ void pump_idle_startup_network(void)
     // while there are message to process:
     //     process one then call display_startup()
     {
+        gMessageSystem->resetReceiveCounts();
         std::unique_ptr<LLDecodedMessage> decoded;
         while (gMessageSystem->tryPopDecoded(decoded))
         {
@@ -4166,4 +4168,3 @@ void transition_back_to_login_panel(const std::string& emsg)
     reset_login(); // calls LLStartUp::setStartupState( STATE_LOGIN_SHOW );
     gSavedSettings.setBOOL("AutoLogin", false);
 }
-

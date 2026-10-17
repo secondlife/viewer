@@ -1162,8 +1162,6 @@ void LLMessageSystem::processAcks(LockMessageChecker&, F32 collect_time)
     {
         dumpReceiveCounts();
     }
-    resetReceiveCounts();
-
     if ((mt_sec - mResendDumpTime) > CIRCUIT_DUMP_TIMEOUT)
     {
         mResendDumpTime = mt_sec;
@@ -3300,6 +3298,7 @@ void end_messaging_system(bool print_summary)
 void LLMessageSystem::resetReceiveCounts()
 {
     mNumMessageCounts = 0;
+    mMessageCountTime = getMessageTimeSeconds(true);
 }
 
 
@@ -3942,6 +3941,7 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
         addU32Fast(_PREHASH_OldestUnacked, 0);
         sendMessage(host);
 
+        resetReceiveCounts();
         std::unique_ptr<LLDecodedMessage> decoded;
         while (tryPopDecoded(decoded))
         {
@@ -3974,6 +3974,7 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
         if(!cdp) break; // no circuit anymore, no point continuing.
         if(cdp->getTrusted()) break; // circuit is trusted.
 
+        resetReceiveCounts();
         std::unique_ptr<LLDecodedMessage> decoded;
         while (tryPopDecoded(decoded))
         {
