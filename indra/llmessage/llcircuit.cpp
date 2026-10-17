@@ -527,6 +527,7 @@ void LLCircuit::reapGraveyard()
 
 void LLCircuitData::setAlive(bool b_alive)
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     if (mbAlive != b_alive)
     {
         mPacketsOutID = 0;
@@ -688,7 +689,7 @@ bool LLCircuit::isCircuitAlive(const LLHost& host) const
     LLCircuitData *cdp = findCircuit(host);
     if(cdp)
     {
-        return cdp->mbAlive;
+        return cdp->isAlive();
     }
 
     return false;
@@ -859,7 +860,7 @@ void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
             cdp = *mPingSet.begin();
         }
 
-        if (!cdp->mbAlive)
+        if (!cdp->isAlive())
         {
             // We suspect that this case should never happen, given how
             // the alive status is set.
@@ -1256,7 +1257,7 @@ std::ostream& operator<<(std::ostream& s, LLCircuitData& circuit)
     using namespace std;
     s << "Circuit " << circuit.mHost << " "
         << circuit.mRemoteID << " "
-        << (circuit.mbAlive ? "Alive" : "Not Alive") << " "
+        << (circuit.isAlive() ? "Alive" : "Not Alive") << " "
         << (circuit.mbAllowTimeout ? "Timeout Allowed" : "Timeout Not Allowed")
         << endl;
 
@@ -1295,7 +1296,7 @@ std::ostream& operator<<(std::ostream& s, LLCircuitData& circuit)
 void LLCircuitData::getInfo(LLSD& info) const
 {
     info["Host"] = mHost.getIPandPort();
-    info["Alive"] = mbAlive;
+    info["Alive"] = isAlive();
     info["Age"] = mExistenceTimer.getElapsedTimeF32();
 }
 
@@ -1449,6 +1450,7 @@ U32 LLCircuitData::getPacketsLost() const
 
 bool LLCircuitData::isAlive() const
 {
+    std::lock_guard<std::mutex> lock(mDataMutex);
     return mbAlive;
 }
 
