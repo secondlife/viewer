@@ -186,9 +186,8 @@ LLDir_Mac::LLDir_Mac()
 
         if (is_dmg)
         {
-            // Running directly off a still-mounted DMG; the user never
-            // dragged the app out to install it.
-            mRunContextDescription = "Mounted disk image (DMG)";
+            // /Volumes also contains external disks and network shares.
+            mRunContextDescription = "Mounted volume (/Volumes)";
         }
         else if (is_translocated)
         {
