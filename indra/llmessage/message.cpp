@@ -2707,7 +2707,9 @@ void LLMessageSystem::dispatchTemplate(const std::string& msg_name,
                                         const LLSD& message,
                                         LLHTTPNode::ResponsePtr responsep)
 {
-    LLTemplateMessageDispatcher dispatcher(*(gMessageSystem->mTemplateMessageReader));
+    LLTemplateMessageReader reader(gMessageSystem->mMessageNumbers);
+    LockMessageReader lock(gMessageSystem->mMessageReader, &reader);
+    LLTemplateMessageDispatcher dispatcher(reader);
     dispatcher.dispatch(msg_name, message, responsep);
 }
 
