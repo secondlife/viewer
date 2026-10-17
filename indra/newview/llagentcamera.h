@@ -522,9 +522,6 @@ private:
 /**                    Keys
  **                                                                            **
  *******************************************************************************/
-public:
-    void            storeCameraPosition();
-    void            loadCameraPosition();
 };
 
 extern LLAgentCamera gAgentCamera;
