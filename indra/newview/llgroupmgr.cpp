@@ -1513,18 +1513,22 @@ void LLGroupMgr::processCreateGroupReply(LLMessageSystem* msg, void ** data)
             // refresh all group information
             gAgent.sendAgentDataUpdateRequest();
 
-            // HACK! We haven't gotten the agent group update yet, so ... um ... fake it.
-            // This is so when we go to modify the group we will be able to do so.
-            // This isn't actually too bad because real data will come down in 2 or 3 miliseconds and replace this.
-            LLGroupData gd;
-            gd.mAcceptNotices = true;
-            gd.mListInProfile = true;
-            gd.mContribution = 0;
-            gd.mID = group_id;
-            gd.mName = "new group";
-            gd.mPowers = GP_ALL_POWERS;
 
-            gAgent.mGroups.push_back(gd);
+            if (!gAgent.isInGroup(group_id, true))
+            {
+                // HACK! We haven't gotten the agent group update yet, so ... um ... fake it.
+                // This is so when we go to modify the group we will be able to do so.
+                // This isn't actually too bad because real data will come down in 2 or 3 miliseconds and replace this.
+                LLGroupData gd;
+                gd.mAcceptNotices = true;
+                gd.mListInProfile = true;
+                gd.mContribution = 0;
+                gd.mID = group_id;
+                gd.mName = "new group";
+                gd.mPowers = GP_ALL_POWERS;
+
+                gAgent.mGroups.push_back(gd);
+            }
 
             LLPanelGroupCreate::refreshCreatedGroup(group_id);
             //FIXME
