@@ -822,7 +822,7 @@ public:
                         const char *varname) const; // size in bytes of data
     S32     getSize(const char *blockname, S32 blocknum, const char *varname) const;
 
-    void    resetReceiveCounts();               // resets receive counts for all message types to 0
+    void    resetReceiveCounts();               // starts a receive-count timing batch
     void    dumpReceiveCounts();                // dumps receive count for each message type to LL_INFOS()
     void    dumpCircuitInfo();                  // Circuit information to LL_INFOS()
 
