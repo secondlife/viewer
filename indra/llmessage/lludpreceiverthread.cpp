@@ -125,6 +125,10 @@ void LLUDPReceiverThread::run()
                     {
                         gMessageSystem->pushDecoded(std::move(decoded));
                     }
+                    else
+                    {
+                        gMessageSystem->ackDecoded(*decoded);
+                    }
                 }
             }
         }

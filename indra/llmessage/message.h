@@ -928,23 +928,38 @@ public:
     // handling on UDP thread. Informational only, dispatch should use
     // tryDispatchDecodedOnThread().
     bool isHandledOnUdpThread(const LLDecodedMessage& msg) const;
+    void ackDecoded(const LLDecodedMessage& msg);
 
     bool tryPopDecoded(std::unique_ptr<LLDecodedMessage>& out)
     {
+        if (mReliableDecodedQueue->tryPop(out))
+        {
+            return true;
+        }
         return mDecodedQueue->tryPop(out);
     }
     void pushDecoded(std::unique_ptr<LLDecodedMessage> msg)
     {
-        try
+        const bool reliable = msg->mReliable;
+        auto& queue = reliable ? mReliableDecodedQueue : mDecodedQueue;
+        if (queue->tryPush(std::move(msg)))
         {
-            mDecodedQueue->push(std::move(msg));
+            return;
         }
-        catch (const LLThreadSafeQueueInterrupt&)
+        if (reliable)
         {
-            // Queue closed during shutdown; drop silently.
+            LL_WARNS("Messaging") << "Reliable decoded message queue is full; "
+                                  << "waiting for retransmission" << LL_ENDL;
+        }
+        else
+        {
+            LL_WARNS("Messaging") << "Decoded message queue is full; dropping an unreliable message" << LL_ENDL;
         }
     }
-    size_t getNumDecodedPending() const { return mDecodedQueue->size(); }
+    size_t getNumDecodedPending() const
+    {
+        return mDecodedQueue->size() + mReliableDecodedQueue->size();
+    }
 
     // Read one raw packet into inbound message queues
     // Returns packet_size (0 if no packet was available).
@@ -1088,7 +1103,9 @@ private:
     LLCircuitData* findCircuit(const LLHost& host, bool resetPacketId);
 
     std::shared_ptr<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>> mDecodedQueue;
+    std::shared_ptr<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>> mReliableDecodedQueue;
     static constexpr size_t DECODED_QUEUE_CAPACITY = 1024;
+    static constexpr size_t RELIABLE_DECODED_QUEUE_CAPACITY = 256;
 };
 
 

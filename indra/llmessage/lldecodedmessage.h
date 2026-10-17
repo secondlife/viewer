@@ -46,6 +46,7 @@ public:
     LLHost                    mSender;
     LLHost                    mReceivingInterface;
     TPACKETID                 mPacketID = 0;
+    bool                      mReliable = false;
     bool                      mTrusted = false;
     S32                       mCompressedSize = 0;
     S32                       mReceiveSize = -1;

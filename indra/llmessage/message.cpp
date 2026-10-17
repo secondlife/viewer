@@ -270,6 +270,8 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
         // Start the receiver thread, which will read packets from the socket and queue them for processing.
         mDecodedQueue = std::make_shared<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>>(
             DECODED_QUEUE_CAPACITY);
+        mReliableDecodedQueue = std::make_shared<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>>(
+            RELIABLE_DECODED_QUEUE_CAPACITY);
         mReliableAckQueue = std::make_shared<LLThreadSafeQueue<ReliableAck>>();
         mReceiverThread = std::make_unique<LLUDPReceiverThread>(mSocket);
     }
@@ -355,6 +357,10 @@ LLMessageSystem::~LLMessageSystem()
     if (mDecodedQueue)
     {
         mDecodedQueue->close();
+    }
+    if (mReliableDecodedQueue)
+    {
+        mReliableDecodedQueue->close();
     }
     if (mReliableAckQueue)
     {
@@ -563,10 +569,6 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
 
     if (cdp)
     {
-        if (recv_reliable)
-        {
-            cdp->collectRAck(recv_packet_id);
-        }
         cdp->checkPacketInID(recv_packet_id, recv_resent);
     }
 
@@ -586,6 +588,7 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
     decoded->mSender = host;
     decoded->mReceivingInterface = pkt.getReceivingInterface();
     decoded->mPacketID = ntohl(*((U32*)(&buffer[1])));
+    decoded->mReliable = recv_reliable;
     decoded->mTrusted = trusted;
     decoded->mCompressedSize = compressed_size;
     decoded->mReceiveSize = mTemplateMessageReader->getCurrentReceiveSize();
@@ -1091,7 +1094,7 @@ S32 LLMessageSystem::getReceiveBytes() const
 F32 LLMessageSystem::getBufferLoadRate() const
 {
     F32 decoded_load = static_cast<F32>(getNumDecodedPending())
-        / static_cast<F32>(DECODED_QUEUE_CAPACITY);
+        / static_cast<F32>(DECODED_QUEUE_CAPACITY + RELIABLE_DECODED_QUEUE_CAPACITY);
     return llmax(decoded_load,
                  llmax(mHighPriorityInbound.getBufferLoadRate(),
                        mLowPriorityInbound.getBufferLoadRate()));
@@ -3579,7 +3582,19 @@ void LLMessageSystem::dispatchDecoded(LLDecodedMessage& msg)
     sLastReceivingIF = msg.mReceivingInterface;
     sCurrentRecvPacketID = msg.mPacketID;
     sIncomingCompressedSize = msg.mCompressedSize;
+    ackDecoded(msg);
     dispatch_decoded_impl<LockMessageReader>(this, msg, mDispatchMessageReader, mMessageReader);
+}
+
+void LLMessageSystem::ackDecoded(const LLDecodedMessage& msg)
+{
+    if (msg.mReliable)
+    {
+        if (LLCircuitData* cdp = mCircuitInfo.findCircuit(msg.mSender))
+        {
+            cdp->collectRAck(msg.mPacketID);
+        }
+    }
 }
 
 bool LLMessageSystem::tryDispatchDecodedOnThread(LLDecodedMessage& msg)
