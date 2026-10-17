@@ -43,7 +43,7 @@ public:
     void    scanKeyboard() override;
 
 protected:
-    MASK    updateModifiers(const MASK mask);
+    MASK    updateModifiers(const MASK mask) override;
     void    setModifierKeyLevel( KEY key, bool new_state );
     bool    translateNumpadKey( const LLKeyboard::NATIVE_KEY_TYPE os_key, KEY *translated_key );
     LLKeyboard::NATIVE_KEY_TYPE inverseTranslateNumpadKey(const KEY translated_key);

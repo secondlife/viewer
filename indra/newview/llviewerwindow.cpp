@@ -114,6 +114,7 @@
 #include "llfloaterworldmap.h"
 #include "llfocusmgr.h"
 #include "llfontfreetype.h"
+#include "llgamecontrol.h"
 #include "llgesturemgr.h"
 #include "llglheaders.h"
 #include "llhudmanager.h"
@@ -763,6 +764,50 @@ public:
                 av_iter++;
             }
         }
+        static LLCachedControl<bool> debug_show_game_controller_state(gSavedSettings, "DebugShowControllerState", false);
+        if (debug_show_game_controller_state())
+        {
+            static const char* axis_names[LLGameControl::NUM_MOVE_DIRS] = {
+                "LEFT","RIGHT","FORWARD","BACKWARD", "TURN LEFT", "TURN RIGHT",
+                "LOOK UP","LOOK DOWN", "UP", "DOWN", "ROLL LEFT", "ROLL RIGHT"
+            };
+            static const char* button_names[LLGameControl::NUM_BUTTONS] = {
+                "A", "B", "X", "Y", "BACK", "SELECT", "START", "LSTICK", "RSTICK",
+                "LSHOULDER", "RSHOULDER", "UP", "DOWN", "LEFT", "RIGHT",
+                "MISC1", "PADDLE1", "PADDLE2", "PADDLE3", "PADDLE4", "TOUCHPAD",
+                "B21", "B22", "B23", "B24", "B25", "B26", "B27", "B28", "B29", "B30", "B31",
+            };
+            const LLGameControl::State& gc_state = LLGameControl::getState();
+            for (size_t i = 0; i < gc_state.mAxes.size(); i+=2)
+            {
+                addText(xpos, ypos, llformat(
+                    "  %-10s %6d   %-10s %6d",
+                    (i < LLGameControl::NUM_MOVE_DIRS) ? axis_names[i] : "AXIS",
+                    (S32)gc_state.mAxes[i],
+                    ((i+1) < LLGameControl::NUM_MOVE_DIRS) ? axis_names[i+1] : "AXIS",
+                    i < gc_state.mAxes.size() ? (S32)gc_state.mAxes[i+1] : 0
+                ));
+                ypos += y_inc;
+            }
+            addText(xpos, ypos, "Game Controller Final State Axes");
+            ypos += y_inc;
+            static const char* pressed = "░░░░░░░░░░";
+            static const char* released = "          ";
+            for (U8 i = 0; i < LLGameControl::NUM_BUTTONS; i += 4)
+            {
+                addText(xpos, ypos, llformat(
+                    "  %-10s %-10s %-10s %-10s",
+                    gc_state.mButtons & (1 << (i+0)) ? pressed : released,
+                    gc_state.mButtons & (1 << (i+1)) ? pressed : released,
+                    gc_state.mButtons & (1 << (i+2)) ? pressed : released,
+                    gc_state.mButtons & (1 << (i+3)) ? pressed : released
+                ));
+                addText(xpos, ypos, llformat("  %-10s %-10s %-10s %-10s", button_names[i],button_names[i+1],button_names[i+2],button_names[i+3]));
+                ypos += y_inc;
+            }
+            addText(xpos, ypos, "Game Controller Final State Buttons");
+            ypos += y_inc;
+        }
         static LLCachedControl<bool> debug_show_render_matrices(gSavedSettings, "DebugShowRenderMatrices", false);
         if (debug_show_render_matrices())
         {
@@ -1042,6 +1087,14 @@ bool LLViewerWindow::handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK m
             mLeftMouseDown = down;
             buttonname = "Left Double Click";
             break;
+        case CLICK_DOUBLERIGHT:
+            mRightMouseDown = down;
+            buttonname = "Right Double Click";
+            break;
+        case CLICK_DOUBLEMIDDLE:
+            mMiddleMouseDown = down;
+            buttonname = "Middle Double Click";
+            break;
         case CLICK_BUTTON4:
             buttonname = "Button 4";
             break;
@@ -1105,6 +1158,12 @@ bool LLViewerWindow::handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK m
                 handlePieMenu(x, y, mask);
                 r = true;
             }
+            else if (down && clicktype == CLICK_DOUBLERIGHT && gMenuHolder)
+            {
+                // UI doesn't support double right click at the moment, but world does
+                // Just close menus.
+                gMenuHolder->hideMenus();
+            }
             return r;
         }
 
@@ -1157,6 +1216,12 @@ bool LLViewerWindow::handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK m
         handlePieMenu(x, y, mask);
         return true;
     }
+    if (down && clicktype == CLICK_DOUBLERIGHT && gMenuHolder)
+    {
+        // UI doesn't support double right click at the moment, but world does
+        // Just close menus.
+        gMenuHolder->hideMenus();
+    }
 
     // If we got this far on a down-click, it wasn't handled.
     // Up-clicks, though, are always handled as far as the OS is concerned.
@@ -1180,7 +1245,7 @@ bool LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask
     return gViewerInput.handleMouse(window, pos, mask, CLICK_LEFT, down);
 }
 
-bool LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask)
+bool LLViewerWindow::handleLeftMouseDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
     // try handling as a double-click first, then a single-click if that
     // wasn't handled.
@@ -1190,6 +1255,40 @@ bool LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK ma
         return true;
     }
     return handleMouseDown(window, pos, mask);
+}
+
+bool LLViewerWindow::handleRightMouseDoubleClick(LLWindow* window, LLCoordGL pos, MASK mask)
+{
+    // try handling as a double-click first, then a single-click if that
+    // wasn't handled.
+    bool down = true;
+    if (gViewerInput.handleMouse(window, pos, mask, CLICK_DOUBLERIGHT, down))
+    {
+        return true;
+    }
+
+    // If right-double is bound, don't fall back to single-right menu behavior.
+    // Note that by default CLICK_RIGHT can't be bound.
+    const S32 mode = gViewerInput.getMode();
+    const bool has_double_right = gViewerInput.isMouseBindUsed(CLICK_DOUBLERIGHT, mask, mode);
+    if (has_double_right)
+    {
+        return true;
+    }
+
+    return handleRightMouseDown(window, pos, mask);
+}
+
+bool LLViewerWindow::handleMiddleMouseDoubleClick(LLWindow* window, LLCoordGL pos, MASK mask)
+{
+    // try handling as a double-click first, then a single-click if that
+    // wasn't handled.
+    bool down = true;
+    if (gViewerInput.handleMouse(window, pos, mask, CLICK_DOUBLEMIDDLE, down))
+    {
+        return true;
+    }
+    return handleMiddleMouseDown(window, pos, mask);
 }
 
 bool LLViewerWindow::handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
@@ -2822,6 +2921,12 @@ void LLViewerWindow::draw()
         LLView::sDirtyRect = getWindowRectScaled();
     }
 
+    // Draw all nested UI views.
+    // No translation needed, this view is glued to 0,0
+
+    gUIProgram.bind();
+    gGL.color4f(1, 1, 1, 1);
+
     // HACK for timecode debugging
     if (gSavedSettings.getBOOL("DisplayTimecode"))
     {
@@ -2838,12 +2943,6 @@ void LLViewerWindow::draw()
             LLColor4( 1.f, 1.f, 1.f, 1.f ),
             LLFontGL::LEFT, LLFontGL::TOP);
     }
-
-    // Draw all nested UI views.
-    // No translation needed, this view is glued to 0,0
-
-    gUIProgram.bind();
-    gGL.color4f(1, 1, 1, 1);
 
     gGL.pushMatrix();
     LLUI::pushMatrix();
@@ -2871,6 +2970,17 @@ void LLViewerWindow::draw()
 
         // Draw tool specific overlay on world
         LLToolMgr::getInstance()->getCurrentTool()->draw();
+
+        if (gAgentCamera.isUsingFlycam() && LLGameControl::isFlycamCrosshairEnabled())
+        {
+            // Same crosshair image/centering LLToolGun::draw() uses for
+            // mouselook's "ShowCrosshairs" -- flycam has no LLTool of its own
+            // to hang this off of, so it's drawn here instead.
+            LLUIImagePtr crosshair = LLUI::getUIImage("crosshairs.tga");
+            crosshair->draw(
+                ( getWorldViewRectScaled().getWidth() - crosshair->getWidth() ) / 2,
+                ( getWorldViewRectScaled().getHeight() - crosshair->getHeight() ) / 2);
+        }
 
         if( gAgentCamera.cameraMouselook() || LLFloaterCamera::inFreeCameraMode() )
         {
@@ -3457,6 +3567,22 @@ void LLViewerWindow::moveCursorToCenter()
         mLastMousePoint.set(x,y);
         mCurrentMouseDelta.set(0,0);
     }
+}
+
+void LLViewerWindow::moveCursorTo(S32 x, S32 y)
+{
+    // Clamp to the whole window (not just the world view) so a gamepad-driven
+    // cursor (see LLAgent::applyExternalActions()'s CONTROL_MODE_CURSOR
+    // handling) can reach the menu bar and toolbars, but not escape the window.
+    x = llclamp(x, 0, getWindowWidthScaled());
+    y = llclamp(y, 0, getWindowHeightScaled());
+
+    LLUI::getInstance()->setMousePositionScreen(x, y);
+
+    // on a forced move, all deltas get zeroed out to prevent jumping
+    mCurrentMousePoint.set(x, y);
+    mLastMousePoint.set(x, y);
+    mCurrentMouseDelta.set(0, 0);
 }
 
 
@@ -4589,7 +4715,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
     LLVector3 mouse_world_start = mouse_point_global;
     LLVector3 mouse_world_end   = mouse_point_global + mouse_direction_global * depth;
 
-    if (!LLViewerJoystick::getInstance()->getOverrideCamera())
+    if (!gAgent.isCameraExternallyDriven())
     { //always set raycast intersection to mouse_world_end unless
         //flycam is on (for DoF effect)
         gDebugRaycastIntersection.load3(mouse_world_end.mV);

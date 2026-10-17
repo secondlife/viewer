@@ -46,6 +46,7 @@
 #include "llagentwearables.h"
 #include "lldirpicker.h"
 #include "llfloaterimcontainer.h"
+#include "llfloaterpreference.h"
 #include "llimprocessing.h"
 #include "llwindow.h"
 #include "llviewerstats.h"
@@ -55,6 +56,7 @@
 #include "llmarketplacenotifications.h"
 #include "llmd5.h"
 #include "llmeshrepository.h"
+#include "llpanelpreferencegamecontrol.h"
 #include "llpumpio.h"
 #include "llmimetypes.h"
 #include "llslurl.h"
@@ -62,6 +64,7 @@
 #include "llfocusmgr.h"
 #include "llurlfloaterdispatchhandler.h"
 #include "llviewerjoystick.h"
+#include "llgamecontrol.h"
 #include "llcalc.h"
 #include "llconversationlog.h"
 #if LL_WINDOWS
@@ -194,6 +197,7 @@
 #include "lldebugview.h"
 #include "llconsole.h"
 #include "llcontainerview.h"
+#include "lltoolfocus.h"
 #include "lltooltip.h"
 
 #include "llsdutil.h"
@@ -220,6 +224,7 @@
 #include "llvosurfacepatch.h"
 #include "llviewerfloaterreg.h"
 #include "llcommandlineparser.h"
+#include "llfloaterpreference.h"
 #include "llfloatermemleak.h"
 #include "llfloaterreg.h"
 #include "llfloatersimplesnapshot.h"
@@ -240,6 +245,7 @@
 #include "lldrawpoolbump.h"
 #include "llvieweraudio.h"
 #include "llimview.h"
+#include "llchatservicehistory.h"
 #include "llviewerthrottle.h"
 #include "llparcel.h"
 #include "llavatariconctrl.h"
@@ -1137,6 +1143,31 @@ bool LLAppViewer::init()
         LLViewerJoystick::getInstance()->init(false);
     }
 
+    LLGameControl::init(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "gamecontrollerdb.txt"),
+        [](const std::vector<std::string>& keys) -> LLSD
+        {
+            LLSD result = LLSD::emptyMap();
+            for (const std::string& key : keys)
+            {
+                if (gSavedSettings.controlExists(key))
+                {
+                    result[key] = gSavedSettings.getLLSD(key);
+                }
+            }
+            return result;
+        },
+        [](const LLSD& key_values)
+        {
+            for (auto it = key_values.beginMap(); it != key_values.endMap(); ++it)
+            {
+                if (gSavedSettings.controlExists(it->first))
+                {
+                    gSavedSettings.setLLSD(it->first, it->second);
+                }
+            }
+        },
+        []() { LLPanelPreferenceGameControl::updateDeviceList(); });
+
     try
     {
         initializeSecHandler();
@@ -1246,6 +1277,7 @@ bool LLAppViewer::init()
     LLWorld::createInstance();
     LLViewerStatsRecorder::createInstance();
     LLSelectMgr::createInstance();
+    LLToolCamera::createInstance();
     LLViewerCamera::createInstance();
     LL::GLTFSceneManager::createInstance();
 
@@ -1333,6 +1365,66 @@ bool LLAppViewer::frame()
     return ret;
 }
 
+void sendGameControlData()
+{
+    LLMessageSystem* msg = gMessageSystem;
+    const LLGameControl::ServerState& state = LLGameControl::getServerState();
+
+    msg->newMessageFast(_PREHASH_GameControlData);
+    msg->nextBlockFast(_PREHASH_AgentData);
+    msg->addUUIDFast(_PREHASH_AgentID, gAgentID);
+    msg->addUUIDFast(_PREHASH_SessionID, gAgentSessionID);
+    msg->addU8Fast(_PREHASH_Packet, LLGameControl::getNextPacketNum());
+    msg->addU8Fast(_PREHASH_ActionMode, state.mActionMode);
+
+    // Non-modal canonical axes/buttons: pack every available value every message,
+    // whether or not it changed since the last one (no per-field diffing). Trailing
+    // zero axes are truncated and the Buttons block is skipped entirely when zero --
+    // the server assumes anything not packed is zero -- to save bytes.
+    size_t num_axes = state.mAxes.size();
+    while (num_axes > 0 && state.mAxes[num_axes - 1] == 0)
+    {
+        --num_axes;
+    }
+    for (size_t i = 0; i < num_axes; ++i)
+    {
+        msg->nextBlockFast(_PREHASH_Axes);
+        msg->addS16Fast(_PREHASH_Value, state.mAxes[i]);
+    }
+    if (state.mButtons != 0)
+    {
+        msg->nextBlockFast(_PREHASH_Buttons);
+        msg->addU32Fast(_PREHASH_Flags, state.mButtons);
+    }
+
+    // Modal semantic axes/buttons: same truncation policy, except the number of
+    // axes considered depends on ActionMode -- see message_template.msg's
+    // GameControlData doc and LLGameControl::numSemanticAxesForMode() -- since the
+    // server computes its own expected axis count from the mode and zeros anything
+    // not packed.
+    size_t num_mode_axes = LLGameControl::numSemanticAxesForMode((LLGameControl::AgentControlMode)state.mActionMode);
+    while (num_mode_axes > 0 && state.mSemanticAxes[num_mode_axes - 1] == 0)
+    {
+        --num_mode_axes;
+    }
+    for (size_t i = 0; i < num_mode_axes; ++i)
+    {
+        msg->nextBlockFast(_PREHASH_ModeAxes);
+        msg->addS16Fast(_PREHASH_Value, state.mSemanticAxes[i]);
+    }
+    if (state.mSemanticButtons != 0)
+    {
+        msg->nextBlockFast(_PREHASH_ModeButtons);
+        msg->addU32Fast(_PREHASH_Flags, state.mSemanticButtons);
+    }
+
+    LLGameControl::updateResendPeriod();
+    gAgent.sendMessage();
+
+    // Mirror the just-sent channel values into the preferences "Data Output" tab.
+    LLPanelPreferenceGameControl::updateDataOutput();
+}
+
 bool LLAppViewer::doFrame()
 {
     resumeMainloopTimeout("Main:doFrameStart");
@@ -1403,7 +1495,7 @@ bool LLAppViewer::doFrame()
                     LL_WARNS() << " Someone took over my signal/exception handler (post messagehandling)!" << LL_ENDL;
                 }
 
-                gViewerWindow->getWindow()->gatherInput();
+                gViewerWindow->getWindow()->gatherInput(gFocusMgr.getAppHasFocus());
             }
 
             //memory leaking simulation
@@ -2079,6 +2171,8 @@ bool LLAppViewer::cleanup()
         // Turn off Space Navigator and similar devices
         LLViewerJoystick::getInstance()->terminate();
     }
+
+    LLGameControl::terminate();
 
     LL_INFOS() << "Shutting down message system" << LL_ENDL;
     end_messaging_system();
@@ -4853,6 +4947,7 @@ void LLAppViewer::loadKeyBindings()
         }
     }
     LLUrlRegistry::instance().setKeybindingHandler(&gViewerInput);
+    LLUrlRegistry::instance().setGameControllerHandler(LLGameControl::getInstance());
 }
 
 // As per GHI #4498, remove old, stale CEF cache folders from previous sessions
@@ -5305,7 +5400,7 @@ void LLAppViewer::idle()
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("network"); //LL_RECORD_BLOCK_TIME(FTM_NETWORK);
         // Update spaceserver timeinfo
-        LLWorld::getInstance()->setSpaceTimeUSec(LLWorld::getInstance()->getSpaceTimeUSec() + LLUnits::Seconds::fromValue(dt_raw));
+        LLWorld::getInstance()->setSpaceTimeUSec(LLWorld::getInstance()->getSpaceTimeUSec() + (U64)(dt_raw * USEC_PER_SEC));
 
 
         //////////////////////////////////////
@@ -5323,6 +5418,68 @@ void LLAppViewer::idle()
             // Handle automatic walking towards points
             gAgentPilot.updateTarget();
             gAgent.autoPilot(&yaw);
+        }
+
+        // Auto-derive the active game-control mode (Avatar/Captive/FlyCam) from
+        // current avatar state so the runtime mappings and gating track it.
+        gAgent.updateGameControlMode();
+
+        // Read the agent's control flags now, before applyExternalActions() below
+        // (which drives the avatar from a real game controller) has a chance to
+        // fold any controller-driven movement into them this frame -- so the
+        // keyboard-derived GameControl state computed here can never be sourced
+        // from the controller's own output.  See LLGameControllerManager::
+        // setExternalInput()/accumulateFinalState() for where the two are
+        // combined (only as fully-independent final ServerStates).
+        U32 control_flags = gAgent.getControlFlags();
+
+        // apply to GameControl
+        LLGameControl::setExternalInput(control_flags, gAgent.getGameControlButtonsFromKeys(), gAgent.getRunning());
+
+        // Feed the actual on-screen cursor position to GameControl
+        // Matches the same whole-window clamp LLViewerWindow::moveCursorTo()
+        // uses to keep a gamepad-driven cursor on-screen.
+        if (LLGameControl::getAgentControlMode() == LLGameControl::CONTROL_MODE_CURSOR)
+        {
+            LLCoordGL cursor_pos = gViewerWindow->getCurrentMouse();
+            S32 rect_width = gViewerWindow->getWindowWidthScaled();
+            S32 rect_height = gViewerWindow->getWindowHeightScaled();
+            S32 pixel_x = llclamp(cursor_pos.mX, 0, rect_width);
+            S32 pixel_y = llclamp(rect_height - cursor_pos.mY, 0, rect_height);
+            LLGameControl::setMouseCursorPosition(pixel_x, pixel_y, rect_width, rect_height);
+        }
+
+        if (LLPanelPreferenceGameControl::isWaitingForInputChannel())
+        {
+            LLPanelPreferenceGameControl::applyGameControlInput();
+        }
+        else
+        {
+            // Recompute canonical controller state (also populates the internal
+            // state consumed below) and send it to the server when it changed,
+            // but only if the agent's region advertises support for it (the
+            // "GameControlEnabled" simulator feature).  While unsupported the
+            // resend deadline is left untouched, so the first frame after the
+            // feature appears sends immediately.
+            if (LLGameControl::computeFinalStateAndCheckForChanges())
+            {
+                LLViewerRegion* regionp = gAgent.getRegion();
+                if (regionp && regionp->gameControlEnabled())
+                {
+                    sendGameControlData();
+                }
+            }
+
+            // Drive the local avatar from the controller.  In Avatar/Captive
+            // modes this moves the avatar; in FlyCam mode applyExternalActions
+            // ignores movement bits (it early-returns while flycam is active) but
+            // still services the flycam on/off toggle, so we run it either way.
+            // Flycam *motion* is driven separately below via gAgent.updateFlycam().
+            if (LLGameControl::willControlAvatar() || LLGameControl::willControlFlycam())
+            {
+                LLGameControl::AgentActions game_control_actions = LLGameControl::computeAgentActions();
+                gAgent.applyExternalActions(game_control_actions);
+            }
         }
 
         send_agent_update(false);
@@ -5592,9 +5749,14 @@ void LLAppViewer::idle()
     {
         gAgentPilot.moveCamera();
     }
-    else if (LLViewerJoystick::getInstance()->getOverrideCamera())
+    else if (gAgent.isUsingFlycam())
     {
+        // Flycam is now a single shared state (LLAgentCamera) driven by
+        // whichever input sources are actually present; each is a no-op
+        // when its device/mode isn't active, so it's safe to feed both
+        // every frame rather than picking one exclusively.
         LLViewerJoystick::getInstance()->moveFlycam();
+        gAgent.updateFlycam();
     }
     else
     {
@@ -5726,6 +5888,8 @@ void LLAppViewer::idleShutdown()
     // All floaters are closed.  Tell server we want to quit.
     if (!logoutRequestSent())
     {
+        // Fence outstanding history work before logout tears down its account and capability context.
+        LLChatServiceHistory::stop();
         sendLogoutRequest();
 
         // Wait for a LogoutReply message
@@ -6119,6 +6283,9 @@ void LLAppViewer::idleNetwork()
 
 void LLAppViewer::disconnectViewer()
 {
+    // This is idempotent and also covers disconnect paths that bypass the normal logout request.
+    LLChatServiceHistory::stop();
+
     if (gDisconnected)
     {
         return;
@@ -6478,6 +6645,8 @@ void LLAppViewer::handleLoginComplete()
         gDebugInfo["MainloopTimeoutState"] = LLAppViewer::instance()->mMainloopTimeout->getState();
     }
 
+    // Start only after login has established the per-account storage and region capability context.
+    LLChatServiceHistory::start();
     mOnLoginCompleted();
 
     writeDebugInfo();

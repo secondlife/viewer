@@ -287,17 +287,20 @@ public:
 
     /**
      * Writes notification message to IM session.
+     * notification_id links a text fallback to its inline offer, when present.
      */
     static void logToIM(const EInstantMessage& session_type,
             const std::string& session_name, const std::string& from_name,
             const std::string& message, const LLUUID& session_owner_id,
-            const LLUUID& from_id);
+            const LLUUID& from_id, const LLUUID& notification_id = LLUUID::null);
 
     /**
      * Writes notification message to IM  p2p session.
      */
-    static void logToIMP2P(const LLNotificationPtr& notification, bool to_file_only = false);
-    static void logToIMP2P(const LLUUID& from_id, const std::string& message, bool to_file_only = false);
+    static void logToIMP2P(const LLNotificationPtr& notification, bool to_file_only = false,
+                          const LLUUID& notification_id = LLUUID::null);
+    static void logToIMP2P(const LLUUID& from_id, const std::string& message, bool to_file_only = false,
+                          const LLUUID& notification_id = LLUUID::null);
 
     /**
      * Writes group notice notification message to IM  group session.

@@ -88,6 +88,8 @@ public:
         const std::string& nav_type)
     { return true; }
 
+    virtual bool isSensitive() const { return false; }
+
     virtual bool handle(const LLSD& params,
                         const LLSD& query_map,
                         const std::string& grid,
@@ -117,6 +119,8 @@ public:
     /// Return an LLSD::Map of registered LLCommandHandlers and associated
     /// info (e.g. EUntrustedAccess).
     static LLSD enumerate();
+
+    static bool isSensitive(const std::string& cmd);
 };
 
 #endif
