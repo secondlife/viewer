@@ -1031,24 +1031,14 @@ void LLAssetStorage::processUploadComplete(LLMessageSystem *msg, void **user_dat
     msg->getBOOLFast(_PREHASH_AssetBlock, _PREHASH_Success, success);
 
     asset_type = (LLAssetType::EType)asset_type_s8;
-    LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
-    if (main_queue)
+    msg->pushMainThreadCallback(
+        [uuid, asset_type, success]()
     {
-        main_queue->post(
-            [uuid, asset_type, success]()
+        if (gAssetStorage)
         {
-            if (gAssetStorage)
-            {
-                gAssetStorage->_callUploadCallbacks(uuid, asset_type, success, LLExtStat::NONE);
-            }
-        });
-    }
-    else
-    {
-        // Shouldn't happen, by the time we have network we also have work queue,
-        // and shutdown should have network before work queue is destroyed.
-        LL_ERRS() << "LLAssetStorage::processUploadComplete() - no main queue!" << LL_ENDL;
-    }
+            gAssetStorage->_callUploadCallbacks(uuid, asset_type, success, LLExtStat::NONE);
+        }
+    });
 }
 
 void LLAssetStorage::_callUploadCallbacks(const LLUUID &uuid, LLAssetType::EType asset_type, bool success, LLExtStat ext_status )
@@ -1563,5 +1553,4 @@ void LLAssetStorage::markAssetToxic( const LLUUID& uuid )
         mToxicAssetMap[ uuid ] = LLFrameTimer::getTotalTime() + TOXIC_ASSET_LIFETIME;
     }
 }
-
 

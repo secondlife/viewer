@@ -27,6 +27,7 @@
 #pragma once
 
 #include "llhost.h"
+#include <functional>
 #include <memory>
 
 class LLMessageTemplate;
@@ -49,4 +50,5 @@ public:
     bool                      mTrusted = false;
     S32                       mCompressedSize = 0;
     S32                       mReceiveSize = -1;
+    std::function<void()>     mMainThreadCallback;
 };

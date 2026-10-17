@@ -944,6 +944,12 @@ public:
             // Queue closed during shutdown; drop silently.
         }
     }
+    void pushMainThreadCallback(std::function<void()> callback)
+    {
+        std::unique_ptr<LLDecodedMessage> dispatch(new LLDecodedMessage);
+        dispatch->mMainThreadCallback = std::move(callback);
+        pushDecoded(std::move(dispatch));
+    }
     size_t getNumDecodedPending() { return mDecodedQueue->size(); }
 
     // Read one raw packet into inbound message queues

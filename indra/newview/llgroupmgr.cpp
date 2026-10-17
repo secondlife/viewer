@@ -1091,21 +1091,7 @@ void LLGroupMgr::processGroupPropertiesReply(LLMessageSystem* msg, void** data)
     msg->getBOOL("GroupData", "MaturePublish", mature);
     msg->getUUID(_PREHASH_GroupData, "OwnerRole", owner_role);
 
-    LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
-    if (!main_queue)
-    {
-        if (LLApp::isQuitting())
-        {
-            LL_INFOS() << "LLGroupMgr::processGroupPropertiesReply() - app is quitting, dropping message" << LL_ENDL;
-        }
-        else
-        {
-            LL_ERRS() << "LLGroupMgr::processGroupPropertiesReply() - no main queue!" << LL_ENDL;
-        }
-        return;
-    }
-
-    main_queue->post(
+    msg->pushMainThreadCallback(
         [group_id, name, charter, show_in_list, founder_id, insignia_id,
         membership_fee, open_enrollment, num_group_members, num_group_roles,
         allow_publish, mature, owner_role]()
@@ -1401,22 +1387,7 @@ void LLGroupMgr::processEjectGroupMemberReply(LLMessageSystem* msg, void ** data
     // If we had a failure, the group panel needs to be updated.
     if (!success)
     {
-        LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
-        if (!main_queue)
-        {
-            if (LLApp::isQuitting())
-            {
-                LL_INFOS() << "LLGroupMgr::processEjectGroupMemberReply() - no main queue!" << LL_ENDL;
-            }
-            else
-            {
-                // Technically unsafe to do LL_ERRS here, as main thread will keep working for a bit,
-                // but this situation shouldn't be possible, so just covering all bases.
-                LL_ERRS() << "LLGroupMgr::processEjectGroupMemberReply() - no main queue!" << LL_ENDL;
-            }
-            return;
-        }
-        main_queue->post(
+        msg->pushMainThreadCallback(
             [group_id]()
         {
             LLGroupActions::refresh(group_id);
@@ -1435,14 +1406,7 @@ void LLGroupMgr::processJoinGroupReply(LLMessageSystem* msg, void ** data)
 
     if (success)
     {
-        LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
-        if (!main_queue)
-        {
-            LL_ERRS() << "LLGroupMgr::processJoinGroupReply() - no main queue!" << LL_ENDL;
-            return;
-        }
-
-        main_queue->post(
+        msg->pushMainThreadCallback(
             [group_id]()
         {
             // refresh all group information
@@ -1466,14 +1430,7 @@ void LLGroupMgr::processLeaveGroupReply(LLMessageSystem* msg, void ** data)
 
     if (success)
     {
-        LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
-        if (!main_queue)
-        {
-            LL_ERRS() << "LLGroupMgr::processLeaveGroupReply() - no main queue!" << LL_ENDL;
-            return;
-        }
-
-        main_queue->post(
+        msg->pushMainThreadCallback(
             [group_id]()
         {
             // refresh all group information
@@ -1498,14 +1455,7 @@ void LLGroupMgr::processCreateGroupReply(LLMessageSystem* msg, void ** data)
     msg->getBOOLFast(_PREHASH_ReplyData, _PREHASH_Success,  success );
     msg->getStringFast(_PREHASH_ReplyData, _PREHASH_Message, message );
 
-    LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
-    if (!main_queue)
-    {
-        LL_ERRS() << "LLGroupMgr::processCreateGroupReply() - no main queue!" << LL_ENDL;
-        return;
-    }
-
-    main_queue->post(
+    msg->pushMainThreadCallback(
         [group_id, success, message]()
     {
         if (success)

@@ -3568,6 +3568,12 @@ namespace
 void LLMessageSystem::dispatchDecoded(LLDecodedMessage& msg)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
+    if (msg.mMainThreadCallback)
+    {
+        msg.mMainThreadCallback();
+        return;
+    }
+
     // For main thread dispatch
     sLastSender = msg.mSender;
     sLastReceivingIF = msg.mReceivingInterface;
