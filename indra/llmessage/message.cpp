@@ -276,7 +276,7 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
         mDecodedQueue = std::make_shared<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>>(
             DECODED_QUEUE_CAPACITY);
         mReliableDecodedQueue = std::make_shared<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>>(
-            RELIABLE_DECODED_QUEUE_CAPACITY);
+            DECODED_QUEUE_CAPACITY);
         mReliableAckQueue = std::make_shared<LLThreadSafeQueue<ReliableAck>>();
         mReceiverThread = std::make_unique<LLUDPReceiverThread>(mSocket);
     }
@@ -1093,7 +1093,7 @@ F32 LLMessageSystem::getBufferLoadRate() const
 {
     F32 decoded_load = llmax(
         static_cast<F32>(mDecodedQueue->size()) / static_cast<F32>(DECODED_QUEUE_CAPACITY),
-        static_cast<F32>(mReliableDecodedQueue->size()) / static_cast<F32>(RELIABLE_DECODED_QUEUE_CAPACITY));
+        static_cast<F32>(mReliableDecodedQueue->size()) / static_cast<F32>(DECODED_QUEUE_CAPACITY));
     return llmax(decoded_load,
                  llmax(mHighPriorityInbound.getBufferLoadRate(),
                        mLowPriorityInbound.getBufferLoadRate()));

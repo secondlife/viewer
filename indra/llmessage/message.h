@@ -941,20 +941,20 @@ public:
     }
     bool pushDecoded(std::unique_ptr<LLDecodedMessage>& msg)
     {
-        const bool reliable = msg->mReliable;
-        auto& queue = reliable ? mReliableDecodedQueue : mDecodedQueue;
-        if (queue->tryPush(std::move(msg)))
+        try
         {
-            return true;
+            if (msg->mReliable)
+            {
+                mReliableDecodedQueue->push(std::move(msg));
+            }
+            else
+            {
+                mDecodedQueue->push(std::move(msg));
+            }
         }
-        if (reliable)
+        catch (const LLThreadSafeQueueInterrupt&)
         {
-            LL_WARNS("Messaging") << "Reliable decoded message queue is full; "
-                                  << "waiting for retransmission" << LL_ENDL;
-        }
-        else
-        {
-            LL_WARNS("Messaging") << "Decoded message queue is full; dropping an unreliable message" << LL_ENDL;
+            // Queue closed during shutdown; drop silently.
         }
         return false;
     }
@@ -1107,7 +1107,6 @@ private:
     std::shared_ptr<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>> mDecodedQueue;
     std::shared_ptr<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>> mReliableDecodedQueue;
     static constexpr size_t DECODED_QUEUE_CAPACITY = 1024;
-    static constexpr size_t RELIABLE_DECODED_QUEUE_CAPACITY = 256;
 };
 
 
