@@ -1524,7 +1524,10 @@ void LLGroupMgr::processCreateGroupReply(LLMessageSystem* msg, void ** data)
             gd.mName = "new group";
             gd.mPowers = GP_ALL_POWERS;
 
-            gAgent.mGroups.push_back(gd);
+            if (!gAgent.isInGroup(group_id, true))
+            {
+                gAgent.mGroups.push_back(gd);
+            }
 
             LLPanelGroupCreate::refreshCreatedGroup(group_id);
             //FIXME
