@@ -504,6 +504,23 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
     LLHost host = pkt.getHost();
     LLCircuitData* cdp = findCircuit(host, true);
 
+    // ACK tails apply to outbound reliable packets independently of whether
+    // the packet payload is valid, trusted, on-circuit, or a duplicate.
+    if (cdp && !ack_ids.empty())
+    {
+        for (TPACKETID ack_id : ack_ids)
+        {
+            try
+            {
+                mReliableAckQueue->push(ReliableAck{ cdp->mHost, ack_id });
+            }
+            catch (const LLThreadSafeQueueInterrupt&)
+            {
+                // Queue closed during shutdown; drop silently.
+            }
+        }
+    }
+
     // UseCircuitCode is allowed in even from an invalid circuit, so that
     // we can toss circuits around; everything else requires cdp.
     bool trusted = cdp && cdp->getTrusted();
@@ -551,21 +568,6 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
             cdp->collectRAck(recv_packet_id);
         }
         cdp->checkPacketInID(recv_packet_id, recv_resent);
-    }
-
-    if (cdp && !ack_ids.empty())
-    {
-        for (TPACKETID ack_id : ack_ids)
-        {
-            try
-            {
-                mReliableAckQueue->push(ReliableAck{ cdp->mHost, ack_id });
-            }
-            catch (const LLThreadSafeQueueInterrupt&)
-            {
-                // Queue closed during shutdown; drop silently.
-            }
-        }
     }
 
     logValidMsg(cdp, host, recv_reliable, recv_resent, !ack_ids.empty(), true);
