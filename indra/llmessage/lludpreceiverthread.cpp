@@ -103,14 +103,15 @@ void LLUDPReceiverThread::run()
             ms_sleep(1);
         }
 
-        // Fully decode whatever is sitting in the priority rings and
+        // Decode whatever is sitting in the priority rings and
         // hand each result off to the main thread's dispatch queue.
         // decodeDataOwned() returns nullptr both when the rings are
         // empty and when a packet was invalid/banned/off-circuit and
         // should simply be dropped.
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("udp decode");
-            while (gMessageSystem->getNumBufferedPackets() > 0)
+            while (gMessageSystem->getNumBufferedPackets() > 0
+                   && !gMessageSystem->isDecodedQueueFull())
             {
                 std::unique_ptr<LLDecodedMessage> decoded = gMessageSystem->decodeDataOwned();
                 if (decoded)

@@ -160,7 +160,7 @@ public:
     size_t size();
 
     //Returns the capacity of the queue.
-    U32 capacity() { return mCapacity; }
+    size_t capacity() { return mCapacity; }
 
     // closes the queue:
     // - every subsequent push() call will throw LLThreadSafeQueueInterrupt

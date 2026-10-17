@@ -948,6 +948,15 @@ public:
         }
         return true;
     }
+    // True if the decoded-message queue is currently full. Callers on
+    // LLUDPReceiverThread should check this before decoding another
+    // packet off the (auto-expanding) packet ring, so that backlog is
+    // absorbed by the ring rather than by blocking on pushDecoded().
+    // Todo: this mechanics need a review.
+    bool isDecodedQueueFull() const
+    {
+        return mDecodedQueue->size() >= mDecodedQueue->capacity();
+    }
     size_t getNumDecodedPending() const
     {
         return mDecodedQueue->size();
