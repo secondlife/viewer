@@ -95,6 +95,7 @@ namespace {
     const uint32_t SET_HIDDEN_RESTORE_DELAY_MS = 200;  // 200 ms to unmute again after hiding during teleport
     const uint32_t MUTE_FADE_DELAY_MS       = 500;   // 20ms fade followed by 480ms silence gets rid of the click just after unmuting.
                                                      // This is because the buffers and processing is cleared by the silence.
+                                                     // With StopMicCaptureWhenMuted, this is also the delay before capture is actually stopped.
 
     const F32 SPEAKING_AUDIO_LEVEL = 0.30;
 
@@ -260,6 +261,11 @@ void LLWebRTCVoiceClient::cleanupSingleton()
         mAvatarNameCacheConnection.disconnect();
     }
 
+    if (mStopMicCaptureOnMuteConnection.connected())
+    {
+        mStopMicCaptureOnMuteConnection.disconnect();
+    }
+
     sShuttingDown = true;
     if (mSession)
     {
@@ -308,6 +314,21 @@ void LLWebRTCVoiceClient::initWebRTC()
             return false;
         });
     }
+
+    // Connect StopMicCaptureWhenMuted control so the changes apply instantly
+    if (!mStopMicCaptureOnMuteConnection.connected())
+    {
+        mStopMicCaptureOnMuteConnection =
+            gSavedSettings.getControl("StopMicCaptureWhenMuted")->getSignal()->connect(
+                [this](LLControlVariable*, const LLSD& new_val, const LLSD&)
+                {
+                    if (mWebRTCDeviceInterface)
+                    {
+                        mWebRTCDeviceInterface->setStopCaptureOnMute(new_val.asBoolean());
+                    }
+                });
+    }
+    mWebRTCDeviceInterface->setStopCaptureOnMute(gSavedSettings.getBOOL("StopMicCaptureWhenMuted"));
 
     refreshDeviceLists();
 }
@@ -1736,14 +1757,20 @@ void LLWebRTCVoiceClient::setMuteMic(bool muted)
 
     mMuteMic = muted;
 
-    if (mIsInTuningMode)
+    if (mIsInTuningMode &&!gSavedSettings.getBOOL("StopMicCaptureWhenMuted"))
     {
         return;
     }
 
     if (mWebRTCDeviceInterface)
     {
-        mWebRTCDeviceInterface->setMute(muted, muted ? MUTE_FADE_DELAY_MS : 0);  // delay for 40ms on mute to allow buffers to empty
+        // Delay on mute to let the fade and silence flush buffers (and, if enabled, before capture stops)
+        mWebRTCDeviceInterface->setMute(muted, muted ? MUTE_FADE_DELAY_MS : 0);
+    }
+
+    if (mIsInTuningMode)
+    {
+        return;
     }
 
     // when you're hidden, your mic is always muted.
