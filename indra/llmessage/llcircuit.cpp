@@ -503,18 +503,25 @@ void LLCircuit::reapGraveyard()
     // If the UDP thread didn't stop using the circuit in 5 seconds,
     // something is wrong, 5 seconds is a massive overkill.
     const F64 cur_time = LLTimer::getTotalSeconds();
-    std::lock_guard<std::mutex> lock(mCircuitMutex);
-    for (auto it = mGraveyard.begin(); it != mGraveyard.end();)
+    std::vector<LLCircuitData*> expired;
     {
-        if (cur_time >= it->mCleanupTime)
+        std::lock_guard<std::mutex> lock(mCircuitMutex);
+        for (auto it = mGraveyard.begin(); it != mGraveyard.end();)
         {
-            delete it->mCircuit;
-            it = mGraveyard.erase(it);
+            if (cur_time >= it->mCleanupTime)
+            {
+                expired.push_back(it->mCircuit);
+                it = mGraveyard.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
         }
-        else
-        {
-            ++it;
-        }
+    }
+    for (LLCircuitData* circuit : expired)
+    {
+        delete circuit;
     }
 }
 
