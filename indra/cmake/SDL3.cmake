@@ -5,12 +5,6 @@ include(Prebuilt)
 
 add_library(ll::SDL3 INTERFACE IMPORTED)
 
-if (LINUX)
-  set(USE_SDL_WINDOW ON CACHE BOOL "Build with SDL window backend")
-else()
-  set(USE_SDL_WINDOW OFF CACHE BOOL "Build with SDL window backend")
-endif (LINUX)
-
 use_prebuilt_binary(SDL3)
 
 find_library( SDL3_LIBRARY
