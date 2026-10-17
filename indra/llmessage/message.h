@@ -944,7 +944,7 @@ public:
             // Queue closed during shutdown; drop silently.
         }
     }
-    size_t getNumDecodedPending() { return mDecodedQueue->size(); }
+    size_t getNumDecodedPending() const { return mDecodedQueue->size(); }
 
     // Read one raw packet into inbound message queues
     // Returns packet_size (0 if no packet was available).
@@ -1088,6 +1088,7 @@ private:
     LLCircuitData* findCircuit(const LLHost& host, bool resetPacketId);
 
     std::shared_ptr<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>> mDecodedQueue;
+    static constexpr size_t DECODED_QUEUE_CAPACITY = 1024;
 };
 
 

@@ -268,7 +268,8 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
     if (!mbError)
     {
         // Start the receiver thread, which will read packets from the socket and queue them for processing.
-        mDecodedQueue = std::make_shared<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>>();
+        mDecodedQueue = std::make_shared<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>>(
+            DECODED_QUEUE_CAPACITY);
         mReliableAckQueue = std::make_shared<LLThreadSafeQueue<ReliableAck>>();
         mReceiverThread = std::make_unique<LLUDPReceiverThread>(mSocket);
     }
@@ -1087,7 +1088,11 @@ S32 LLMessageSystem::getReceiveBytes() const
 
 F32 LLMessageSystem::getBufferLoadRate() const
 {
-    return llmax(mHighPriorityInbound.getBufferLoadRate(), mLowPriorityInbound.getBufferLoadRate());
+    F32 decoded_load = static_cast<F32>(getNumDecodedPending())
+        / static_cast<F32>(DECODED_QUEUE_CAPACITY);
+    return llmax(decoded_load,
+                 llmax(mHighPriorityInbound.getBufferLoadRate(),
+                       mLowPriorityInbound.getBufferLoadRate()));
 }
 
 void LLMessageSystem::processAcks(LockMessageChecker&, F32 collect_time)
