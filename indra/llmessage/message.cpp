@@ -151,6 +151,11 @@ static const char* nullToEmpty(const char* s)
     return s? s : emptyString;
 }
 
+static bool isTemplateMessageReader(const LLMessageReader* reader)
+{
+    return dynamic_cast<const LLTemplateMessageReader*>(reader) != nullptr;
+}
+
 thread_local LLHost LLMessageSystem::sLastSender;
 thread_local LLHost LLMessageSystem::sLastReceivingIF;
 thread_local S32 LLMessageSystem::sIncomingCompressedSize = 0;
@@ -1401,7 +1406,7 @@ void LLMessageSystem::copyMessageReceivedToSend()
 {
     // NOTE: babbage: switch builder to match reader to avoid
     // converting message format
-    if(mMessageReader == mTemplateMessageReader)
+    if(isTemplateMessageReader(mMessageReader.operator->()))
     {
         mMessageBuilder = mTemplateMessageBuilder;
     }
@@ -1438,7 +1443,7 @@ LLSD LLMessageSystem::getBuiltMessageLLSD() const
 
 LLSD LLMessageSystem::wrapReceivedTemplateData() const
 {
-    if(mMessageReader == mTemplateMessageReader)
+    if(isTemplateMessageReader(mMessageReader.operator->()))
     {
         LLTemplateMessageBuilder builder(mMessageTemplates);
         builder.newMessage(mMessageReader->getMessageName());
