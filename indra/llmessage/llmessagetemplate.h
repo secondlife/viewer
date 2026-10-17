@@ -491,7 +491,7 @@ public:
         }
         if (handler_func)
         {
-            HandlerCallGuard guard(this, call_state);
+            HandlerCallGuard guard(call_state);
             handler_func(msgsystem, user_data);
             return true;
         }
@@ -529,7 +529,7 @@ public:
         }
         if (handler_func)
         {
-            HandlerCallGuard guard(this, call_state);
+            HandlerCallGuard guard(call_state);
             handler_func(msgsystem, user_data);
         }
         // If there is no handler, treat as if handled, as there is no point in
@@ -633,18 +633,16 @@ private:
     class HandlerCallGuard
     {
     public:
-        HandlerCallGuard(const LLMessageTemplate* message_template,
-                         std::shared_ptr<HandlerCallState> state)
-        : mTemplate(message_template),
-          mState(std::move(state)),
-          mPreviousTemplate(sInvokingTemplate)
+        explicit HandlerCallGuard(std::shared_ptr<HandlerCallState> state)
+        : mState(std::move(state)),
+          mPreviousState(sInvokingHandlerState)
         {
-            sInvokingTemplate = message_template;
+            sInvokingHandlerState = mState.get();
         }
 
         ~HandlerCallGuard()
         {
-            sInvokingTemplate = mPreviousTemplate;
+            sInvokingHandlerState = mPreviousState;
             std::lock_guard<std::mutex> lock(mState->mMutex);
             if (--mState->mActiveCalls == 0)
             {
@@ -653,9 +651,8 @@ private:
         }
 
     private:
-        const LLMessageTemplate* mTemplate;
         std::shared_ptr<HandlerCallState> mState;
-        const LLMessageTemplate* mPreviousTemplate;
+        const HandlerCallState* mPreviousState;
     };
 
     void waitForHandlerCalls(const std::shared_ptr<HandlerCallState>& state) const
@@ -664,7 +661,7 @@ private:
         // the only call that cannot have quiesced yet, so waiting here would
         // deadlock; the call guard keeps that invocation accounted for until
         // it returns.
-        if (sInvokingTemplate == this)
+        if (sInvokingHandlerState == state.get())
         {
             return;
         }
@@ -709,7 +706,7 @@ private:
     // Since setHandlerFunc are mostly startup specific, one-time init,
     // a shared mutex is enough for all templates
     static inline std::shared_mutex         sHandlerMutex;
-    static inline thread_local const LLMessageTemplate* sInvokingTemplate = nullptr;
+    static inline thread_local const HandlerCallState* sInvokingHandlerState = nullptr;
     std::shared_ptr<HandlerCallState>       mHandlerCallState = std::make_shared<HandlerCallState>();
     // message handler function (this is set by each application)
     void                                    (*mHandlerFunc)(LLMessageSystem *msgsystem, void **user_data);
