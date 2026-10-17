@@ -1098,8 +1098,9 @@ S32 LLMessageSystem::getReceiveBytes() const
 
 F32 LLMessageSystem::getBufferLoadRate() const
 {
-    F32 decoded_load = static_cast<F32>(getNumDecodedPending())
-        / static_cast<F32>(DECODED_QUEUE_CAPACITY + RELIABLE_DECODED_QUEUE_CAPACITY);
+    F32 decoded_load = llmax(
+        static_cast<F32>(mDecodedQueue->size()) / static_cast<F32>(DECODED_QUEUE_CAPACITY),
+        static_cast<F32>(mReliableDecodedQueue->size()) / static_cast<F32>(RELIABLE_DECODED_QUEUE_CAPACITY));
     return llmax(decoded_load,
                  llmax(mHighPriorityInbound.getBufferLoadRate(),
                        mLowPriorityInbound.getBufferLoadRate()));
