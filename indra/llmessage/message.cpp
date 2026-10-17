@@ -4010,9 +4010,9 @@ U64Microseconds LLMessageSystem::getMessageTimeUsecs(const bool update)
     {
         if (update)
         {
-            gMessageSystem->mCurrentMessageTime = totalTime();
+            gMessageSystem->mCurrentMessageTime.store(totalTime().value(), std::memory_order_relaxed);
         }
-        return gMessageSystem->mCurrentMessageTime;
+        return U64Microseconds(gMessageSystem->mCurrentMessageTime.load(std::memory_order_relaxed));
     }
     else
     {
@@ -4027,9 +4027,9 @@ F64Seconds LLMessageSystem::getMessageTimeSeconds(const bool update)
     {
         if (update)
         {
-            gMessageSystem->mCurrentMessageTime = totalTime();
+            gMessageSystem->mCurrentMessageTime.store(totalTime().value(), std::memory_order_relaxed);
         }
-        return gMessageSystem->mCurrentMessageTime;
+        return F64Seconds(gMessageSystem->mCurrentMessageTime.load(std::memory_order_relaxed));
     }
     else
     {

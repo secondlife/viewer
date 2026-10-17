@@ -1008,7 +1008,7 @@ private:
     S32 mMaxMessageCounts; // Max number of messages to process before dumping.
     F64Seconds mMessageCountTime;
 
-    F64Seconds mCurrentMessageTime; // The current "message system time" (updated the first call to checkMessages after a resetReceiveCount
+    std::atomic<F64> mCurrentMessageTime; // The current "message system time" (updated the first call to checkMessages after a resetReceiveCount
 
     // message system exceptions
     typedef std::pair<msg_exception_callback, void*> exception_t;
