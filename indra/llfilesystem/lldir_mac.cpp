@@ -137,6 +137,21 @@ LLDir_Mac::LLDir_Mac()
         // mOSUserAppDir
         mOSUserAppDir = mOSUserDir;
 
+        // mExecutableDir == .../MyApp.app/Contents/MacOS
+        std::string bundle_root; // .../MyApp.app
+        if (!mExecutableDir.empty())
+        {
+            std::string contents_dir = getDirName(mExecutableDir);   // .../MyApp.app/Contents
+            if (!contents_dir.empty())
+            {
+                bundle_root = getDirName(contents_dir);              // .../MyApp.app
+            }
+        }
+        std::string install_root = bundle_root.empty() ? std::string() : getDirName(bundle_root);
+        bool is_applications_install = (install_root.rfind("/Applications", 0) == 0);
+        bool is_dmg = (mExecutablePathAndName.rfind("/Volumes/", 0) == 0);
+        bool is_translocated = (mExecutablePathAndName.find("/AppTranslocation/") != std::string::npos);
+
 #if LL_VELOPACK
         // Detect a portable (Velopack) install: the executable lives at
         // ".../MyApp.app/Contents/MacOS/<exe>". If the portable package
@@ -145,19 +160,14 @@ LLDir_Mac::LLDir_Mac()
         // beside the bundle instead of ~/Library/Application Support. This
         // only applies to Velopack-portable builds; a DMG/NSIS-style
         // install never produces this marker, so a normally-installed
-        // viewer is unaffected.
-        std::string bundle_root; // .../MyApp.app
-        if (!mExecutableDir.empty())
-        {
-            // mExecutableDir == .../MyApp.app/Contents/MacOS
-            std::string contents_dir = getDirName(mExecutableDir);   // .../MyApp.app/Contents
-            if (!contents_dir.empty())
-            {
-                bundle_root = getDirName(contents_dir);              // .../MyApp.app
-            }
-        }
-        std::string install_root = bundle_root.empty() ? std::string() : getDirName(bundle_root);
-        if (isPortableInstall(install_root))
+        // viewer is unaffected.if (!is_dmg && !is_translocated && !is_applications_install && !install_root.empty())
+
+        // macos doesn't have the .portable marker , but check it just in case.
+        bool is_portable = isPortableInstall(install_root);
+        // For a velopack build, assume that running nor from a dmg means 'portable'.
+        is_portable |= !is_dmg && !is_translocated && !is_applications_install && !install_root.empty();
+
+        if (is_portable)
         {
             std::string portable_dir;
             if (CreateDirectory(install_root, PORTABLE_USER_DATA_DIRNAME, &portable_dir))
@@ -173,6 +183,49 @@ LLDir_Mac::LLDir_Mac()
             }
         }
 #endif // LL_VELOPACK
+
+        if (is_dmg)
+        {
+            // /Volumes also contains external disks and network shares.
+            mRunContextDescription = "Mounted volume (/Volumes)";
+        }
+        else if (is_translocated)
+        {
+            // Gatekeeper's App Translocation makes an unregistered, quarantined
+            // app (e.g. one simply unzipped in Downloads/ and double-clicked
+            // without ever being moved) appear to run from a randomized
+            // read-only path under
+            // "/private/var/folders/.../AppTranslocation/.../d/MyApp.app",
+            // even though the on-disk bundle still lives wherever it was
+            // extracted.
+            mRunContextDescription = "App Translocation (unregistered/quarantined copy)";
+        }
+        else if (is_applications_install)
+        {
+            // Bundle lives directly under /Applications: a normal, properly
+            // installed copy.
+            mRunContextDescription = "Standard install (/Applications)";
+        }
+#if LL_VELOPACK
+        else if (is_portable)
+        {
+            mRunContextDescription = "Portable (extracted archive, " + install_root + ")";
+        }
+#endif // LL_VELOPACK
+        else if (!install_root.empty())
+        {
+            // Bundle is present on local disk, intact, and not translocated
+            // or mounted from a DMG, but it is NOT under /Applications. This
+            // is the classic "downloaded a zip/tar, extracted it somewhere,
+            // and ran the .app directly from that folder" case - i.e. what
+            // users may call a "portable" install even though no formal
+            // portable packaging was used.
+            mRunContextDescription = "Running from extracted archive or non-standard folder (" + install_root + ")";
+        }
+        else
+        {
+            mRunContextDescription = "Unknown install location";
+        }
 
         // mTempDir
         //Aura 120920 std::filesystem::temp_directory_path() not yet implemented on mac. :(
