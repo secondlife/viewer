@@ -359,11 +359,11 @@ bool LLThreadSafeQueue<ElementT, QueueT>::tryPush(T&& element)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     return tryLock(
-        [this, element=std::move(element)](lock_t& lock)
+        [this, &element](lock_t& lock)
         {
             if (mClosed)
                 return false;
-            return push_(lock, std::move(element));
+            return push_(lock, std::forward<T>(element));
         });
 }
 

@@ -9,7 +9,7 @@
  *
  * The ring starts at DEFAULT_BUFFER_RING_SIZE slots and grows in increments
  * of BUFFER_RING_EXPANSION up to MAX_BUFFER_RING_SIZE.  Once at the ceiling,
- * pushPacket() silently overwrites the oldest queued packet to make room for
+ * pushPacket() warns and overwrites the oldest queued packet to make room for
  * the incoming one.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$

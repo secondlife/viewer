@@ -54,6 +54,7 @@ void LLUDPReceiverThread::run()
 
     // Thread name is already registered with the profiler by
     // LLThread::threadRun() via LL_PROFILER_SET_THREAD_NAME("UDP Receiver").
+    std::unique_ptr<LLDecodedMessage> pending_decoded;
     while (!isQuitting())
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
@@ -103,13 +104,26 @@ void LLUDPReceiverThread::run()
             ms_sleep(1);
         }
 
-        // Fully decode whatever is sitting in the priority rings and
-        // hand each result off to the main thread's dispatch queue.
+        // Decode packets from the priority rings while the main-thread
+        // dispatch queue can accept them. Keep one decoded message pending
+        // rather than draining more raw packets when that queue is full.
         // decodeDataOwned() returns nullptr both when the rings are
         // empty and when a packet was invalid/banned/off-circuit and
         // should simply be dropped.
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("udp decode");
+            if (pending_decoded)
+            {
+                const LLHost sender = pending_decoded->mSender;
+                const TPACKETID packet_id = pending_decoded->mPacketID;
+                const bool reliable = pending_decoded->mReliable;
+                if (!gMessageSystem->tryPushDecoded(pending_decoded))
+                {
+                    continue;
+                }
+                gMessageSystem->markDecodedReceived(sender, packet_id, reliable);
+            }
+
             while (gMessageSystem->getNumBufferedPackets() > 0)
             {
                 std::unique_ptr<LLDecodedMessage> decoded = gMessageSystem->decodeDataOwned();
@@ -126,9 +140,14 @@ void LLUDPReceiverThread::run()
                         const LLHost sender = decoded->mSender;
                         const TPACKETID packet_id = decoded->mPacketID;
                         const bool reliable = decoded->mReliable;
-                        if (gMessageSystem->pushDecoded(decoded))
+                        if (gMessageSystem->tryPushDecoded(decoded))
                         {
                             gMessageSystem->markDecodedReceived(sender, packet_id, reliable);
+                        }
+                        else
+                        {
+                            pending_decoded = std::move(decoded);
+                            break;
                         }
                     }
                     else

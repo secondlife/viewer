@@ -939,25 +939,13 @@ public:
         }
         return mDecodedQueue->tryPop(out);
     }
-    bool pushDecoded(std::unique_ptr<LLDecodedMessage>& msg)
+    bool tryPushDecoded(std::unique_ptr<LLDecodedMessage>& msg)
     {
-        try
+        if (msg->mReliable)
         {
-            if (msg->mReliable)
-            {
-                mReliableDecodedQueue->push(std::move(msg));
-            }
-            else
-            {
-                mDecodedQueue->push(std::move(msg));
-            }
+            return mReliableDecodedQueue->tryPush(std::move(msg));
         }
-        catch (const LLThreadSafeQueueInterrupt&)
-        {
-            // Queue closed during shutdown; drop silently.
-            return false;
-        }
-        return true;
+        return mDecodedQueue->tryPush(std::move(msg));
     }
     size_t getNumDecodedPending() const
     {
