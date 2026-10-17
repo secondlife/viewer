@@ -275,8 +275,6 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
         // Start the receiver thread, which will read packets from the socket and queue them for processing.
         mDecodedQueue = std::make_shared<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>>(
             DECODED_QUEUE_CAPACITY);
-        mReliableDecodedQueue = std::make_shared<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>>(
-            DECODED_QUEUE_CAPACITY);
         mReliableAckQueue = std::make_shared<LLThreadSafeQueue<ReliableAck>>();
         mReceiverThread = std::make_unique<LLUDPReceiverThread>(mSocket);
     }
@@ -362,10 +360,6 @@ LLMessageSystem::~LLMessageSystem()
     if (mDecodedQueue)
     {
         mDecodedQueue->close();
-    }
-    if (mReliableDecodedQueue)
-    {
-        mReliableDecodedQueue->close();
     }
     if (mReliableAckQueue)
     {
@@ -1091,9 +1085,8 @@ S32 LLMessageSystem::getReceiveBytes() const
 
 F32 LLMessageSystem::getBufferLoadRate() const
 {
-    F32 decoded_load = llmax(
-        static_cast<F32>(mDecodedQueue->size()) / static_cast<F32>(DECODED_QUEUE_CAPACITY),
-        static_cast<F32>(mReliableDecodedQueue->size()) / static_cast<F32>(DECODED_QUEUE_CAPACITY));
+    F32 decoded_load =
+        static_cast<F32>(mDecodedQueue->size()) / static_cast<F32>(DECODED_QUEUE_CAPACITY);
     return llmax(decoded_load,
                  llmax(mHighPriorityInbound.getBufferLoadRate(),
                        mLowPriorityInbound.getBufferLoadRate()));

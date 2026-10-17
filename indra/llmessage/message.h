@@ -933,24 +933,13 @@ public:
 
     bool tryPopDecoded(std::unique_ptr<LLDecodedMessage>& out)
     {
-        if (mReliableDecodedQueue->tryPop(out))
-        {
-            return true;
-        }
         return mDecodedQueue->tryPop(out);
     }
     bool pushDecoded(std::unique_ptr<LLDecodedMessage>& msg)
     {
         try
         {
-            if (msg->mReliable)
-            {
-                mReliableDecodedQueue->push(std::move(msg));
-            }
-            else
-            {
-                mDecodedQueue->push(std::move(msg));
-            }
+            mDecodedQueue->push(std::move(msg));
         }
         catch (const LLThreadSafeQueueInterrupt&)
         {
@@ -961,7 +950,7 @@ public:
     }
     size_t getNumDecodedPending() const
     {
-        return mDecodedQueue->size() + mReliableDecodedQueue->size();
+        return mDecodedQueue->size();
     }
 
     // Read one raw packet into inbound message queues
@@ -1106,7 +1095,6 @@ private:
     LLCircuitData* findCircuit(const LLHost& host, bool resetPacketId);
 
     std::shared_ptr<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>> mDecodedQueue;
-    std::shared_ptr<LLThreadSafeQueue<std::unique_ptr<LLDecodedMessage>>> mReliableDecodedQueue;
     static constexpr size_t DECODED_QUEUE_CAPACITY = 1024;
 };
 
