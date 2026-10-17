@@ -116,6 +116,16 @@
          value="Down" />
     </rows>
     <rows
+     name="toggle_down"
+     value="toggle_down">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Toggle Down" />
+    </rows>
+    <rows
      name="run_forward"
      value="run_forward">
         <columns
