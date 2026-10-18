@@ -30,6 +30,7 @@
 #endif
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
+#include "llviewerregion.h"
 #include "llcommandhandler.h"
 #include "lldir.h"
 #include "llhttpnode.h"
