@@ -675,9 +675,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (NSRange)selectedRange
 {
     // While composing, report the selection the input method set inside the marked text
-    // (e.g. the whole clause after a Japanese conversion). The editor always puts its caret
-    // at the end of the preedit, and input methods that check this before committing
-    // (Japanese Kotoeri) silently refuse to commit on Return when it does not match.
+    // (e.g. the whole clause after a Japanese conversion) rather than the editor caret,
+    // which is always placed at the end of the preedit.
     if (mHasMarkedText)
     {
         NSRange marked = [self markedRange];
