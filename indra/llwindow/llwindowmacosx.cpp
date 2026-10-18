@@ -310,6 +310,15 @@ void callFocus()
     }
 }
 
+bool callFocusAcceptsTextInput()
+{
+    if (gWindowImplementation && gWindowImplementation->getCallbacks())
+    {
+        return gWindowImplementation->getCallbacks()->handleFocusAcceptsTextInput(gWindowImplementation);
+    }
+    return false;
+}
+
 void callFocusLost()
 {
     if (gWindowImplementation && gWindowImplementation->getCallbacks())
@@ -702,6 +711,36 @@ void resetPreedit()
     }
 }
 
+// Turn the current preedit (marked text) into committed text in the focused editor.
+void commitPreedit()
+{
+    if (gWindowImplementation && gWindowImplementation->getPreeditor())
+    {
+        LLPreeditor *preeditor = gWindowImplementation->getPreeditor();
+        S32 position = 0;
+        S32 length = 0;
+        preeditor->getPreeditRange(&position, &length);
+        if (length <= 0)
+        {
+            return;
+        }
+
+        const LLWString text = preeditor->getPreeditString();
+        if (position < 0 || position + length > (S32)text.length())
+        {
+            preeditor->resetPreedit();
+            return;
+        }
+
+        const LLWString committed = text.substr(position, length);
+        preeditor->resetPreedit();
+        for (llwchar c : committed)
+        {
+            preeditor->handleUnicodeCharHere(c);
+        }
+    }
+}
+
 // For reasons of convenience, handle IME updates here.
 // This largely mirrors the old implementation, only sans the carbon parameters.
 void setMarkedText(unsigned short *unitext, unsigned int *selectedRange, unsigned int *replacementRange, long text_len, attributedStringInfo segments)
@@ -711,12 +750,16 @@ void setMarkedText(unsigned short *unitext, unsigned int *selectedRange, unsigne
         LLPreeditor *preeditor = gWindowImplementation->getPreeditor();
         preeditor->resetPreedit();
         // This should be a viable replacement for the kEventParamTextInputSendReplaceRange parameter.
-        if (replacementRange[0] < replacementRange[1])
+        // replacementRange is {location, length}; a zero length means there is nothing to replace.
+        if (replacementRange[1] > 0)
         {
             const LLWString& text = preeditor->getPreeditString();
             const S32 location = wstring_wstring_length_from_utf16_length(text, 0, replacementRange[0]);
             const S32 length = wstring_wstring_length_from_utf16_length(text, location, replacementRange[1]);
-            preeditor->markAsPreedit(location, length);
+            if (location >= 0 && length > 0 && location + length <= (S32)text.length())
+            {
+                preeditor->markAsPreedit(location, length);
+            }
         }
 
         LLWString fix_str = utf16str_to_wstring(llutf16string(unitext, text_len));

@@ -79,6 +79,7 @@ public:
     virtual bool handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height);
     virtual bool handleDisplayChanged();
     virtual bool handleWindowDidChangeScreen(LLWindow *window);
+    virtual bool handleFocusAcceptsTextInput(LLWindow *window); // true if the control with keyboard focus takes typed text
 
     enum DragNDropAction {
         DNDA_START_TRACKING = 0,// Start tracking an incoming drag

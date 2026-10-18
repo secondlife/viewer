@@ -241,6 +241,11 @@ bool LLWindowCallbacks::handleWindowDidChangeScreen(LLWindow *window)
     return false;
 }
 
+bool LLWindowCallbacks::handleFocusAcceptsTextInput(LLWindow *window)
+{
+    return true;
+}
+
 void LLWindowCallbacks::handlePingWatchdog(LLWindow *window, const char * msg)
 {
 

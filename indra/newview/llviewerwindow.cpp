@@ -1945,6 +1945,12 @@ bool LLViewerWindow::handleWindowDidChangeScreen(LLWindow *window)
     return true;
 }
 
+bool LLViewerWindow::handleFocusAcceptsTextInput(LLWindow *window)
+{
+    LLUICtrl* focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
+    return focus && focus->acceptsTextInput();
+}
+
 void LLViewerWindow::handlePingWatchdog(LLWindow *window, const char * msg)
 {
     LLAppViewer::instance()->pingMainloopTimeout(msg);

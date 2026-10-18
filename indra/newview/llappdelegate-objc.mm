@@ -201,25 +201,50 @@
 - (void) languageUpdated
 {
     TISInputSourceRef currentInput = TISCopyCurrentKeyboardInputSource();
+    if (!currentInput)
+    {
+        self.currentInputLanguage = nil;
+        return;
+    }
+
+    // Third party input methods may not report any language at all.
     CFArrayRef languages = (CFArrayRef)TISGetInputSourceProperty(currentInput, kTISPropertyInputSourceLanguages);
 
 #if 0 // In the event of ever needing to add new language sources, change this to 1 and watch the terminal for "languages:"
-    NSLog(@"languages: %@", TISGetInputSourceProperty(currentInput, kTISPropertyInputSourceLanguages));
+    NSLog(@"languages: %@", languages);
 #endif
 
     // Typically the language we want is going to be the very first result in the array.
-    currentInputLanguage = (NSString*)CFArrayGetValueAtIndex(languages, 0);
+    // The array is owned by currentInput, so retain the string through the property before releasing it.
+    if (languages && CFArrayGetCount(languages) > 0)
+    {
+        self.currentInputLanguage = (NSString*)CFArrayGetValueAtIndex(languages, 0);
+    }
+    else
+    {
+        self.currentInputLanguage = nil;
+    }
+    CFRelease(currentInput);
 }
 
 - (bool) romanScript
 {
+    // Not every input method posts a selection change notification when it switches,
+    // so query the current input source instead of relying on a cached value.
+    [self languageUpdated];
+
     @autoreleasepool {
         // How to add support for new languages with the input window:
         // Simply append this array with the language code (ja for japanese, ko for korean, zh for chinese, etc.)
-        NSArray* nonRomanScript = @[@"ja", @"ko", @"zh-Hant", @"zh-Hans"];
-        if ([nonRomanScript containsObject:currentInputLanguage])
+        // Matched as a prefix, so region or script variants such as "ko-KR" or "zh-Hant-TW" are covered.
+        NSArray* nonRomanScript = @[@"ja", @"ko", @"zh"];
+        for (NSString* language in nonRomanScript)
         {
-            return false;
+            if ([currentInputLanguage isEqualToString:language] ||
+                [currentInputLanguage hasPrefix:[language stringByAppendingString:@"-"]])
+            {
+                return false;
+            }
         }
     }
 
