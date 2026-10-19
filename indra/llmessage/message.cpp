@@ -566,7 +566,7 @@ std::unique_ptr<LLDecodedMessage> LLMessageSystem::decodeDataOwned()
         return nullptr;
     }
 
-    if (cdp)
+    if (cdp && !pkt.getPacketIDChecked())
     {
         cdp->checkPacketInID(recv_packet_id, recv_resent);
     }
@@ -1337,6 +1337,19 @@ S32 LLMessageSystem::processBufferPacket(LLPacketBuffer& pkt)
 
     if (packet_size >= (S32)LL_MINIMUM_VALID_PACKET_SIZE && !computeDrop())
     {
+        if (!pkt.getPacketIDChecked())
+        {
+            const U8* buffer = (const U8*)pkt.getData();
+            TPACKETID packet_id;
+            memcpy(&packet_id, &buffer[1], sizeof(packet_id));
+            if (LLCircuitData* cdp = findCircuit(pkt.getHost(), true))
+            {
+                cdp->checkPacketInID(ntohl(packet_id),
+                                     (buffer[0] & LL_RESENT_FLAG) != 0);
+                pkt.setPacketIDChecked(true);
+            }
+        }
+
         if (isHighPriorityMessage(pkt))
         {
             mHighPriorityInbound.pushPacket(pkt);
