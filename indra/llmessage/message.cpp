@@ -1342,7 +1342,7 @@ S32 LLMessageSystem::processBufferPacket(LLPacketBuffer& pkt)
             const U8* buffer = (const U8*)pkt.getData();
             TPACKETID packet_id;
             memcpy(&packet_id, &buffer[1], sizeof(packet_id));
-            if (LLCircuitData* cdp = findCircuit(pkt.getHost(), true))
+            if (LLCircuitData* cdp = mCircuitInfo.findCircuit(pkt.getHost()))
             {
                 cdp->checkPacketInID(ntohl(packet_id),
                                      (buffer[0] & LL_RESENT_FLAG) != 0);
