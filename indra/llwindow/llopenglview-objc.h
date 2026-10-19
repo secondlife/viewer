@@ -70,6 +70,7 @@
 - (unsigned long) getVramSize;
 
 - (void) allowMarkedTextInput:(bool)allowed;
+- (void) sendBackspaceToViewer;
 
 @end
 

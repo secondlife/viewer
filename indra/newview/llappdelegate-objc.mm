@@ -179,6 +179,7 @@
         if (show)
         {
             NSLog(@"Showing input window.");
+            [inputView setString:@""];
             [inputWindow makeKeyAndOrderFront:inputWindow];
             if (textEvent != nil)
             {

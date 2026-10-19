@@ -529,9 +529,12 @@ attributedStringInfo getSegments(NSAttributedString *str)
         ch = [str_no_modifiers characterAtIndex:0];
     }
     // While text is being composed the key belongs to the input method, so it is withheld from the viewer.
-    mKeyDownWithheld = mHasMarkedText;
+    // Backspace in a text field goes to the input method first even without marked text: some input
+    // methods (e.g. Korean) also compose by replacing already inserted text, and the syllable would be
+    // deleted before they could edit it. Keys they do not use come back through doCommandBySelector:.
+    mKeyDownWithheld = mHasMarkedText || (mMarkedTextAllowed && ch == NSDeleteCharacter);
     mForwardWithheldKeyDown = false;
-    bool acceptsText = mHasMarkedText ? false : callKeyDown(&eventData, keycode, mModifiers, ch);
+    bool acceptsText = mKeyDownWithheld ? false : callKeyDown(&eventData, keycode, mModifiers, ch);
 
     // acceptsText only tells that some UI element has keyboard focus (it may be a button),
     // so also check that the focused control takes text before opening the Input Window.
@@ -795,6 +798,21 @@ attributedStringInfo getSegments(NSAttributedString *str)
 // Called by the viewer when focus moves or the mouse is clicked while composing.
 // Commit what is marked into the current editor, then tell the input method
 // its composition is finished so it starts the next one fresh.
+// Passes a Backspace key press to the viewer, for text the Input Window has already sent.
+- (void) sendBackspaceToViewer
+{
+    unichar ch = NSDeleteCharacter;
+    NSString *chars = [NSString stringWithCharacters:&ch length:1];
+    NSEvent *event = [NSEvent keyEventWithType:NSEventTypeKeyDown location:NSZeroPoint modifierFlags:0
+                                     timestamp:[[NSProcessInfo processInfo] systemUptime] windowNumber:[[self window] windowNumber]
+                                       context:nil characters:chars charactersIgnoringModifiers:chars isARepeat:NO keyCode:kVK_Delete];
+    NativeKeyEventData eventData = extractKeyDataFromKeyEvent(event);
+    eventData.mKeyEvent = NativeKeyEventData::KEYDOWN;
+    callKeyDown(&eventData, kVK_Delete, 0, ch);
+    eventData.mKeyEvent = NativeKeyEventData::KEYUP;
+    callKeyUp(&eventData, kVK_Delete, 0);
+}
+
 - (void)commitCurrentPreedit
 {
     if (mHasMarkedText)
@@ -1013,6 +1031,12 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (void) setGLView:(LLOpenGLView *)view
 {
     glview = view;
+    // Text in the Input Window may already have been sent to the viewer, so it must not be changed behind its back.
+    [self setContinuousSpellCheckingEnabled:NO];
+    [self setAutomaticSpellingCorrectionEnabled:NO];
+    [self setAutomaticTextReplacementEnabled:NO];
+    [self setAutomaticQuoteSubstitutionEnabled:NO];
+    [self setAutomaticDashSubstitutionEnabled:NO];
 }
 
 - (void)keyDown:(NSEvent *)theEvent
@@ -1021,6 +1045,13 @@ attributedStringInfo getSegments(NSAttributedString *str)
     mKeyPressed = [[theEvent charactersIgnoringModifiers] characterAtIndex:0];
     // setMarkedText and insertText is called indirectly from inside keyDown: method
     [super keyDown:theEvent];
+}
+
+// The text in the Input Window has already been sent to the viewer, so Backspace is passed on as well.
+- (void)deleteBackward:(id)sender
+{
+    [super deleteBackward:sender];
+    [glview sendBackspaceToViewer];
 }
 
 // setMarkedText: is called for incomplete input(on the way to conversion).
@@ -1041,12 +1072,41 @@ attributedStringInfo getSegments(NSAttributedString *str)
 //          In case of user typed next letter after conversion
 - (void) insertText:(id)aString replacementRange:(NSRange)replacementRange
 {
+    // Input methods that compose by replacing text they inserted before (e.g. Korean) refer to
+    // text that has already been sent to the viewer, so remove it there before sending the new text.
+    // Such text is kept in the Input Window for that reason; it is cleared when the window opens.
+    NSString *text = [self string];
+    bool composing = [self hasMarkedText];
+    bool replaced = false;
+    if (!composing && replacementRange.location != NSNotFound &&
+        replacementRange.location < [text length] && NSMaxRange(replacementRange) == [text length])
+    {
+        __block NSUInteger count = 0;
+        [text enumerateSubstringsInRange:replacementRange
+                                 options:NSStringEnumerationByComposedCharacterSequences | NSStringEnumerationSubstringNotRequired
+                              usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) { ++count; }];
+        for (NSUInteger i = 0; i < count; ++i)
+        {
+            [glview sendBackspaceToViewer];
+        }
+        replaced = true;
+    }
+
     // Let NSTextView finish the composition itself. Calling discardMarkedText here
     // made the input method drop the syllable it had just started (e.g. Korean),
     // which emptied and closed the Input Window after every key.
     [super insertText:aString replacementRange:replacementRange];
-    [self setString:@""];
-    [glview insertText:aString replacementRange:replacementRange];
+    [glview insertText:aString replacementRange:NSMakeRange(NSNotFound, 0)];
+    if (composing)
+    {
+        // Committed from marked text: the input method does not edit it any more.
+        [self setString:@""];
+    }
+    if (replaced)
+    {
+        // The input method is still editing the text (e.g. Backspace inside a syllable).
+        return;
+    }
     if (mKeyPressed == NSEnterCharacter ||
         mKeyPressed == NSBackspaceCharacter ||
         mKeyPressed == NSTabCharacter ||
