@@ -3586,7 +3586,7 @@ void renderSoundHighlights(LLDrawable *drawablep)
 bool LLPipeline::canUseInterleavedAlpha()
 {
     static LLCachedControl<bool> interleaved_alpha(gSavedSettings, "RenderInterleavedAlpha", true);
-    return interleaved_alpha && !sRenderingHUDs && !sShadowRender && !gCubeSnapshot &&
+    return interleaved_alpha && !sRenderingHUDs && !gCubeSnapshot &&
            LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD;
 }
 
@@ -3673,22 +3673,31 @@ void LLPipeline::postSort(LLCamera &camera)
         if (hasRenderType(LLPipeline::RENDER_TYPE_PASS_ALPHA))
         {
             LLSpatialBridge *bridge = group->getSpatialPartition()->asBridge();
+            LLSpatialGroup::draw_map_t::iterator alpha = group->mDrawMap.find(LLRenderPass::PASS_ALPHA);
+            LLSpatialGroup::draw_map_t::iterator rigged_alpha = group->mDrawMap.find(LLRenderPass::PASS_ALPHA_RIGGED);
+            // sort keys belong to the world camera
+            const bool world_camera = LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD && !gCubeSnapshot;
 
-            // fan the attachment's stamp (LLVOAvatar::idleUpdateMisc) out from
-            // the bridge to every visible alpha group of the linkset; the shared
-            // mAvatarDepth keys the wearer's ensemble as one block in the walk
-            if (bridge && bridge->mAvatarp)
+            // fan the attachment's stamp (LLSpatialBridge::setAlphaSortStamp)
+            // out to every visible alpha group of the linkset. All of a wearer's
+            // groups derive their depth from the same bounds, so the ensemble
+            // keys as one block in the walk -- with this frame's cull camera,
+            // like calcDistance for world groups (and, like updateDistance,
+            // not on a shift frame)
+            if (bridge && bridge->mAvatarp &&
+                (alpha != group->mDrawMap.end() || rigged_alpha != group->mDrawMap.end()))
             {
                 group->mAvatarp = bridge->mAvatarp;
                 group->mRenderOrder = bridge->mRenderOrder;
-                group->mAvatarDepth = bridge->mAvatarDepth;
+                if (world_camera && !gShiftFrame)
+                {
+                    group->mAvatarDepth = LLSpatialPartition::calcAlphaDepth(bridge->mAvatarBounds, camera);
+                }
             }
-
-            LLSpatialGroup::draw_map_t::iterator alpha = group->mDrawMap.find(LLRenderPass::PASS_ALPHA);
 
             if (alpha != group->mDrawMap.end())
             {  // store alpha groups for sorting
-                if (LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD && !gCubeSnapshot)
+                if (world_camera)
                 {
                     if (bridge)
                     {
@@ -3706,8 +3715,6 @@ void LLPipeline::postSort(LLCamera &camera)
                     sCull->pushAlphaGroup(group);
                 }
             }
-
-            LLSpatialGroup::draw_map_t::iterator rigged_alpha = group->mDrawMap.find(LLRenderPass::PASS_ALPHA_RIGGED);
 
             if (rigged_alpha != group->mDrawMap.end())
             {  // store rigged alpha groups for LLDrawPoolAlpha prepass (skip distance update, rigged attachments use depth buffer)

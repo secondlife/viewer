@@ -314,13 +314,7 @@ public:
                 return std::less<const LLVOAvatar*>()(lhs->mAvatarp, rhs->mAvatarp);
             }
 
-            if (lhs->mRenderOrder != rhs->mRenderOrder)
-            {
-                return lhs->mRenderOrder > rhs->mRenderOrder;
-            }
-
-            // bounds depth: stable back-to-front order within one attachment
-            return lhs->mDepth > rhs->mDepth;
+            return lhs->mRenderOrder > rhs->mRenderOrder;
         }
     };
 
@@ -423,11 +417,11 @@ public:
     F32 mPixelArea;
     F32 mRadius;
 
-    //used by LLVOAVatar to set render order in alpha draw pool to preserve legacy render order behavior
+    // alpha sort stamp, fanned out from this group's bridge in
+    // LLPipeline::postSort (see LLSpatialBridge::setAlphaSortStamp).
+    // mAvatarDepth is the wearer's ensemble sort key; mDepth stays bounds-derived
     LLVOAvatar* mAvatarp = nullptr;
     U32 mRenderOrder = 0;
-    // avatar-ensemble sort key, fanned out from the bridge in
-    // LLPipeline::postSort; mDepth stays bounds-derived
     F32 mAvatarDepth = 0.f;
     // Reflection Probe associated with this node (if any)
     LLPointer<LLReflectionMap> mReflectionProbe = nullptr;
@@ -472,6 +466,11 @@ public:
 
     virtual F32 calcDistance(LLSpatialGroup* group, LLCamera& camera);
     virtual F32 calcPixelArea(LLSpatialGroup* group, LLCamera& camera);
+
+    // alpha sort depth of a center/half-size box: camera-axis distance to its
+    // camera-facing quarter. Shared by world alpha groups (calcDistance) and
+    // avatar ensembles (LLPipeline::postSort) so both keys use one metric.
+    static F32 calcAlphaDepth(const LLVector4a* bounds, const LLCamera& camera);
 
     virtual void rebuildGeom(LLSpatialGroup* group);
     virtual void rebuildMesh(LLSpatialGroup* group);
@@ -537,13 +536,23 @@ public:
     void transformExtents(const LLVector4a* src, LLVector4a* dst);
     LLDrawable* mDrawable;
 
-    // alpha draw-order stamp, set by LLVOAvatar::idleUpdateMisc /
+    // alpha sort stamp, set by LLVOAvatar::idleUpdateMisc /
     // LLControlAvatar::idleUpdate and fanned out to this bridge's alpha
-    // groups in LLPipeline::postSort. mAvatarp is only ever compared,
-    // never dereferenced (avatar may die first).
+    // groups in LLPipeline::postSort, which turns mAvatarBounds into the
+    // ensemble's sort depth with the cull camera. Camera-independent on
+    // purpose: idle runs before this frame's camera update. mAvatarp is only
+    // ever compared, never dereferenced (avatar may die first).
+    void setAlphaSortStamp(LLVOAvatar* avatarp, U32 render_order, const LLVector4a* bounds)
+    {
+        mAvatarp = avatarp;
+        mRenderOrder = render_order;
+        mAvatarBounds[0] = bounds[0];
+        mAvatarBounds[1] = bounds[1];
+    }
+
     LLVOAvatar* mAvatarp = nullptr;
     U32 mRenderOrder = 0;
-    F32 mAvatarDepth = 0.f;
+    LLVector4a mAvatarBounds[2]; // agent space center, half-size; valid while mAvatarp is set
 };
 
 class LLCullResult

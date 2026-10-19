@@ -376,9 +376,9 @@ void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)
             LLSpatialBridge* bridge = mRootVolp->mDrawable->getSpatialBridge();
             if (bridge)
             {
-                bridge->mAvatarp = this;
-                bridge->mRenderOrder = 0;
-                bridge->mAvatarDepth = calcRiggedAlphaDepth();
+                LLVector4a alpha_bounds[2];
+                getAlphaSortBounds(alpha_bounds);
+                bridge->setAlphaSortStamp(this, 0, alpha_bounds);
             }
         }
     }

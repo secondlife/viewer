@@ -3027,25 +3027,28 @@ static void override_bbox(LLDrawable* drawable, LLVector4a* extents)
     drawable->movePartition();
 }
 
-// camera-axis depth of this avatar, stamped onto every rigged alpha bridge
-// (attachments below, animesh in LLControlAvatar::idleUpdate) so its alpha
-// interleaves with world alpha (LLDrawPoolAlpha::renderAlpha). From the
-// animated extents, so avatars sharing a sit target still order
-// deterministically; pulled a quarter of the bounds toward the camera to match
-// the metric LLSpatialPartition::calcDistance stamps onto world alpha groups.
-F32 LLVOAvatar::calcRiggedAlphaDepth() const
+// agent space center/half-size box of this avatar, stamped onto its attachment
+// bridges (below) and its animesh bridge (LLControlAvatar::idleUpdate) so its
+// whole alpha ensemble sorts as one block. LLPipeline::postSort derives the
+// sort depth from it with the cull camera via LLSpatialPartition::calcAlphaDepth,
+// the same metric world alpha groups use. From the animated extents, so
+// avatars sharing a sit target still order deterministically. Called after
+// updateCharacter: the pelvis has moved this frame but mLastAnimExtents has
+// not, so apply the shift updateSpatialExtents will.
+void LLVOAvatar::getAlphaSortBounds(LLVector4a* bounds) const
 {
-    LLViewerCamera* camera = LLViewerCamera::getInstance();
-    const LLVector3& at_axis = camera->getAtAxis();
-    if (mLastAnimExtents[0] == LLVector3() || mLastAnimExtents[1] == LLVector3())
-    { // extents not computed yet
-        return (getRenderPosition() - camera->getOrigin()) * at_axis;
-    }
-
     const LLVector3 center = (mLastAnimExtents[0] + mLastAnimExtents[1]) * 0.5f;
     const LLVector3 half = (mLastAnimExtents[1] - mLastAnimExtents[0]) * 0.5f;
-    return (center - camera->getOrigin()) * at_axis -
-           0.25f * (half * at_axis.scaledVec(at_axis));
+    if (!mPelvisp || mLastAnimExtents[0] == LLVector3() || mLastAnimExtents[1] == LLVector3() ||
+        !center.isFinite() || !half.isFinite())
+    { // extents not computed yet (or unusable)
+        bounds[0].load3(getRenderPosition().mV);
+        bounds[1].clear();
+        return;
+    }
+
+    bounds[0].load3((center + mPelvisp->getWorldPosition() - mLastAnimBasePos).mV);
+    bounds[1].load3(half.mV);
 }
 
 void LLVOAvatar::idleUpdateMisc(bool detailed_update)
@@ -3065,7 +3068,8 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
     if (detailed_update)
     {
         U32 draw_order = 0;
-        const F32 rigged_depth = calcRiggedAlphaDepth();
+        LLVector4a alpha_bounds[2];
+        getAlphaSortBounds(alpha_bounds);
         bool attachment_selected = LLSelectMgr::getInstance()->getSelection()->getObjectCount() > 0 && LLSelectMgr::getInstance()->getSelection()->isAttachment();
         for (const auto& [attachment_point_id, attachment] : mAttachmentPoints)
         {
@@ -3128,7 +3132,8 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
                             bridge->setState(LLDrawable::EARLY_MOVE);
                         }
 
-                        //stamp the attachment's draw order; LLPipeline::postSort
+                        //stamp the attachment's draw order and the avatar's
+                        //alpha sort bounds; LLPipeline::postSort
                         //fans it out to the bridge's alpha groups, sorting the
                         //wearer's whole ensemble at one avatar depth. HUD alpha
                         //sorts in HUD space, so unrigged HUDs stay unstamped.
@@ -3136,9 +3141,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
                         //whose attachments never enter the live alpha streams
                         if (rigged || !attached_object->isHUDAttachment())
                         {
-                            bridge->mAvatarp = this;
-                            bridge->mRenderOrder = draw_order++;
-                            bridge->mAvatarDepth = rigged_depth;
+                            bridge->setAlphaSortStamp(this, draw_order++, alpha_bounds);
                         }
                     }
 
