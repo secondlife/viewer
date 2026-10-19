@@ -238,6 +238,7 @@ bool ownsRuntime(U32 epoch)
 
 void requireRuntime(U32 epoch)
 {
+    LLCoros::checkStop();
     if (!ownsRuntime(epoch))
     {
         LLTHROW(LLCoros::Stopped("Chat Service account ended"));
@@ -245,14 +246,68 @@ void requireRuntime(U32 epoch)
 }
 
 template <typename Work>
+auto runOnQueue(U32 epoch, const LL::WorkQueue::ptr_t& queue, Work work) -> decltype(work())
+{
+    using Result = decltype(work());
+
+    // Post the job and hold our own promise/future rather than calling
+    // waitForResult(), which blocks unconditionally on future.get(). A wait
+    // may span logout; the calling manager does not control how much work is
+    // already queued ahead of it, so it must be able to abandon the wait on
+    // its own schedule instead of being held hostage by the queue's backlog.
+    if (!queue)
+    {
+        requireRuntime(epoch);
+        return Result();
+    }
+
+    auto promise = std::make_shared<LLCoros::Promise<Result>>();
+    // Capture the shared_ptr by value: the job may still be queued or running
+    // when this coroutine gives up on it below, so the promise must outlive
+    // this call frame.
+    const bool posted = queue->post(
+        [promise, work]() mutable
+    {
+        try
+        {
+            promise->set_value(work());
+        }
+        catch (...)
+        {
+            promise->set_exception(std::current_exception());
+        }
+    });
+    if (!posted)
+    {
+        requireRuntime(epoch);
+        return Result();
+    }
+
+    auto future{ LLCoros::getFuture(*promise) };
+    LLCoros::TempStatus st("waiting for chat service queued work");
+    // Poll with a bounded timeout instead of an unconditional future.get() so
+    // a logout (epoch change) is observed promptly, even if the posted job is
+    // stuck behind other work on the target queue. The job itself keeps
+    // running to completion in the background; if nobody is left to use its
+    // result, it's simply discarded when the epoch check throws Stopped below.
+while (future.wait_for(std::chrono::milliseconds(50)) != boost::fibers::future_status::ready)
+    {
+        if (LLApp::isError())
+        {
+            LLTHROW(LLCoros::Stopped("Chat Service application entered error state"));
+        }
+        requireRuntime(epoch);
+    }
+    requireRuntime(epoch);
+    return future.get();
+}
+
+template <typename Work>
 auto runStorage(U32 epoch, Work work) -> decltype(work())
 {
     // A storage wait may span logout. Unwind the manager before it can touch the
     // replacement account or a resident reference from the previous login.
-    LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
-    auto result = general ? general->waitForResult(work) : decltype(work())();
-    requireRuntime(epoch);
-    return result;
+    return runOnQueue(epoch, LL::WorkQueue::getInstance("General"), std::move(work));
 }
 
 void postPresentation(const nullary_func_t& work)
@@ -1643,8 +1698,11 @@ void runDelete(U32 epoch)
 
     // Await invalidation on the main loop before sweeping files or accepting new
     // history. A late clear must not discard messages received after deletion.
-    LL::WorkQueue::ptr_t main = LL::WorkQueue::getInstance("mainloop");
-    const bool cleared = main && main->waitForResult([epoch]()
+    // Poll rather than block unconditionally: deletion does not control its own
+    // lifetime either, so a logout must unwind this wait promptly even if the
+    // main loop is slow to pick up the posted work (might never pick it up in
+    // case of an error state being set).
+    const bool cleared = runOnQueue(epoch, LL::WorkQueue::getInstance("mainloop"), [epoch]()
     {
         if (!ownsRuntime(epoch))
         {
@@ -1874,6 +1932,7 @@ void manager(U32 epoch)
     // and storage maintenance in priority order.
     while (sRuntime.running && sRuntime.epoch == epoch)
     {
+        LLCoros::checkStop();
         if (sRuntime.delete_active)
         {
             runDelete(epoch);
