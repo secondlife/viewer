@@ -310,13 +310,25 @@ void callFocus()
     }
 }
 
-bool callFocusAcceptsTextInput()
+static LLWindowCallbacks::TextInputType focusTextInputType()
 {
     if (gWindowImplementation && gWindowImplementation->getCallbacks())
     {
-        return gWindowImplementation->getCallbacks()->handleFocusAcceptsTextInput(gWindowImplementation);
+        return gWindowImplementation->getCallbacks()->handleFocusTextInputType(gWindowImplementation);
     }
-    return false;
+    return LLWindowCallbacks::TEXT_INPUT_NONE;
+}
+
+// The focused element takes text from input methods (through the Input Window if it has no inline support).
+bool callFocusTakesInputMethodText()
+{
+    return focusTextInputType() == LLWindowCallbacks::TEXT_INPUT_ANY;
+}
+
+// The focused element takes text, but not from input methods (e.g. a password field).
+bool callFocusTakesPlainTextOnly()
+{
+    return focusTextInputType() == LLWindowCallbacks::TEXT_INPUT_PLAIN;
 }
 
 void callFocusLost()
@@ -740,13 +752,7 @@ bool replacePreeditText(unsigned int location, unsigned int length, const unsign
         return false;
     }
 
-    // Marking the range and resetting the preedit removes it and leaves the caret there.
-    preeditor->markAsPreedit(wlocation, wlength);
-    preeditor->resetPreedit();
-    for (llwchar c : utf16str_to_wstring(llutf16string(text, text_len)))
-    {
-        preeditor->handleUnicodeCharHere(c);
-    }
+    preeditor->replaceCommittedText(wlocation, wlength, utf16str_to_wstring(llutf16string(text, text_len)));
     return true;
 }
 
@@ -798,12 +804,11 @@ void commitPreedit()
             return;
         }
 
+        // This also runs while focus moves to another control (the editor loses
+        // focus first), so insert the text without relying on keyboard focus.
         const LLWString committed = text.substr(position, length);
         preeditor->resetPreedit();
-        for (llwchar c : committed)
-        {
-            preeditor->handleUnicodeCharHere(c);
-        }
+        preeditor->replaceCommittedText(position, 0, committed);
     }
 }
 
@@ -824,7 +829,9 @@ void setMarkedText(unsigned short *unitext, unsigned int *selectedRange, unsigne
             const S32 length = wstring_wstring_length_from_utf16_length(text, location, replacementRange[1]);
             if (location >= 0 && length > 0 && location + length <= (S32)text.length())
             {
-                preeditor->markAsPreedit(location, length);
+                // The marked text replaces that range, as in native text views; the
+                // preedit is then inserted where the removed text was.
+                preeditor->replaceCommittedText(location, length, LLWString());
             }
         }
 

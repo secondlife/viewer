@@ -1945,10 +1945,30 @@ bool LLViewerWindow::handleWindowDidChangeScreen(LLWindow *window)
     return true;
 }
 
-bool LLViewerWindow::handleFocusAcceptsTextInput(LLWindow *window)
+LLWindowCallbacks::TextInputType LLViewerWindow::handleFocusTextInputType(LLWindow *window)
 {
-    LLUICtrl* focus = dynamic_cast<LLUICtrl*>(gFocusMgr.getKeyboardFocus());
-    return focus && focus->acceptsTextInput();
+    LLFocusableElement* focus = gFocusMgr.getKeyboardFocus();
+    if (!focus)
+    {
+        return TEXT_INPUT_NONE;
+    }
+    LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(focus);
+    if (!ctrl)
+    {
+        // Not a UI control, e.g. in-world media (LLViewerMediaFocus), which passes typed text to the page.
+        return TEXT_INPUT_ANY;
+    }
+    if (!ctrl->acceptsTextInput())
+    {
+        return TEXT_INPUT_NONE;
+    }
+    // Line editors that refuse input methods, such as password fields or fields restricted to ASCII.
+    LLLineEditor* line_editor = dynamic_cast<LLLineEditor*>(ctrl);
+    if (line_editor && !line_editor->allowsLanguageInput())
+    {
+        return TEXT_INPUT_PLAIN;
+    }
+    return TEXT_INPUT_ANY;
 }
 
 void LLViewerWindow::handlePingWatchdog(LLWindow *window, const char * msg)

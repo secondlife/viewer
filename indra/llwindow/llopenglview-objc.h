@@ -82,6 +82,7 @@
 {
     LLOpenGLView *glview;
     unichar mKeyPressed;
+    NSString *mViewerText; // the text of this window that the viewer has received
 }
 
 - (void) setGLView:(LLOpenGLView*)view;

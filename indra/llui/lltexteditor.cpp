@@ -3123,6 +3123,30 @@ S32 LLTextEditor::getPreeditFontSize() const
     return ll_round((F32)mFont->getLineHeight() * LLUI::getScaleFactor().mV[VY]);
 }
 
+void LLTextEditor::replaceCommittedText(S32 position, S32 length, const LLWString &text)
+{
+    if (mReadOnly || position < 0 || length < 0 || position + length > getLength())
+    {
+        return;
+    }
+
+    deselect();
+    // Group the removal with the insertion so that one undo restores the replaced text.
+    if (length > 0)
+    {
+        remove(position, length, !text.empty());
+    }
+    S32 inserted = 0;
+    if (!text.empty())
+    {
+        inserted = insert(position, text, false, LLTextSegmentPtr());
+    }
+    setCursorPos(position + inserted);
+
+    resetCursorBlink();
+    onKeyStroke();
+}
+
 bool LLTextEditor::isDirty() const
 {
     if(mReadOnly)

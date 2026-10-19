@@ -190,6 +190,8 @@ public:
     /*virtual*/ void    setFocus(bool b) override;
     /*virtual*/ void    setRect(const LLRect& rect) override;
     /*virtual*/ bool    acceptsTextInput() const override;
+    // Whether input methods may compose text in this editor (not for passwords or restricted fields).
+    bool                allowsLanguageInput() const { return !mReadOnly && !mDrawAsterixes && !mPrevalidator; }
     /*virtual*/ void    onCommit() override;
     /*virtual*/ bool    isDirty() const override;   // Returns true if user changed value at all
     /*virtual*/ void    resetDirty() override;      // Clear dirty state
@@ -327,6 +329,7 @@ public:
     /*virtual*/ bool    getPreeditLocation(S32 query_position, LLCoordGL *coord, LLRect *bounds, LLRect *control) const override;
     /*virtual*/ S32     getPreeditFontSize() const override;
     /*virtual*/ LLWString getPreeditString() const override { return getWText(); }
+    /*virtual*/ void    replaceCommittedText(S32 position, S32 length, const LLWString &text) override;
 
     void            setText(const LLStringExplicit &new_text, bool use_size_limit);
 
