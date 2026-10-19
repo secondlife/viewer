@@ -821,10 +821,21 @@ attributedStringInfo getSegments(NSAttributedString *str)
     return [NSArray array];
 }
 
-// See above.
+// Lets input methods read the text around the caret (e.g. Vietnamese Telex, the accent menu).
 - (NSAttributedString *)attributedSubstringForProposedRange:(NSRange)aRange actualRange:(NSRangePointer)actualRange
 {
-    return nil;
+    const std::basic_string<unsigned short> text = getPreeditText();
+    if (aRange.location == NSNotFound || aRange.location > text.length())
+    {
+        return nil;
+    }
+    NSRange range = NSMakeRange(aRange.location, MIN(aRange.length, text.length() - aRange.location));
+    if (actualRange)
+    {
+        *actualRange = range;
+    }
+    NSString *substring = [NSString stringWithCharacters:(const unichar *)text.data() + range.location length:range.length];
+    return [[[NSAttributedString alloc] initWithString:substring] autorelease];
 }
 
 - (void)insertText:(id)insertString
@@ -853,6 +864,23 @@ attributedStringInfo getSegments(NSAttributedString *str)
         bool already_committed = !mHasMarkedText && [aString isEqualToString:mLocallyCommittedString];
         [self forgetLocallyCommittedString];
         if (already_committed)
+        {
+            return;
+        }
+    }
+
+    // Input methods that rewrite committed text (Vietnamese Telex, the accent menu)
+    // send the range of the letters being replaced. A range equal to the selection
+    // is an ordinary insertion and goes through the normal path below.
+    if (!mHasMarkedText && replacementRange.location != NSNotFound &&
+        !NSEqualRanges(replacementRange, [self selectedRange]))
+    {
+        NSUInteger length = [aString length];
+        unichar *buffer = new unichar[length > 0 ? length : 1];
+        [aString getCharacters:buffer range:NSMakeRange(0, length)];
+        bool replaced = replacePreeditText((unsigned int)replacementRange.location, (unsigned int)replacementRange.length, (const unsigned short *)buffer, length);
+        delete[] buffer;
+        if (replaced)
         {
             return;
         }

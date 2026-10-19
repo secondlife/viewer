@@ -2300,7 +2300,9 @@ void LLLineEditor::setFocus( bool new_state )
         // fine on 1.15.0.2, since all prevalidate func reject any
         // non-ASCII characters.  I'm not sure on future versions,
         // however.
-        getWindow()->allowLanguageTextInput(this, !mPrevalidator);
+        // Password fields are excluded as in updateAllowingLanguageInput(), so the input
+        // method can neither compose in them nor read their text.
+        getWindow()->allowLanguageTextInput(this, !mPrevalidator && !mDrawAsterixes);
     }
 }
 

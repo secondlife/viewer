@@ -530,6 +530,12 @@ void callWindowFocus()
 
 void callWindowUnfocus()
 {
+    // The input method drops its composition when the application is deactivated,
+    // so commit the marked text; otherwise it stays in the editor and the next key is lost.
+    if (gWindowImplementation)
+    {
+        gWindowImplementation->interruptLanguageTextInput();
+    }
     if ( gWindowImplementation && gWindowImplementation->getCallbacks() )
     {
         gWindowImplementation->getCallbacks()->handleFocusLost(gWindowImplementation);
@@ -668,11 +674,23 @@ void callQuitHandler()
     }
 }
 
+// The input method counts in UTF-16 code units, the editor in characters (UTF-32),
+// so ranges are converted in both directions.
+static void utf16_range(const LLWString &text, S32 wposition, S32 wlength, int *position, int *length)
+{
+    *position = wstring_utf16_length(text, 0, wposition);
+    *length = wstring_utf16_length(text, wposition, wlength);
+}
+
 void getPreeditSelectionRange(int *position, int *length)
 {
     if (gWindowImplementation && gWindowImplementation->getPreeditor())
     {
-        gWindowImplementation->getPreeditor()->getSelectionRange(position, length);
+        LLPreeditor *preeditor = gWindowImplementation->getPreeditor();
+        S32 wposition = 0;
+        S32 wlength = 0;
+        preeditor->getSelectionRange(&wposition, &wlength);
+        utf16_range(preeditor->getPreeditString(), wposition, wlength, position, length);
     }
 }
 
@@ -680,8 +698,56 @@ void getPreeditMarkedRange(int *position, int *length)
 {
     if (gWindowImplementation && gWindowImplementation->getPreeditor())
     {
-        gWindowImplementation->getPreeditor()->getPreeditRange(position, length);
+        LLPreeditor *preeditor = gWindowImplementation->getPreeditor();
+        S32 wposition = 0;
+        S32 wlength = 0;
+        preeditor->getPreeditRange(&wposition, &wlength);
+        utf16_range(preeditor->getPreeditString(), wposition, wlength, position, length);
     }
+}
+
+// The editor text as UTF-16, so input methods can read the text around the caret.
+// Empty when the focused control does not take input method text (e.g. passwords).
+std::basic_string<unsigned short> getPreeditText()
+{
+    if (gWindowImplementation && gWindowImplementation->getPreeditor())
+    {
+        return wstring_to_utf16str(gWindowImplementation->getPreeditor()->getPreeditString());
+    }
+    return std::basic_string<unsigned short>();
+}
+
+// Replaces a range of committed text (UTF-16 offsets), as input methods such as
+// Vietnamese Telex or the accent menu do when they rewrite the last typed letters.
+bool replacePreeditText(unsigned int location, unsigned int length, const unsigned short *text, long text_len)
+{
+    if (!gWindowImplementation || !gWindowImplementation->getPreeditor())
+    {
+        return false;
+    }
+    LLPreeditor *preeditor = gWindowImplementation->getPreeditor();
+    const LLWString current = preeditor->getPreeditString();
+    if ((S64)location + length > wstring_utf16_length(current, 0, (S32)current.length()))
+    {
+        return false;
+    }
+    bool unaligned = false;
+    const S32 wlocation = wstring_wstring_length_from_utf16_length(current, 0, location, &unaligned);
+    bool unaligned_end = false;
+    const S32 wlength = wstring_wstring_length_from_utf16_length(current, wlocation, length, &unaligned_end);
+    if (unaligned || unaligned_end)
+    {
+        return false;
+    }
+
+    // Marking the range and resetting the preedit removes it and leaves the caret there.
+    preeditor->markAsPreedit(wlocation, wlength);
+    preeditor->resetPreedit();
+    for (llwchar c : utf16str_to_wstring(llutf16string(text, text_len)))
+    {
+        preeditor->handleUnicodeCharHere(c);
+    }
+    return true;
 }
 
 void setPreeditMarkedRange(int position, int length)
