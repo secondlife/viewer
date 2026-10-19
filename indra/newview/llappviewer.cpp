@@ -6023,7 +6023,6 @@ void LLAppViewer::idleNetwork()
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("idle network");
 
-        gMessageSystem->resetReceiveCounts();
         LLTimer check_message_timer;
         S32 total_decoded = 0;
 
@@ -6065,6 +6064,7 @@ void LLAppViewer::idleNetwork()
         static LLCachedControl<F32> ack_collection_time(gSavedSettings, "AckCollectTime", 0.1f);
         LockMessageChecker lmc(gMessageSystem);
         lmc.processAcks(ack_collection_time());   // stays main-thread, unchanged
+        gMessageSystem->resetReceiveCounts();
     }
     add(LLStatViewer::NUM_NEW_OBJECTS, gObjectList.mNumNewObjects);
 
