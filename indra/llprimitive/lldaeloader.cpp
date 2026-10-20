@@ -184,10 +184,12 @@ LLModel::EModelStatus load_face_from_dom_triangles(
     domPRef p = tri->getP();
     domListOfUInts& idx = p->getValue();
 
-    domListOfFloats  dummy ;
-    domListOfFloats& v = dummy;
-    domListOfFloats& tc = dummy;
-    domListOfFloats& n = dummy;
+    domListOfFloats  v_dummy;
+    domListOfFloats  tc_dummy;
+    domListOfFloats  n_dummy;
+    domListOfFloats& v  = v_dummy;
+    domListOfFloats& tc = tc_dummy;
+    domListOfFloats& n  = n_dummy;
 
     if (pos_source)
     {
