@@ -185,12 +185,18 @@ LLModel::EModelStatus load_face_from_dom_triangles(
     domListOfUInts& idx = p->getValue();
 
     domListOfFloats  dummy ;
-    domListOfFloats& v = pos_source ? pos_source->getFloat_array()->getValue() : dummy ;
-    domListOfFloats& tc = tc_source ? tc_source->getFloat_array()->getValue() : dummy ;
-    domListOfFloats& n = norm_source ? norm_source->getFloat_array()->getValue() : dummy ;
+    domListOfFloats& v = dummy;
+    domListOfFloats& tc = dummy;
+    domListOfFloats& n = dummy;
 
     if (pos_source)
     {
+        if (!pos_source->getFloat_array())
+        {
+            // pos_source exists but has no float_array - invalid source
+            return LLModel::BAD_ELEMENT;
+        }
+        v = pos_source->getFloat_array()->getValue();
         if(v.getCount() == 0)
         {
             return LLModel::BAD_ELEMENT;
@@ -198,6 +204,26 @@ LLModel::EModelStatus load_face_from_dom_triangles(
         // VFExtents change
         face.mExtents[0].set((F32)v[0], (F32)v[1], (F32)v[2]);
         face.mExtents[1].set((F32)v[0], (F32)v[1], (F32)v[2]);
+    }
+
+    if (tc_source)
+    {
+        if (!tc_source->getFloat_array())
+        {
+            return LLModel::BAD_ELEMENT;
+        }
+
+        tc = tc_source->getFloat_array()->getValue();
+    }
+
+    if (norm_source)
+    {
+        if (!norm_source->getFloat_array())
+        {
+            return LLModel::BAD_ELEMENT;
+        }
+
+        n = norm_source->getFloat_array()->getValue();
     }
 
     LLVolumeFace::VertexMapData::PointMap point_map;
@@ -410,7 +436,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(
     domListOfFloats tc;
     domListOfFloats n;
 
-    if (pos_source)
+    if (pos_source && pos_source->getFloat_array())
     {
         v = pos_source->getFloat_array()->getValue();
         // VFExtents change
@@ -418,12 +444,12 @@ LLModel::EModelStatus load_face_from_dom_polylist(
         face.mExtents[1].set((F32)v[0], (F32)v[1], (F32)v[2]);
     }
 
-    if (tc_source)
+    if (tc_source && tc_source->getFloat_array())
     {
         tc = tc_source->getFloat_array()->getValue();
     }
 
-    if (norm_source)
+    if (norm_source && norm_source->getFloat_array())
     {
         n = norm_source->getFloat_array()->getValue();
     }
@@ -689,6 +715,10 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
                     {
                         return LLModel::BAD_ELEMENT;
                     }
+                    if (!src->getFloat_array())
+                    {
+                        return LLModel::BAD_ELEMENT;
+                    }
                     v = &(src->getFloat_array()->getValue());
                 }
             }
@@ -704,6 +734,10 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
             {
                 return LLModel::BAD_ELEMENT;
             }
+            if (!src->getFloat_array())
+            {
+                return LLModel::BAD_ELEMENT;
+            }
             n = &(src->getFloat_array()->getValue());
         }
         else if (strcmp(COMMON_PROFILE_INPUT_TEXCOORD, inputs[i]->getSemantic()) == 0 && inputs[i]->getSet() == 0)
@@ -713,6 +747,10 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
             daeElementRef elem = uri.getElement();
             domSource* src = (domSource*) elem.cast();
             if (!src)
+            {
+                return LLModel::BAD_ELEMENT;
+            }
+            if (!src->getFloat_array())
             {
                 return LLModel::BAD_ELEMENT;
             }
