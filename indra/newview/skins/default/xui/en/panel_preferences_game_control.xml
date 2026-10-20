@@ -604,27 +604,35 @@
         height="18">
         <combo_box.item
             label="Strafe ↔"
+            name="Strafe"
             value="Strafe left/right"/>
         <combo_box.item
             label="Advance ↕"
+            name="Advance"
             value="Advance forward/back"/>
         <combo_box.item
             label="Turn ↔"
+            name="Turn"
             value="Turn left/right"/>
         <combo_box.item
             label="Look ↕"
+            name="Look"
             value="Look up/down"/>
         <combo_box.item
             label="Fly ↕"
+            name="Fly"
             value="Fly up/down"/>
         <combo_box.item
             label="Zoom -/+"
+            name="Zoom"
             value="Zoom +/-"/>
         <combo_box.item
             label="Scroll -/+"
+            name="Scroll"
             value="Scroll +/-"/>
         <combo_box.item
             label="None"
+            name="None"
             value="None"/>
     </combo_box>
     <combo_box
@@ -804,68 +812,89 @@
         height="18">
         <combo_box.item
             label="Jump"
+            name="Jump"
             value="Jump"/>
         <combo_box.item
             label="Crouch"
+            name="Crouch"
             value="Crouch"/>
         <combo_box.item
             label="Sit"
+            name="Toggle sit"
             value="Toggle sit"/>
         <!-- TODO: implement Interact feature
         <combo_box.item
             label="Interact"
+            name="Interact"
             value="Interact"/>
         -->
         <combo_box.item
             label="Toggle speak"
+            name="Toggle speak"
             value="Toggle speak"/>
         <combo_box.item
             label="Toggle mouselook"
+            name="Toggle mouselook"
             value="Toggle mouselook"/>
         <combo_box.item
             label="FlyCam"
+            name="FlyCam"
             value="Toggle flycam"/>
         <combo_box.item
             label="Mouse cursor"
+            name="Mouse cursor"
             value="Toggle mouse cursor"/>
         <combo_box.item
             label="Advance ↑"
+            name="Avdance"
             value="Advance forward"/>
         <combo_box.item
             label="Retreat ↓"
+            name="Retreat"
             value="Advance back"/>
         <combo_box.item
             label="Strafe ←"
+            name="Strafe left"
             value="Strafe left"/>
         <combo_box.item
             label="Strafe →"
+            name="Strafe right"
             value="Strafe right"/>
         <combo_box.item
             label="Fly ↑"
+            name="Fly up"
             value="Fly up"/>
         <combo_box.item
             label="Fly ↓"
+            name="Fly down"
             value="Fly down"/>
         <combo_box.item
             label="Turn ←"
+            name="Turn left"
             value="Turn left"/>
         <combo_box.item
             label="Turn →"
+            name="Turn right"
             value="Turn right"/>
         <combo_box.item
             label="Zoom +"
+            name="Zoom +"
             value="Zoom +"/>
         <combo_box.item
             label="Zoom -"
+            name="Zoom -"
             value="Zoom -"/>
         <combo_box.item
             label="Scroll +"
+            name="Scroll +"
             value="Scroll +"/>
         <combo_box.item
             label="Scroll -"
+            name="Scroll -"
             value="Scroll -"/>
         <combo_box.item
             label="None"
+            name="None"
             value="None"/>
     </combo_box>
     <!-- Mouselook-mode action selectors: initialized as independent copies of the
@@ -877,24 +906,31 @@
         height="18">
         <combo_box.item
             label="Strafe ↔"
+            name="Strafe left/right"
             value="Strafe left/right"/>
         <combo_box.item
             label="Advance ↕"
+            name="Avdance forward/back"
             value="Advance forward/back"/>
         <combo_box.item
             label="Turn ↔"
+            name="Turn left/right"
             value="Turn left/right"/>
         <combo_box.item
             label="Look ↕"
+            name="Look up/down"
             value="Look up/down"/>
         <combo_box.item
             label="Fly ↕"
+            name="Fly up/down"
             value="Fly up/down"/>
         <combo_box.item
             label="Zoom -/+"
+            name="Zoom +/-"
             value="Zoom +/-"/>
         <combo_box.item
             label="None"
+            name="None"
             value="None"/>
     </combo_box>
     <combo_box
@@ -903,66 +939,87 @@
         height="18">
         <combo_box.item
             label="Jump"
+            name="Jump"
             value="Jump"/>
         <combo_box.item
             label="Crouch"
+            name="Crouch"
             value="Crouch"/>
         <combo_box.item
             label="Sit"
+            name="Toggle sit"
             value="Toggle sit"/>
         <combo_box.item
             label="Toggle speak"
+            name="Toggle speak"
             value="Toggle speak"/>
         <combo_box.item
             label="Toggle mouselook"
+            name="Toggle mouselook"
             value="Toggle mouselook"/>
         <combo_box.item
             label="FlyCam"
+            name="Toggle Flycam"
             value="Toggle flycam"/>
         <combo_box.item
             label="Mouse cursor"
+            name="Toggle mouse cursor"
             value="Toggle mouse cursor"/>
         <combo_box.item
             label="Mouse left"
+            name="Mouse click left"
             value="Mouse click left"/>
         <combo_box.item
             label="Mouse right"
+            name="Mouse click right"
             value="Mouse click right"/>
         <combo_box.item
             label="Advance ↑"
+            name="Avdance forward"
             value="Advance forward"/>
         <combo_box.item
             label="Retreat ↓"
+            name="Avdance back"
             value="Advance back"/>
         <combo_box.item
             label="Strafe ←"
+            name="Strafe left"
             value="Strafe left"/>
         <combo_box.item
             label="Strafe →"
+            name="Strafe right"
             value="Strafe right"/>
         <combo_box.item
             label="Fly ↑"
+            name="Fly up"
             value="Fly up"/>
         <combo_box.item
             label="Fly ↓"
+            name="Fly down"
             value="Fly down"/>
         <combo_box.item
             label="Turn ←"
+            name="Turn left"
             value="Turn left"/>
         <combo_box.item
             label="Turn →"
+            name="Turn right"
             value="Turn right"/>
         <combo_box.item
             label="Zoom +"
+            name="Zoom +"
             value="Zoom +"/>
         <combo_box.item
             label="Zoom -"
+            name="Zoom -"
             value="Zoom -"/>
         <combo_box.item
             label="ESC"
+            name="ESC"
             value="ESC"/>
         <combo_box.item
             label="None"
+            name="None"
             value="None"/>
     </combo_box>
     <combo_box
@@ -971,32 +1028,41 @@
         height="18">
         <combo_box.item
             label="Stand"
+            name="Toggle Sit"
             value="Toggle sit"/>
         <!-- TODO: implement Interact feature
         <combo_box.item
             label="Interact"
+            name="Interact"
             value="Interact"/>
         -->
         <combo_box.item
             label="Toggle speak"
+            name="Toggle speak"
             value="Toggle speak"/>
         <combo_box.item
             label="Toggle mouselook"
+            name="Toggle mouselook"
             value="Toggle mouselook"/>
         <combo_box.item
             label="FlyCam"
+            name="Toggle flycam"
             value="Toggle flycam"/>
         <combo_box.item
             label="Mouse cursor"
+            name="Toggle mouse cursor"
             value="Toggle mouse cursor"/>
         <combo_box.item
             label="Zoom +"
+            name="Zoom +"
             value="Zoom +"/>
         <combo_box.item
             label="Zoom -"
+            name="Zoom -"
             value="Zoom -"/>
         <combo_box.item
             label="None"
+            name="None"
             value="None"/>
     </combo_box>
     <!-- Cursor-mode action selectors: initialized as independent copies of the
@@ -1014,27 +1080,35 @@
         height="18">
         <combo_box.item
             label="Mouse ↔"
+            name="Mouse left/right"
             value="Mouse left/right"/>
         <combo_box.item
             label="Mouse ↕"
+            name="Mouse up/down"
             value="Mouse up/down"/>
         <combo_box.item
             label="Turn ↔"
+            name="Turn left/right"
             value="Turn left/right"/>
         <combo_box.item
             label="Look ↕"
+            name="Look up/down"
             value="Look up/down"/>
         <combo_box.item
             label="Fly ↕"
+            name="Fly up/down"
             value="Fly up/down"/>
         <combo_box.item
             label="Strafe ↔"
+            name="Strafe left/right"
             value="Strafe left/right"/>
         <combo_box.item
             label="Advance ↕"
+            name="Avdance forward/back"
             value="Advance forward/back"/>
         <combo_box.item
             label="None"
+            name="None"
             value="None"/>
     </combo_box>
     <combo_box
@@ -1043,72 +1117,95 @@
         height="18">
         <combo_box.item
             label="Jump"
+            name="Jump"
             value="Jump"/>
         <combo_box.item
             label="Crouch"
+            name="Crouch"
             value="Crouch"/>
         <combo_box.item
             label="Sit"
+            name="Toggle sit"
             value="Toggle sit"/>
         <combo_box.item
             label="Toggle speak"
+            name="Toggle speak"
             value="Toggle speak"/>
         <combo_box.item
             label="Toggle mouselook"
+            name="Toggle mouselook"
             value="Toggle mouselook"/>
         <combo_box.item
             label="FlyCam"
+            name="Toggle flycam"
             value="Toggle flycam"/>
         <combo_box.item
             label="Toggle mouse cursor"
+            name="Toggle mouse cursor"
             value="Toggle mouse cursor"/>
         <combo_box.item
             label="Mouse left"
+            name="Mouse click left"
             value="Mouse click left"/>
         <combo_box.item
             label="Mouse right"
+            name="Mouse click right"
             value="Mouse click right"/>
         <combo_box.item
             label="Advance ↑"
+            name="Avdance forward"
             value="Advance forward"/>
         <combo_box.item
             label="Retreat ↓"
+            name="Avdance back"
             value="Advance back"/>
         <combo_box.item
             label="Strafe ←"
+            name="Strafe left"
             value="Strafe left"/>
         <combo_box.item
             label="Strafe →"
+            name="Strafe right"
             value="Strafe right"/>
         <combo_box.item
             label="Fly ↑"
+            name="Fly up"
             value="Fly up"/>
         <combo_box.item
             label="Fly ↓"
+            name="Fly down"
             value="Fly down"/>
         <combo_box.item
             label="Turn ←"
+            name="Turn left"
             value="Turn left"/>
         <combo_box.item
             label="Turn →"
+            name="Right right"
             value="Turn right"/>
         <combo_box.item
             label="Cursor ↑"
+            name="Cursor up"
             value="Cursor up"/>
         <combo_box.item
             label="Cursor ↓"
+            name="Cursor down"
             value="Cursor down"/>
         <combo_box.item
             label="Cursor ←"
+            name="Cursor left"
             value="Cursor left"/>
         <combo_box.item
             label="Cursor →"
+            name="Cursor right"
             value="Cursor right"/>
         <combo_box.item
             label="ESC"
+            name="ESC"
             value="ESC"/>
         <combo_box.item
             label="None"
+            name="None"
             value="None"/>
     </combo_box>
     <!-- FlyCam-mode action selectors: distinct action sets for the FlyCam mode.
@@ -1120,27 +1217,35 @@
         height="18">
         <combo_box.item
             label="Truck ↔"
+            name="Truck left/right"
             value="Truck left/right"/>
         <combo_box.item
             label="Dolly ↕"
+            name="Dolly forward/back"
             value="Dolly forward/back"/>
         <combo_box.item
             label="Pan ↔"
+            name="Pan left/right"
             value="Pan left/right"/>
         <combo_box.item
             label="Tilt ↕"
+            name="Tilt up/down"
             value="Tilt up/down"/>
         <combo_box.item
             label="Boom ↕"
+            name="Boom up/down"
             value="Boom up/down"/>
         <combo_box.item
             label="Roll ↻↺"
+            name="Roll CCW/CW"
             value="Roll CCW/CW"/>
         <combo_box.item
             label="Zoom -/+"
+            name="Zoom in/out"
             value="Zoom in/out"/>
         <combo_box.item
             label="None"
+            name="None"
             value="None"/>
     </combo_box>
     <combo_box
@@ -1149,57 +1254,75 @@
         height="18">
         <combo_box.item
             label="Zoom -"
+            name="Zoom out"
             value="Zoom out"/>
         <combo_box.item
             label="Pan →"
+            name="Pan right"
             value="Pan right"/>
         <combo_box.item
             label="Pan ←"
+            name="Pan left"
             value="Pan left"/>
         <combo_box.item
             label="Zoom +"
+            name="Zoom in"
             value="Zoom in"/>
         <combo_box.item
             label="Mouse cursor"
+            name="Toggle mouse cursor"
             value="Toggle mouse cursor"/>
         <combo_box.item
             label="Leave flycam"
+            name="Toggle flycam"
             value="Toggle flycam"/>
         <combo_box.item
             label="Unroll"
+            name="Unroll"
             value="Unroll"/>
         <combo_box.item
             label="Roll ↺"
+            name="Roll CCW"
             value="Roll CCW"/>
         <combo_box.item
             label="Roll ↻"
+            name="Roll CW"
             value="Roll CW"/>
         <combo_box.item
             label="Orbit"
+            name="Orbit"
             value="Orbit"/>
         <combo_box.item
             label="Dolly ↑"
+            name="Dolly forward"
             value="Dolly forward"/>
         <combo_box.item
             label="Dolly ↓"
+            name="Dolly back"
             value="Dolly back"/>
         <combo_box.item
             label="Truck ←"
+            name="Truck left"
             value="Truck left"/>
         <combo_box.item
             label="Truck →"
+            name="Truck right"
             value="Truck right"/>
         <combo_box.item
             label="Boom ↑"
+            name="Boom up"
             value="Boom up"/>
         <combo_box.item
             label="Boom ↓"
+            name="Boom down"
             value="Boom down"/>
         <combo_box.item
             label="ESC"
+            name="ESC"
             value="ESC"/>
         <combo_box.item
             label="None"
+            name="None"
             value="None"/>
     </combo_box>
 </panel>
