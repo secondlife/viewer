@@ -165,10 +165,8 @@ void LLInventoryItemsList::idle(void* user_data)
 
     LL_PROFILE_ZONE_SCOPED;
 
-    using namespace std::chrono;
-    auto start = steady_clock::now();
-    const milliseconds time_limit = milliseconds(2);
-    const auto end_time = start + time_limit;
+    const F64 max_time = 0.002; // 2 ms
+    const F64 end_time = gIdleCallbacks.getStartTime() + max_time;
     S32 max_update_count = 50;
 
     if (sAllListIter == sAllLists.end())
@@ -177,9 +175,9 @@ void LLInventoryItemsList::idle(void* user_data)
     }
 
     S32 updated = 0;
-    while (steady_clock::now() < end_time
-           && updated < max_update_count
-           && sAllListIter != sAllLists.end())
+    while (LLTimer::getTotalSeconds() < end_time
+        && updated < max_update_count
+        && sAllListIter != sAllLists.end())
     {
         LLInventoryItemsList* list = *sAllListIter;
         // Refresh is split into multiple separate parts,

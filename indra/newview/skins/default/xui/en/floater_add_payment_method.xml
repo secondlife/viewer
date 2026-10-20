@@ -17,6 +17,10 @@
     name="continue_url">
     https://secondlife.com/my/lindex/buy.php?associate_for_viewer=1
   </floater.string>
+    <floater.string
+      name="continue_staging_url">
+      https://secondlife-staging.com/my/lindex/buy.php?associate_for_viewer=1
+    </floater.string>
   <panel
    background_opaque="false"
    bg_alpha_color="PanelGray"

@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -306,7 +306,22 @@ void LLDir_Win32::initAppDirs(const std::string &app_name,
         mSkinBaseDir = add(mAppRODataDir, "skins");
     }
     mAppName = app_name;
-    mOSUserAppDir = add(mOSUserDir, app_name);
+
+#if LL_VELOPACK
+    // Velopack has a structure:
+    // AppData\Local\SecondLifeViewer\.portable <- marker file
+    // AppData\Local\SecondLifeViewer\current\SecondLifeViewer.exe <- mExecutableDir
+    std::string install_root = mExecutableDir.empty() ? std::string() : getDirName(mExecutableDir);
+    if (isPortableInstall(install_root))
+    {
+        mOSUserAppDir = add(install_root, PORTABLE_USER_DATA_DIRNAME);
+        LL_INFOS() << "Portable install detected, using app user dir " << mOSUserAppDir << LL_ENDL;
+    }
+    else
+#endif // LL_VELOPACK
+    {
+        mOSUserAppDir = add(mOSUserDir, app_name);
+    }
 
     int res = LLFile::mkdir(mOSUserAppDir);
     if (res == -1)

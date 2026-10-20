@@ -42,6 +42,7 @@ LLFloaterBulkUpload::LLFloaterBulkUpload(const LLSD& key)
     mUploadCount = key["upload_count"].asInteger();
     mHas2kTextures = key["has_2k_textures"].asBoolean();
     mDestinationFolderId = key["dest"];
+    mLocalDir = key.has("local_dir") ? key["local_dir"].asString() : "";
     if (key["files"].isArray())
     {
         const LLSD& files = key["files"];
@@ -126,7 +127,14 @@ void LLFloaterBulkUpload::onUpload2KCheckBox()
 
 void LLFloaterBulkUpload::onClickUpload()
 {
-    do_bulk_upload(mFiles, mAllow2kTextures, mDestinationFolderId);
+    if (!mLocalDir.empty())
+    {
+        start_folder_recursive_upload(mLocalDir, mDestinationFolderId, mAllow2kTextures);
+    }
+    else
+    {
+        do_bulk_upload(mFiles, mAllow2kTextures, mDestinationFolderId);
+    }
     closeFloater();
 }
 

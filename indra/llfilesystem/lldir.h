@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,6 +26,8 @@
 
 #ifndef LL_LLDIR_H
 #define LL_LLDIR_H
+
+#include "lluuid.h"
 
 // these numbers are read from settings_files.xml, so we need to be explicit
 typedef enum ELLPath
@@ -90,6 +92,7 @@ class LLDir
     const std::string &getLindenUserDir() const;    // Location of the Linden user dir.
     const std::string &getChatLogsDir() const;  // Location of the chat logs dir.
     const std::string &getDumpDir() const;  // Location of the per-run dump dir.
+    const LLUUID&     getDumpDirSessionUUID() const; // UUID of the current dump dir.
     bool              dumpDirExists() const;
     const std::string &getPerAccountChatLogsDir() const;    // Location of the per account chat logs dir.
     const std::string &getTempDir() const;          // Common temporary directory
@@ -227,6 +230,15 @@ class LLDir
     }
 
 protected:
+#if LL_VELOPACK
+    // Returns true if Velopack's ".portable" marker file is found.
+    static bool isPortableInstall(const std::string& install_root);
+
+    // Replacement folder name to hold user data (settings, logs, etc.)
+    // for a portable install.
+    static const char* const PORTABLE_USER_DATA_DIRNAME;
+#endif // LL_VELOPACK
+
     // Does an add() or append() call need a directory delimiter?
     typedef std::pair<bool, unsigned short> SepOff;
     SepOff needSep(const std::string& path, const std::string& name) const;
@@ -271,6 +283,7 @@ protected:
     std::string mLanguage;              // Current viewer language
     std::string mLLPluginDir;           // Location for plugins and plugin shell
     static std::string sDumpDir;            // Per-run crash report subdir of log directory.
+    static LLUUID sDumpDirSessionID;   // UUID of the current dump dir.
     std::string mUserName;              // Current user name
 };
 

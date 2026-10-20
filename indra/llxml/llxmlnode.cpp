@@ -1525,22 +1525,22 @@ const char *LLXMLNode::parseFloat(const char *str, F64 *dest, U32 precision, Enc
     {
         str = skipWhitespace(str);
 
-        if (memcmp(str, "inf", 3) == 0)
+        if (strncmp(str, "inf", 3) == 0)
         {
             *(U64 *)dest = 0x7FF0000000000000ll;
             return str + 3;
         }
-        if (memcmp(str, "-inf", 4) == 0)
+        if (strncmp(str, "-inf", 4) == 0)
         {
             *(U64 *)dest = 0xFFF0000000000000ll;
             return str + 4;
         }
-        if (memcmp(str, "1.#INF", 6) == 0)
+        if (strncmp(str, "1.#INF", 6) == 0)
         {
             *(U64 *)dest = 0x7FF0000000000000ll;
             return str + 6;
         }
-        if (memcmp(str, "-1.#INF", 7) == 0)
+        if (strncmp(str, "-1.#INF", 7) == 0)
         {
             *(U64 *)dest = 0xFFF0000000000000ll;
             return str + 7;

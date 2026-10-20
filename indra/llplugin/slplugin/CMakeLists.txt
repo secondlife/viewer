@@ -58,6 +58,7 @@ elseif (DARWIN)
     BUILD_WITH_INSTALL_RPATH 1
     INSTALL_RPATH "@executable_path/../../../../Frameworks;@executable_path/../Frameworks;@executable_path/../Frameworks/plugins"
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/slplugin_info.plist
+    XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.secondlife.indra.viewer.slplugin"
     XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
   )
 

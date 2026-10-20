@@ -46,6 +46,7 @@
 #if LL_WINDOWS
 #include "llappviewerwin32.h"
 #include <windows.h>
+#include <shellapi.h>
 #include <shlobj.h>
 #include <shobjidl.h>
 #include <shlwapi.h>
@@ -984,6 +985,19 @@ static void on_log_message(void* user_data, const char* level, const char* messa
     OutputDebugStringA("\n");
 }
 
+static void set_runtime_app_user_model_id()
+{
+    // Ensure taskbar grouping uses a stable ID independent of exe path
+    // (wrapper exe vs current\ exe).
+    const std::wstring app_user_model_id = get_app_user_model_id();
+    HRESULT appid_hr = SetCurrentProcessExplicitAppUserModelID(app_user_model_id.c_str());
+    if (FAILED(appid_hr))
+    {
+        LL_WARNS("Velopack") << "SetCurrentProcessExplicitAppUserModelID failed: 0x"
+            << std::hex << appid_hr << LL_ENDL;
+    }
+}
+
 #elif LL_DARWIN
 
 // macOS-specific hooks
@@ -1178,6 +1192,11 @@ static void ensure_update_manager(bool allow_downgrade)
 
 bool velopack_initialize()
 {
+#if LL_WINDOWS
+    // Needs to be called on each run for consistent taskbar behavior.
+    set_runtime_app_user_model_id();
+#endif
+
     vpkc_set_logger(on_log_message, nullptr);
     vpkc_app_set_auto_apply_on_startup(false);
 

@@ -158,6 +158,7 @@ LLTextBase::Params::Params()
     track_end("track_end", false),
     read_only("read_only", false),
     skip_link_underline("skip_link_underline", false),
+    link_color("link_color"),
     spellcheck("spellcheck", false),
     v_pad("v_pad", 0),
     h_pad("h_pad", 0),
@@ -196,6 +197,8 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
     mReadOnly(p.read_only),
     mSkipTripleClick(false),
     mSkipLinkUnderline(p.skip_link_underline),
+    mHasLinkColor(p.link_color.isProvided()),
+    mLinkColor(p.link_color.isProvided() ? p.link_color() : LLUIColor()),
     mSpellCheck(p.spellcheck),
     mSpellCheckStart(-1),
     mSpellCheckEnd(-1),
@@ -1072,6 +1075,8 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
                 {
                     // Some segments, like LLInlineViewSegment do not permit splitting
                     // and should not be interrupted by emoji segments
+                    // Also don't split links in two for emojis. Link's tooltip takes
+                    // precedence over emoji's tooltip.
                     continue;
                 }
             }
@@ -2426,6 +2431,11 @@ void LLTextBase::appendTextImpl(const std::string& new_text, const LLStyle::Para
 
             LLStyle::Params link_params(style_params);
             link_params.overwriteFrom(match.getStyle());
+            if (mHasLinkColor)
+            {
+                link_params.color = mLinkColor;
+                link_params.readonly_color = mLinkColor;
+            }
 
             // output the text before the Url
             if (start > 0)
@@ -3556,19 +3566,7 @@ LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 e
     mEditor(editor),
     mLastGeneration(-1)
 {
-    mFontHeight = mStyle->getFont()->getLineHeight();
-    mCanEdit = !mStyle->getDrawHighlightBg();
-    if (!mCanEdit)
-    {
-        // Emoji shouldn't split the segment with the mention.
-        mPermitsEmoji = false;
-    }
-
-    LLUIImagePtr image = mStyle->getImage();
-    if (image.notNull())
-    {
-        mImageLoadedConnection = image->addLoadedCallback(boost::bind(&LLTextBase::needsReflow, &mEditor, start));
-    }
+    refreshFromStyle();
 }
 
 LLNormalTextSegment::LLNormalTextSegment( const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
@@ -3585,6 +3583,28 @@ LLNormalTextSegment::LLNormalTextSegment( const LLUIColor& color, S32 start, S32
 LLNormalTextSegment::~LLNormalTextSegment()
 {
     mImageLoadedConnection.disconnect();
+}
+
+void LLNormalTextSegment::refreshFromStyle()
+{
+    mFontHeight = mStyle->getFont()->getLineHeight();
+    mCanEdit = !mStyle->getDrawHighlightBg();
+    if (!mCanEdit)
+    {
+        // Emoji shouldn't split the segment with the mention.
+        mPermitsEmoji = false;
+    }
+    if (mStyle->isLink())
+    {
+        // Emoji shouldn't split links.
+        mPermitsEmoji = false;
+    }
+
+    LLUIImagePtr image = mStyle->getImage();
+    if (image.notNull())
+    {
+        mImageLoadedConnection = image->addLoadedCallback(boost::bind(&LLTextBase::needsReflow, &mEditor, mStart));
+    }
 }
 
 
@@ -4143,7 +4163,7 @@ S32 LLInlineViewSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
     {
         return 0;
     }
-    else if (line_offset != 0 && num_pixels < mView->getRect().getWidth())
+    else if (line_offset != 0 && num_pixels < (mLeftPad + mRightPad + mView->getRect().getWidth()))
     {
         return 0;
     }

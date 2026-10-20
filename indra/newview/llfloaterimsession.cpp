@@ -51,6 +51,7 @@
 #include "llsyswellwindow.h"
 #include "lltrans.h"
 #include "llchathistory.h"
+#include "llchatservicehistory.h"
 #include "llnotifications.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
@@ -310,6 +311,8 @@ void LLFloaterIMSession::initIMSession(const LLUUID& session_id)
     mSessionID = session_id;
     mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
 
+    updateUniqueName();
+
     if (mSession)
     {
         mIsP2PChat = mSession->isP2PSessionType();
@@ -352,6 +355,8 @@ void LLFloaterIMSession::initIMFloater()
 bool LLFloaterIMSession::postBuild()
 {
     bool result = LLFloaterIMSessionTab::postBuild();
+
+    mChatServiceLoadingPanel = getChildView("chat_service_loading");
 
     mInputEditor->setMaxTextLength(1023);
     mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2, _3, _4, _5));
@@ -713,6 +718,8 @@ void LLFloaterIMSession::setVisible(bool visible)
 
     if (visible && isInVisibleChain())
     {
+        // Visibility updates presentation state; session creation and live delivery
+        // own service refresh priority.
         sIMFloaterShowedSignal(mSessionID);
         updateMessages();
     }
@@ -836,6 +843,16 @@ void LLFloaterIMSession::updateMessages()
         for (; iter != iter_end; ++iter)
         {
             LLSD msg = *iter;
+            // Consume hidden fallbacks and expired offer markers as well as visible rows.
+            mLastMessageIndex = msg["index"].asInteger();
+
+            // An active inline offer replaces only its explicitly linked text log.
+            // The fallback can be absent or arrive after unrelated chat messages.
+            const LLUUID notification_log_id = msg["notification_log_id"].asUUID();
+            if (notification_log_id.notNull() && LLNotificationsUtil::find(notification_log_id) != NULL)
+            {
+                continue;
+            }
 
             std::string time = msg["time"].asString();
             LLUUID from_id = msg["from_id"].asUUID();
@@ -872,7 +889,7 @@ void LLFloaterIMSession::updateMessages()
                         channel->hideToast(chat.mNotifId);
                     }
                 }
-                // if notification doesn't exist - try to use next message which should be log entry
+                // Expired offers leave their text fallback to render independently.
                 else
                 {
                     continue;
@@ -886,20 +903,6 @@ void LLFloaterIMSession::updateMessages()
 
             // Add the message to the chat log
             appendMessage(chat);
-            mLastMessageIndex = msg["index"].asInteger();
-
-            // if it is a notification - next message is a notification history log, so skip it
-            if (chat.mNotifId.notNull() && LLNotificationsUtil::find(chat.mNotifId) != NULL)
-            {
-                if (++iter == iter_end)
-                {
-                    break;
-                }
-                else
-                {
-                    mLastMessageIndex++;
-                }
-            }
         }
     }
 }
@@ -916,6 +919,8 @@ void LLFloaterIMSession::reloadMessages(bool clean_messages/* = false*/)
         }
     }
 
+    // Clear and replay in one turn so the transcript never presents an empty frame.
+    // LLChatHistory detaches old inline widgets before replacements are registered.
     mChatHistory->clear();
     mLastMessageIndex = -1;
     updateMessages();
@@ -1117,6 +1122,24 @@ void LLFloaterIMSession::processSessionUpdate(const LLSD& session_update)
 // virtual
 void LLFloaterIMSession::draw()
 {
+    // The cache follows preference changes without looking up the setting each frame.
+    static LLCachedControl<bool> show_history(gSavedPerAccountSettings, "LogShowHistory");
+
+    // The floater presents both model-owned local reads and account-scoped service
+    // work without scheduling either source from draw().
+    const bool loading =
+        mSession &&
+        mIsP2PChat &&
+        show_history &&
+        (mSession->isChatHistoryLoading() ||
+         LLChatServiceHistory::getSnapshot(mSession->mOtherParticipantID).service_work_active);
+
+    // The widget animates in draw(); hiding its panel suspends that work.
+    if (mChatServiceLoadingPanel->getVisible() != loading)
+    {
+        mChatServiceLoadingPanel->setVisible(loading);
+    }
+
     // add people who were added via dropPerson()
     if (!mPendingParticipants.empty())
     {
