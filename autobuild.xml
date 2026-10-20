@@ -2744,11 +2744,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>df2260187110aa51c20101183e18a55f86e71090</string>
+              <string>6649ba5678c8823c1eb03e0e0c99bebbf1691921</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife-3p/3p-velopack/releases/download/v0.0.1535-r2/velopack-40232ef.24685318450-windows64-24685318450.tar.zst</string>
+              <string>https://github.com/secondlife-3p/3p-velopack/releases/download/v1.2.161/velopack-92d6a1c.39500165822-windows64-39500165822.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2758,11 +2758,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ead94386d7b9a143824d7ccedc86433127028a91</string>
+              <string>2fa21fefd35c69908013eb41a9f86f07e136d19a</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife-3p/3p-velopack/releases/download/v0.0.1535-r2/velopack-40232ef.24685318450-darwin64-24685318450.tar.zst</string>
+              <string>https://github.com/secondlife-3p/3p-velopack/releases/download/v1.2.161/velopack-92d6a1c.39500165822-darwin64-39500165822.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2775,7 +2775,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Velopack Ltd.</string>
         <key>version</key>
-        <string>40232ef.24685318450</string>
+        <string>v1.2.161.92d6a1c.39500165822</string>
         <key>name</key>
         <string>velopack</string>
         <key>description</key>
