@@ -214,7 +214,8 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
         // single pass: depth-interleave whole avatars with the distance-sorted
         // alpha groups so world alpha composites correctly around avatars.
         // The centralized eligibility gate limits the merged walk to the world
-        // camera; HUD, cube, and reflection renders keep legacy two-pass order.
+        // camera; HUD, cube, reflection and impostor renders keep legacy
+        // two-pass order.
         forwardRender(EAlphaStream::INTERLEAVED);
     }
     else

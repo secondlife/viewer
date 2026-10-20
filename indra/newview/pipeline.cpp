@@ -3586,7 +3586,9 @@ void renderSoundHighlights(LLDrawable *drawablep)
 bool LLPipeline::canUseInterleavedAlpha()
 {
     static LLCachedControl<bool> interleaved_alpha(gSavedSettings, "RenderInterleavedAlpha", true);
-    return interleaved_alpha && !sRenderingHUDs && !gCubeSnapshot &&
+    // impostor, preview and profile renders (generateImpostor) also run with
+    // CAMERA_WORLD, so exclude them explicitly
+    return interleaved_alpha && !sRenderingHUDs && !sImpostorRender && !gCubeSnapshot &&
            LLViewerCamera::sCurCameraID == LLViewerCamera::CAMERA_WORLD;
 }
 
@@ -3683,13 +3685,14 @@ void LLPipeline::postSort(LLCamera &camera)
             // groups derive their depth from the same bounds, so the ensemble
             // keys as one block in the walk -- with this frame's cull camera,
             // like calcDistance for world groups (and, like updateDistance,
-            // not on a shift frame)
+            // not on a shift frame). Impostor renders keep CAMERA_WORLD but
+            // never interleave, so they leave the key alone.
             if (bridge && bridge->mAvatarp &&
                 (alpha != group->mDrawMap.end() || rigged_alpha != group->mDrawMap.end()))
             {
                 group->mAvatarp = bridge->mAvatarp;
                 group->mRenderOrder = bridge->mRenderOrder;
-                if (world_camera && !gShiftFrame)
+                if (world_camera && !gShiftFrame && !sImpostorRender)
                 {
                     group->mAvatarDepth = LLSpatialPartition::calcAlphaDepth(bridge->mAvatarBounds, camera);
                 }
