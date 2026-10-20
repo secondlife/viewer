@@ -1506,11 +1506,13 @@ void LLAgentCamera::updateCamera()
             {
                 // Keep tracked-object translation exact and smooth only changes
                 // to the camera offset, as is done in avatar-relative mode.
+                // Skip during the focus-change pan indicated by mCameraAnimating, see #6467.
                 LLVector3d camera_pos_focus = camera_pos_global - mFocusGlobal;
                 LLVector3d last_camera_pos_focus =
                     mCameraSmoothingLastPositionGlobal - mCameraSmoothingLastFocusGlobal;
                 LLVector3d delta = camera_pos_focus - last_camera_pos_focus;
-                if (mCameraSmoothingLastFocusValid &&
+                if (!mCameraAnimating &&
+                    mCameraSmoothingLastFocusValid &&
                     delta.magVec() < MAX_CAMERA_SMOOTH_DISTANCE)
                 {
                     camera_pos_focus = lerp(last_camera_pos_focus, camera_pos_focus, smoothing);
