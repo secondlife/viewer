@@ -1547,6 +1547,11 @@ bool LLAppViewer::doFrame()
                     joystick->scanJoystick();
                     gKeyboard->scanKeyboard();
                     gViewerInput.scanMouse();
+
+                    if (gAgent.isCrouching())
+                    {
+                        gAgent.moveUp(-1);
+                    }
                 }
             }
 
