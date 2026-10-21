@@ -168,6 +168,19 @@ struct StateResult
     bool cleanup_pending = false;
 };
 
+struct ArchivePreparation
+{
+    bool success = false;
+    bool bytes_changed = false;
+    ArchiveScan summary;
+};
+
+struct ArchivePublication
+{
+    bool success = false;
+    ArchiveScan summary;
+};
+
 struct HttpResult
 {
     S32 status = 0;
@@ -238,6 +251,7 @@ bool ownsRuntime(U32 epoch)
 
 void requireRuntime(U32 epoch)
 {
+    LLCoros::checkStop();
     if (!ownsRuntime(epoch))
     {
         LLTHROW(LLCoros::Stopped("Chat Service account ended"));
@@ -245,14 +259,65 @@ void requireRuntime(U32 epoch)
 }
 
 template <typename Work>
+auto runOnQueue(U32 epoch, const LL::WorkQueue::ptr_t& queue, Work work) -> decltype(work())
+{
+    using Result = decltype(work());
+
+    // Post the job and hold our own promise/future rather than calling
+    // waitForResult(), which blocks unconditionally on future.get(). A wait
+    // may span logout; the calling manager does not control how much work is
+    // already queued ahead of it, so it must be able to abandon the wait on
+    // its own schedule instead of being held hostage by the queue's backlog.
+    if (!queue)
+    {
+        requireRuntime(epoch);
+        return Result();
+    }
+
+    auto promise = std::make_shared<LLCoros::Promise<Result>>();
+    // Capture the shared_ptr by value: the job may still be queued or running
+    // when this coroutine gives up on it below, so the promise must outlive
+    // this call frame.
+    const bool posted = queue->post(
+        [promise, work]() mutable
+    {
+        try
+        {
+            promise->set_value(work());
+        }
+        catch (...)
+        {
+            promise->set_exception(std::current_exception());
+        }
+    });
+    if (!posted)
+    {
+        requireRuntime(epoch);
+        return Result();
+    }
+
+    auto future{ LLCoros::getFuture(*promise) };
+    LLCoros::TempStatus st("waiting for chat service queued work");
+    // Poll with a bounded timeout instead of an unconditional future.get() so
+    // a logout (epoch change) is observed promptly, even if the posted job is
+    // stuck behind other work on the target queue. The job itself keeps
+    // running to completion in the background; if nobody is left to use its
+    // result, it's simply discarded when the epoch check throws Stopped below.
+while (future.wait_for(std::chrono::milliseconds(50)) != boost::fibers::future_status::ready)
+    {
+        // calls checkStop()
+        requireRuntime(epoch);
+    }
+    requireRuntime(epoch);
+    return future.get();
+}
+
+template <typename Work>
 auto runStorage(U32 epoch, Work work) -> decltype(work())
 {
     // A storage wait may span logout. Unwind the manager before it can touch the
     // replacement account or a resident reference from the previous login.
-    LL::WorkQueue::ptr_t general = LL::WorkQueue::getInstance("General");
-    auto result = general ? general->waitForResult(work) : decltype(work())();
-    requireRuntime(epoch);
-    return result;
+    return runOnQueue(epoch, LL::WorkQueue::getInstance("General"), std::move(work));
 }
 
 void postPresentation(const nullary_func_t& work)
@@ -650,23 +715,25 @@ bool ownedArtifactName(const std::string& name)
     return suffix == ".csv" || suffix == ".csv.tmp" || suffix == ".csv.corrupt";
 }
 
-bool prepareArchive(const std::string& path, const LLUUID& resident_id, const LLUUID& agent_id,
-                    U64 boundary, ArchiveScan& summary, bool& bytes_changed)
+ArchivePreparation prepareArchive(const std::string& path, const LLUUID& resident_id,
+                                   const LLUUID& agent_id, U64 boundary)
 {
     LLMutexLock lock(&sStorageMutex);
+    ArchivePreparation result;
 
     // Classify the canonical under the same lock used by mutation and view scans.
     bool canonical_exists = false;
     if (!inspectRegular(path, canonical_exists))
     {
-        return false;
+        return result;
     }
 
     ArchiveScan scan;
     if (scanArchive(path, agent_id, resident_id, boundary, 0, scan))
     {
-        summary = scan;
-        return true;
+        result.success = true;
+        result.summary = scan;
+        return result;
     }
     if (scan.state == ARCHIVE_TORN)
     {
@@ -679,25 +746,26 @@ bool prepareArchive(const std::string& path, const LLUUID& resident_id, const LL
             !truncateArchive(path, scan.valid_prefix_bytes) ||
             !scanArchive(path, agent_id, resident_id, boundary, 0, scan))
         {
-            summary.state = ARCHIVE_FAILED;
-            return false;
+            result.summary.state = ARCHIVE_FAILED;
+            return result;
         }
-        bytes_changed = true;
-        summary = scan;
-        return true;
+        result.success = true;
+        result.bytes_changed = true;
+        result.summary = scan;
+        return result;
     }
     if (scan.state != ARCHIVE_CORRUPT)
     {
-        summary.state = ARCHIVE_FAILED;
-        return false;
+        result.summary.state = ARCHIVE_FAILED;
+        return result;
     }
 
     // Preserve one structurally unusable canonical before a later full-window rebuild.
     const std::string corrupt = path + ".corrupt";
     if (LLFile::remove(corrupt) != 0)
     {
-        summary.state = ARCHIVE_FAILED;
-        return false;
+        result.summary.state = ARCHIVE_FAILED;
+        return result;
     }
     U64 current_size = 0;
     S64 current_mtime = 0;
@@ -705,21 +773,22 @@ bool prepareArchive(const std::string& path, const LLUUID& resident_id, const LL
         current_size != scan.file_size || current_mtime != scan.file_mtime ||
         LLFile::rename(path, corrupt) != 0)
     {
-        summary.state = ARCHIVE_FAILED;
-        return false;
+        result.summary.state = ARCHIVE_FAILED;
+        return result;
     }
-    bytes_changed = true;
-    summary = ArchiveScan();
-    return true;
+    result.success = true;
+    result.bytes_changed = true;
+    result.summary = ArchiveScan();
+    return result;
 }
 
-bool publishRows(const std::string& path, const std::vector<Row>& rows,
-                 bool append, ArchiveScan& resulting)
+ArchivePublication publishRows(const std::string& path, const std::vector<Row>& rows,
+                               bool append, ArchiveScan resulting)
 {
     LLMutexLock lock(&sStorageMutex);
     if (rows.empty())
     {
-        return true;
+        return {true, resulting};
     }
 
     // The captured summary is a private physical identity check. External changes
@@ -727,7 +796,7 @@ bool publishRows(const std::string& path, const std::vector<Row>& rows,
     bool exists = false;
     if (!inspectRegular(path, exists) || exists != (resulting.state != ARCHIVE_ABSENT))
     {
-        return false;
+        return {false, resulting};
     }
     if (exists)
     {
@@ -736,7 +805,7 @@ bool publishRows(const std::string& path, const std::vector<Row>& rows,
         if (!archiveStamp(path, file_size, file_mtime) ||
             file_size != resulting.file_size || file_mtime != resulting.file_mtime)
         {
-            return false;
+            return {false, resulting};
         }
     }
 
@@ -752,7 +821,7 @@ bool publishRows(const std::string& path, const std::vector<Row>& rows,
         }
         if (!writeReplace(path, output.str(), false))
         {
-            return false;
+            return {false, resulting};
         }
     }
     else
@@ -761,7 +830,7 @@ bool publishRows(const std::string& path, const std::vector<Row>& rows,
         bool needs_separator = false;
         if (LLFile::stat(path, &status) != 0 || !LLFile::isfile(path))
         {
-            return false;
+            return {false, resulting};
         }
         if (status.st_size)
         {
@@ -772,7 +841,7 @@ bool publishRows(const std::string& path, const std::vector<Row>& rows,
         llofstream output(path.c_str(), std::ios::binary | std::ios::app);
         if (!output.is_open())
         {
-            return false;
+            return {false, resulting};
         }
         if (needs_separator)
         {
@@ -786,7 +855,7 @@ bool publishRows(const std::string& path, const std::vector<Row>& rows,
         output.close();
         if (output.fail())
         {
-            return false;
+            return {false, resulting};
         }
     }
 
@@ -801,10 +870,10 @@ bool publishRows(const std::string& path, const std::vector<Row>& rows,
     resulting.newest = rows.back().key;
     if (!archiveStamp(path, resulting.file_size, resulting.file_mtime))
     {
-        return false;
+        return {false, resulting};
     }
     resulting.valid_prefix_bytes = resulting.file_size;
-    return true;
+    return {true, resulting};
 }
 
 typedef std::pair<std::vector<LLUUID>, bool> initial_artifacts_t;
@@ -1227,14 +1296,12 @@ bool prepareResidentArchive(const LLUUID& id, U32 epoch)
     const std::string path = archivePath(sRuntime.account_dir, id);
     const LLUUID agent_id = sRuntime.agent_id;
     const U64 boundary = sRuntime.deleted_before_ticks;
-    bool changed = false;
-    ArchiveScan summary;
-    const bool prepared = runStorage(epoch,
-        [path, id, agent_id, boundary, &summary, &changed]()
+    const ArchivePreparation preparation = runStorage(epoch,
+        [path, id, agent_id, boundary]()
         {
-            return prepareArchive(path, id, agent_id, boundary, summary, changed);
+            return prepareArchive(path, id, agent_id, boundary);
         });
-    if (!prepared)
+    if (!preparation.success)
     {
         return false;
     }
@@ -1242,9 +1309,9 @@ bool prepareResidentArchive(const LLUUID& id, U32 epoch)
     // Only this manager removes residents, so the epoch check preserves their
     // identity across the worker wait. Repair invalidates both views and coverage.
     Resident& current = sRuntime.residents.at(id);
-    current.summary = summary;
+    current.summary = preparation.summary;
     sRuntime.index_dirty = true;
-    if (changed)
+    if (preparation.bytes_changed)
     {
         ++current.archive_serial;
         current.covered_token.clear();
@@ -1458,13 +1525,14 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
     bool changed = false;
     if (!staged.empty())
     {
-        ArchiveScan resulting = resident.summary;
         const bool append = resident.summary.state == ARCHIVE_VALID && resident.summary.has_oldest;
         const std::string path = archivePath(sRuntime.account_dir, id);
-        changed = runStorage(epoch, [path, staged, append, &resulting]()
+        const ArchivePublication publication = runStorage(epoch,
+            [path, staged, append, summary = resident.summary]()
         {
-            return publishRows(path, staged, append, resulting);
+            return publishRows(path, staged, append, summary);
         });
+        changed = publication.success;
         LL_INFOS("ChatServiceHistory")
             << "Archive publication: resident_id=" << id << ", rows=" << staged.size()
             << ", mode=" << (append ? "append" : "replace")
@@ -1476,7 +1544,7 @@ void syncResident(const LLUUID& id, const CapabilityContext& context, U32 epoch)
         sRuntime.local_content_exists = true;
         if (changed)
         {
-            resident.summary = resulting;
+            resident.summary = publication.summary;
             if (resident.metadata.state == META_RESOLVED)
             {
                 const F64 archived_seconds = resident.summary.newest.ticks >= UUID_EPOCH
@@ -1643,8 +1711,11 @@ void runDelete(U32 epoch)
 
     // Await invalidation on the main loop before sweeping files or accepting new
     // history. A late clear must not discard messages received after deletion.
-    LL::WorkQueue::ptr_t main = LL::WorkQueue::getInstance("mainloop");
-    const bool cleared = main && main->waitForResult([epoch]()
+    // Poll rather than block unconditionally: deletion does not control its own
+    // lifetime either, so a logout must unwind this wait promptly even if the
+    // main loop is slow to pick up the posted work (might never pick it up in
+    // case of an error state being set).
+    const bool cleared = runOnQueue(epoch, LL::WorkQueue::getInstance("mainloop"), [epoch]()
     {
         if (!ownsRuntime(epoch))
         {
@@ -1874,6 +1945,7 @@ void manager(U32 epoch)
     // and storage maintenance in priority order.
     while (sRuntime.running && sRuntime.epoch == epoch)
     {
+        LLCoros::checkStop();
         if (sRuntime.delete_active)
         {
             runDelete(epoch);
