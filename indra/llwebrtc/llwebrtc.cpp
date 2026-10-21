@@ -639,11 +639,11 @@ void LLWebRTCImpl::unsetDevicesObserver(LLWebRTCDevicesObserver *observer)
 }
 
 // must be run in the worker thread.  Selects the configured capture device and
-// starts recording.  By default capture runs the whole time voice is enabled
-// (never stopped for mute or between calls, so the AEC never cold-starts -- no
-// hiss on unmute), so this is a no-op when already recording.  With "stop capture
-// while muted" it's only started while unmuted and once a connection's audio is
-// established.  Device changes go through workerDeployDevices(), which stops
+// starts recording.  By default capture only runs while unmuted and once a
+// connection's audio is established.  With "stop capture while muted" disabled,
+// capture runs the whole time voice is enabled (never stopped for mute or between
+// calls, so the AEC never cold-starts -- no hiss on unmute), so this is a no-op
+// when already recording.  Device changes go through workerDeployDevices(), which stops
 // recording first to force a clean re-select; voice off goes through setVoiceEnabled(false).
 void LLWebRTCImpl::workerStartRecording()
 {
@@ -841,8 +841,8 @@ void LLWebRTCImpl::setVoiceEnabled(bool enable)
             }
             if (enable)
             {
-                // Voice on: start the capture device (by default it then stays
-                // running across calls and mute/unmute), and start playout if
+                // Voice on: start the capture device (with "stop capture while muted" disabled
+                // it then stays running across calls and mute/unmute), and start playout if
                 // there's already a connection to render.
                 mDeviceModule->Init();
                 workerDeployDevices();
@@ -1047,11 +1047,11 @@ void LLWebRTCImpl::setMute(bool mute, int delay_ms)
 void LLWebRTCImpl::intSetMute(bool mute, int delay_ms)
 {
     // Mute by zeroing the captured (post-APM) gain; the sender track is also
-    // disabled per connection (see LLWebRTCPeerConnectionImpl::setMute).  By
-    // default the capture device stays running for the whole session, so
-    // muting/unmuting never stops or starts it -- that's what avoids the AEC
-    // cold-start hiss on unmute.  With "stop capture while muted", it's stopped
-    // after the mute delay and restarted on unmute (below).
+    // disabled per connection (see LLWebRTCPeerConnectionImpl::setMute). By
+    // default the capture device stops after the mute delay and restarts on
+    // unmute. With "stop capture while muted" disabled, it stays running for
+    // the whole session, so muting/unmuting never stops or starts it -- that's
+    // what avoids the AEC cold-start hiss on unmute.
     if (mPeerCustomProcessor)
     {
         mPeerCustomProcessor->setGain(mMute ? 0.0f : mGain);
