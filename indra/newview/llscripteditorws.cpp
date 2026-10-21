@@ -284,7 +284,7 @@ bool LLScriptEditorWSServer::isEnabled()
 
 bool LLScriptEditorWSServer::isTightIntegration()
 {
-    static LLCachedControl<bool> OPT_TIGHTINTEGRATION(gSavedSettings, "ExternalWebsocketSyncTightIntegration", false);
+    static LLCachedControl<bool> OPT_TIGHTINTEGRATION(gSavedSettings, "ExternalEditorTightIntegration", false);
     return OPT_TIGHTINTEGRATION;
 }
 
