@@ -163,9 +163,8 @@ LLDir_Mac::LLDir_Mac()
         // viewer is unaffected.if (!is_dmg && !is_translocated && !is_applications_install && !install_root.empty())
 
         // macos doesn't have the .portable marker , but check it just in case.
+        // Todo: fix this, portable installs should have a marker file.
         bool is_portable = isPortableInstall(install_root);
-        // For a velopack build, assume that running nor from a dmg means 'portable'.
-        is_portable |= !is_dmg && !is_translocated && !is_applications_install && !install_root.empty();
 
         if (is_portable)
         {
@@ -213,6 +212,10 @@ LLDir_Mac::LLDir_Mac()
             mRunContextDescription = "Portable (extracted archive, " + install_root + ")";
         }
 #endif // LL_VELOPACK
+        else if (!is_dmg && !is_translocated && !is_applications_install && !install_root.empty())
+        {
+            mRunContextDescription = "Running from a non-standard folder (" + install_root + ")";
+        }
         else if (!install_root.empty())
         {
             // Bundle is present on local disk, intact, and not translocated
