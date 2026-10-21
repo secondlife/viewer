@@ -764,11 +764,41 @@ void setPreeditMarkedRange(int position, int length)
     }
 }
 
+// Set while the current composition takes the place of a range the input method asked
+// to replace. That range is already removed, so the composition must not overwrite
+// any other text, even in overwrite mode.
+static bool sPreeditReplacesRange = false;
+
+// Puts the keyboard in insert mode for the lifetime of this object, when asked to.
+class LLForceInsertMode
+{
+public:
+    LLForceInsertMode(bool force)
+    :   mToggled(force && gKeyboard && gKeyboard->getInsertMode() == LL_KIM_OVERWRITE)
+    {
+        if (mToggled)
+        {
+            gKeyboard->toggleInsertMode();
+        }
+    }
+    ~LLForceInsertMode()
+    {
+        if (mToggled)
+        {
+            gKeyboard->toggleInsertMode();
+        }
+    }
+private:
+    bool mToggled;
+};
+
+// Only used to commit the marked text from insertText:.
 bool handleUnicodeCharacter(wchar_t c)
 {
     bool success = false;
     if (gWindowImplementation && gWindowImplementation->getPreeditor())
     {
+        LLForceInsertMode insert_mode(sPreeditReplacesRange);
         success = gWindowImplementation->getPreeditor()->handleUnicodeCharHere(c);
     }
 
@@ -808,7 +838,10 @@ void commitPreedit()
         // focus first), so insert the text without relying on keyboard focus.
         const LLWString committed = text.substr(position, length);
         preeditor->resetPreedit();
-        preeditor->replaceCommittedText(position, 0, committed);
+        // In overwrite mode the reset restores the characters the preedit covered;
+        // the committed text takes their place (none in insert mode).
+        const S32 restored = (S32)preeditor->getPreeditString().length() - ((S32)text.length() - length);
+        preeditor->replaceCommittedText(position, llmax(restored, 0), committed);
     }
 }
 
@@ -819,6 +852,14 @@ void setMarkedText(unsigned short *unitext, unsigned int *selectedRange, unsigne
     if (gWindowImplementation && gWindowImplementation->getPreeditor())
     {
         LLPreeditor *preeditor = gWindowImplementation->getPreeditor();
+        S32 marked_position = 0;
+        S32 marked_length = 0;
+        preeditor->getPreeditRange(&marked_position, &marked_length);
+        if (marked_length <= 0)
+        {
+            // A new composition.
+            sPreeditReplacesRange = false;
+        }
         preeditor->resetPreedit();
         // This should be a viable replacement for the kEventParamTextInputSendReplaceRange parameter.
         // replacementRange is {location, length}; a zero length means there is nothing to replace.
@@ -832,6 +873,7 @@ void setMarkedText(unsigned short *unitext, unsigned int *selectedRange, unsigne
                 // The marked text replaces that range, as in native text views; the
                 // preedit is then inserted where the removed text was.
                 preeditor->replaceCommittedText(location, length, LLWString());
+                sPreeditReplacesRange = true;
             }
         }
 
@@ -839,6 +881,7 @@ void setMarkedText(unsigned short *unitext, unsigned int *selectedRange, unsigne
 
         S32 caret_position = fix_str.length();
 
+        LLForceInsertMode insert_mode(sPreeditReplacesRange);
         preeditor->updatePreedit(fix_str, segments.seg_lengths, segments.seg_standouts, caret_position);
     }
 }

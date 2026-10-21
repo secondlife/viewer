@@ -3130,6 +3130,15 @@ void LLTextEditor::replaceCommittedText(S32 position, S32 length, const LLWStrin
         return;
     }
 
+    // Check the whole edit first: insert() would truncate the end of the text instead.
+    LLWString new_text = getWText();
+    new_text.replace(position, length, text);
+    if (wstring_utf8_length(new_text) > mMaxTextByteLength)
+    {
+        LLUI::getInstance()->reportBadKeystroke();
+        return;
+    }
+
     deselect();
     // Group the removal with the insertion so that one undo restores the replaced text.
     if (length > 0)

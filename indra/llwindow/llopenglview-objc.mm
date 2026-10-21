@@ -55,7 +55,7 @@ NSString* asciiCharactersFromKeyEvent(NSEvent* theEvent)
             UniChar chars[4];
             UniCharCount length = 0;
             if (UCKeyTranslate((const UCKeyboardLayout *)CFDataGetBytePtr(layout_data), [theEvent keyCode], kUCKeyActionDown,
-                               (modifiers >> 8) & 0xFF, LMGetKbdType(), kUCKeyTranslateNoDeadKeysBit,
+                               (modifiers >> 8) & 0xFF, LMGetKbdType(), kUCKeyTranslateNoDeadKeysMask,
                                &dead_key_state, 4, &length, chars) == noErr && length > 0)
             {
                 result = [NSString stringWithCharacters:chars length:length];
@@ -783,10 +783,10 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
         // NSNotFound means "replace the current marked text (or the selection)",
         // which setMarkedText() already does by resetting the preedit.
-        // Some input methods pass the current marked range explicitly instead;
-        // treat that the same way, since that text is gone once the preedit is reset.
+        // Some input methods pass the current marked range (or the selection) explicitly
+        // instead; treat that the same way, since that text is gone once the preedit is reset.
         if (replacementRange.location == NSNotFound ||
-            (mHasMarkedText && NSEqualRanges(replacementRange, [self markedRange])))
+            NSEqualRanges(replacementRange, mHasMarkedText ? [self markedRange] : [self selectedRange]))
         {
             replacementRange = NSMakeRange(0, 0);
         }
