@@ -5180,21 +5180,32 @@ void LLAgent::applyExternalActions(const LLGameControl::AgentActions& actions)
     U32 mouse_released_edges = ~actions.mMouseButtonBits & mPrevMouseButtonBits;
     mPrevMouseButtonBits = actions.mMouseButtonBits;
 
-    if (mouse_pressed_edges & LLGameControl::AVATAR_MOUSE_BUTTON_LEFT)
+    if (mouse_pressed_edges || mouse_released_edges)
     {
-        gViewerWindow->handleMouseDown(gViewerWindow->getWindow(), gViewerWindow->getCurrentMouse(), MASK_NONE);
-    }
-    if (mouse_released_edges & LLGameControl::AVATAR_MOUSE_BUTTON_LEFT)
-    {
-        gViewerWindow->handleMouseUp(gViewerWindow->getWindow(), gViewerWindow->getCurrentMouse(), MASK_NONE);
-    }
-    if (mouse_pressed_edges & LLGameControl::AVATAR_MOUSE_BUTTON_RIGHT)
-    {
-        gViewerWindow->handleRightMouseDown(gViewerWindow->getWindow(), gViewerWindow->getCurrentMouse(), MASK_NONE);
-    }
-    if (mouse_released_edges & LLGameControl::AVATAR_MOUSE_BUTTON_RIGHT)
-    {
-        gViewerWindow->handleRightMouseUp(gViewerWindow->getWindow(), gViewerWindow->getCurrentMouse(), MASK_NONE);
+        // getCurrentMouse() is in scaled UI coords, but the click handlers
+        // expect raw window coords (as LLWindow delivers for a hardware click)
+        // and divide by the display scale themselves, so convert back first.
+        const LLVector2& display_scale = gViewerWindow->getDisplayScale();
+        LLCoordGL cursor_pos = gViewerWindow->getCurrentMouse();
+        LLCoordGL raw_pos(ll_round((F32)cursor_pos.mX * display_scale.mV[VX]),
+                          ll_round((F32)cursor_pos.mY * display_scale.mV[VY]));
+
+        if (mouse_pressed_edges & LLGameControl::AVATAR_MOUSE_BUTTON_LEFT)
+        {
+            gViewerWindow->handleMouseDown(gViewerWindow->getWindow(), raw_pos, MASK_NONE);
+        }
+        if (mouse_released_edges & LLGameControl::AVATAR_MOUSE_BUTTON_LEFT)
+        {
+            gViewerWindow->handleMouseUp(gViewerWindow->getWindow(), raw_pos, MASK_NONE);
+        }
+        if (mouse_pressed_edges & LLGameControl::AVATAR_MOUSE_BUTTON_RIGHT)
+        {
+            gViewerWindow->handleRightMouseDown(gViewerWindow->getWindow(), raw_pos, MASK_NONE);
+        }
+        if (mouse_released_edges & LLGameControl::AVATAR_MOUSE_BUTTON_RIGHT)
+        {
+            gViewerWindow->handleRightMouseUp(gViewerWindow->getWindow(), raw_pos, MASK_NONE);
+        }
     }
 
     // actions.mIsRunning is derived purely from how hard the controller's own
