@@ -197,17 +197,6 @@
      left="20"
      top_pad="9"
      width="200"/>
-    <check_box
-     control_name="StopMicCaptureWhenMuted"
-     enabled_control="EnableVoiceChat"
-     height="15"
-     tool_tip="Check to stop microphone capture while muted. May cause a hiss on unmute but prevents bluetooth devices always being in voice mode."
-     label="Stop microphone capture while muted"
-     layout="topleft"
-     name="StopMicCaptureWhenMuted"
-     left="20"
-     top_pad="9"
-     width="200"/>
     <button
      control_name="ShowDeviceSettings"
      enabled_control="EnableVoiceChat"
