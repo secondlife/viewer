@@ -16792,5 +16792,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>StopMicCaptureWhenMuted</key>
+    <map>
+      <key>Comment</key>
+      <string>Check to stop microphone capture while muted. May cause a hiss on unmute but prevents bluetooth devices always being in voice mode.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
 </map>
 </llsd>
