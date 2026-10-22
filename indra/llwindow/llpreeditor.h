@@ -96,6 +96,13 @@ public:
     // called_from_parent should be set to false if calling through LLPreeditor.
 
     virtual bool handleUnicodeCharHere(llwchar uni_char) = 0;
+
+    // Replace committed text (not the preedit) with the given text, as input methods
+    // do when they rewrite what they inserted before (e.g. Vietnamese Telex).
+    // position and length count UTF-32 (llwchar) characters.  Unlike handleUnicodeCharHere,
+    // this does not depend on keyboard focus or the insert mode, and is a single edit for undo.
+
+    virtual void replaceCommittedText(S32 position, S32 length, const LLWString &text) = 0;
 };
 
 #endif

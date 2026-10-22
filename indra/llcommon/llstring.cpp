@@ -309,21 +309,21 @@ S32 wstring_utf16_length(const LLWString &wstr, const S32 woffset, const S32 wle
 // and whose equivalent utf-16 string does not exceeds the given utf16_length.
 S32 wstring_wstring_length_from_utf16_length(const LLWString & wstr, const S32 woffset, const S32 utf16_length, bool *unaligned)
 {
-    const auto end = wstr.length();
+    const S32 end = (S32)wstr.length();
     bool u{ false };
-    S32 n = woffset + utf16_length;
+    S32 remaining = utf16_length;
     S32 i = woffset;
     while (i < end)
     {
-        if (wstr[i] >= 0x10000)
+        // A character outside the BMP takes two UTF-16 units. If the length ends
+        // between them, the length is unaligned.
+        const S32 units = (wstr[i] >= 0x10000) ? 2 : 1;
+        if (remaining < units)
         {
-            --n;
-        }
-        if (i >= n)
-        {
-            u = (i > n);
+            u = (remaining > 0);
             break;
         }
+        remaining -= units;
         i++;
     }
     if (unaligned)

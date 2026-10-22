@@ -3123,6 +3123,39 @@ S32 LLTextEditor::getPreeditFontSize() const
     return ll_round((F32)mFont->getLineHeight() * LLUI::getScaleFactor().mV[VY]);
 }
 
+void LLTextEditor::replaceCommittedText(S32 position, S32 length, const LLWString &text)
+{
+    if (mReadOnly || position < 0 || length < 0 || position + length > getLength())
+    {
+        return;
+    }
+
+    // Check the whole edit first: insert() would truncate the end of the text instead.
+    LLWString new_text = getWText();
+    new_text.replace(position, length, text);
+    if (wstring_utf8_length(new_text) > mMaxTextByteLength)
+    {
+        LLUI::getInstance()->reportBadKeystroke();
+        return;
+    }
+
+    deselect();
+    // Group the removal with the insertion so that one undo restores the replaced text.
+    if (length > 0)
+    {
+        remove(position, length, !text.empty());
+    }
+    S32 inserted = 0;
+    if (!text.empty())
+    {
+        inserted = insert(position, text, false, LLTextSegmentPtr());
+    }
+    setCursorPos(position + inserted);
+
+    resetCursorBlink();
+    onKeyStroke();
+}
+
 bool LLTextEditor::isDirty() const
 {
     if(mReadOnly)

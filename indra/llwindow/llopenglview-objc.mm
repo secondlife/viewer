@@ -34,6 +34,38 @@ extern BOOL gHiDPISupport;
 
 #pragma mark local functions
 
+// The characters a key event types with the user's ASCII-capable keyboard layout, ignoring the
+// input method, as native secure text fields do (with a Korean input method, [event characters]
+// gives jamo instead).
+NSString* asciiCharactersFromKeyEvent(NSEvent* theEvent)
+{
+    NSString *result = nil;
+    TISInputSourceRef source = TISCopyCurrentASCIICapableKeyboardLayoutInputSource();
+    if (source)
+    {
+        CFDataRef layout_data = (CFDataRef)TISGetInputSourceProperty(source, kTISPropertyUnicodeKeyLayoutData);
+        if (layout_data)
+        {
+            const NSEventModifierFlags flags = [theEvent modifierFlags];
+            UInt32 modifiers = 0;
+            if (flags & NSEventModifierFlagShift)    modifiers |= shiftKey;
+            if (flags & NSEventModifierFlagCapsLock) modifiers |= alphaLock;
+            if (flags & NSEventModifierFlagOption)   modifiers |= optionKey;
+            UInt32 dead_key_state = 0;
+            UniChar chars[4];
+            UniCharCount length = 0;
+            if (UCKeyTranslate((const UCKeyboardLayout *)CFDataGetBytePtr(layout_data), [theEvent keyCode], kUCKeyActionDown,
+                               (modifiers >> 8) & 0xFF, LMGetKbdType(), kUCKeyTranslateNoDeadKeysMask,
+                               &dead_key_state, 4, &length, chars) == noErr && length > 0)
+            {
+                result = [NSString stringWithCharacters:chars length:length];
+            }
+        }
+        CFRelease(source);
+    }
+    return result;
+}
+
 NativeKeyEventData extractKeyDataFromKeyEvent(NSEvent* theEvent)
 {
     NativeKeyEventData eventData;
@@ -232,6 +264,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [mMarkedString release];
+    [mLocallyCommittedString release];
     [super dealloc];
 }
 
@@ -519,27 +553,60 @@ attributedStringInfo getSegments(NSAttributedString *str)
     // e.g. OS Window for upload something or Input Window...
     // mModifiers instance variable is for insertText: or insertText:replacementRange:  (by Pell Smit)
     mModifiers = [theEvent modifierFlags];
+    [self forgetLocallyCommittedString];
     NSString *str_no_modifiers = [theEvent charactersIgnoringModifiers];
     unichar ch = 0;
     if (str_no_modifiers.length)
     {
         ch = [str_no_modifiers characterAtIndex:0];
     }
-    bool acceptsText = mHasMarkedText ? false : callKeyDown(&eventData, keycode, mModifiers, ch);
+    // While text is being composed the key belongs to the input method, so it is withheld from the viewer.
+    // Backspace in a text field goes to the input method first even without marked text: some input
+    // methods (e.g. Korean) also compose by replacing already inserted text, and the syllable would be
+    // deleted before they could edit it. Keys they do not use come back through doCommandBySelector:.
+    mKeyDownWithheld = mHasMarkedText || (mMarkedTextAllowed && ch == NSDeleteCharacter);
+    mForwardWithheldKeyDown = false;
+    bool acceptsText = mKeyDownWithheld ? false : callKeyDown(&eventData, keycode, mModifiers, ch);
 
-    if (acceptsText &&
+    // A printable key typed with a non-Roman input method while the focused control has no inline
+    // input method support. acceptsText only tells that some UI element has keyboard focus (it may
+    // be a button), so the focused control is asked how it takes text.
+    bool composeElsewhere = acceptsText &&
         !mMarkedTextAllowed &&
         !(mModifiers & (NSEventModifierFlagControl | NSEventModifierFlagCommand)) &&  // commands don't invoke InputWindow
-        ![(LLAppDelegate*)[NSApp delegate] romanScript] &&
         ch > ' ' &&
         ch != NSDeleteCharacter &&
-        (ch < 0xF700 || ch > 0xF8FF))  // 0xF700-0xF8FF: reserved for function keys on the keyboard(from NSEvent.h)
+        (ch < 0xF700 || ch > 0xF8FF) &&  // 0xF700-0xF8FF: reserved for function keys on the keyboard(from NSEvent.h)
+        ![(LLAppDelegate*)[NSApp delegate] romanScript];
+    if (composeElsewhere && callFocusTakesInputMethodText())
     {
         [(LLAppDelegate*)[NSApp delegate] showInputWindow:true withEvent:theEvent];
-    } else
+    }
+    else if (composeElsewhere && callFocusTakesPlainTextOnly())
+    {
+        // Controls such as password fields do not take text from input methods. As in native
+        // secure text fields, they get the plain characters of the key and nothing is composed,
+        // so the text is neither shown in the Input Window nor passed to the input method.
+        NSString *chars = asciiCharactersFromKeyEvent(theEvent);
+        if (chars)
+        {
+            [self insertText:chars replacementRange:NSMakeRange(NSNotFound, 0)];
+        }
+    }
+    else
     {
         [[self inputContext] handleEvent:theEvent];
     }
+
+    // The input method committed its text and handed the key back as a command
+    // (e.g. Tab or Backspace pressed while composing): let the viewer handle it now,
+    // otherwise focus does not move and the key is lost.
+    if (mForwardWithheldKeyDown)
+    {
+        callKeyDown(&eventData, keycode, mModifiers, ch);
+    }
+    mKeyDownWithheld = false;
+    mForwardWithheldKeyDown = false;
 }
 
 - (void)flagsChanged:(NSEvent *)theEvent
@@ -641,16 +708,61 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (NSRange)markedRange
 {
-    int range[2];
+    // NSTextInputClient requires {NSNotFound, 0} when there is no marked text.
+    // Returning the cursor position instead makes some input methods believe
+    // a composition is still in progress.
+    if (!mHasMarkedText)
+    {
+        return NSMakeRange(NSNotFound, 0);
+    }
+    int range[2] = {0, 0};
     getPreeditMarkedRange(&range[0], &range[1]);
     return NSMakeRange(range[0], range[1]);
 }
 
 - (NSRange)selectedRange
 {
-    int range[2];
+    // While composing, report the selection the input method set inside the marked text
+    // (e.g. the whole clause after a Japanese conversion) rather than the editor caret,
+    // which is always placed at the end of the preedit.
+    if (mHasMarkedText)
+    {
+        NSRange marked = [self markedRange];
+        return NSMakeRange(marked.location + mMarkedSelectedRange.location, mMarkedSelectedRange.length);
+    }
+    int range[2] = {0, 0};
     getPreeditSelectionRange(&range[0], &range[1]);
     return NSMakeRange(range[0], range[1]);
+}
+
+// Drops the marked text from the editor without committing it.
+- (void)clearMarkedText
+{
+    resetPreedit();
+    mHasMarkedText = FALSE;
+    mMarkedTextLength = 0;
+    [mMarkedString release];
+    mMarkedString = nil;
+}
+
+// Commits the marked text into the editor ourselves.
+// Depending on the input method, the same text may still arrive through
+// insertText: right after (some send unmarkText before insertText, some
+// commit on discardMarkedText), so remember it to avoid inserting it twice.
+- (void)commitMarkedTextLocally
+{
+    commitPreedit();
+    mHasMarkedText = FALSE;
+    mMarkedTextLength = 0;
+    [mLocallyCommittedString release];
+    mLocallyCommittedString = mMarkedString;
+    mMarkedString = nil;
+}
+
+- (void)forgetLocallyCommittedString
+{
+    [mLocallyCommittedString release];
+    mLocallyCommittedString = nil;
 }
 
 - (void)setMarkedText:(id)aString selectedRange:(NSRange)selectedRange replacementRange:(NSRange)replacementRange
@@ -669,6 +781,15 @@ attributedStringInfo getSegments(NSAttributedString *str)
             unsigned(selectedRange.length)
         };
 
+        // NSNotFound means "replace the current marked text (or the selection)",
+        // which setMarkedText() already does by resetting the preedit.
+        // Some input methods pass the current marked range (or the selection) explicitly
+        // instead; treat that the same way, since that text is gone once the preedit is reset.
+        if (replacementRange.location == NSNotFound ||
+            NSEqualRanges(replacementRange, mHasMarkedText ? [self markedRange] : [self selectedRange]))
+        {
+            replacementRange = NSMakeRange(0, 0);
+        }
         unsigned int replacement[2] = {
             unsigned(replacementRange.location),
             unsigned(replacementRange.length)
@@ -693,52 +814,68 @@ attributedStringInfo getSegments(NSAttributedString *str)
             segments.seg_standouts.push_back(true);
         }
         setMarkedText(text, selected, replacement, string_length, segments);
+        [self forgetLocallyCommittedString];
         if (string_length > 0)
         {
             mHasMarkedText = TRUE;
             mMarkedTextLength = string_length;
+            mMarkedSelectedRange = selectedRange;
+            [mMarkedString release];
+            mMarkedString = [[NSString alloc] initWithCharacters:text length:string_length];
         }
         else
         {
-            // we must clear the marked text when aString is null.
-            [self unmarkText];
+            // An empty string means the input method cleared its composition
+            // (e.g. backspace over the last jamo). Only clear our side; telling
+            // the input method to discard here would reset its state mid-input.
+            [self clearMarkedText];
         }
 
         delete [] text;
     } else {
         if (mHasMarkedText)
         {
-            [self unmarkText];
+            [self clearMarkedText];
         }
     }
 }
 
-#if LL_DARWIN
-// For commitEditing deprecation
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#endif
+// Called by the viewer when focus moves or the mouse is clicked while composing.
+// Commit what is marked into the current editor, then tell the input method
+// its composition is finished so it starts the next one fresh.
+// Passes a Backspace key press to the viewer, for text the Input Window has already sent.
+- (void) sendBackspaceToViewer
+{
+    unichar ch = NSDeleteCharacter;
+    NSString *chars = [NSString stringWithCharacters:&ch length:1];
+    NSEvent *event = [NSEvent keyEventWithType:NSEventTypeKeyDown location:NSZeroPoint modifierFlags:0
+                                     timestamp:[[NSProcessInfo processInfo] systemUptime] windowNumber:[[self window] windowNumber]
+                                       context:nil characters:chars charactersIgnoringModifiers:chars isARepeat:NO keyCode:kVK_Delete];
+    NativeKeyEventData eventData = extractKeyDataFromKeyEvent(event);
+    eventData.mKeyEvent = NativeKeyEventData::KEYDOWN;
+    callKeyDown(&eventData, kVK_Delete, 0, ch);
+    eventData.mKeyEvent = NativeKeyEventData::KEYUP;
+    callKeyUp(&eventData, kVK_Delete, 0);
+}
 
 - (void)commitCurrentPreedit
 {
     if (mHasMarkedText)
     {
-        if ([[self inputContext] respondsToSelector:@selector(commitEditing)])
-        {
-            [[self inputContext] commitEditing];
-        }
+        [self commitMarkedTextLocally];
+        [[self inputContext] discardMarkedText];
     }
 }
 
-#if LL_DARWIN
-#pragma clang diagnostic pop
-#endif
-
+// Called by the input method to accept the marked text as final.
+// The input method does not send the text again via insertText:,
+// so it has to be committed here instead of discarded.
 - (void)unmarkText
 {
-    [[self inputContext] discardMarkedText];
-    resetPreedit();
-    mHasMarkedText = FALSE;
+    if (mHasMarkedText)
+    {
+        [self commitMarkedTextLocally];
+    }
 }
 
 // We don't support attributed strings.
@@ -747,22 +884,71 @@ attributedStringInfo getSegments(NSAttributedString *str)
     return [NSArray array];
 }
 
-// See above.
+// Lets input methods read the text around the caret (e.g. Vietnamese Telex, the accent menu).
 - (NSAttributedString *)attributedSubstringForProposedRange:(NSRange)aRange actualRange:(NSRangePointer)actualRange
 {
-    return nil;
+    const std::basic_string<unsigned short> text = getPreeditText();
+    if (aRange.location == NSNotFound || aRange.location > text.length())
+    {
+        return nil;
+    }
+    NSRange range = NSMakeRange(aRange.location, MIN(aRange.length, text.length() - aRange.location));
+    if (actualRange)
+    {
+        *actualRange = range;
+    }
+    NSString *substring = [NSString stringWithCharacters:(const unichar *)text.data() + range.location length:range.length];
+    return [[[NSAttributedString alloc] initWithString:substring] autorelease];
 }
 
 - (void)insertText:(id)insertString
 {
     if (insertString != nil)
     {
-        [self insertText:insertString replacementRange:NSMakeRange(0, [insertString length])];
+        [self insertText:insertString replacementRange:NSMakeRange(NSNotFound, 0)];
     }
 }
 
 - (void)insertText:(id)aString replacementRange:(NSRange)replacementRange
 {
+    // aString may be an NSString or an NSAttributedString; the latter does not
+    // respond to characterAtIndex:, which used to drop the text entirely.
+    if ([aString isKindOfClass:[NSAttributedString class]])
+    {
+        aString = [(NSAttributedString *)aString string];
+    }
+    if (![aString isKindOfClass:[NSString class]])
+    {
+        return;
+    }
+
+    if (mLocallyCommittedString)
+    {
+        bool already_committed = !mHasMarkedText && [aString isEqualToString:mLocallyCommittedString];
+        [self forgetLocallyCommittedString];
+        if (already_committed)
+        {
+            return;
+        }
+    }
+
+    // Input methods that rewrite committed text (Vietnamese Telex, the accent menu)
+    // send the range of the letters being replaced. A range equal to the selection
+    // is an ordinary insertion and goes through the normal path below.
+    if (!mHasMarkedText && replacementRange.location != NSNotFound &&
+        !NSEqualRanges(replacementRange, [self selectedRange]))
+    {
+        NSUInteger length = [aString length];
+        unichar *buffer = new unichar[length > 0 ? length : 1];
+        [aString getCharacters:buffer range:NSMakeRange(0, length)];
+        bool replaced = replacePreeditText((unsigned int)replacementRange.location, (unsigned int)replacementRange.length, (const unsigned short *)buffer, length);
+        delete[] buffer;
+        if (replaced)
+        {
+            return;
+        }
+    }
+
     // SL-19801 Special workaround for system emoji picker
     if ([aString length] == 2)
     {
@@ -794,15 +980,12 @@ attributedStringInfo getSegments(NSAttributedString *str)
                 callUnicodeCallback([aString characterAtIndex:i], mModifiers);
             }
         } else {
-            resetPreedit();
-            // We may never get this point since unmarkText may be called before insertText ever gets called once we submit our text.
-            // But just in case...
+            [self clearMarkedText];
 
             for (NSInteger i = 0; i < [aString length]; i++)
             {
                 handleUnicodeCharacter([aString characterAtIndex:i]);
             }
-            mHasMarkedText = FALSE;
         }
     }
     @catch(NSException * e)
@@ -841,6 +1024,10 @@ attributedStringInfo getSegments(NSAttributedString *str)
     {
         [self insertNewline:self];
     }
+    else if (mKeyDownWithheld)
+    {
+        mForwardWithheldKeyDown = true;
+    }
 }
 
 - (BOOL)drawsVerticallyForCharacterAtIndex:(NSUInteger)charIndex
@@ -850,6 +1037,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) allowMarkedTextInput:(bool)allowed
 {
+    if (mMarkedTextAllowed != allowed)
+    {
+        // Focus moved to a control with a different input mode. Whatever the input method
+        // was still composing for the previous control must not carry over into this one
+        // (e.g. a syllable typed while a button had focus). Any marked text of ours was
+        // already committed by interruptLanguageTextInput() before we get here.
+        [[self inputContext] discardMarkedText];
+    }
     mMarkedTextAllowed = allowed;
 }
 
@@ -881,6 +1076,87 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (void) setGLView:(LLOpenGLView *)view
 {
     glview = view;
+    // Text in the Input Window may already have been sent to the viewer, so it must not be changed behind its back.
+    [self setContinuousSpellCheckingEnabled:NO];
+    [self setAutomaticSpellingCorrectionEnabled:NO];
+    [self setAutomaticTextReplacementEnabled:NO];
+    [self setAutomaticQuoteSubstitutionEnabled:NO];
+    [self setAutomaticDashSubstitutionEnabled:NO];
+}
+
+- (void) dealloc
+{
+    [mViewerText release];
+    [super dealloc];
+}
+
+// The text of the window without the marked text, which is what the viewer has received.
+- (NSString *) committedText
+{
+    NSString *text = [self string];
+    if ([self hasMarkedText])
+    {
+        NSMutableString *committed = [[text mutableCopy] autorelease];
+        [committed deleteCharactersInRange:NSIntersectionRange([self markedRange], NSMakeRange(0, [text length]))];
+        return committed;
+    }
+    return text;
+}
+
+// Text in the Input Window is kept after it has been sent to the viewer, because input methods
+// may still replace it (e.g. Korean) and the user may edit it. The viewer's caret stays at the end
+// of what it received, so an edit anywhere in the window is passed on as Backspace for the old text
+// from the first difference, followed by the new text from there.
+- (void) syncViewerText
+{
+    NSString *text = [[[self committedText] copy] autorelease];
+    NSString *sent = mViewerText ? mViewerText : @"";
+    NSUInteger common = 0;
+    const NSUInteger max_common = MIN([sent length], [text length]);
+    while (common < max_common && [sent characterAtIndex:common] == [text characterAtIndex:common])
+    {
+        ++common;
+    }
+    // Do not split a character made of several code units (e.g. an emoji or a combining mark).
+    if (common < [sent length])
+    {
+        common = [sent rangeOfComposedCharacterSequenceAtIndex:common].location;
+    }
+    if (common < [text length])
+    {
+        common = MIN(common, [text rangeOfComposedCharacterSequenceAtIndex:common].location);
+    }
+
+    __block NSUInteger removed = 0;
+    [sent enumerateSubstringsInRange:NSMakeRange(common, [sent length] - common)
+                             options:NSStringEnumerationByComposedCharacterSequences | NSStringEnumerationSubstringNotRequired
+                          usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) { ++removed; }];
+    for (NSUInteger i = 0; i < removed; ++i)
+    {
+        [glview sendBackspaceToViewer];
+    }
+    if (common < [text length])
+    {
+        [glview insertText:[text substringFromIndex:common] replacementRange:NSMakeRange(NSNotFound, 0)];
+    }
+
+    [mViewerText release];
+    mViewerText = [text retain];
+}
+
+// Called after each edit by the user or an input method (not for setString:).
+- (void) didChangeText
+{
+    [super didChangeText];
+    [self syncViewerText];
+}
+
+// Text set here is not typed text: the window starts over from it.
+- (void) setString:(NSString *)string
+{
+    [super setString:string];
+    [mViewerText release];
+    mViewerText = [[self committedText] copy];
 }
 
 - (void)keyDown:(NSEvent *)theEvent
@@ -891,10 +1167,23 @@ attributedStringInfo getSegments(NSAttributedString *str)
     [super keyDown:theEvent];
 }
 
+- (void)deleteBackward:(id)sender
+{
+    if ([[self string] length] == 0)
+    {
+        // Nothing left in the window: Backspace edits the text in the viewer.
+        [glview sendBackspaceToViewer];
+        return;
+    }
+    [super deleteBackward:sender];
+    [self syncViewerText];
+}
+
 // setMarkedText: is called for incomplete input(on the way to conversion).
 - (void)setMarkedText:(id)aString selectedRange:(NSRange)selectedRange replacementRange:(NSRange)replacementRange
 {
     [super setMarkedText:aString selectedRange:selectedRange replacementRange:replacementRange];
+    [self syncViewerText];
     if ([aString length] == 0)      // this means Input Widow becomes empty
     {
         [self.window orderOut:self.window];     // Close this to avoid empty Input Window
@@ -909,9 +1198,24 @@ attributedStringInfo getSegments(NSAttributedString *str)
 //          In case of user typed next letter after conversion
 - (void) insertText:(id)aString replacementRange:(NSRange)replacementRange
 {
-    [[self inputContext] discardMarkedText];
-    [self setString:@""];
-    [glview insertText:aString replacementRange:replacementRange];
+    bool composing = [self hasMarkedText];
+    // Input methods that compose by replacing text they inserted before (e.g. Korean) are still editing it.
+    bool replacing = !composing && replacementRange.location != NSNotFound && replacementRange.length > 0;
+
+    // Let NSTextView finish the composition itself. Calling discardMarkedText here
+    // made the input method drop the syllable it had just started (e.g. Korean),
+    // which emptied and closed the Input Window after every key.
+    [super insertText:aString replacementRange:replacementRange];
+    [self syncViewerText];
+    if (composing)
+    {
+        // Committed from marked text: the input method does not edit it any more.
+        [self setString:@""];
+    }
+    if (replacing)
+    {
+        return;
+    }
     if (mKeyPressed == NSEnterCharacter ||
         mKeyPressed == NSBackspaceCharacter ||
         mKeyPressed == NSTabCharacter ||
