@@ -1015,6 +1015,8 @@ void LLWindowMacOSX::gatherInput(bool app_has_focus)
 {
     updateCursor();
     LLGameControl::processEvents(app_has_focus);
+    // Cocoa event handling can change the current context between frames.
+    restoreGLContext();
 }
 
 bool LLWindowMacOSX::getPosition(LLCoordScreen *position) const
@@ -1142,6 +1144,7 @@ void LLWindowMacOSX::swapBuffers()
 void LLWindowMacOSX::restoreGLContext()
 {
     CGLSetCurrentContext(mContext);
+    llassert(CGLGetCurrentContext() == mContext);
 }
 
 F32 LLWindowMacOSX::getGamma() const
