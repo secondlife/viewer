@@ -29,12 +29,20 @@
 #ifndef LL_LLSPEAKINGINDICATORMANAGER_H
 #define LL_LLSPEAKINGINDICATORMANAGER_H
 
+#include <unordered_set>
+
 class SpeakingIndicatorManager;
 
 class LLSpeakingIndicator
 {
 public:
-    virtual ~LLSpeakingIndicator(){}
+    LLSpeakingIndicator() { sLiveIndicators.insert(this); }
+    virtual ~LLSpeakingIndicator() { sLiveIndicators.erase(this); }
+
+    // True while the indicator exists. SpeakingIndicatorManager checks this before
+    // calling an indicator, so one destroyed while still registered can't crash it.
+    static bool isLive(const LLSpeakingIndicator* indicator) { return sLiveIndicators.count(indicator) != 0; }
+
     virtual void switchIndicator(bool switch_on) = 0;
 
 private:
@@ -51,6 +59,8 @@ private:
      *      which has the same session id (EXT-5562).
      */
     LLUUID mTargetSessionID;
+
+    static std::unordered_set<const LLSpeakingIndicator*> sLiveIndicators;
 };
 
 // See EXT-3976.
