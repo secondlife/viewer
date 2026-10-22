@@ -3027,6 +3027,30 @@ static void override_bbox(LLDrawable* drawable, LLVector4a* extents)
     drawable->movePartition();
 }
 
+// agent space center/half-size box of this avatar, stamped onto its attachment
+// bridges (below) and its animesh bridge (LLControlAvatar::idleUpdate) so its
+// whole alpha ensemble sorts as one block. LLPipeline::postSort derives the
+// sort depth from it with the cull camera via LLSpatialPartition::calcAlphaDepth,
+// the same metric world alpha groups use. From the animated extents, so
+// avatars sharing a sit target still order deterministically. Called after
+// updateCharacter: the pelvis has moved this frame but mLastAnimExtents has
+// not, so apply the shift updateSpatialExtents will.
+void LLVOAvatar::getAlphaSortBounds(LLVector4a* bounds) const
+{
+    const LLVector3 center = (mLastAnimExtents[0] + mLastAnimExtents[1]) * 0.5f;
+    const LLVector3 half = (mLastAnimExtents[1] - mLastAnimExtents[0]) * 0.5f;
+    if (!mPelvisp || mLastAnimExtents[0] == LLVector3() || mLastAnimExtents[1] == LLVector3() ||
+        !center.isFinite() || !half.isFinite())
+    { // extents not computed yet (or unusable)
+        bounds[0].load3(getRenderPosition().mV);
+        bounds[1].clear();
+        return;
+    }
+
+    bounds[0].load3((center + mPelvisp->getWorldPosition() - mLastAnimBasePos).mV);
+    bounds[1].load3(half.mV);
+}
+
 void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
@@ -3044,6 +3068,8 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
     if (detailed_update)
     {
         U32 draw_order = 0;
+        LLVector4a alpha_bounds[2];
+        getAlphaSortBounds(alpha_bounds);
         bool attachment_selected = LLSelectMgr::getInstance()->getSelection()->getObjectCount() > 0 && LLSelectMgr::getInstance()->getSelection()->isAttachment();
         for (const auto& [attachment_point_id, attachment] : mAttachmentPoints)
         {
@@ -3104,13 +3130,18 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
                             bridge->setState(LLDrawable::MOVE_UNDAMPED);
                             bridge->updateMove();
                             bridge->setState(LLDrawable::EARLY_MOVE);
+                        }
 
-                            LLSpatialGroup* group = attached_object->mDrawable->getSpatialGroup();
-                            if (group)
-                            { //set draw order of group
-                                group->mAvatarp = this;
-                                group->mRenderOrder = draw_order++;
-                            }
+                        //stamp the attachment's draw order and the avatar's
+                        //alpha sort bounds; LLPipeline::postSort
+                        //fans it out to the bridge's alpha groups, sorting the
+                        //wearer's whole ensemble at one avatar depth. HUD alpha
+                        //sorts in HUD space, so unrigged HUDs stay unstamped.
+                        //Stale-safe: mUpdatePeriod > 1 implies isImpostor(),
+                        //whose attachments never enter the live alpha streams
+                        if (rigged || !attached_object->isHUDAttachment())
+                        {
+                            bridge->setAlphaSortStamp(this, draw_order++, alpha_bounds);
                         }
                     }
 
