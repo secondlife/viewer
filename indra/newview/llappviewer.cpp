@@ -5459,6 +5459,7 @@ void LLAppViewer::idle()
             S32 pixel_x = llclamp(cursor_pos.mX, 0, rect_width);
             S32 pixel_y = llclamp(rect_height - cursor_pos.mY, 0, rect_height);
             LLGameControl::setMouseCursorPosition(pixel_x, pixel_y, rect_width, rect_height);
+            LLGameControl::setMouseCursorButtons(gViewerWindow->getLeftMouseDown(), gViewerWindow->getRightMouseDown());
         }
 
         if (LLPanelPreferenceGameControl::isWaitingForInputChannel())

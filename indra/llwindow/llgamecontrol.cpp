@@ -431,6 +431,7 @@ public:
     void getFlycamInputs(std::vector<F32>& inputs_out, U32& misc_actions_out, U32& modifiers_out);
     void setExternalInput(U32 action_flags, U32 buttons, bool is_running);
     void setMouseCursorPosition(S32 pixel_x, S32 pixel_y, S32 rect_width, S32 rect_height);
+    void setMouseCursorButtons(bool left_down, bool right_down);
 
     // Rebuild mAxisActionBindings/mButtonActionLabels from the global ModeMappings
     // for the currently-active AgentControlMode.  Cheap; called on settings change
@@ -484,6 +485,12 @@ private:
     S32 mMouseCursorPixelY { 0 };
     S32 mMouseCursorRectWidth { 0 };
     S32 mMouseCursorRectHeight { 0 };
+
+    // Fed in via setMouseCursorButtons(); consumed by computeSemanticState() to set
+    // CONTROL_MODE_CURSOR's "Mouse click left"/"Mouse click right" ModeButtons bits
+    // from the real mouse buttons.
+    bool mMouseCursorButtonLeft { false };
+    bool mMouseCursorButtonRight { false };
 
     // Runtime action lookup for the active AgentControlMode, rebuilt from the
     // global ModeMappings whenever settings or the active mode change.  Each entry
@@ -2897,6 +2904,29 @@ void LLGameControllerManager::computeSemanticState(LLGameControl::ServerState& s
         }
     }
 
+    // In Cursor mode the real mouse buttons also count as "Mouse click left"/"Mouse
+    // click right", so a click with the hardware mouse looks the same to LSL as one
+    // simulated by a controller button.
+    if (g_agentControlMode == LLGameControl::CONTROL_MODE_CURSOR)
+    {
+        static const struct { const char* label; bool LLGameControllerManager::* down; } MOUSE_BUTTONS[] = {
+            { "Mouse click left",  &LLGameControllerManager::mMouseCursorButtonLeft  },
+            { "Mouse click right", &LLGameControllerManager::mMouseCursorButtonRight },
+        };
+        for (const auto& mouse_button : MOUSE_BUTTONS)
+        {
+            if (!(this->*mouse_button.down))
+            {
+                continue;
+            }
+            auto it = default_slots.find(mouse_button.label);
+            if (it != default_slots.end())
+            {
+                new_semantic_buttons |= (1U << it->second);
+            }
+        }
+    }
+
     U32 old_semantic_buttons = state.mSemanticButtons;
     state.mPrevSemanticButtons = old_semantic_buttons;
     state.mSemanticButtons = new_semantic_buttons;
@@ -3114,6 +3144,12 @@ void LLGameControllerManager::setMouseCursorPosition(S32 pixel_x, S32 pixel_y, S
     mMouseCursorPixelY = pixel_y;
     mMouseCursorRectWidth = rect_width;
     mMouseCursorRectHeight = rect_height;
+}
+
+void LLGameControllerManager::setMouseCursorButtons(bool left_down, bool right_down)
+{
+    mMouseCursorButtonLeft = left_down;
+    mMouseCursorButtonRight = right_down;
 }
 
 void LLGameControllerManager::clear()
@@ -4012,6 +4048,12 @@ void LLGameControl::setExternalInput(U32 action_flags, U32 buttons, bool is_runn
 void LLGameControl::setMouseCursorPosition(S32 pixel_x, S32 pixel_y, S32 rect_width, S32 rect_height)
 {
     g_manager.setMouseCursorPosition(pixel_x, pixel_y, rect_width, rect_height);
+}
+
+// static
+void LLGameControl::setMouseCursorButtons(bool left_down, bool right_down)
+{
+    g_manager.setMouseCursorButtons(left_down, right_down);
 }
 
 //static
