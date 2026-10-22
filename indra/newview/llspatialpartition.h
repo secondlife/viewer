@@ -314,7 +314,14 @@ public:
                 return std::less<const LLVOAvatar*>()(lhs->mAvatarp, rhs->mAvatarp);
             }
 
-            return lhs->mRenderOrder > rhs->mRenderOrder;
+            if (lhs->mRenderOrder != rhs->mRenderOrder)
+            {
+                return lhs->mRenderOrder > rhs->mRenderOrder;
+            }
+
+            // octree nodes of one rigged linkset tie on every key above and
+            // write depth, so pin their order across frames
+            return std::less<const LLSpatialGroup*>()(lhs, rhs);
         }
     };
 
