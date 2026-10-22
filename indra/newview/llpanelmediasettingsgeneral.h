@@ -89,6 +89,7 @@ private:
     LLCheckBoxCtrl* mAutoZoom;
     LLCheckBoxCtrl* mAutoPlay;
     LLCheckBoxCtrl* mAutoScale;
+    LLCheckBoxCtrl* mTransparentBackground;
     LLSpinCtrl* mWidthPixels;
     LLSpinCtrl* mHeightPixels;
     LLLineEditor* mHomeURL;
