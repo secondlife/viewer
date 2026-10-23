@@ -327,14 +327,10 @@ class LLEmbeddedBrowserTab
         // returns, the previous sink is guaranteed not to be called again, so the caller may
         // tear it down immediately.
         void setAudioSink(std::shared_ptr<LLEmbeddedBrowserAudioSink> sink);
-        // True once the producer has granted audio capture for this tab's current
-        // connection (see kSlotFlagAudioCapture). The audio only actually comes through the
-        // sink while the claim is held too -- see isAudioClaimed(). Stays at its last value
-        // across a disconnect until the next connection decides afresh.
-        bool isAudioCaptured() const;
-        // True while this tab actually holds the claim on its granted audio channel -- the
-        // producer only hands audio over (rather than playing it itself) while it does, so
-        // this, not isAudioCaptured(), is when a sink is actually needed. Any thread.
+        // True while this tab actually holds the claim on the audio channel the producer
+        // granted it (see kSlotFlagAudioCapture) -- the producer only hands audio over
+        // (rather than playing it itself) while it does, so this is when a sink is actually
+        // needed. Any thread.
         bool isAudioClaimed() const;
         // Gives up this connection's audio channel claim (on the update thread's next pass),
         // so the producer plays this tab's audio itself again -- for when there turns out to
@@ -373,8 +369,8 @@ class LLEmbeddedBrowserTab
         std::chrono::steady_clock::time_point mNextAudioClaimAttempt;
         std::chrono::steady_clock::time_point mAudioClaimDeadline;
         bool mAudioClaimLogged = false;
+        bool mAudioClaimWarned = false; // the "still can't be claimed" warning -- separate, so a late success still logs
         const bool mAudioCapture;
-        std::atomic<bool> mAudioCaptured{false};
         std::atomic<bool> mAudioClaimed{false}; // see isAudioClaimed() -- written by the update thread
         std::atomic<bool> mAudioDeclined{false}; // see declineAudioCapture()
         // Guards mAudioSink, and is held for the whole of each sink call -- that's what lets
@@ -510,7 +506,6 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void respondToQuery(unsigned int id, long long queryId, bool success, const std::string& response, int errorCode = 0);
         bool popEvent(unsigned int id, LLEmbeddedBrowserEvent& out_event);
         void setAudioSink(unsigned int id, std::shared_ptr<LLEmbeddedBrowserAudioSink> sink);
-        bool isAudioCaptured(unsigned int id);
         bool isAudioClaimed(unsigned int id);
         void declineAudioCapture(unsigned int id);
 

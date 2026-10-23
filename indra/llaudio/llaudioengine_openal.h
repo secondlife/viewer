@@ -211,7 +211,8 @@ class LLStreamedAudioSourceOpenAL : public LLStreamedAudioSource
         // Thresholds are kept in time, not frames, since the frame rate can change.
         const U32 mPrebufferMs;
         // The rate pushPCM() is currently being fed at (0 until the first push) -- written
-        // by the feeder, acted on by updateAL().
+        // by the feeder, acted on by updateAL(); fill() holds silent while it differs from
+        // mPlayRate.
         std::atomic<U32> mStreamRate{0};
         // The rate mALBuffer is actually specified at -- written by the main thread, read
         // by fill()/getStats().

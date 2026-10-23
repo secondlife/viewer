@@ -232,9 +232,9 @@ void LLStreamingAudio_LibVLC::pumpAudio()
         }
         if (!mAudioSub->owns_command_channel())
         {
-            if (!mAudioClaimLogged && now >= mAudioClaimDeadline)
+            if (!mAudioClaimWarned && now >= mAudioClaimDeadline)
             {
-                mAudioClaimLogged = true;
+                mAudioClaimWarned = true;
                 LL_WARNS("MediaAudio") << "Parcel audio capture granted on " << mAudioChannelName
                     << " but the channel still can't be claimed (connected="
                     << (mAudioSub->connected() ? "yes" : "no") << ") -- still retrying" << LL_ENDL;
@@ -247,6 +247,7 @@ void LLStreamingAudio_LibVLC::pumpAudio()
     {
         mAudioClaimLogged = true;
         LL_INFOS("MediaAudio") << "Parcel audio capture granted on " << mAudioChannelName
+            << (mAudioClaimWarned ? " (claimed after retrying)" : "")
             << " -- parcel audio now plays through the Viewer" << LL_ENDL;
     }
 
@@ -410,6 +411,7 @@ void LLStreamingAudio_LibVLC::update()
                         mAudioChannelName = kVlcAudioChannelPrefix + std::to_string(index);
                         mAudioSub = LLSubscriber::open(mAudioChannelName);
                         mAudioClaimLogged = false;
+        mAudioClaimWarned = false;
                         mAudioClaimDeadline = now + kAudioClaimWarnAfter;
                         mNextAudioClaimAttempt = now + kAudioClaimRetryInterval;
                     }

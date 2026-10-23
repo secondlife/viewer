@@ -252,10 +252,10 @@ bool LLEmbeddedBrowserTab::connectToProducer()
         mAudioChannelName = audio_prefix + std::to_string(index);
         mAudioSub = LLSubscriber::open(mAudioChannelName);
         mAudioClaimLogged = false;
+        mAudioClaimWarned = false;
         mAudioClaimDeadline = std::chrono::steady_clock::now() + kAudioClaimWarnAfter;
         mNextAudioClaimAttempt = std::chrono::steady_clock::now() + kAudioClaimRetryInterval;
     }
-    mAudioCaptured.store(mAudioSub != nullptr);
     mAudioClaimed.store(false);
 
     LLMutexLock lock(&mPixelMutex);
@@ -518,9 +518,9 @@ void LLEmbeddedBrowserTab::pumpAudio()
         }
         if (!mAudioSub->owns_command_channel())
         {
-            if (!mAudioClaimLogged && now >= mAudioClaimDeadline)
+            if (!mAudioClaimWarned && now >= mAudioClaimDeadline)
             {
-                mAudioClaimLogged = true;
+                mAudioClaimWarned = true;
                 LL_WARNS("EmbeddedBrowser") << "Audio capture granted on " << mAudioChannelName
                     << " but the channel still can't be claimed (connected="
                     << (mAudioSub->connected() ? "yes" : "no") << ") -- still retrying" << LL_ENDL;
@@ -535,6 +535,7 @@ void LLEmbeddedBrowserTab::pumpAudio()
     {
         mAudioClaimLogged = true;
         LL_INFOS("EmbeddedBrowser") << "Audio capture granted on " << mAudioChannelName
+            << (mAudioClaimWarned ? " (claimed after retrying)" : "")
             << " -- this tab's audio now plays through the Viewer" << LL_ENDL;
     }
 
@@ -587,11 +588,6 @@ void LLEmbeddedBrowserTab::setAudioSink(std::shared_ptr<LLEmbeddedBrowserAudioSi
         mAudioSink = std::move(sink);
     }
     // old_sink released here, outside the lock -- by now pumpAudio() can't be inside it.
-}
-
-bool LLEmbeddedBrowserTab::isAudioCaptured() const
-{
-    return mAudioCaptured.load();
 }
 
 bool LLEmbeddedBrowserTab::isAudioClaimed() const
@@ -1603,12 +1599,6 @@ void LLEmbeddedBrowser::setAudioSink(unsigned int id, std::shared_ptr<LLEmbedded
     {
         tab->setAudioSink(std::move(sink));
     }
-}
-
-bool LLEmbeddedBrowser::isAudioCaptured(unsigned int id)
-{
-    auto tab = findTab(id);
-    return tab && tab->isAudioCaptured();
 }
 
 bool LLEmbeddedBrowser::isAudioClaimed(unsigned int id)

@@ -773,8 +773,9 @@ bool LLStreamedAudioSourceOpenAL::initAL(LPALBUFFERCALLBACKSOFT buffer_callback_
     // Starts pinned to the listener (a spatial source moves into the world on its first
     // setPositionGlobal()). Never distance-attenuated by OpenAL, either way: the caller's
     // own gain carries distance falloff, so it keeps its existing curve and settings
-    // (MediaRollOff*) rather than switching to OpenAL's distance model. No velocity
-    // either -- Doppler would pitch-shift a live stream and skew its buffer fill level.
+    // (MediaRollOff*) rather than switching to OpenAL's distance model. No Doppler
+    // either -- it would pitch-shift a live stream and skew its buffer fill level; see
+    // setPositionGlobal() for how that's kept true once the source is in the world.
     alSourcei(mALSource, AL_SOURCE_RELATIVE, AL_TRUE);
     alSource3f(mALSource, AL_POSITION, 0.f, 0.f, 0.f);
     alSource3f(mALSource, AL_VELOCITY, 0.f, 0.f, 0.f);
@@ -866,6 +867,16 @@ void LLStreamedAudioSourceOpenAL::setPositionGlobal(const LLVector3d& pos_global
     LLVector3 float_pos;
     float_pos.setVec(pos_global);
     alSourcefv(mALSource, AL_POSITION, float_pos.mV);
+
+    // Doppler comes from the source's velocity relative to the listener's, and the
+    // listener moves with the avatar (see audio_update_listener()) -- so a zero source
+    // velocity still pitch-shifts the stream whenever the avatar walks or flies, and makes
+    // the mixer pull from the ring faster or slower than it's fed. Matching the listener's
+    // velocity cancels it out; refreshed every frame, since the caller sets the position
+    // every frame. A head-relative source needs none of this (see clearPosition()).
+    ALfloat listener_velocity[3] = { 0.f, 0.f, 0.f };
+    alGetListenerfv(AL_VELOCITY, listener_velocity);
+    alSourcefv(mALSource, AL_VELOCITY, listener_velocity);
 }
 
 void LLStreamedAudioSourceOpenAL::clearPosition()
@@ -877,6 +888,7 @@ void LLStreamedAudioSourceOpenAL::clearPosition()
     mHeadRelative = true;
     alSourcei(mALSource, AL_SOURCE_RELATIVE, AL_TRUE);
     alSource3f(mALSource, AL_POSITION, 0.f, 0.f, 0.f);
+    alSource3f(mALSource, AL_VELOCITY, 0.f, 0.f, 0.f); // relative to the listener now
 }
 
 void LLStreamedAudioSourceOpenAL::pushPCM(const F32* interleaved, U32 frames, U32 sample_rate, U32 channels)
@@ -1002,6 +1014,20 @@ void LLStreamedAudioSourceOpenAL::fill(F32* out, U32 frames) noexcept
     U64 available = write_pos - read_pos;
 
     const U32 rate = mPlayRate.load(std::memory_order_relaxed);
+
+    // pushPCM() has started feeding a different rate than mALBuffer is specified at, and
+    // updateAL() hasn't rebound it yet -- that waits for the main thread, which can stall
+    // for longer than the prebuffer (a teleport, a heavy frame). Playing on would run the
+    // new samples at the old rate (e.g. CEF's 44.1kHz ~9% fast on the default 48kHz) and
+    // judge prebuffer/latency in the wrong units, so hold silent instead, consuming
+    // nothing; once rebound, the latency cap below drops whatever backlog built up. Read
+    // after mWritePos's acquire, so it's at least as new as the samples counted above.
+    const U32 stream_rate = mStreamRate.load(std::memory_order_relaxed);
+    if (stream_rate != 0 && stream_rate != rate)
+    {
+        std::fill(out, out + (size_t)frames * mChannels, 0.f);
+        return;
+    }
     const U64 prebuffer_frames = (U64)mPrebufferMs * rate / 1000;
     const U64 max_latency_frames = (U64)MAX_LATENCY_MS * rate / 1000;
 

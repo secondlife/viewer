@@ -143,6 +143,7 @@ private:
     std::chrono::steady_clock::time_point mNextAudioClaimAttempt{};
     std::chrono::steady_clock::time_point mAudioClaimDeadline{};
     bool mAudioClaimLogged = false;
+    bool mAudioClaimWarned = false; // the "still can't be claimed" warning -- separate, so a late success still logs
     std::vector<float> mAudioScratch;    // aligned copy of one packet's samples
 };
 
