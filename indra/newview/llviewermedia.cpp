@@ -865,8 +865,9 @@ static const F32 EMBEDDED_BROWSER_VOLUME_EPSILON = 0.01f;
 class LLEmbeddedBrowserAudioToStream : public LLEmbeddedBrowserAudioSink
 {
 public:
-    explicit LLEmbeddedBrowserAudioToStream(std::shared_ptr<LLStreamedAudioSource> stream)
-        : mStream(std::move(stream))
+    LLEmbeddedBrowserAudioToStream(std::shared_ptr<LLStreamedAudioSource> stream,
+                                   std::atomic<bool>& captured)
+        : mStream(std::move(stream)), mCaptured(captured)
     {
     }
 
@@ -874,6 +875,7 @@ public:
                        unsigned int channels) override
     {
         mStream->pushPCM(interleaved, frames, sampleRate, channels);
+        mCaptured.store(true);
     }
 
     void onAudioStreamStopped() override
@@ -883,6 +885,7 @@ public:
 
 private:
     std::shared_ptr<LLStreamedAudioSource> mStream;
+    std::atomic<bool>& mCaptured;
 };
 
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE("Update Media");
@@ -2808,13 +2811,18 @@ void LLViewerMediaImpl::updateVolume()
             // to a producer that declines capture.
             sendEmbeddedBrowserProducerVolume(volume);
 
-            if (isEmbeddedBrowserAudioClaimed())
+            const bool audio_captured = isEmbeddedBrowserAudioClaimed() &&
+                (mEmbeddedBrowserBackend != LLEmbeddedBrowserBackend::Cef ||
+                 mEmbeddedBrowserAudioCaptured.load());
+            if (audio_captured)
             {
                 // The producer is handing this tab's audio to us rather than playing it
                 // (see mEmbeddedBrowserAudio), so the full, continuous rolloff curve goes
-                // straight onto the stream. Excluding master: OpenAL already applies that as
-                // its listener gain. Set every frame rather than deduped -- it's a local
-                // engine call, not an IPC opcode.
+                // straight onto the stream. A claim alone isn't enough: an already-playing
+                // CEF stream remains on native output until it ends, so keep its effective DOM
+                // volume until captured PCM reaches the Viewer. Excluding master: OpenAL
+                // already applies that as its listener gain. Set every frame rather than
+                // deduped -- it's a local engine call, not an IPC opcode.
                 const F32 gain = local_volume * LLViewerMedia::getInstance()->getVolumeExcludingMaster();
                 if (mEmbeddedBrowserAudio)
                 {
@@ -5666,6 +5674,7 @@ void LLViewerMediaImpl::updateEmbeddedBrowserAudioSource()
     }
 
     static LLCachedControl<U32> audio_prebuffer_ms(gSavedSettings, "EmbeddedBrowserAudioPrebufferMs");
+    mEmbeddedBrowserAudioCaptured.store(false);
     mEmbeddedBrowserAudio = gAudiop->createStreamedSource(audio_prebuffer_ms(), mEmbeddedBrowserAudioSpatial);
     if (!mEmbeddedBrowserAudio)
     {
@@ -5680,13 +5689,15 @@ void LLViewerMediaImpl::updateEmbeddedBrowserAudioSource()
         return;
     }
     LLEmbeddedBrowser::getInstance()->setAudioSink(mEmbeddedBrowserId,
-        std::make_shared<LLEmbeddedBrowserAudioToStream>(mEmbeddedBrowserAudio));
+        std::make_shared<LLEmbeddedBrowserAudioToStream>(mEmbeddedBrowserAudio,
+                                                        mEmbeddedBrowserAudioCaptured));
 }
 
 void LLViewerMediaImpl::releaseEmbeddedBrowserAudio()
 {
     if (!mEmbeddedBrowserAudio)
     {
+        mEmbeddedBrowserAudioCaptured.store(false);
         return;
     }
 
@@ -5694,6 +5705,7 @@ void LLViewerMediaImpl::releaseEmbeddedBrowserAudio()
     // pushing into this stream, so releasing it here (on the main thread, where its OpenAL
     // teardown has to happen) is safe.
     LLEmbeddedBrowser::getInstance()->setAudioSink(mEmbeddedBrowserId, nullptr);
+    mEmbeddedBrowserAudioCaptured.store(false);
     const LLStreamedAudioSource::Stats stats = mEmbeddedBrowserAudio->getStats();
     LL_INFOS("MediaAudio") << "Embedded-browser audio stream closed (id=" << mTextureId
         << "): underruns=" << stats.mUnderruns << " overruns=" << stats.mOverruns

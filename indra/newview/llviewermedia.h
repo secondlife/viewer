@@ -46,6 +46,7 @@
 #include "llcorehttputil.h"
 #include "llembeddedbrowser.h"
 
+#include <atomic>
 #include <vector>
 
 class LLViewerMediaImpl;
@@ -592,6 +593,9 @@ private:
     // LLEmbeddedBrowser::isAudioClaimed(), sampled once per update() by
     // updateEmbeddedBrowserAudioSource() -- see isEmbeddedBrowserAudioClaimed().
     bool mEmbeddedBrowserAudioClaimed = false;
+    // Set when captured PCM reaches the Viewer. A channel claim can precede capture of an
+    // already-playing CEF stream, which continues through native output until it ends.
+    std::atomic<bool> mEmbeddedBrowserAudioCaptured{false};
     // Rate-limits updateVolume()'s periodic MediaAudio diagnostic line.
     LLFrameTimer mEmbeddedBrowserAudioLogTimer;
     // Where mEmbeddedBrowserAudio should sound from, refreshed by calculateInterest() from
