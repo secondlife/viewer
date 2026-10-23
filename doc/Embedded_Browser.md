@@ -911,47 +911,185 @@ injected script actually ran or what it did. Look for the `MediaVolume` tag
 in the Viewer log for the mute decision and JS-injected volume value on
 every real change.
 
-**Raw PCM audio capture (`EmbeddedBrowserCefAudioCapture`), a second path
-alongside the JS-injected one above, not a replacement for it yet.** CEF's
-`CefAudioHandler` hands over the browser's own already-mixed audio output as
-planar float32 PCM, below the DOM/JS layer entirely - this sidesteps all
-three gaps listed above at once, since it doesn't matter where in the
-page's frame tree or JS/WASM stack the audio originates by the time CEF
-hands it over. Off by default (new settings.xml debug boolean,
-`EmbeddedBrowserCefAudioCapture`); when on, every CEF-backed tab registers
-`SetOnAudioStreamStartedCallback`/`SetOnAudioStreamPacketCallback`/
-`SetOnAudioStreamStoppedCallback`/`SetOnAudioStreamErrorCallback` in
-`llcefbrowser`, `SLCefProducer.exe` mutes that tab's native CEF audio output
-(avoiding double playback) and forwards the three wire-visible events
-(`kAudioStreamStarted`/`kAudioPacket`/`kAudioStreamStopped` -
-`OnAudioStreamError` is logged producer-side only, not forwarded) over that
-tab's existing command channel, sized up from the default 4096 bytes to
-16384 specifically for an audio-capturing slot (a real packet, confirmed via
-a real captured `slcefproducer_log.txt`, is CEF's own well-known default of
-1024 frames/channel @ 44100Hz stereo: a 12-byte header plus 8192 bytes of
-planar float32 PCM = 8204 bytes -- an earlier guess of ~480 frames @ 48kHz
-had this at exactly 8192, 12 bytes too small, silently failing every single
-`send()` until caught by real producer-side logging during Callum's own
-end-to-end test) - validated against a real, not just arithmetic, throughput
-check (`llshmframe`'s own `test_audio_packet_throughput`, 0 drops over a real
-3-second run with realistic producer/consumer pacing and a simulated render
-hitch). The Viewer-side handoff point is `LLEmbeddedBrowser::popAudioPacket()`,
-mirroring `popEvent()`'s own FIFO-drain shape but kept on its own queue/mutex
-since audio packets arrive far more often than UI events. Nothing in this
-Viewer repo consumes that handoff yet - wiring it into OpenAL for real
-distance/volume/3D-positioned playback is separate, follow-on work.
-
-**Known gap: capture is unreliable on the pre-login splash page specifically.**
-Extensive testing (2026-10-07/08) found capture works reliably for every
-real post-login scenario (prim media, the Media Debug floater, single or
-multiple simultaneous capturing tabs) but not on the splash/login screen
+**Known gap: CEF audio capture is unreliable on the pre-login splash page
+specifically.** Extensive testing (2026-10-07/08) found capture works reliably
+for every real post-login scenario (prim media, the Media Debug floater, single
+or multiple simultaneous capturing tabs) but not on the splash/login screen
 before the user has actually logged in - CEF asks for audio parameters but
 never starts a real stream there, regardless of mute state, profile
 freshness, or how many browsers are alive. Root cause not fully understood
 (plausibly tied to the Viewer's own audio engine not yet producing any real
 output pre-login, affecting whether the OS audio device/Chromium's shared
-audio service is "warm"); not chased further since no real usage of this
-feature happens before login.
+audio service is "warm"); not chased further since no real usage of audio
+capture happens before login.
+
+## Audio through the Viewer's own OpenAL engine (in progress)
+
+Everything in "Volume" above is a consequence of each producer playing its
+tabs' audio itself, out of the Viewer's reach. This work moves playback into
+the Viewer instead: a producer can hand a slot's audio over as PCM, and the
+Viewer plays it through `LLAudioEngine_OpenAL` like any other sound. That
+gives every tab a real, continuous gain (the full `MediaRollOff*` curve, no
+JS injection), and lets **prim media sound from its object's position in the
+world**, panned (and HRTF'd, where enabled) by OpenAL.
+
+**Status (2026-10-12):** done for both producers' prim/UI media - the
+transport, SLCefProducer's real audio capture (llCefBrowser v1.51.0's
+`CefAudioHandler` callbacks), SLVlcProducer's (`libvlc_audio_set_callbacks()`),
+Viewer-side playback and prim-media spatialization. CEF media was verified
+in-world with several YouTube prims playing at once; LibVLC capture was
+verified against a standalone harness (in-world RTSP/RTMP prim media not yet).
+Parcel/streaming music goes the same way: `LLStreamingAudio_LibVLC` requests
+capture on its audio-only SLVlcProducer slot and plays the result through a
+non-positional stream (not yet verified in-world). It drains its audio channel
+on a thread of its own, since its `update()` only runs once per frame, and
+takes the master volume back out of the music gain it's given, since OpenAL
+applies master itself. **On by default** (`EmbeddedBrowserAudioViaViewer`);
+turning it off puts both producers back to playing their own audio, exactly
+as before.
+
+This supersedes an earlier, parallel take on the CEF half
+(`EmbeddedBrowserCefAudioCapture`/`LLEmbeddedBrowser::popAudioPacket()`, which
+carried planar packets on the per-view channel); its capture callbacks and
+real-world format findings were carried over onto the transport below.
+
+**Protocol.** Negotiated per slot, and backward compatible in both
+directions:
+- `kRequestSlot` gains a 12th byte, `audioCapture`: "send me this slot's
+  audio instead of playing it". Size request buffers with
+  `kRequestSlotBytes`, never a literal.
+- `kSlotAssigned` gains a flags byte; `kSlotFlagAudioCapture` says whether
+  the producer actually granted it. A 4-byte reply (an older producer) means
+  no, and the Viewer keeps relying on the producer's own playback and the
+  mute/volume opcodes above.
+- Audio travels on its **own segment per slot** - `llcefshm_audio_<N>` /
+  `llvlcshm_audio_<N>`, frame-less, a 64-entry x 16KB command ring - never on
+  the per-view channel, whose ring would otherwise fill with ~40-100
+  packets/sec behind a briefly stalled consumer and starve `kEvent*` traffic.
+- `kAudioPacket` (46) is self-describing - `{seq, ptsUs, sampleRate,
+  channels, sampleFormat, frames, interleaved float32 samples}` - so a
+  reconnecting consumer never needs a separate format handshake, and the
+  format is whatever the source produces. For CEF that is **1024
+  frames/channel at 44.1kHz stereo (~23ms, ~8.2KB per packet)**, Chromium's
+  own capture default - not 10ms at 48kHz, as first assumed; producers split
+  anything that wouldn't fit the ring's packet size. A gap in `seq` means
+  lost audio.
+  `kAudioStreamStopped` (47) marks a deliberate stop, so the silence that
+  follows isn't counted as an underrun.
+- A slot granted capture only **hands its audio over while the Viewer holds
+  the audio channel's claim**. The claim is asynchronous (retried, never
+  guaranteed), so capturing from grant time left a silent gap after every
+  capture start and producer relaunch, and a slot whose claim never landed
+  stayed silent for good. Instead the producer plays the audio itself until
+  the claim lands, and again if it's ever dropped, following the latest
+  `kSetMuted`/`kSetVolume` - which is why the Viewer keeps sending those for
+  captured tabs too. The Viewer also only creates the tab's OpenAL stream
+  while it holds the claim, and gives the claim up if it can't create one.
+  - **SLCefProducer** registers llCefBrowser's capture callbacks on the claim
+    edge and clears them when it drops. Capture *redirects* CEF's audio -
+    once `GetAudioParameters()` accepts a stream, Chromium sends it to the
+    callbacks instead of the speakers, and no `SetAudioMuted()` brings it
+    back - so CEF is never muted on the claim's account. CEF only asks when
+    the page starts making sound (again only after 2s of quiet), so a stream
+    already playing when the claim lands keeps playing through CEF until it
+    ends, and one being captured when the claim drops stays redirected, and
+    silent, until it ends. The claim normally lands long before the page
+    makes any sound.
+  - **SLVlcProducer** can only pick libvlc's audio output when it creates a
+    player, so it starts out capturing, and only switches to libvlc's own
+    output (reopening the player at its current position) if the claim
+    hasn't landed within 3 seconds, or within 3 seconds of a dropped claim;
+    it switches back if the claim lands later.
+- All three in-repo copies of `cefshm_protocol.h` carry this. **The fourth,
+  llcefshm-example's own, still needs the same additions.**
+
+**Threads.** Each producer sends audio only from its main loop, keeping
+each audio ring single-writer as llshmframe requires. That matters for CEF:
+llCefBrowser's `OnAudioStreamPacket` fires on CEF's own audio-capture thread,
+not the UI thread, so SLCefProducer's callback only interleaves the planar
+samples into a small per-slot queue (`CefAudioQueue`, capped at 500ms) that
+the main loop drains every tick - shared-owned, so a callback still in flight
+when its slot is freed finds it closed rather than dangling. SLVlcProducer is
+the same shape: libvlc's audio callbacks queue on libvlc's own audio thread,
+and `LibVlcTabManager::PopAudio()` drains from the main loop. Two
+LibVLC-specific details:
+- **libvlc 3.0's audio-callback output always delivers 16-bit integer
+  samples** (`"S16N"`), whatever format `libvlc_audio_set_format()` asks for -
+  only its rate and channel count are honored - so `audio_play_cb` converts to
+  float on the way in.
+- **libvlc decodes ahead of real time**, so each block is held until within
+  50ms of its own play time (libvlc passes one with every block, on
+  `libvlc_clock()`) rather than sent the moment it's decoded; released early, a
+  burst would overrun the Viewer's latency cap and be skipped. While paused,
+  nothing is released, and on resume what's still queued is re-timed by the
+  pause's length. This also keeps the audio roughly in step with libvlc's own
+  video, which is presented against the same clock.
+
+On the Viewer side, a
+tab's existing update thread drains its audio segment straight into an
+`LLEmbeddedBrowserAudioSink` (implemented in newview, since
+`llembeddedbrowser` sits below `llaudio`), which pushes into an
+`LLStreamedAudioSource`. That is built on OpenAL Soft's
+`AL_SOFT_callback_buffer`: OpenAL's own mixer thread pulls samples out of a
+lock-free single-producer/single-consumer ring, so **playback never depends
+on the main thread's frame rate**. The main thread only ever sets gain and
+position.
+
+**Buffering.** Playback starts once `EmbeddedBrowserAudioPrebufferMs` (60ms
+default) is queued, and re-prebuffers after running dry rather than
+stuttering. 60ms rather than the original 40ms because real CEF capture
+arrives in ~23ms packets with some timing jitter, which at 40ms showed up as
+an underrun every 7-25 seconds per stream with several YouTube prims
+playing. The stream plays at whatever sample rate it's fed (OpenAL
+resamples to the device); a rate change is picked up on the main thread by
+the engine's per-frame `idle()`, which re-specifies the callback buffer. If more than 200ms builds up (producer and sound-card clocks
+drifting apart, or a stall), the oldest audio is skipped back down to the
+prebuffer target.
+
+**Spatialization and gain.** Prim media gets a *spatial* stream - mixed down
+to mono, since OpenAL only positions mono sources - placed at the position
+of the same object `calculateInterest()` measures distance from, so panning
+and falloff always agree. UI, parcel and HUD media stay stereo and
+non-positional. OpenAL's own distance attenuation is deliberately **off**
+(rolloff factor 0): loudness still comes from `updateVolume()`'s existing
+`MediaRollOff*` curve, applied as the stream's gain, so captured and
+uncaptured media fade identically. Master volume is left out of that gain
+(OpenAL already applies it as the listener gain). No velocity, so no Doppler.
+
+**Known behaviors.**
+- **Captured media is silent until login.** The audio engine is muted from
+  startup until the first post-login `audio_update_volume()`, and this audio
+  now goes through it - accepted, since login-screen audio isn't needed.
+- **Sound comes from the object's position, not the media face's** - a large
+  screen sounds centered on its prim.
+- **Without `AL_SOFT_callback_buffer`, or with no audio engine at all
+  (`--noaudio`), capture is never requested** - the producer keeps playing
+  audio itself, exactly as before.
+
+**Settings.**
+- `EmbeddedBrowserAudioViaViewer` - request capture for new tabs (on).
+- `EmbeddedBrowserAudioPrebufferMs` - see Buffering (60).
+
+Both take effect for tabs created after the change - pass them as
+`--set <name> <value>` to be sure they're in effect from startup.
+
+**Diagnostics.** In the Viewer log: `EmbeddedBrowser` -
+`Audio capture granted on llcefshm_audio_<N>` once a tab's audio channel is
+claimed (a warning if it still can't be after 3 seconds); `MediaAudio` -
+`Embedded-browser audio stream closed (...)` with underrun/overrun/skip
+counts when a tab goes away, plus (at debug level) a line every 5 seconds per
+captured tab comparing the gain asked for with what OpenAL reports is
+actually in effect. Media debug info gains `audio` (`viewer`/`producer`) and
+the same stream stats. In `slcefproducer_log.txt`, a slot's connect line says
+`audio capture` when granted, `audio stream started` gives CEF's capture
+format each time a stream starts, and the disconnect line gives packets sent
+and dropped.
+
+The transport was brought up against a generated stereo test tone in place
+of CEF's audio (since removed - see git history for `--audio-test-tone`); a
+standalone llshmframe harness that requests a capture slot, loads a Web Audio
+page and checks the `kAudioPacket` stream that comes back is the quickest way
+to exercise the producer half again without the Viewer.
 
 ## Known limitations, as of this writing
 

@@ -29,7 +29,9 @@
 
 #include "llstreamingaudio_libvlc.h"
 
+#include "llaudioengine.h"
 #include "llembeddedbrowser.h"
+#include "llviewercontrol.h"
 #include "cefshm_protocol.h"
 #include <shmframe/llshmframe.h>
 
@@ -50,6 +52,14 @@ namespace {
     // hammering the control channel every single frame while SLVlcProducer is down or
     // relaunching.
     constexpr auto kReconnectBackoff = std::chrono::seconds(1);
+
+    // mAudioThread's cadence: frequent enough that SLVlcProducer's audio ring never gets
+    // near full, cheap enough to be irrelevant when there's nothing to drain.
+    constexpr auto kAudioPumpInterval = std::chrono::milliseconds(5);
+    // Retry cadence for claiming a just-granted audio channel, and how long that can keep
+    // failing before it's worth a warning -- matches LLEmbeddedBrowserTab::pumpAudio().
+    constexpr auto kAudioClaimRetryInterval = std::chrono::milliseconds(100);
+    constexpr auto kAudioClaimWarnAfter     = std::chrono::seconds(3);
 }
 
 LLStreamingAudio_LibVLC::LLStreamingAudio_LibVLC()
@@ -64,6 +74,15 @@ LLStreamingAudio_LibVLC::LLStreamingAudio_LibVLC()
 
 LLStreamingAudio_LibVLC::~LLStreamingAudio_LibVLC()
 {
+    // Stop the drain thread before anything it touches goes away. mAudio itself is
+    // released (with its OpenAL objects) by the member destructors, here on the main
+    // thread -- llappviewer.cpp deletes this object before shutting the audio engine down.
+    mAudioThreadQuit = true;
+    if (mAudioThread.joinable())
+    {
+        mAudioThread.join();
+    }
+
     // Best-effort only -- LLEmbeddedBrowser::reset() runs before this destructor (see
     // llappviewer.cpp's cleanup ordering), so SLVlcProducer may already be gone by now;
     // a failed send() here is a silent, harmless no-op (LLSubscriber::send() just
@@ -165,6 +184,103 @@ void LLStreamingAudio_LibVLC::sendReplayBurst()
     }
 }
 
+void LLStreamingAudio_LibVLC::ensureAudioStream()
+{
+    static LLCachedControl<bool> audio_via_viewer(gSavedSettings, "EmbeddedBrowserAudioViaViewer");
+    static LLCachedControl<U32> audio_prebuffer_ms(gSavedSettings, "EmbeddedBrowserAudioPrebufferMs");
+    if (!mAudio && audio_via_viewer() && gAudiop)
+    {
+        // Non-positional: parcel music has no position to sound from.
+        mAudio = gAudiop->createStreamedSource(audio_prebuffer_ms(), /*spatial*/ false);
+    }
+    if (mAudio && !mAudioThread.joinable())
+    {
+        mAudioThread = std::thread([this]() { audioThreadLoop(); });
+    }
+}
+
+void LLStreamingAudio_LibVLC::audioThreadLoop()
+{
+    while (!mAudioThreadQuit)
+    {
+        {
+            std::lock_guard<std::mutex> lock(mAudioSubMutex);
+            if (mAudioSub)
+            {
+                pumpAudio();
+            }
+        }
+        std::this_thread::sleep_for(kAudioPumpInterval);
+    }
+}
+
+void LLStreamingAudio_LibVLC::pumpAudio()
+{
+    // A command-only subscriber has to poll() itself.
+    mAudioSub->poll();
+
+    if (!mAudioSub->owns_command_channel())
+    {
+        // Not claimed yet -- SLVlcProducer creates the audio channel just before granting
+        // it, so this can briefly lose the race; poll() can't re-attempt a claim on an
+        // already-attached subscriber, so retry with a fresh open() on a short timer.
+        const auto now = std::chrono::steady_clock::now();
+        if (now >= mNextAudioClaimAttempt)
+        {
+            mAudioSub = LLSubscriber::open(mAudioChannelName);
+            mNextAudioClaimAttempt = now + kAudioClaimRetryInterval;
+        }
+        if (!mAudioSub->owns_command_channel())
+        {
+            if (!mAudioClaimWarned && now >= mAudioClaimDeadline)
+            {
+                mAudioClaimWarned = true;
+                LL_WARNS("MediaAudio") << "Parcel audio capture granted on " << mAudioChannelName
+                    << " but the channel still can't be claimed (connected="
+                    << (mAudioSub->connected() ? "yes" : "no") << ") -- still retrying" << LL_ENDL;
+            }
+            return;
+        }
+    }
+
+    if (!mAudioClaimLogged)
+    {
+        mAudioClaimLogged = true;
+        LL_INFOS("MediaAudio") << "Parcel audio capture granted on " << mAudioChannelName
+            << (mAudioClaimWarned ? " (claimed after retrying)" : "")
+            << " -- parcel audio now plays through the Viewer" << LL_ENDL;
+    }
+
+    LLShmCommand cmd;
+    while (mAudioSub->receive(cmd))
+    {
+        if (cmd.type == kAudioStreamStopped)
+        {
+            mAudio->streamStopped();
+            continue;
+        }
+        if (cmd.type != kAudioPacket)
+        {
+            continue;
+        }
+
+        std::uint32_t seq = 0, sample_rate = 0;
+        std::int64_t pts_us = 0;
+        std::uint8_t channels = 0;
+        std::uint16_t frames = 0;
+        const std::uint8_t* samples = nullptr;
+        if (!unpack_audio_packet(cmd.data.data(), cmd.data.size(), seq, pts_us, sample_rate, channels, frames, samples))
+        {
+            continue;
+        }
+        // The sample bytes sit at an arbitrary offset in cmd.data -- copy them out rather
+        // than hand pushPCM() a misaligned float pointer.
+        mAudioScratch.resize((size_t)frames * channels);
+        memcpy(mAudioScratch.data(), samples, mAudioScratch.size() * sizeof(float));
+        mAudio->pushPCM(mAudioScratch.data(), frames, sample_rate, channels);
+    }
+}
+
 void LLStreamingAudio_LibVLC::pumpInboundEvents()
 {
     LLShmCommand cmd;
@@ -200,6 +316,8 @@ void LLStreamingAudio_LibVLC::update()
     {
         if (now < mNextAttemptTime) return;
 
+        ensureAudioStream();
+
         mCtrl = LLSubscriber::open(kVlcControlChannelName);
         if (!mCtrl->connected())
         {
@@ -234,18 +352,14 @@ void LLStreamingAudio_LibVLC::update()
             return; // racing another claimant -- try again next tick
         }
 
-        // 12, not 11 -- pack_request_slot() always writes a 12th (audioCapture) byte
-        // now, even though this call site doesn't pass one explicitly (it defaults to
-        // false, which is correct here -- CEF-only, no LibVLC equivalent). A stale
-        // 11-byte buffer here was a real 1-byte stack overflow on every platform,
-        // caught only by Linux's GCC -Werror=array-bounds at compile time.
-        std::uint8_t payload[12];
+        std::uint8_t payload[kRequestSlotBytes];
         // isUI/maxWidth/maxHeight are irrelevant here -- SLVlcProducer overrides an
         // audio-only slot's geometry to 1x1 regardless of what's requested (see
         // llvlcproducer.cpp's own kRequestSlot handler), and isUI has no meaning
         // outside CEF's two cookie-store contexts.
         const std::uint32_t len = pack_request_slot(payload, /*isUI*/ true, 1, 1,
-            static_cast<std::uint8_t>(LLEmbeddedBrowserBackend::LibVlc), /*audioOnly*/ true);
+            static_cast<std::uint8_t>(LLEmbeddedBrowserBackend::LibVlc), /*audioOnly*/ true,
+            /*audioCapture*/ mAudio != nullptr);
         if (!mCtrl->send(kRequestSlot, payload, len, 0, &mPendingReqId))
         {
             return; // transient (outbound ring full) -- retry next tick
@@ -272,7 +386,8 @@ void LLStreamingAudio_LibVLC::update()
             if (reply.type == kSlotAssigned)
             {
                 std::uint32_t index = 0;
-                if (!unpack_u32(reply.data.data(), reply.data.size(), index))
+                std::uint8_t slot_flags = 0;
+                if (!unpack_slot_assigned(reply.data.data(), reply.data.size(), index, slot_flags))
                 {
                     break; // malformed -- fall through to the deadline/backoff path below
                 }
@@ -284,6 +399,22 @@ void LLStreamingAudio_LibVLC::update()
                     mState = State::NotConnected;
                     mNextAttemptTime = now + kReconnectBackoff;
                     return;
+                }
+
+                {
+                    // Only trust the grant, not our own request -- a producer that declined
+                    // keeps playing the stream itself, and setGain()'s kSetVolume governs it.
+                    std::lock_guard<std::mutex> lock(mAudioSubMutex);
+                    mAudioSub.reset();
+                    if (mAudio && (slot_flags & kSlotFlagAudioCapture))
+                    {
+                        mAudioChannelName = kVlcAudioChannelPrefix + std::to_string(index);
+                        mAudioSub = LLSubscriber::open(mAudioChannelName);
+                        mAudioClaimLogged = false;
+        mAudioClaimWarned = false;
+                        mAudioClaimDeadline = now + kAudioClaimWarnAfter;
+                        mNextAudioClaimAttempt = now + kAudioClaimRetryInterval;
+                    }
                 }
 
                 mSub = std::move(sub);
@@ -321,6 +452,10 @@ void LLStreamingAudio_LibVLC::update()
         if (!mSub || !mSub->poll())
         {
             mSub.reset();
+            {
+                std::lock_guard<std::mutex> lock(mAudioSubMutex);
+                mAudioSub.reset(); // the reconnect negotiates capture afresh
+            }
             mState = State::NotConnected;
             mNextAttemptTime = now; // a real disconnect, not a race -- retry right away
             return;
@@ -341,6 +476,17 @@ int LLStreamingAudio_LibVLC::isPlaying()
 void LLStreamingAudio_LibVLC::setGain(F32 vol)
 {
     mGain = llclamp(vol, 0.f, 1.f);
+
+    if (mAudio)
+    {
+        // vol already has the master volume multiplied in (see audio_update_volume()),
+        // which suits libvlc's own output -- but OpenAL applies master itself, as its
+        // listener gain, so take it back out here rather than applying it twice. Called
+        // every frame, straight after setMasterGain(), so the two never drift apart.
+        const F32 master = gAudiop ? gAudiop->getMasterGain() : 1.f;
+        mAudio->setGain(master > 0.f ? llclamp(mGain / master, 0.f, 1.f) : 0.f);
+    }
+
     if (mState == State::Connected && mSub)
     {
         std::uint8_t payload[1];

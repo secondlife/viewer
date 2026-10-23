@@ -29,7 +29,6 @@
 #include <array>
 #include <atomic>
 #include <chrono>
-#include <cstdint>
 #include <deque>
 #include <map>
 #include <memory>
@@ -132,21 +131,20 @@ struct LLEmbeddedBrowserEvent
     bool mPersistent = false; // JSQuery only -- see its own comment above
 };
 
-// Raw PCM audio from a CEF-backed tab's CefAudioHandler capture (see
-// EmbeddedBrowserCefAudioCapture in settings.xml) -- delivered via its own dedicated
-// queue (LLEmbeddedBrowser::popAudioPacket), not folded into LLEmbeddedBrowserEvent
-// above, since it's binary payload data arriving far more often than any UI event.
-// This struct IS the handoff contract for whatever consumes these packets (e.g. an
-// OpenAL-backed playback path) -- mSamples is planar (channel-major: all of channel
-// 0's samples, then channel 1's, etc.), exactly mirroring CEF's own layout with zero
-// repacking anywhere in this pipeline.
-struct LLEmbeddedBrowserAudioPacket
+// Receives a tab's audio when the producer delivers it as PCM instead of playing it itself
+// (see kSlotFlagAudioCapture in cefshm_protocol.h) -- implemented in newview, which owns the
+// actual playback, since this library sits below llaudio and mustn't depend on it. Both
+// methods are called on the tab's own update thread, never concurrently with each other or
+// with LLEmbeddedBrowser::setAudioSink() replacing this sink.
+class LLEmbeddedBrowserAudioSink
 {
-    std::int64_t mPts = 0;          // presentation timestamp, ms since Unix epoch
-    unsigned int mFrames = 0;       // per-channel frame count (not a total sample count)
-    unsigned int mChannels = 0;
-    unsigned int mSampleRate = 0;   // from the stream's own kAudioStreamStarted, e.g. 44100
-    std::vector<float> mSamples;    // size == mChannels * mFrames, planar/channel-major
+    public:
+        virtual ~LLEmbeddedBrowserAudioSink() = default;
+        // interleaved holds frames * channels float samples, valid only for this call.
+        virtual void onAudioPacket(const float* interleaved, unsigned int frames,
+                                   unsigned int sampleRate, unsigned int channels) = 0;
+        // The producer stopped sending audio deliberately (page went quiet, media paused/ended).
+        virtual void onAudioStreamStopped() = 0;
 };
 
 class LLEmbeddedBrowserUpdateThread :
@@ -194,7 +192,11 @@ class LLEmbeddedBrowserTab
         // Height), sent to the producer in kRequestSlot so it can size this slot's own
         // shared-memory segment to it instead of always reserving the producer's
         // absolute maximum -- see that opcode's own comment in cefshm_protocol.h.
-        LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI, LLEmbeddedBrowserBackend backend, unsigned int maxWidth, unsigned int maxHeight, bool audioCapture = false);
+        // audioCapture asks the producer to hand this tab's audio to the Viewer (see
+        // setAudioSink()) instead of playing it -- fixed for the tab's lifetime too, since
+        // it also goes in kRequestSlot. audioSink is installed before the update thread
+        // starts, so it is ready before the producer can claim the audio channel.
+        LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI, LLEmbeddedBrowserBackend backend, unsigned int maxWidth, unsigned int maxHeight, bool audioCapture, std::shared_ptr<LLEmbeddedBrowserAudioSink> audioSink);
         ~LLEmbeddedBrowserTab();
 
         // Stops this tab's own update thread, blocking until it has genuinely exited
@@ -322,20 +324,26 @@ class LLEmbeddedBrowserTab
         // any more (already responded to, or the page canceled by navigating away).
         void respondToQuery(long long queryId, bool success, const std::string& response, int errorCode = 0);
 
+        // Where this tab's captured audio goes -- null (the default) discards it. Once this
+        // returns, the previous sink is guaranteed not to be called again, so the caller may
+        // tear it down immediately.
+        void setAudioSink(std::shared_ptr<LLEmbeddedBrowserAudioSink> sink);
+        // True while this tab actually holds the claim on the audio channel the producer
+        // granted it (see kSlotFlagAudioCapture) -- the producer only hands audio over
+        // (rather than playing it itself) while it does, so this is when a sink is actually
+        // needed. Any thread.
+        bool isAudioClaimed() const;
+        // Gives up this connection's audio channel claim (on the update thread's next pass),
+        // so the producer plays this tab's audio itself again -- for when there turns out to
+        // be nowhere to play it after all. A reconnect asks afresh. Any thread.
+        void declineAudioCapture();
+
         // Pops the oldest queued event (received from the producer since the last call),
         // false if none are pending. Call in a loop to drain all of them -- unlike
         // getPixels()/getWidth() this is NOT a snapshot of current state, it's a FIFO of
         // discrete occurrences (e.g. a load-start followed by a load-end in the same tick
         // both need to surface, not collapse into "latest state").
         bool popEvent(LLEmbeddedBrowserEvent& out_event);
-
-        // Same FIFO-drain shape as popEvent() above, for CEF audio-PCM capture (see
-        // EmbeddedBrowserCefAudioCapture in settings.xml) -- kept as its own separate
-        // queue/mutex (mAudioMutex, not mPixelMutex) since audio packets arrive far
-        // more often than UI events and shouldn't contend with the hot pixel-copy path.
-        // Always returns false for a tab that never requested audio capture (the queue
-        // simply stays empty).
-        bool popAudioPacket(LLEmbeddedBrowserAudioPacket& out_packet);
 
     private:
         // Best-effort: claims the cefshm_producer control channel, requests a view,
@@ -347,9 +355,30 @@ class LLEmbeddedBrowserTab
         // no producer is reachable right now; update() just retries on a later tick.
         bool connectToProducer();
 
+        // Drains mAudioSub into mAudioSink. Update thread only.
+        void pumpAudio();
+
         mutable LLMutex mPixelMutex;
         std::unique_ptr<LLEmbeddedBrowserUpdateThread> mUpdateThread;
         std::unique_ptr<LLSubscriber> mSub;
+        // This slot's audio channel (see kAudioChannelPrefix in cefshm_protocol.h) -- only
+        // opened when the producer granted capture. Touched only by the update thread
+        // (and the destructor, once that thread has stopped), so needs no lock.
+        std::unique_ptr<LLSubscriber> mAudioSub;
+        // Update thread only, like mAudioSub -- for pumpAudio()'s claim retries.
+        std::string mAudioChannelName;
+        std::chrono::steady_clock::time_point mNextAudioClaimAttempt;
+        std::chrono::steady_clock::time_point mAudioClaimDeadline;
+        bool mAudioClaimLogged = false;
+        bool mAudioClaimWarned = false; // the "still can't be claimed" warning -- separate, so a late success still logs
+        const bool mAudioCapture;
+        std::atomic<bool> mAudioClaimed{false}; // see isAudioClaimed() -- written by the update thread
+        std::atomic<bool> mAudioDeclined{false}; // see declineAudioCapture()
+        // Guards mAudioSink, and is held for the whole of each sink call -- that's what lets
+        // setAudioSink() promise the old sink is finished with by the time it returns.
+        LLMutex mAudioSinkMutex;
+        std::shared_ptr<LLEmbeddedBrowserAudioSink> mAudioSink;
+        std::vector<float> mAudioScratch; // update thread only -- aligned copy of one packet's samples
         // Set when a ProducerDisconnected event is pushed, cleared (and a matching
         // ProducerReconnected pushed) the next time connectToProducer() succeeds -- makes both
         // events edge-triggered on the connected/disconnected transition rather than firing on
@@ -360,11 +389,6 @@ class LLEmbeddedBrowserTab
         // lifetime, since the producer fixes it at kRequestSlot time (see mIsUI, same
         // property). Read by connectToProducer() when packing that request.
         const LLEmbeddedBrowserBackend mBackend;
-        // Whether this tab requested CEF audio-PCM capture at slot-request time (see
-        // EmbeddedBrowserCefAudioCapture in settings.xml) -- false for every LibVlc-backed
-        // tab and for any Cef tab when the feature is off, which is the default. Const for
-        // the same reason as mBackend above.
-        const bool mAudioCapture;
         unsigned char* mPixels = nullptr;
         unsigned int mWidth = 0;
         unsigned int mHeight = 0;
@@ -382,6 +406,9 @@ class LLEmbeddedBrowserTab
         // the connection handshake isn't silently dropped -- connectToProducer() replays
         // it as part of its own initial send burst.
         float mVolume = 1.0f;
+        // The most recent setMuted() -- recorded and replayed by connectToProducer() the
+        // same way as mVolume, under mPixelMutex.
+        bool mMuted = false;
         // LLEmbeddedBrowser's own max-dimension ceiling at the moment this tab was
         // created (a snapshot, not live -- see the constructor's own comment), sent
         // to the producer via kRequestSlot so it can size this slot's shared-memory
@@ -404,19 +431,6 @@ class LLEmbeddedBrowserTab
         // mPixelMutex like mCanGoBack/mCanGoForward -- see isPlaying().
         bool mIsPlaying = true;
         std::deque<LLEmbeddedBrowserEvent> mEvents;
-
-        // See popAudioPacket()'s own comment on why this is a separate queue/mutex
-        // rather than reusing mEvents/mPixelMutex.
-        mutable LLMutex mAudioMutex;
-        std::deque<LLEmbeddedBrowserAudioPacket> mAudioPackets;
-        // Cached from the most recent kAudioStreamStarted so kAudioPacket's own unpack
-        // knows how many channels its planar data holds (not repeated per-packet on the
-        // wire -- see cefshm_protocol.h's own comment), and so each popped packet can
-        // carry the real sample rate too. Only ever touched from this tab's own update
-        // thread, never concurrently, so unlike mAudioPackets above these need no lock
-        // of their own.
-        unsigned int mAudioChannels = 0;
-        unsigned int mAudioSampleRate = 0;
 };
 
 class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
@@ -432,12 +446,11 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         // LLEmbeddedBrowserTab's own constructor comment. backend selects the
         // producer-side implementation for this slot (see LLEmbeddedBrowserBackend); it
         // defaults to Cef so this stays a drop-in for any caller that doesn't care.
-        // audioCapture: requests CEF raw-PCM audio capture for this tab (see
-        // EmbeddedBrowserCefAudioCapture in settings.xml) -- ignored (treated as false) for
-        // any non-Cef backend. Defaults to false so existing callers are unaffected.
+        // audioCapture/audioSink: see LLEmbeddedBrowserTab's own constructor comment.
         unsigned int create(const std::string& url, unsigned int width, unsigned int height, bool isUI,
                              LLEmbeddedBrowserBackend backend = LLEmbeddedBrowserBackend::Cef,
-                             bool audioCapture = false);
+                             bool audioCapture = false,
+                             std::shared_ptr<LLEmbeddedBrowserAudioSink> audioSink = {});
         void destroy(unsigned int id);
         void update(unsigned int id);
 
@@ -494,12 +507,9 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void respondToFileDialog(unsigned int id, long long dialogId, const std::vector<std::string>& filePaths);
         void respondToQuery(unsigned int id, long long queryId, bool success, const std::string& response, int errorCode = 0);
         bool popEvent(unsigned int id, LLEmbeddedBrowserEvent& out_event);
-
-        // See LLEmbeddedBrowserTab::popAudioPacket's own comment -- this is **the**
-        // integration point for CEF audio-PCM capture: whatever consumes these packets
-        // (e.g. an OpenAL-backed playback path) calls this once per frame per tab id,
-        // draining it in a loop the same way callers already drain popEvent() above.
-        bool popAudioPacket(unsigned int id, LLEmbeddedBrowserAudioPacket& out_packet);
+        void setAudioSink(unsigned int id, std::shared_ptr<LLEmbeddedBrowserAudioSink> sink);
+        bool isAudioClaimed(unsigned int id);
+        void declineAudioCapture(unsigned int id);
 
         // Caps requested create() dimensions -- callers (e.g. newview, which knows about
         // EmbeddedBrowserMaxWidth/Height in settings.xml) should call this once before
