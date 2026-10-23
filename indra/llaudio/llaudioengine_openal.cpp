@@ -1033,7 +1033,7 @@ void LLStreamedAudioSourceOpenAL::fill(F32* out, U32 frames) noexcept
 
     if (!mPlaying)
     {
-        if (available < prebuffer_frames)
+        if (available == 0 || (available < prebuffer_frames && !mStreamStopped.load(std::memory_order_relaxed)))
         {
             std::fill(out, out + (size_t)frames * mChannels, 0.f);
             return;
