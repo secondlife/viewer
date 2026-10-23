@@ -71,13 +71,19 @@ namespace cefshm_demo
     inline constexpr std::uint32_t kAudioPacketHeaderBytes = 20;
     inline constexpr std::uint8_t  kAudioSampleFormatF32   = 0;    // kAudioPacket's sampleFormat byte
 
-    // kSlotAssigned's flags byte. kSlotFlagAudioCapture: this slot's audio now reaches the
-    // consumer only as kAudioPacket on its audio channel -- the producer keeps its own output
-    // silenced for the slot's whole lifetime (no double playback) and ignores kSetMuted/
-    // kSetVolume for it, so the consumer's own gain is the one volume control.
+    // kSlotAssigned's flags byte. kSlotFlagAudioCapture: this slot's audio reaches the
+    // consumer as kAudioPacket on its audio channel, for as long as the consumer holds that
+    // channel's claim -- captured audio never also reaches the speakers, and the consumer's
+    // own gain is its one volume control. Until the claim lands, or if it never does, the
+    // producer plays the slot's audio itself, governed by kSetMuted/kSetVolume as for any
+    // other slot -- so the consumer must keep those current regardless. (CEF switches per
+    // audio stream: one already playing when the claim lands or drops keeps its route until
+    // it ends. LibVLC only falls back after a short grace period, since switching means
+    // reopening its player.)
     inline constexpr std::uint8_t  kSlotFlagAudioCapture   = 1u << 0;
 
     inline constexpr std::size_t   kRequestSlotBytes       = 12;
+    inline constexpr std::size_t   kSlotAssignedBytes      = 5;
 
     inline constexpr std::uint32_t kDefaultWidth  = 960;
     inline constexpr std::uint32_t kDefaultHeight = 540;
@@ -195,9 +201,9 @@ namespace cefshm_demo
         kRespondToQuery = 42,
 
         // producer -> consumer, audio channel only -- see indra/llcefproducer/cefshm_protocol.h's
-        // own longer comment on both.
-        kAudioPacket = 43, // data = pack_audio_packet(...)
-        kAudioStreamStopped = 44, // empty payload
+        // own longer comment on both, and on why 43-45 are retired.
+        kAudioPacket = 46, // data = pack_audio_packet(...)
+        kAudioStreamStopped = 47, // empty payload
     };
 
     inline std::uint32_t pack_u32(std::uint8_t* d, std::uint32_t v)
@@ -265,6 +271,7 @@ namespace cefshm_demo
 
     // Only the pack halves of the slot-assigned/audio helpers are needed here -- this
     // producer only ever sends them. See indra/llcefproducer/cefshm_protocol.h.
+    // d must hold kSlotAssignedBytes.
     inline std::uint32_t pack_slot_assigned(std::uint8_t* d, std::uint32_t index, std::uint8_t flags)
     {
         std::uint32_t n = pack_u32(d, index);

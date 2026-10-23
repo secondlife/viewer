@@ -216,10 +216,13 @@ struct Slot
     // for audio capture and this producer granted it. Only ever sent on from the main loop,
     // which keeps its command ring single-writer as llshmframe requires.
     std::unique_ptr<LLPublisher> audioPub;
-    // Real CEF audio capture for this slot (see pump_cef_audio()) -- set exactly when
-    // audioPub is. While set, CEF's own output for this browser stays muted and
-    // kSetMuted/kSetVolume are ignored (see kSlotFlagAudioCapture).
+    // Where this slot's captured CEF audio is queued (see pump_cef_audio()) -- set exactly
+    // when audioPub is.
     std::shared_ptr<CefAudioQueue> cefAudio;
+    // True while the consumer holds audioPub's claim -- and so while CEF's capture callbacks
+    // are registered (see update_cef_audio_route()). Until the claim lands, or if it never
+    // does, CEF plays this slot's audio itself as for any other slot.
+    bool                         audio_claimed = false;
     std::vector<std::uint8_t>    audioBuf;      // one packed kAudioPacket, reused across sends
     std::uint32_t                audio_seq = 0;
     std::uint64_t                audio_dropped = 0; // packets lost to a full ring
@@ -370,9 +373,10 @@ void pump_cef_audio(Slot& s, int index)
                  " packets sent on this slot so far)");
     }
 
-    // Nobody to hear it yet (or any more) -- not worth filling the ring, nor counting the
-    // inevitable drops as if they were a real consumer falling behind.
-    if (!s.audioPub->has_subscriber()) {
+    // Nobody to hear it any more -- only reachable for a stream that was already being
+    // captured when the claim dropped (see clear_cef_audio_callbacks()). Not worth filling
+    // the ring, nor counting the inevitable drops as if a real consumer were falling behind.
+    if (!s.audio_claimed) {
         return;
     }
 
@@ -384,16 +388,52 @@ void pump_cef_audio(Slot& s, int index)
     }
 }
 
-// Starts real CEF audio capture for a slot (see CefAudioQueue): mutes the browser's own
-// output -- the consumer plays it instead -- and registers llCefBrowser's capture callbacks,
-// which is what actually turns capture on for this browser.
-void start_cef_audio_capture(Slot& s, int index, llCefBrowserManager& manager)
-{
-    auto queue = std::make_shared<CefAudioQueue>();
-    s.cefAudio = queue;
-    const llCefBrowserHandle handle = s.cefHandle;
+void register_cef_audio_callbacks(Slot& s, int index, llCefBrowserManager& manager);
+void clear_cef_audio_callbacks(Slot& s, llCefBrowserManager& manager);
 
-    manager.SetAudioMuted(handle, true);
+// Turns CEF audio capture on for a granted slot only while the consumer holds the claim on
+// its audio channel. Called once per tick, before pump_cef_audio(). Not done up front at
+// grant time: the consumer claims asynchronously (with retries, and no guarantee of
+// success), and capture *redirects* CEF's audio -- once llCefBrowser::GetAudioParameters()
+// accepts a stream, Chromium sends it to the capture callbacks instead of the speakers, and
+// no SetAudioMuted() brings it back. Capturing before the claim landed therefore meant a
+// silent gap after every capture start and producer relaunch, and silence for good if the
+// claim never landed.
+//
+// CEF only asks GetAudioParameters() when the page starts making sound (and again only once
+// it has been quiet for 2s), so either change takes effect from the next audio stream, not
+// mid-stream: a claim that lands while the page is already playing leaves that stream
+// playing through CEF itself until it ends -- audible, just not through the consumer -- and
+// a claim lost mid-stream leaves that stream redirected, and silent, until it ends. The
+// claim normally lands long before the page makes any sound, so in practice capture starts
+// with the first stream. CEF's own output is never muted on the claim's account: while a
+// stream is captured it doesn't reach the speakers anyway, so kSetMuted/kSetVolume stay in
+// effect throughout.
+void update_cef_audio_route(Slot& s, int index, llCefBrowserManager& manager)
+{
+    const bool claimed = s.audioPub->has_subscriber();
+    if (claimed == s.audio_claimed) {
+        return;
+    }
+
+    s.audio_claimed = claimed;
+    if (claimed) {
+        register_cef_audio_callbacks(s, index, manager);
+    } else {
+        clear_cef_audio_callbacks(s, manager);
+    }
+    log_info("slot " + std::to_string(index) +
+             (claimed ? ": audio channel claimed -- audio streams from here on go to the consumer"
+                      : ": audio channel unclaimed -- audio streams from here on play through CEF itself"));
+}
+
+// Registers llCefBrowser's capture callbacks for a slot, feeding s.cefAudio -- which is what
+// actually turns capture on for this browser (see llCefBrowser::GetAudioParameters()), from
+// its next audio stream. See update_cef_audio_route().
+void register_cef_audio_callbacks(Slot& s, int index, llCefBrowserManager& manager)
+{
+    const std::shared_ptr<CefAudioQueue> queue = s.cefAudio;
+    const llCefBrowserHandle handle = s.cefHandle;
 
     // UI thread (this loop's own, via DoMessageLoopWork()).
     manager.SetOnAudioStreamStartedCallback(handle, [queue, index](int sampleRate, int framesPerBuffer, int channels) {
@@ -449,6 +489,18 @@ void start_cef_audio_capture(Slot& s, int index, llCefBrowserManager& manager)
     });
 }
 
+// The reverse of register_cef_audio_callbacks(): with none registered, GetAudioParameters()
+// declines the next audio stream, so CEF plays it itself. A stream already being captured
+// stays captured until it ends (see update_cef_audio_route()); anything it still queues is
+// dropped by pump_cef_audio(), since the slot is unclaimed by then.
+void clear_cef_audio_callbacks(Slot& s, llCefBrowserManager& manager)
+{
+    manager.SetOnAudioStreamStartedCallback(s.cefHandle, nullptr);
+    manager.SetOnAudioStreamPacketCallback(s.cefHandle, nullptr);
+    manager.SetOnAudioStreamStoppedCallback(s.cefHandle, nullptr);
+    manager.SetOnAudioStreamErrorCallback(s.cefHandle, nullptr);
+}
+
 // Spins up this slot's real instance: a CEF browser plus its llshmframe
 // segment. Leaves s untouched on failure, cleaning up whichever half of the
 // pair already succeeded.
@@ -483,10 +535,12 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
 
     // Granted whenever asked for and the audio channel could be created -- declining just
     // leaves CEF playing this slot's audio itself, exactly as for a consumer that never asked.
+    // Capture itself only starts once the consumer claims the channel (see
+    // update_cef_audio_route()).
     if (audioCapture) {
         s.audioPub = create_audio_publisher(index);
         if (s.audioPub) {
-            start_cef_audio_capture(s, index, manager);
+            s.cefAudio = std::make_shared<CefAudioQueue>();
         }
     }
 
@@ -982,7 +1036,7 @@ int run_producer(int argc, char** argv)
             // header once it opens that segment by name.
             // The flags byte is what tells the consumer whether audio capture is actually
             // on -- it may have asked and been declined (see allocate_slot()).
-            std::uint8_t payload[5];
+            std::uint8_t payload[kSlotAssignedBytes];
             const std::uint8_t flags = slots[std::size_t(free_index)].audioPub ? kSlotFlagAudioCapture : 0;
             const std::uint32_t payload_len = pack_slot_assigned(payload, std::uint32_t(free_index), flags);
             control->send(kSlotAssigned, payload, payload_len, cmd.id);
@@ -1157,9 +1211,10 @@ int run_producer(int argc, char** argv)
                     break;
                 }
                 case kSetMuted: {
-                    // A captured slot's own output stays muted -- the consumer plays it
-                    // instead (see kSlotFlagAudioCapture).
-                    if (!cmd.data.empty() && !s.cefAudio) {
+                    // Applied even to a captured slot: a captured stream doesn't reach the
+                    // speakers anyway (see update_cef_audio_route()), and any stream that
+                    // isn't captured must still follow it.
+                    if (!cmd.data.empty()) {
                         manager->SetAudioMuted(s.cefHandle, cmd.data[0] != 0);
                     }
                     break;
@@ -1167,8 +1222,9 @@ int run_producer(int argc, char** argv)
                 case kSetVolume: {
                     // Collapsed to CEF's existing binary capability -- see kSetVolume's
                     // own comment in cefshm_protocol.h. Continuous volume for CEF
-                    // (JS-injection) is separate, not-yet-scoped work.
-                    if (!cmd.data.empty() && !s.cefAudio) {
+                    // (JS-injection) is separate, not-yet-scoped work. Applied like
+                    // kSetMuted above.
+                    if (!cmd.data.empty()) {
                         manager->SetAudioMuted(s.cefHandle, cmd.data[0] == 0);
                     }
                     break;
@@ -1256,6 +1312,7 @@ int run_producer(int argc, char** argv)
 
             if (s.audioPub) {
                 s.audioPub->heartbeat(); // never commits a frame, so this is its only liveness signal
+                update_cef_audio_route(s, int(i), *manager);
                 pump_cef_audio(s, int(i));
             }
         }

@@ -64,6 +64,7 @@ class LLAudioEngine_OpenAL : public LLAudioEngine
         void updateWind(LLVector3 direction, F32 camera_altitude) override;
 
         std::shared_ptr<LLStreamedAudioSource> createStreamedSource(U32 prebuffer_ms, bool spatial) override;
+        bool supportsStreamedSources() const override { return mHasCallbackBufferExt; }
 
     private:
         // Gives every live streamed source its per-frame updateAL() -- see idle().
@@ -179,6 +180,15 @@ class LLStreamedAudioSourceOpenAL : public LLStreamedAudioSource
         void fill(F32* out, U32 frames) noexcept;
         // Main thread. (Re)binds mALBuffer as a callback buffer at sample_rate.
         void specifyBuffer(U32 sample_rate);
+        // Main thread. Returns once no bufferCallback() is inside fill(), and makes any
+        // that start afterwards return silence without touching the ring, until
+        // mCallbackEnabled is set again. Covers a callback still in flight when
+        // alSourceStop() returns, which AL_SOFT_callback_buffer doesn't promise can't happen
+        // (OpenAL Soft's alSourceStop() does wait out the current mix, but as an
+        // implementation detail). It can't cover a callback the driver starts after the
+        // source and buffer are deleted and `this` freed -- nothing stored in `this` could;
+        // that still relies on the driver not calling into a deleted buffer.
+        void fenceCallback();
 
         // ~680ms at 48kHz -- comfortably above MAX_LATENCY_MS at any common rate, so the
         // writer only ever finds it full if the mixer has stopped pulling altogether.
@@ -207,6 +217,11 @@ class LLStreamedAudioSourceOpenAL : public LLStreamedAudioSource
         // by fill()/getStats().
         std::atomic<U32> mPlayRate{DEFAULT_SAMPLE_RATE};
         bool mPlaying = false; // fill() only: false while (re)prebuffering
+
+        // See fenceCallback(). seq_cst on both sides: either a callback sees
+        // mCallbackEnabled cleared, or fenceCallback() sees it counted in and waits.
+        std::atomic<U32> mCallbacksInFlight{0};
+        std::atomic<bool> mCallbackEnabled{true};
 
         std::atomic<U64> mUnderruns{0};
         std::atomic<U64> mOverruns{0};

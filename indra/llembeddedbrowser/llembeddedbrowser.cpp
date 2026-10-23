@@ -245,6 +245,7 @@ bool LLEmbeddedBrowserTab::connectToProducer()
     // the claim rather than this tab giving up on audio for its whole lifetime.
     mAudioSub.reset();
     mAudioChannelName.clear();
+    mAudioDeclined.store(false); // a fresh connection gets a fresh attempt -- see declineAudioCapture()
     if (mAudioCapture && (slot_flags & kSlotFlagAudioCapture))
     {
         const std::string audio_prefix = is_vlc ? kVlcAudioChannelPrefix : kAudioChannelPrefix;
@@ -255,6 +256,7 @@ bool LLEmbeddedBrowserTab::connectToProducer()
         mNextAudioClaimAttempt = std::chrono::steady_clock::now() + kAudioClaimRetryInterval;
     }
     mAudioCaptured.store(mAudioSub != nullptr);
+    mAudioClaimed.store(false);
 
     LLMutexLock lock(&mPixelMutex);
     mSub = std::move(sub);
@@ -445,6 +447,7 @@ void LLEmbeddedBrowserTab::update()
         LLMutexLock lock(&mPixelMutex);
         mSub.reset(); // producer went away -- connectToProducer() retries on a later tick
         mAudioSub.reset(); // the reconnect negotiates capture afresh
+        mAudioClaimed.store(false);
         mHasSlotIndex = false; // stale once disconnected -- a reconnect may land on a different slot
         if (!mHadDisconnected)
         {
@@ -486,8 +489,16 @@ void LLEmbeddedBrowserTab::update()
 
 void LLEmbeddedBrowserTab::pumpAudio()
 {
+    if (mAudioSub && mAudioDeclined.load())
+    {
+        // Releasing the claim is what tells the producer to play this tab's audio itself.
+        LL_INFOS("EmbeddedBrowser") << "Giving up audio capture on " << mAudioChannelName
+            << " -- the producer plays this tab's audio itself" << LL_ENDL;
+        mAudioSub.reset();
+    }
     if (!mAudioSub)
     {
+        mAudioClaimed.store(false);
         return;
     }
 
@@ -514,9 +525,11 @@ void LLEmbeddedBrowserTab::pumpAudio()
                     << " but the channel still can't be claimed (connected="
                     << (mAudioSub->connected() ? "yes" : "no") << ") -- still retrying" << LL_ENDL;
             }
+            mAudioClaimed.store(false);
             return;
         }
     }
+    mAudioClaimed.store(true);
 
     if (!mAudioClaimLogged)
     {
@@ -579,6 +592,17 @@ void LLEmbeddedBrowserTab::setAudioSink(std::shared_ptr<LLEmbeddedBrowserAudioSi
 bool LLEmbeddedBrowserTab::isAudioCaptured() const
 {
     return mAudioCaptured.load();
+}
+
+bool LLEmbeddedBrowserTab::isAudioClaimed() const
+{
+    // A decline counts at once, not only once the update thread has actually let go.
+    return mAudioClaimed.load() && !mAudioDeclined.load();
+}
+
+void LLEmbeddedBrowserTab::declineAudioCapture()
+{
+    mAudioDeclined.store(true);
 }
 
 const unsigned char* LLEmbeddedBrowserTab::getPixels()
@@ -1585,6 +1609,20 @@ bool LLEmbeddedBrowser::isAudioCaptured(unsigned int id)
 {
     auto tab = findTab(id);
     return tab && tab->isAudioCaptured();
+}
+
+bool LLEmbeddedBrowser::isAudioClaimed(unsigned int id)
+{
+    auto tab = findTab(id);
+    return tab && tab->isAudioClaimed();
+}
+
+void LLEmbeddedBrowser::declineAudioCapture(unsigned int id)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->declineAudioCapture();
+    }
 }
 
 void LLEmbeddedBrowser::play(unsigned int id)

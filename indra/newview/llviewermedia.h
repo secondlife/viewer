@@ -365,7 +365,7 @@ public:
     // True while this embedded-browser media's audio is being played by the Viewer itself
     // (see mEmbeddedBrowserAudio) rather than by its producer.
     bool isEmbeddedBrowserAudioViaViewer();
-    // Null unless isEmbeddedBrowserAudioViaViewer() could be true -- for diagnostics.
+    // Null unless isEmbeddedBrowserAudioViaViewer() is true -- for diagnostics.
     const std::shared_ptr<LLStreamedAudioSource>& getEmbeddedBrowserAudio() const { return mEmbeddedBrowserAudio; }
     // Only meaningful for a LibVLC-backed embedded-browser slot (see
     // getEmbeddedBrowserBackend()) -- used by LLPanelPrimMediaControls to pick which of
@@ -579,13 +579,19 @@ private:
     F32 mEmbeddedBrowserCefVolume = -1.f;
     // Viewer-side playback of this tab's audio, through gAudiop, for when the producer
     // hands it over as PCM instead of playing it itself (EmbeddedBrowserAudioViaViewer --
-    // see kSlotFlagAudioCapture in cefshm_protocol.h). Created up front in
-    // createMediaSource() when capture is requested, since whether the producer grants it
-    // is only known once the tab connects; until then (or if it never does -- e.g. an
-    // older producer), isEmbeddedBrowserAudioViaViewer() stays false and updateVolume()
-    // keeps driving the producer-side mute/volume path instead. Released in
-    // destroyMediaSource().
+    // see kSlotFlagAudioCapture in cefshm_protocol.h). Not created up front: a full
+    // OpenAL voice plus its ring buffer is only worth holding while the producer is
+    // actually handing audio over, i.e. while this tab holds its audio channel's claim
+    // (see updateEmbeddedBrowserAudioSource(), which creates and releases it each way).
+    // Also released in destroyMediaSource().
     std::shared_ptr<LLStreamedAudioSource> mEmbeddedBrowserAudio;
+    // Whether createMediaSource() asked the producer for this tab's audio (see
+    // mEmbeddedBrowserAudio), and whether a stream for it would be positioned in the world.
+    bool mEmbeddedBrowserAudioRequested = false;
+    bool mEmbeddedBrowserAudioSpatial = false;
+    // LLEmbeddedBrowser::isAudioClaimed(), sampled once per update() by
+    // updateEmbeddedBrowserAudioSource() -- see isEmbeddedBrowserAudioClaimed().
+    bool mEmbeddedBrowserAudioClaimed = false;
     // Rate-limits updateVolume()'s periodic MediaAudio diagnostic line.
     LLFrameTimer mEmbeddedBrowserAudioLogTimer;
     // Where mEmbeddedBrowserAudio should sound from, refreshed by calculateInterest() from
@@ -652,6 +658,18 @@ private:
     // other LLViewerMediaObserver overrides patched alongside this for the specific
     // handful of events this can fire. Called once per update().
     void updateEmbeddedBrowserEvents();
+    // True while this tab holds the claim on its granted audio channel -- the only time the
+    // producer hands its audio over (see kSlotFlagAudioCapture). updateVolume() then keeps
+    // the page at full volume and drives mEmbeddedBrowserAudio instead. As of this frame's
+    // updateEmbeddedBrowserAudioSource().
+    bool isEmbeddedBrowserAudioClaimed();
+    // The producer-side half of updateVolume(): kSetVolume for a LibVLC slot, kSetMuted for
+    // a CEF one, each deduped. Sent whether or not the audio is captured -- see there.
+    void sendEmbeddedBrowserProducerVolume(F32 volume);
+    // Creates mEmbeddedBrowserAudio while this tab holds its audio channel's claim, and
+    // releases it when it doesn't. Called once per update(), before updateVolume().
+    void updateEmbeddedBrowserAudioSource();
+    void releaseEmbeddedBrowserAudio();
     LLCoros::Mutex mLock;
     F64     mZoomFactor;
     LLUUID mTextureId;

@@ -32,6 +32,8 @@
 #include "lllistener_openal.h"
 
 #include <algorithm>
+#include <cstring>
+#include <thread>
 
 
 const float LLAudioEngine_OpenAL::WIND_BUFFER_SIZE_SEC = 0.05f;
@@ -809,13 +811,15 @@ void LLStreamedAudioSourceOpenAL::updateAL()
         return;
     }
 
-    // A callback buffer can only be re-specified while nothing is using it. Stopping the
-    // source also guarantees no fill() call is in flight while we're in here. Every other
-    // source property (gain, position, ...) survives this untouched.
+    // A callback buffer can only be re-specified while nothing is using it -- stopped, and
+    // with no fill() call still in flight (see fenceCallback()). Every other source
+    // property (gain, position, ...) survives this untouched.
     alGetError();
     alSourceStop(mALSource);
+    fenceCallback();
     alSourcei(mALSource, AL_BUFFER, AL_NONE);
     specifyBuffer(stream_rate);
+    mCallbackEnabled.store(true, std::memory_order_seq_cst);
     alSourcePlay(mALSource);
 
     ALenum error = alGetError();
@@ -829,9 +833,12 @@ void LLStreamedAudioSourceOpenAL::releaseAL()
 {
     // Order matters: once the source is stopped and the buffer detached and deleted,
     // OpenAL Soft makes no further bufferCallback() calls, so `this` may then be freed.
+    // fenceCallback() makes sure none is still running, too, rather than trusting
+    // alSourceStop() to have waited for it. Left disabled: nothing plays after this.
     if (mALSource != AL_NONE)
     {
         alSourceStop(mALSource);
+        fenceCallback();
         alSourcei(mALSource, AL_BUFFER, AL_NONE);
         alDeleteSources(1, &mALSource);
         mALSource = AL_NONE;
@@ -964,8 +971,28 @@ ALsizei AL_APIENTRY LLStreamedAudioSourceOpenAL::bufferCallback(ALvoid* userptr,
     // Always fill the whole request: returning fewer bytes tells OpenAL the stream has
     // ended, which would stop the source for good.
     auto* self = static_cast<LLStreamedAudioSourceOpenAL*>(userptr);
-    self->fill(static_cast<F32*>(sampledata), (U32)numbytes / (self->mChannels * sizeof(F32)));
+    self->mCallbacksInFlight.fetch_add(1, std::memory_order_seq_cst);
+    if (self->mCallbackEnabled.load(std::memory_order_seq_cst))
+    {
+        self->fill(static_cast<F32*>(sampledata), (U32)numbytes / (self->mChannels * sizeof(F32)));
+    }
+    else
+    {
+        std::memset(sampledata, 0, (size_t)numbytes); // being fenced out -- see fenceCallback()
+    }
+    self->mCallbacksInFlight.fetch_sub(1, std::memory_order_release);
     return numbytes;
+}
+
+void LLStreamedAudioSourceOpenAL::fenceCallback()
+{
+    mCallbackEnabled.store(false, std::memory_order_seq_cst);
+    // Bounded by one fill() call -- a few microseconds of copying -- and normally not
+    // entered at all, since alSourceStop() has already waited out the mixer on OpenAL Soft.
+    while (mCallbacksInFlight.load(std::memory_order_seq_cst) != 0)
+    {
+        std::this_thread::yield();
+    }
 }
 
 void LLStreamedAudioSourceOpenAL::fill(F32* out, U32 frames) noexcept

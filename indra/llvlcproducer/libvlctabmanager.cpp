@@ -175,7 +175,13 @@ namespace
         // CreateTab()/CreateAudioTrack(), applied by every Open(). The queue is filled by
         // audio_play_cb on libvlc's own audio thread and drained by PopAudio() on the main
         // thread -- the same handoff the frame buffer above uses, and for the same reason.
+        // SetAudioCapture() can change it later; playerAudioCapture is what the live player
+        // was actually created with, since only a reopen applies a change.
         bool audioCapture = false;
+        bool playerAudioCapture = false;
+        // The last SetVolume(), applied to every player Open() creates -- except a capturing
+        // one, whose libvlc volume stays at 100% (the consumer's gain is the volume control).
+        int volume = 100;
         struct AudioBlock
         {
             std::vector<float> samples; // frames * kCaptureChannels, interleaved
@@ -421,6 +427,8 @@ public:
         // the real cause of a reported "RTSP video just doesn't render" bug.
         t.audioOnly = false;
         t.audioCapture = audioCapture;
+        t.playerAudioCapture = false; // no player yet -- see Open()
+        t.volume = 100;
         resetAudio(t);
         t.generation++;
         t.player = nullptr;
@@ -475,6 +483,8 @@ public:
         t.live = true;
         t.audioOnly = true;
         t.audioCapture = audioCapture;
+        t.playerAudioCapture = false; // no player yet -- see Open()
+        t.volume = 100;
         resetAudio(t);
         t.generation++;
         t.player = nullptr;
@@ -592,6 +602,7 @@ public:
             t->pendingHeight = t->height;
             t->hasPendingResize = false;
         }
+        t->playerAudioCapture = t->audioCapture;
         if (t->audioCapture)
         {
             // Decoded audio comes to us (see PopAudio()) instead of going to libvlc's own
@@ -600,10 +611,17 @@ public:
             // delivers regardless of what's asked for (see audio_play_cb). Must be set
             // before libvlc_media_player_play() below. No volume callback: libvlc
             // applies its own software volume, which stays at its default 100% since a
-            // capturing slot ignores kSetVolume/kSetMuted (see kSlotFlagAudioCapture).
+            // capturing player ignores SetVolume() (see kSlotFlagAudioCapture).
             libvlc_audio_set_callbacks(t->player, &audio_play_cb, &audio_pause_cb, &audio_resume_cb,
                                        &audio_flush_cb, &audio_drain_cb, t);
             libvlc_audio_set_format(t->player, "S16N", kCaptureSampleRate, kCaptureChannels);
+        }
+        else
+        {
+            // A fresh player starts at 100% -- without this, a level set before the player
+            // existed (the consumer sends kSetVolume ahead of kSetUrl), or before a
+            // resize/capture-switch reopen, would be lost until the next change.
+            libvlc_audio_set_volume(t->player, t->volume);
         }
 
         // Reset for the same reason -- Open() can run again on an already-live tab (a
@@ -711,36 +729,36 @@ public:
         t->width = t->pendingWidth;
         t->height = t->pendingHeight;
         t->hasPendingResize = false;
-        // A COPY, not a reference to t->currentUrl -- Open() calls closePlayer()
-        // internally, which clears t->currentUrl; passing the member directly would
-        // alias it, so by the time Open() reads its own `url` parameter it's already
-        // been cleared out from under it, and libvlc ends up opening an empty MRL.
-        const std::string url = t->currentUrl;
-        // Captured BEFORE Open()'s closePlayer() call releases t->player -- restored
-        // just below, once the new player exists, so a resize doesn't restart a
-        // seekable file (a real video, as opposed to a live RTSP/RTMP stream) from the
-        // beginning every time. libvlc_media_player_set_time() is documented as a safe,
-        // harmless no-op for a live/non-seekable source ("no effect if no media is
-        // being played... not all formats and protocols support this"), so this is
-        // unconditional rather than only for known-seekable backends.
-        const libvlc_time_t resume_time_ms = libvlc_media_player_get_time(t->player);
-        // force_reopen=true -- the same-URL guard in Open() exists for a DIFFERENT
-        // case (a redundant kSetUrl resend for the same stream) and would otherwise
-        // make this whole call a no-op, since url is (deliberately) the same URL the
-        // tab is already playing.
-        Open(handle, url, true); // closes the current player and reopens at the new t->width/height
-        if (resume_time_ms >= 0 && t->player)
-        {
-            libvlc_media_player_set_time(t->player, resume_time_ms);
-        }
+        reopenAtCurrentTime(handle, *t); // reopens at the new t->width/height
         t->lastAppliedResizeTime = std::chrono::steady_clock::now();
     }
 
     void SetVolume(VlcTabHandle handle, int volume0to100)
     {
         Tab* t = find(handle);
-        if (!t || !t->player) return;
-        libvlc_audio_set_volume(t->player, volume0to100);
+        if (!t) return;
+        t->volume = volume0to100;
+        if (t->player && !t->playerAudioCapture)
+        {
+            libvlc_audio_set_volume(t->player, volume0to100);
+        }
+    }
+
+    void SetAudioCapture(VlcTabHandle handle, bool capture)
+    {
+        Tab* t = find(handle);
+        if (!t || t->audioCapture == capture) return;
+        t->audioCapture = capture;
+        if (!t->player || t->playerAudioCapture == capture) return;
+
+        // Only an actively playing (or starting) player is reopened right away. A paused,
+        // stopped or ended one would start playing again if reopened now, so it keeps its
+        // current output until Play() resumes it -- see Play()'s own check.
+        const libvlc_state_t state = libvlc_media_player_get_state(t->player);
+        if (state == libvlc_Opening || state == libvlc_Buffering || state == libvlc_Playing)
+        {
+            reopenAtCurrentTime(handle, *t);
+        }
     }
 
     // Explicit set-pause rather than libvlc_media_player_pause() (whose own toggle
@@ -751,6 +769,11 @@ public:
         Tab* t = find(handle);
         if (!t || !t->player) return;
         const bool playing = libvlc_media_player_is_playing(t->player) != 0;
+        if (!playing && t->playerAudioCapture != t->audioCapture)
+        {
+            Play(handle); // resumes through the right audio output -- see Play()'s own check
+            return;
+        }
         libvlc_media_player_set_pause(t->player, playing ? 1 : 0);
     }
 
@@ -760,10 +783,27 @@ public:
     {
         Tab* t = find(handle);
         if (!t || !t->player) return;
+        if (t->playerAudioCapture != t->audioCapture)
+        {
+            // SetAudioCapture() changed while this player wasn't playing -- resuming it
+            // as-is would play through the wrong output, so reopen instead. Ended restarts
+            // from the beginning, as below.
+            if (libvlc_media_player_get_state(t->player) == libvlc_Ended)
+            {
+                const std::string url = t->currentUrl; // a copy -- see reopenAtCurrentTime()
+                Open(handle, url, true);
+            }
+            else
+            {
+                reopenAtCurrentTime(handle, *t);
+            }
+            return;
+        }
         if (libvlc_media_player_get_state(t->player) == libvlc_Ended &&
             !libvlc_media_player_is_playing(t->player))
         {
             libvlc_media_player_stop(t->player);
+            resetAudioAfterStop(*t);
         }
         libvlc_media_player_play(t->player);
     }
@@ -780,6 +820,7 @@ public:
         Tab* t = find(handle);
         if (!t || !t->player) return;
         libvlc_media_player_stop(t->player);
+        resetAudioAfterStop(*t);
     }
 
     bool CopyLatestFrame(VlcTabHandle handle, std::vector<std::uint8_t>& dst, int& w, int& h)
@@ -847,7 +888,7 @@ public:
                   std::int64_t& out_ptsUs)
     {
         Tab* t = find(handle);
-        if (!t || !t->audioCapture) return false;
+        if (!t || !t->playerAudioCapture) return false;
 
         std::lock_guard<std::mutex> lock(t->audioMutex);
         if (t->audioPaused || t->audioQueue.empty()) return false;
@@ -903,6 +944,49 @@ private:
         return const_cast<Impl*>(this)->find(handle);
     }
 
+    // Closes and reopens t's player on the same URL, resuming where it was -- for changes
+    // only a fresh player picks up (a new size, a different audio output). Plays
+    // immediately, like any Open().
+    void reopenAtCurrentTime(VlcTabHandle handle, Tab& t)
+    {
+        // A COPY, not a reference to t.currentUrl -- Open() calls closePlayer()
+        // internally, which clears t.currentUrl; passing the member directly would
+        // alias it, so by the time Open() reads its own `url` parameter it's already
+        // been cleared out from under it, and libvlc ends up opening an empty MRL.
+        const std::string url = t.currentUrl;
+        // Captured BEFORE Open()'s closePlayer() call releases t.player -- restored
+        // just below, once the new player exists, so a reopen doesn't restart a
+        // seekable file (a real video, as opposed to a live RTSP/RTMP stream) from the
+        // beginning every time. libvlc_media_player_set_time() is documented as a safe,
+        // harmless no-op for a live/non-seekable source ("no effect if no media is
+        // being played... not all formats and protocols support this"), so this is
+        // unconditional rather than only for known-seekable backends.
+        const libvlc_time_t resume_time_ms = libvlc_media_player_get_time(t.player);
+        // force_reopen=true -- the same-URL guard in Open() exists for a DIFFERENT
+        // case (a redundant kSetUrl resend for the same stream) and would otherwise
+        // make this whole call a no-op, since url is (deliberately) the same URL the
+        // tab is already playing.
+        Open(handle, url, true);
+        if (resume_time_ms >= 0 && t.player)
+        {
+            libvlc_media_player_set_time(t.player, resume_time_ms);
+        }
+    }
+
+    // After libvlc_media_player_stop() -- synchronous, so no audio callback is still in flight.
+    // Nothing queued belongs to whatever plays next, and the consumer should treat the gap as
+    // a deliberate stop rather than an underrun. Also un-pauses the queue: stopping tears the
+    // audio output down without libvlc ever calling audio_resume_cb, so a stop while paused
+    // would otherwise leave PopAudio() gated shut for every later Play() on this player.
+    static void resetAudioAfterStop(Tab& t)
+    {
+        if (t.playerAudioCapture)
+        {
+            clearAudio(t);
+            t.audioStoppedPending = true;
+        }
+    }
+
     // libvlc_media_player_stop() is documented as synchronous -- no lock/unlock
     // callback can still be in flight once it returns, so the stop/release sequence
     // itself needs no extra locking (matches the reference plugin's own resetVLC()).
@@ -915,13 +999,8 @@ private:
             libvlc_media_player_release(t.player);
             t.player = nullptr;
             t.currentUrl.clear();
-            if (t.audioCapture)
-            {
-                // Nothing queued belongs to whatever plays next, and the consumer should
-                // treat the gap as a deliberate stop rather than an underrun.
-                clearAudio(t);
-                t.audioStoppedPending = true;
-            }
+            resetAudioAfterStop(t);
+            t.playerAudioCapture = false; // no player now -- see Open()
         }
         t.loadStartPending = false;
         t.loadEndPending = false;
@@ -967,6 +1046,7 @@ bool LibVlcTabManager::IsValid(VlcTabHandle handle) const { return mImpl->IsVali
 void LibVlcTabManager::Open(VlcTabHandle handle, const std::string& url) { mImpl->Open(handle, url); }
 void LibVlcTabManager::Resize(VlcTabHandle handle, int width, int height) { mImpl->Resize(handle, width, height); }
 void LibVlcTabManager::SetVolume(VlcTabHandle handle, int volume0to100) { mImpl->SetVolume(handle, volume0to100); }
+void LibVlcTabManager::SetAudioCapture(VlcTabHandle handle, bool capture) { mImpl->SetAudioCapture(handle, capture); }
 void LibVlcTabManager::TogglePlayPause(VlcTabHandle handle) { mImpl->TogglePlayPause(handle); }
 void LibVlcTabManager::Play(VlcTabHandle handle) { mImpl->Play(handle); }
 void LibVlcTabManager::Pause(VlcTabHandle handle) { mImpl->Pause(handle); }

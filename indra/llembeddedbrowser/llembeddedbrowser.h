@@ -328,10 +328,18 @@ class LLEmbeddedBrowserTab
         // tear it down immediately.
         void setAudioSink(std::shared_ptr<LLEmbeddedBrowserAudioSink> sink);
         // True once the producer has granted audio capture for this tab's current
-        // connection (see kSlotFlagAudioCapture) -- i.e. its audio now comes only through
-        // the sink, and the producer-side setMuted()/setVolume() no longer govern it. Stays
-        // at its last value across a disconnect until the next connection decides afresh.
+        // connection (see kSlotFlagAudioCapture). The audio only actually comes through the
+        // sink while the claim is held too -- see isAudioClaimed(). Stays at its last value
+        // across a disconnect until the next connection decides afresh.
         bool isAudioCaptured() const;
+        // True while this tab actually holds the claim on its granted audio channel -- the
+        // producer only hands audio over (rather than playing it itself) while it does, so
+        // this, not isAudioCaptured(), is when a sink is actually needed. Any thread.
+        bool isAudioClaimed() const;
+        // Gives up this connection's audio channel claim (on the update thread's next pass),
+        // so the producer plays this tab's audio itself again -- for when there turns out to
+        // be nowhere to play it after all. A reconnect asks afresh. Any thread.
+        void declineAudioCapture();
 
         // Pops the oldest queued event (received from the producer since the last call),
         // false if none are pending. Call in a loop to drain all of them -- unlike
@@ -367,6 +375,8 @@ class LLEmbeddedBrowserTab
         bool mAudioClaimLogged = false;
         const bool mAudioCapture;
         std::atomic<bool> mAudioCaptured{false};
+        std::atomic<bool> mAudioClaimed{false}; // see isAudioClaimed() -- written by the update thread
+        std::atomic<bool> mAudioDeclined{false}; // see declineAudioCapture()
         // Guards mAudioSink, and is held for the whole of each sink call -- that's what lets
         // setAudioSink() promise the old sink is finished with by the time it returns.
         LLMutex mAudioSinkMutex;
@@ -501,6 +511,8 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         bool popEvent(unsigned int id, LLEmbeddedBrowserEvent& out_event);
         void setAudioSink(unsigned int id, std::shared_ptr<LLEmbeddedBrowserAudioSink> sink);
         bool isAudioCaptured(unsigned int id);
+        bool isAudioClaimed(unsigned int id);
+        void declineAudioCapture(unsigned int id);
 
         // Caps requested create() dimensions -- callers (e.g. newview, which knows about
         // EmbeddedBrowserMaxWidth/Height in settings.xml) should call this once before

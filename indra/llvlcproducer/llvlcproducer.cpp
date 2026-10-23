@@ -124,6 +124,11 @@ void log_priority(const std::string& msg)   { log_line("\x1b[38;5;141m", msg); }
 // immediately (see the main loop) rather than waiting out this grace period.
 constexpr auto kIdleGracePeriod = std::chrono::seconds(5);
 
+// How long a slot granted audio capture waits for the consumer to claim its audio channel
+// before libvlc goes back to playing the audio itself -- see update_vlc_audio_route().
+// Matches the point at which the Viewer itself starts warning that its claim is stuck.
+constexpr auto kAudioClaimGrace = std::chrono::seconds(3);
+
 // A slot this producer itself just freed can still briefly look
 // "already exists" to a fresh create() for the same name: on Windows, a
 // named segment only actually disappears once every process's handle to
@@ -189,10 +194,14 @@ struct Slot
 
     // This slot's audio channel (see kAudioChannelPrefix) -- null unless the consumer asked
     // for audio capture and this producer granted it, in which case libvlc hands this
-    // slot's decoded audio to LibVlcTabManager::PopAudio() instead of playing it, and
-    // kSetVolume/kSetMuted are ignored (see kSlotFlagAudioCapture). Only ever sent on from
-    // the main loop, keeping its command ring single-writer as llshmframe requires.
+    // slot's decoded audio to LibVlcTabManager::PopAudio() instead of playing it, for as
+    // long as the consumer holds (or may still be about to take) the channel's claim -- see
+    // update_vlc_audio_route(). Only ever sent on from the main loop, keeping its command
+    // ring single-writer as llshmframe requires.
     std::unique_ptr<LLPublisher> audioPub;
+    bool                         audio_claimed = false;   // the consumer holds audioPub's claim
+    bool                         audio_capturing = false; // libvlc is handing over audio, not playing it
+    std::chrono::steady_clock::time_point audio_claim_deadline; // see kAudioClaimGrace
     std::vector<std::uint8_t>    audioBuf;     // one packed kAudioPacket, reused across sends
     std::vector<float>           audioSamples; // one popped block, reused across ticks
     std::uint32_t                audio_seq = 0;
@@ -249,11 +258,57 @@ void send_audio(Slot& s, const float* interleaved, std::uint32_t frames, std::ui
     }
 }
 
+// Decides, as the consumer's claim on a captured slot's audio channel comes and goes,
+// whether libvlc hands the audio over or plays it itself. Called once per tick, before
+// pump_vlc_audio(). Capture is kept from grant time -- the claim normally lands within
+// milliseconds, well before libvlc has buffered enough of a stream to produce any audio --
+// but not unconditionally: the consumer claims asynchronously, with retries and no
+// guarantee of success, and a claim that never landed used to leave the slot silent for
+// good. Switching costs a reopen of the player (see LibVlcTabManager::SetAudioCapture()),
+// so this only falls back once kAudioClaimGrace has run out, and never while the per-view
+// channel has no subscriber either -- nobody is listening then, so it isn't worth
+// reconnecting a stream over.
+void update_vlc_audio_route(Slot& s, int index, LibVlcTabManager& vlcMgr,
+                            std::chrono::steady_clock::time_point now)
+{
+    const bool claimed = s.audioPub->has_subscriber();
+    if (claimed != s.audio_claimed) {
+        s.audio_claimed = claimed;
+        if (!claimed) {
+            // A fresh grace period, as at grant time -- a briefly lost claim shouldn't cost
+            // two player reopens (out to libvlc's own output and straight back).
+            s.audio_claim_deadline = now + kAudioClaimGrace;
+        }
+        log_info("slot " + std::to_string(index) +
+                 (claimed ? ": audio channel claimed" : ": audio channel unclaimed"));
+    }
+
+    bool capture = s.audio_capturing;
+    if (claimed) {
+        capture = true;
+    } else if (s.pub->has_subscriber()) {
+        capture = now < s.audio_claim_deadline;
+    } else {
+        // Nobody attached at all: the grace period starts over from whenever someone is,
+        // so a consumer re-attaching to this slot gets the full window to claim again.
+        s.audio_claim_deadline = now + kAudioClaimGrace;
+    }
+    if (capture == s.audio_capturing) {
+        return;
+    }
+
+    s.audio_capturing = capture;
+    vlcMgr.SetAudioCapture(s.vlcHandle, capture);
+    log_info("slot " + std::to_string(index) +
+             (capture ? ": the consumer plays this slot's audio now"
+                      : ": audio channel not claimed -- libvlc plays this slot's audio itself"));
+}
+
 // Forwards whatever captured audio libvlc has made due since the last tick (see
 // LibVlcTabManager::PopAudio()) onto this slot's audio channel. Called once per tick.
 void pump_vlc_audio(Slot& s, int index, LibVlcTabManager& vlcMgr)
 {
-    const bool subscribed = s.audioPub->has_subscriber();
+    const bool subscribed = s.audio_claimed;
 
     std::uint32_t frames = 0;
     std::int64_t pts_us = 0;
@@ -365,6 +420,8 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, LibVlcTabManager& vlcMgr,
     s.had_subscriber = false;
     s.last_active    = now;
     s.audioPub       = std::move(audio_pub);
+    s.audio_capturing = capturing;
+    s.audio_claim_deadline = now + kAudioClaimGrace;
 
     log_connect("slot " + std::to_string(index) + " connected" + (audio_only ? " (audio-only)" : "") +
                 ", ceiling " + std::to_string(cfg.max_width) + "x" + std::to_string(cfg.max_height) +
@@ -677,7 +734,7 @@ int run_producer(int argc, char** argv)
             // fence.
             // The flags byte is what tells the consumer whether audio capture is actually
             // on -- it may have asked and been declined (see allocate_slot()).
-            std::uint8_t payload[5];
+            std::uint8_t payload[kSlotAssignedBytes];
             const std::uint8_t flags = slots[std::size_t(free_index)].audioPub ? kSlotFlagAudioCapture : 0;
             const std::uint32_t payload_len = pack_slot_assigned(payload, std::uint32_t(free_index), flags);
             control->send(kSlotAssigned, payload, payload_len, cmd.id);
@@ -769,16 +826,17 @@ int run_producer(int argc, char** argv)
                     break;
                 }
                 case kSetVolume: {
-                    // A capturing slot's volume is the consumer's own gain -- libvlc's stays
-                    // at 100% (see kSlotFlagAudioCapture).
-                    if (!cmd.data.empty() && !s.audioPub) vlcMgr.SetVolume(s.vlcHandle, int(cmd.data[0]));
+                    // Always recorded -- LibVlcTabManager only applies it while libvlc is
+                    // playing the audio itself; a capturing player stays at 100%, since the
+                    // consumer's own gain is the volume control (see kSlotFlagAudioCapture).
+                    if (!cmd.data.empty()) vlcMgr.SetVolume(s.vlcHandle, int(cmd.data[0]));
                     break;
                 }
                 case kSetMuted: {
                     // Maps to volume 0/100 -- see kSetMuted's own comment in
-                    // cefshm_protocol.h on why this is honoured here too. Ignored while
-                    // capturing, like kSetVolume above.
-                    if (!cmd.data.empty() && !s.audioPub) vlcMgr.SetVolume(s.vlcHandle, cmd.data[0] != 0 ? 0 : 100);
+                    // cefshm_protocol.h on why this is honoured here too. Recorded/applied
+                    // like kSetVolume above.
+                    if (!cmd.data.empty()) vlcMgr.SetVolume(s.vlcHandle, cmd.data[0] != 0 ? 0 : 100);
                     break;
                 }
                 case kMouseButton: {
@@ -869,6 +927,7 @@ int run_producer(int argc, char** argv)
 
             if (s.audioPub) {
                 s.audioPub->heartbeat(); // never commits a frame, so this is its only liveness signal
+                update_vlc_audio_route(s, int(i), vlcMgr, now);
                 pump_vlc_audio(s, int(i), vlcMgr);
             }
         }

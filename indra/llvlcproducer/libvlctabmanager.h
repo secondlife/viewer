@@ -107,7 +107,7 @@ public:
     // prior size can ever overrun it.
     //
     // audioCapture: hand this tab's decoded audio to the caller (see PopAudio()) instead
-    // of libvlc playing it itself -- fixed for the tab's lifetime, applied by every Open().
+    // of libvlc playing it itself -- the starting value for SetAudioCapture().
     VlcTabHandle CreateTab(int width, int height, int maxWidth, int maxHeight, bool audioCapture = false);
 
     // Same handle/tab-reuse machinery as CreateTab, but for an audio-only client
@@ -151,8 +151,16 @@ public:
     void Resize(VlcTabHandle handle, int width, int height);
 
     // volume0to100: matches libvlc_audio_set_volume()'s own native range directly, no
-    // scaling. See kSetVolume/kSetMuted in cefshm_protocol.h.
+    // scaling. See kSetVolume/kSetMuted in cefshm_protocol.h. Remembered and applied to
+    // every player Open() creates, but only while libvlc is playing the audio itself -- a
+    // capturing player stays at 100%, since the caller applies its own gain.
     void SetVolume(VlcTabHandle handle, int volume0to100);
+
+    // Switches between handing this tab's audio to the caller (see PopAudio()) and libvlc
+    // playing it itself. libvlc only picks its audio output when a player is created, so a
+    // playing tab is reopened at its current position (a brief interruption, as for a
+    // resize); a paused/stopped one switches when Play() next resumes it.
+    void SetAudioCapture(VlcTabHandle handle, bool capture);
 
     // Play/pause toggle -- used for click-to-pause/resume (there's only one gesture --
     // a click -- to map, so a toggle is the right shape there). A no-op before the

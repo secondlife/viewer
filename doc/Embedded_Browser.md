@@ -966,7 +966,7 @@ directions:
   `llvlcshm_audio_<N>`, frame-less, a 64-entry x 16KB command ring - never on
   the per-view channel, whose ring would otherwise fill with ~40-100
   packets/sec behind a briefly stalled consumer and starve `kEvent*` traffic.
-- `kAudioPacket` (43) is self-describing - `{seq, ptsUs, sampleRate,
+- `kAudioPacket` (46) is self-describing - `{seq, ptsUs, sampleRate,
   channels, sampleFormat, frames, interleaved float32 samples}` - so a
   reconnecting consumer never needs a separate format handshake, and the
   format is whatever the source produces. For CEF that is **1024
@@ -974,12 +974,32 @@ directions:
   own capture default - not 10ms at 48kHz, as first assumed; producers split
   anything that wouldn't fit the ring's packet size. A gap in `seq` means
   lost audio.
-  `kAudioStreamStopped` (44) marks a deliberate stop, so the silence that
+  `kAudioStreamStopped` (47) marks a deliberate stop, so the silence that
   follows isn't counted as an underrun.
-- A slot granted capture keeps the producer's own output **silenced for its
-  whole lifetime** (SLCefProducer calls `SetAudioMuted(true)`; capture keeps
-  flowing regardless) and ignores `kSetMuted`/`kSetVolume` - otherwise an
-  unmute meant for the Viewer's gain would double the audio.
+- A slot granted capture only **hands its audio over while the Viewer holds
+  the audio channel's claim**. The claim is asynchronous (retried, never
+  guaranteed), so capturing from grant time left a silent gap after every
+  capture start and producer relaunch, and a slot whose claim never landed
+  stayed silent for good. Instead the producer plays the audio itself until
+  the claim lands, and again if it's ever dropped, following the latest
+  `kSetMuted`/`kSetVolume` - which is why the Viewer keeps sending those for
+  captured tabs too. The Viewer also only creates the tab's OpenAL stream
+  while it holds the claim, and gives the claim up if it can't create one.
+  - **SLCefProducer** registers llCefBrowser's capture callbacks on the claim
+    edge and clears them when it drops. Capture *redirects* CEF's audio -
+    once `GetAudioParameters()` accepts a stream, Chromium sends it to the
+    callbacks instead of the speakers, and no `SetAudioMuted()` brings it
+    back - so CEF is never muted on the claim's account. CEF only asks when
+    the page starts making sound (again only after 2s of quiet), so a stream
+    already playing when the claim lands keeps playing through CEF until it
+    ends, and one being captured when the claim drops stays redirected, and
+    silent, until it ends. The claim normally lands long before the page
+    makes any sound.
+  - **SLVlcProducer** can only pick libvlc's audio output when it creates a
+    player, so it starts out capturing, and only switches to libvlc's own
+    output (reopening the player at its current position) if the claim
+    hasn't landed within 3 seconds, or within 3 seconds of a dropped claim;
+    it switches back if the claim lands later.
 - All three in-repo copies of `cefshm_protocol.h` carry this. **The fourth,
   llcefshm-example's own, still needs the same additions.**
 

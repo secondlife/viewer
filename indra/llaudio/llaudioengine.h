@@ -215,6 +215,9 @@ public:
     // play straight to the listener. Null if this engine can't do it -- callers should then
     // leave audio to whatever was producing it instead.
     virtual std::shared_ptr<LLStreamedAudioSource> createStreamedSource(U32 prebuffer_ms, bool spatial) { return nullptr; }
+    // Whether createStreamedSource() can succeed at all -- for deciding up front whether to
+    // ask for audio as PCM, without allocating a source before it's actually needed.
+    virtual bool supportsStreamedSources() const { return false; }
 
     // For debugging usage
     virtual LLVector3 getListenerPos();

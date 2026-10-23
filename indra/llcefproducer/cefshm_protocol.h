@@ -88,15 +88,22 @@ namespace cefshm_demo
     inline constexpr std::uint32_t kAudioPacketHeaderBytes = 20;
     inline constexpr std::uint8_t  kAudioSampleFormatF32   = 0;    // kAudioPacket's sampleFormat byte
 
-    // kSlotAssigned's flags byte. kSlotFlagAudioCapture: this slot's audio now reaches the
-    // consumer only as kAudioPacket on its audio channel -- the producer keeps its own output
-    // silenced for the slot's whole lifetime (no double playback) and ignores kSetMuted/
-    // kSetVolume for it, so the consumer's own gain is the one volume control.
+    // kSlotAssigned's flags byte. kSlotFlagAudioCapture: this slot's audio reaches the
+    // consumer as kAudioPacket on its audio channel, for as long as the consumer holds that
+    // channel's claim -- captured audio never also reaches the speakers, and the consumer's
+    // own gain is its one volume control. Until the claim lands, or if it never does, the
+    // producer plays the slot's audio itself, governed by kSetMuted/kSetVolume as for any
+    // other slot -- so the consumer must keep those current regardless. (CEF switches per
+    // audio stream: one already playing when the claim lands or drops keeps its route until
+    // it ends. LibVLC only falls back after a short grace period, since switching means
+    // reopening its player.)
     inline constexpr std::uint8_t  kSlotFlagAudioCapture   = 1u << 0;
 
     // kRequestSlot's full payload size -- size request buffers with this, not a literal,
     // so appending another trailing byte can't silently overflow a caller's buffer.
     inline constexpr std::size_t   kRequestSlotBytes       = 12;
+    // kSlotAssigned's full payload size -- same reasoning as kRequestSlotBytes.
+    inline constexpr std::size_t   kSlotAssignedBytes      = 5;
 
     enum Opcode : std::uint32_t
     {
@@ -340,13 +347,17 @@ namespace cefshm_demo
 
         // producer -> consumer, audio channel only (see kAudioChannelPrefix) -- sent by both
         // producers, for any slot whose kSlotAssigned reply set kSlotFlagAudioCapture.
-        kAudioPacket = 43, // data = pack_audio_packet(...): {uint32 seq, int64 ptsUs, uint32 sampleRate,
+        // 43-45 are retired: an earlier, since-reverted audio transport (kAudioStreamStarted=43,
+        // kAudioPacket=44 with planar samples, kAudioStreamStopped=45) shipped on pushed
+        // branches. Never reuse them -- a producer from that era must not have its packets
+        // misparsed as the formats below.
+        kAudioPacket = 46, // data = pack_audio_packet(...): {uint32 seq, int64 ptsUs, uint32 sampleRate,
                            // uint8 channels, uint8 sampleFormat, uint16 frames, samples (remainder)} --
                            // samples are interleaved little-endian float32 (kAudioSampleFormatF32).
                            // Self-describing per packet, so a reconnecting consumer never needs a
                            // separate format handshake. seq advances by one per packet generated,
                            // including any dropped on a full ring, so a gap means lost audio.
-        kAudioStreamStopped = 44, // empty payload -- the source stopped producing audio (page went
+        kAudioStreamStopped = 47, // empty payload -- the source stopped producing audio (page went
                            // quiet, media paused/ended): play out what's buffered, then go idle
                            // rather than treating the silence that follows as an underrun.
     };
@@ -738,6 +749,7 @@ namespace cefshm_demo
         return unpack_u32(d + 1, n - 1, maxWidth) && unpack_u32(d + 5, n - 5, maxHeight);
     }
 
+    // d must hold kSlotAssignedBytes.
     inline std::uint32_t pack_slot_assigned(std::uint8_t* d, std::uint32_t index, std::uint8_t flags)
     {
         std::uint32_t n = pack_u32(d, index);
