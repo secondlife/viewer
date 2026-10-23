@@ -273,11 +273,9 @@ TimerInfo& get_timer_info()
 // microseconds since the Unix epoch - Jan 1, 1970
 U64MicrosecondsImplicit totalTime()
 {
-    // Anchor a monotonic clock to Unix time without mutable state shared by callers.
-    static const auto epoch_offset = std::chrono::system_clock::now().time_since_epoch()
-                                  - std::chrono::steady_clock::now().time_since_epoch();
-    const auto elapsed = epoch_offset + std::chrono::steady_clock::now().time_since_epoch();
-    return U64Microseconds(std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count());
+    // Unix timestamps must follow system-clock corrections and suspend/resume.
+    return U64Microseconds(std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count());
 }
 
 
