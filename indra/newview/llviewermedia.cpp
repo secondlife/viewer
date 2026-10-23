@@ -2856,10 +2856,10 @@ void LLViewerMediaImpl::updateVolume()
                 // often 0, since a tab created during the login/teleport progress screen
                 // (sOnlyAudibleTextureID) or out of range starts out silent. Setting
                 // mEmbeddedBrowserCefVolume also makes LoadEnd's per-navigation re-injection
-                // (see updateEmbeddedBrowserEvents()) use 1.0 from here on. Keyed on the
-                // claim rather than the grant because the producer only captures while this
-                // tab holds it -- until then CEF plays the page itself, and must get the
-                // real level below. CEF only -- a LibVLC slot has no page/DOM to script.
+                // (see updateEmbeddedBrowserEvents()) use 1.0 from here on. Requires both
+                // the claim and a captured packet: a claim alone doesn't reroute a CEF
+                // stream that was already playing, so it must keep the real level until it
+                // ends. CEF only -- a LibVLC slot has no page/DOM to script.
                 if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef && mEmbeddedBrowserCefVolume != 1.f)
                 {
                     mEmbeddedBrowserCefVolume = 1.f;
@@ -2906,10 +2906,9 @@ void LLViewerMediaImpl::updateVolume()
                 // mute/unmute jump.
                 //
                 // Not while this tab's audio capture is still undecided (requested, but not
-                // yet connected to learn whether the producer granted it): if it's granted,
-                // the page must be left at full volume (see the branch above), and a 0
-                // injected now would silence it at the source. The hard mute still covers
-                // the gap; a declined tab picks up its real level here once connected.
+                // yet connected to learn whether the producer granted it): a 0 injected now
+                // could silence a stream before its routing is known. The hard mute still
+                // covers the gap; a declined tab picks up its real level here once connected.
                 unsigned int slot_index = 0;
                 const bool capture_undecided = mEmbeddedBrowserAudioRequested && !getEmbeddedBrowserSlotIndex(slot_index);
 
