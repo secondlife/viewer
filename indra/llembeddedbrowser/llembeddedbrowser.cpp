@@ -93,7 +93,7 @@ namespace {
     constexpr auto kAudioClaimWarnAfter     = std::chrono::seconds(3);
 }
 
-LLEmbeddedBrowserTab::LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI, LLEmbeddedBrowserBackend backend, unsigned int maxWidth, unsigned int maxHeight, bool audioCapture) :
+LLEmbeddedBrowserTab::LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI, LLEmbeddedBrowserBackend backend, unsigned int maxWidth, unsigned int maxHeight, bool audioCapture, std::shared_ptr<LLEmbeddedBrowserAudioSink> audioSink) :
     mAudioCapture(audioCapture),
     mIsUI(isUI),
     mBackend(backend),
@@ -105,6 +105,8 @@ LLEmbeddedBrowserTab::LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned 
     mMaxHeight(maxHeight),
     mCurrentUrl(url)
 {
+    mAudioSink = std::move(audioSink);
+
     // Zero-initialized: this shows as black until connectToProducer() succeeds and the
     // first real frame arrives, rather than whatever garbage new[] handed back -- the
     // handshake with cefshm_producer can take up to a few seconds, unlike the
@@ -1285,7 +1287,8 @@ std::shared_ptr<LLEmbeddedBrowserTab> LLEmbeddedBrowser::findTab(unsigned int id
 }
 
 unsigned int LLEmbeddedBrowser::create(const std::string& url, unsigned int width, unsigned int height, bool isUI,
-                                       LLEmbeddedBrowserBackend backend, bool audioCapture)
+                                       LLEmbeddedBrowserBackend backend, bool audioCapture,
+                                       std::shared_ptr<LLEmbeddedBrowserAudioSink> audioSink)
 {
     width = llmin(width, mMaxWidth);
     height = llmin(height, mMaxHeight);
@@ -1293,7 +1296,7 @@ unsigned int LLEmbeddedBrowser::create(const std::string& url, unsigned int widt
     LLMutexLock lock(&mTabsMutex);
     unsigned int id = mNextTabId++;
     mTabs[id] = std::make_shared<LLEmbeddedBrowserTab>(this, id, url, width, height, isUI, backend, mMaxWidth, mMaxHeight,
-                                                       audioCapture);
+                                                       audioCapture, std::move(audioSink));
     return id;
 }
 

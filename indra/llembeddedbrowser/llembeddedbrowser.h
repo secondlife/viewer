@@ -194,8 +194,9 @@ class LLEmbeddedBrowserTab
         // absolute maximum -- see that opcode's own comment in cefshm_protocol.h.
         // audioCapture asks the producer to hand this tab's audio to the Viewer (see
         // setAudioSink()) instead of playing it -- fixed for the tab's lifetime too, since
-        // it also goes in kRequestSlot.
-        LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI, LLEmbeddedBrowserBackend backend, unsigned int maxWidth, unsigned int maxHeight, bool audioCapture);
+        // it also goes in kRequestSlot. audioSink is installed before the update thread
+        // starts, so it is ready before the producer can claim the audio channel.
+        LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI, LLEmbeddedBrowserBackend backend, unsigned int maxWidth, unsigned int maxHeight, bool audioCapture, std::shared_ptr<LLEmbeddedBrowserAudioSink> audioSink);
         ~LLEmbeddedBrowserTab();
 
         // Stops this tab's own update thread, blocking until it has genuinely exited
@@ -445,10 +446,11 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         // LLEmbeddedBrowserTab's own constructor comment. backend selects the
         // producer-side implementation for this slot (see LLEmbeddedBrowserBackend); it
         // defaults to Cef so this stays a drop-in for any caller that doesn't care.
-        // audioCapture: see LLEmbeddedBrowserTab's own constructor comment.
+        // audioCapture/audioSink: see LLEmbeddedBrowserTab's own constructor comment.
         unsigned int create(const std::string& url, unsigned int width, unsigned int height, bool isUI,
                              LLEmbeddedBrowserBackend backend = LLEmbeddedBrowserBackend::Cef,
-                             bool audioCapture = false);
+                             bool audioCapture = false,
+                             std::shared_ptr<LLEmbeddedBrowserAudioSink> audioSink = {});
         void destroy(unsigned int id);
         void update(unsigned int id);
 

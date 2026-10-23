@@ -2200,19 +2200,38 @@ void LLViewerMediaImpl::createMediaSource()
         // Both backends: SLCefProducer captures via CEF's CefAudioHandler, SLVlcProducer
         // via libvlc's audio callbacks. Prim media is positioned in the world (see
         // mEmbeddedBrowserAudioPositionGlobal); UI and parcel media have no position and
-        // stay stereo. Only asked for here -- the stream itself isn't created until the
-        // audio actually arrives (see updateEmbeddedBrowserAudioSource()).
+        // stay stereo. Create the stream and attach its sink before starting the browser
+        // update thread, so audio can't be claimed before there's somewhere to send it.
         static LLCachedControl<bool> audio_via_viewer(gSavedSettings, "EmbeddedBrowserAudioViaViewer");
         mEmbeddedBrowserAudioRequested = audio_via_viewer() && gAudiop && gAudiop->supportsStreamedSources();
         // HUD media has no world position to pan from (see calculateInterest()), so it
         // keeps its stereo too rather than being mixed down only to play from the listener.
         mEmbeddedBrowserAudioSpatial = !mUsedInUI && !isParcelMedia() && !isAttachedToHUD();
+        std::shared_ptr<LLEmbeddedBrowserAudioSink> audio_sink;
+        if (mEmbeddedBrowserAudioRequested)
+        {
+            static LLCachedControl<U32> audio_prebuffer_ms(gSavedSettings, "EmbeddedBrowserAudioPrebufferMs");
+            mEmbeddedBrowserAudioCaptured.store(false);
+            mEmbeddedBrowserAudio = gAudiop->createStreamedSource(audio_prebuffer_ms(), mEmbeddedBrowserAudioSpatial);
+            if (mEmbeddedBrowserAudio)
+            {
+                audio_sink = std::make_shared<LLEmbeddedBrowserAudioToStream>(
+                    mEmbeddedBrowserAudio, mEmbeddedBrowserAudioCaptured);
+            }
+            else
+            {
+                mEmbeddedBrowserAudioRequested = false;
+                LL_WARNS("MediaAudio") << "Couldn't create an audio stream for embedded-browser media (id="
+                    << mTextureId << ") -- leaving its audio to the producer" << LL_ENDL;
+            }
+        }
 
         // Matches loadURI()'s legacy-plugin behavior: data: URIs need their payload
         // re-escaped (see LLURI::escapePathAndData()'s dedicated data: handling) to parse
         // correctly -- plain http(s) URLs pass through this unchanged either way.
         mEmbeddedBrowserId = LLEmbeddedBrowser::getInstance()->create(LLURI::escapePathAndData(mMediaURL), width, height, mUsedInUI,
-                                                                       mEmbeddedBrowserBackend, mEmbeddedBrowserAudioRequested);
+                                                                       mEmbeddedBrowserBackend, mEmbeddedBrowserAudioRequested,
+                                                                       std::move(audio_sink));
         // setPageZoomFactor() may have already updated mZoomFactor before this tab
         // existed (e.g. ensureMediaSourceExists()'s own call, which runs right before
         // this) -- apply whatever it currently is now that there's a real tab to send
@@ -5657,40 +5676,15 @@ bool LLViewerMediaImpl::isEmbeddedBrowserAudioClaimed()
 
 void LLViewerMediaImpl::updateEmbeddedBrowserAudioSource()
 {
-    // Exists exactly while this tab holds its audio channel's claim -- the only time the
-    // producer hands audio over rather than playing it itself (see kSlotFlagAudioCapture).
-    // A grant whose claim never lands, or a producer that declines, never costs an OpenAL
-    // voice or a ring buffer.
+    // The stream and sink are created before the browser update thread can claim this tab's
+    // audio channel (see createMediaSource()). Keep them attached while capture is requested,
+    // including while the producer is still retrying its claim.
     mEmbeddedBrowserAudioClaimed = mEmbeddedBrowserAudioRequested &&
                                    LLEmbeddedBrowser::getInstance()->isAudioClaimed(mEmbeddedBrowserId);
-    if (!mEmbeddedBrowserAudioClaimed)
+    if (!mEmbeddedBrowserAudioRequested)
     {
         releaseEmbeddedBrowserAudio();
-        return;
     }
-    if (mEmbeddedBrowserAudio || !gAudiop)
-    {
-        return;
-    }
-
-    static LLCachedControl<U32> audio_prebuffer_ms(gSavedSettings, "EmbeddedBrowserAudioPrebufferMs");
-    mEmbeddedBrowserAudioCaptured.store(false);
-    mEmbeddedBrowserAudio = gAudiop->createStreamedSource(audio_prebuffer_ms(), mEmbeddedBrowserAudioSpatial);
-    if (!mEmbeddedBrowserAudio)
-    {
-        // E.g. out of AL sources. Holding on to the claim would leave the producer handing
-        // audio over to nowhere, so give it up: the producer then plays this tab's audio
-        // itself again (see kSlotFlagAudioCapture). isAudioClaimed() reports false from
-        // here on, so this isn't retried until a reconnect asks afresh.
-        LLEmbeddedBrowser::getInstance()->declineAudioCapture(mEmbeddedBrowserId);
-        mEmbeddedBrowserAudioClaimed = false;
-        LL_WARNS("MediaAudio") << "Couldn't create an audio stream for embedded-browser media (id="
-            << mTextureId << ") -- leaving its audio to the producer" << LL_ENDL;
-        return;
-    }
-    LLEmbeddedBrowser::getInstance()->setAudioSink(mEmbeddedBrowserId,
-        std::make_shared<LLEmbeddedBrowserAudioToStream>(mEmbeddedBrowserAudio,
-                                                        mEmbeddedBrowserAudioCaptured));
 }
 
 void LLViewerMediaImpl::releaseEmbeddedBrowserAudio()

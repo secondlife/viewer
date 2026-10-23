@@ -580,11 +580,9 @@ private:
     F32 mEmbeddedBrowserCefVolume = -1.f;
     // Viewer-side playback of this tab's audio, through gAudiop, for when the producer
     // hands it over as PCM instead of playing it itself (EmbeddedBrowserAudioViaViewer --
-    // see kSlotFlagAudioCapture in cefshm_protocol.h). Not created up front: a full
-    // OpenAL voice plus its ring buffer is only worth holding while the producer is
-    // actually handing audio over, i.e. while this tab holds its audio channel's claim
-    // (see updateEmbeddedBrowserAudioSource(), which creates and releases it each way).
-    // Also released in destroyMediaSource().
+    // see kSlotFlagAudioCapture in cefshm_protocol.h). Created before the browser update
+    // thread starts so its sink is ready before the producer can claim the audio channel.
+    // Released in destroyMediaSource().
     std::shared_ptr<LLStreamedAudioSource> mEmbeddedBrowserAudio;
     // Whether createMediaSource() asked the producer for this tab's audio (see
     // mEmbeddedBrowserAudio), and whether a stream for it would be positioned in the world.
@@ -670,8 +668,9 @@ private:
     // The producer-side half of updateVolume(): kSetVolume for a LibVLC slot, kSetMuted for
     // a CEF one, each deduped. Sent whether or not the audio is captured -- see there.
     void sendEmbeddedBrowserProducerVolume(F32 volume);
-    // Creates mEmbeddedBrowserAudio while this tab holds its audio channel's claim, and
-    // releases it when it doesn't. Called once per update(), before updateVolume().
+    // Samples whether this tab holds its audio channel's claim. The playback stream and
+    // sink are installed by createMediaSource() before the browser update thread starts.
+    // Called once per update(), before updateVolume().
     void updateEmbeddedBrowserAudioSource();
     void releaseEmbeddedBrowserAudio();
     LLCoros::Mutex mLock;
