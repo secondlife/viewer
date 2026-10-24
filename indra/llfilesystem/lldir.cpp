@@ -90,7 +90,12 @@ LLDir::~LLDir()
 {
 }
 
-std::vector<std::string> LLDir::getFilesInDir(const std::filesystem::path &dir_path, bool includeExternalSymlinks) const
+std::vector<std::string> LLDir::getFilesInDir(const std::string& dirname) const
+{
+    return getFilesInDir(fsyspath(dirname));
+};
+
+std::vector<std::string> LLDir::getFilesInDir(const std::filesystem::path &dir_path) const
 {
     // Returns a vector of filenames in the directory.
     std::vector<std::string> v;
@@ -124,11 +129,6 @@ std::vector<std::string> LLDir::getFilesInDir(const std::filesystem::path &dir_p
     }
     return v;
 }
-
-std::vector<std::string> LLDir::getFilesInDir(const std::string &dirname, bool includeExternalSymlinks) const
-{
-    return getFilesInDir(fsyspath(dirname), includeExternalSymlinks);
-};
 
 S32 LLDir::deleteFilesInDir(const std::string &dirname, const std::string &mask)
 {
