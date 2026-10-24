@@ -78,7 +78,7 @@
 #define CERT_EKU_SERVER_AUTH SN_server_auth
 #define CERT_EKU_TLS_SERVER_AUTH LN_server_auth
 
-#define CERT_SUBJECT_KEY_IDENTFIER "subjectKeyIdentifier"
+#define CERT_SUBJECT_KEY_IDENTIFIER "subjectKeyIdentifier"
 #define CERT_AUTHORITY_KEY_IDENTIFIER "authorityKeyIdentifier"
 #define CERT_AUTHORITY_KEY_IDENTIFIER_ID "authorityKeyIdentifierId"
 #define CERT_AUTHORITY_KEY_IDENTIFIER_NAME "authorityKeyIdentifierName"
@@ -143,6 +143,9 @@ public:
 
     // return a DER encoded certificate
     virtual std::vector<U8> getBinary() const=0;
+
+    // return if it is a certificate from the system certificate store
+    virtual bool isSystem() const=0;
 
     // return an LLSD object containing information about the certificate
     // such as its name, signature, expiry time, serial number
@@ -214,10 +217,10 @@ public:
     virtual int size() const = 0;
 
     // append the cert to the store. If the certificate already exists in the store, nothing is done.
-    virtual void  add(LLPointer<LLCertificate> cert)=0;
+    virtual bool add(LLPointer<LLCertificate> cert) = 0;
 
     // insert the cert to the store. If the certificate already exists in the store, nothing is done.
-    virtual void  insert(iterator location, LLPointer<LLCertificate> cert)=0;
+    virtual bool insert(iterator location, LLPointer<LLCertificate> cert) = 0;
 
     // remove a certificate from the store
     virtual LLPointer<LLCertificate> erase(iterator cert)=0;
