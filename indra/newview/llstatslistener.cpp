@@ -187,10 +187,14 @@ void LLStatsListener::getPerfData(LLSD const & evt)
     stats["memory"] = memory;
 
     LLSD inventory;
-    // library skeleton cache load duration
+    // library skeleton cache merge duration (main thread only, excludes async wait)
     inventory["skeleton_load_time_library_seconds"] = gInventory.getLibrarySkeletonLoadTime();
-    // agent skeleton cache load duration
+    // agent skeleton cache merge duration (main thread only, excludes async wait)
     inventory["skeleton_load_time_agent_seconds"] = gInventory.getAgentSkeletonLoadTime();
+    // library skeleton wait duration (from first STATE_INVENTORY_SKEL entry to loadSkeleton())
+    inventory["skeleton_wait_time_library_seconds"] = gInventory.getLibrarySkeletonWaitTime();
+    // agent skeleton wait duration (from first STATE_INVENTORY_SKEL entry to loadSkeleton())
+    inventory["skeleton_wait_time_agent_seconds"] = gInventory.getAgentSkeletonWaitTime();
     // initial recursive inventory/library background fetch duration
     inventory["initial_fetch_time_seconds"] = LLInventoryModelBackgroundFetch::instance().getInitialFetchDuration();
     inventory["fetch_completed"] = LLInventoryModelBackgroundFetch::instance().isEverythingFetched();

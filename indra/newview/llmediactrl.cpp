@@ -69,6 +69,9 @@ extern bool gRestoreGL;
 
 const std::string PAGE_TEXT_EXTRACT_MARKER = "PAGE_TEXT_EXTRACT:";
 
+// LEAP getMediaText request awaiting page text; replying with it preserves ["reqid"]
+static LLSD sPendingTextRequest;
+
 class LLMediaCtrlListener;
 
 static LLDefaultChildRegistry::Register<LLMediaCtrl> r("web_browser");
@@ -1199,6 +1202,11 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
         };
         break;
 
+        case MEDIA_EVENT_FILE_DOWNLOAD_PROGRESS:
+        {
+        }
+        break;
+
         case MEDIA_EVENT_DEBUG_MESSAGE:
         {
             LL_INFOS("media") << self->getDebugMessageText() << LL_ENDL;
@@ -1224,8 +1232,11 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
                         std::string pump_name = remaining.substr(0, colon_pos);
                         std::string page_text = remaining.substr(colon_pos + 1);
 
-                        // Send the response directly to the specified pump
-                        LLEventPumps::instance().obtain(pump_name).post(LLSD().with("text", page_text));
+                        if (sPendingTextRequest.isDefined() && pump_name == sPendingTextRequest["reply"].asString())
+                        {
+                            sendReply(LLSD().with("text", page_text), sPendingTextRequest);
+                            sPendingTextRequest.clear();
+                        }
                     }
                 }
             }
@@ -1454,6 +1465,7 @@ void LLMediaCtrlListener::getMediaText(const LLSD& request)
                           "(document.body ? (document.body.innerText ? document.body.innerText.substring(0, 1000).replace(/\\s+/g, ' ').trim() : "
                           "'No text content') : 'Document body not ready'));";
 
+    sPendingTextRequest = request;
     if (!media_ctrl->executeJavaScript(text_extract_script))
     {
         replyError(request, "Failed to execute JavaScript for text extraction");

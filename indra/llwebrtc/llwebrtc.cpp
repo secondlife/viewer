@@ -292,6 +292,7 @@ LLWebRTCImpl::LLWebRTCImpl(LLWebRTCLogCallback* logCallback) :
     mVoiceEnabled(false),
     mTuningMode(false),
     mDevicesDeploying(0),
+    mTerminating(false),
     mGain(0.0f),
     mBuiltinNS(false),
     mBuiltinAGC(false),
@@ -404,6 +405,10 @@ bool LLWebRTCImpl::terminate()
     auto done_promise = std::make_shared<std::promise<void> >();
     std::future<void> done_future = done_promise->get_future();
 
+    // Prevents device-deploy code from queuing more work on mWorkerThread/mDeviceModule,
+    // avoiding races when those members are moved to the shutdown thread below. See #6452.
+    mTerminating = true;
+
     // Hand ownership of the connections to the shutdown thread.  Nothing on
     // this thread may touch them afterwards -- in the timeout case below the
     // shutdown thread is detached and may still be working through them.
@@ -419,6 +424,9 @@ bool LLWebRTCImpl::terminate()
             mDeviceModule->SetObserver(nullptr);
         }
     });
+
+    // Signaling thread may still run workerDeployDevices() that reposts to mWorkerThread, so drain it.
+    mSignalingThread->BlockingCall([]() {});
     mVoiceDevicesObserverList.clear();
 
     // shutdown_thread can be detached, then LLWebRTCImpl will be nulled out.
@@ -671,19 +679,30 @@ void LLWebRTCImpl::workerStartRecording()
         }
     }
 
+    int32_t result = 0;
 #if WEBRTC_WIN
     if (recordingDevice < 0)
     {
-        mDeviceModule->SetRecordingDevice((webrtc::AudioDeviceModule::WindowsDeviceType)recordingDevice);
+        result = mDeviceModule->SetRecordingDevice((webrtc::AudioDeviceModule::WindowsDeviceType)recordingDevice);
     }
     else
     {
-        mDeviceModule->SetRecordingDevice(recordingDevice);
+        result = mDeviceModule->SetRecordingDevice(recordingDevice);
     }
 #else
-    mDeviceModule->SetRecordingDevice(recordingDevice);
+    result = mDeviceModule->SetRecordingDevice(recordingDevice);
 #endif
-    mDeviceModule->InitMicrophone();
+    if (result != 0)
+    {
+        RTC_LOG(LS_WARNING) << "workerStartRecording: SetRecordingDevice(" << recordingDevice << ") failed " << result;
+    }
+
+    result = mDeviceModule->InitMicrophone();
+    if (result != 0)
+    {
+        RTC_LOG(LS_WARNING) << "workerStartRecording: InitMicrophone failed " << result;
+    }
+
     mDeviceModule->SetStereoRecording(false);
     // A newly-selected capture device may default its hardware AEC/AGC/NS on;
     // disable before InitRecording so the recording stream is configured to
@@ -702,7 +721,7 @@ void LLWebRTCImpl::workerStartPlayout()
 {
     // Only run playout while voice is enabled and there's a connection to
     // render (running the output device otherwise is heard as a buzz).
-    if (!mDeviceModule || !mVoiceEnabled || mTuningMode || mDeviceModule->Playing() || mPeerConnections.empty())
+    if (!mDeviceModule || !mVoiceEnabled || mTuningMode || mPeerConnections.empty())
     {
         return;
     }
@@ -724,6 +743,16 @@ void LLWebRTCImpl::workerStartPlayout()
                 break;
             }
         }
+    }
+
+    if (mDeviceModule->Playing())
+    {
+        if (mDeviceModule->GetPlayoutDevice() == playoutDevice)
+        {
+            return;
+        }
+
+        mDeviceModule->StopPlayout();
     }
 
 #if WEBRTC_WIN
@@ -749,7 +778,7 @@ void LLWebRTCImpl::workerStartPlayout()
 // state.  To merely bring playout up when a connection is established (without
 // disturbing the connection's own mute/track management) call
 // workerOpenPlayout() directly -- see startPlayout().
-void LLWebRTCImpl::workerDeployDevices()
+void LLWebRTCImpl::workerDeployDevices(bool reset_module)
 {
     if (!mDeviceModule)
     {
@@ -758,8 +787,27 @@ void LLWebRTCImpl::workerDeployDevices()
 
     // Stop first so the start helpers (which no-op when already running) will
     // re-select the now-current device.
-    mDeviceModule->StopPlayout();
-    mDeviceModule->ForceStopRecording();
+    if (mDeviceModule->Playing())
+    {
+        mDeviceModule->StopPlayout();
+    }
+    if (mDeviceModule->Recording())
+    {
+        mDeviceModule->ForceStopRecording();
+    }
+    if (reset_module && (mDeviceModule->RecordingIsInitialized() || mDeviceModule->PlayoutIsInitialized()))
+    {
+        int32_t result = mDeviceModule->ForceTerminate();
+        if (result != 0)
+        {
+            RTC_LOG(LS_WARNING) << "workerDeployDevices: ForceTerminate failed: " << result;
+        }
+        result = mDeviceModule->Init();
+        if (result != 0)
+        {
+            RTC_LOG(LS_WARNING) << "workerDeployDevices: Init failed: " << result;
+        }
+    }
 
     workerStartRecording();
     workerStartPlayout();
@@ -779,9 +827,13 @@ void LLWebRTCImpl::workerDeployDevices()
                 }
                 connection->enableReceiverTracks(!mTuningMode);
             }
-            if (1 < mDevicesDeploying.fetch_sub(1, std::memory_order_relaxed))
+            if (1 < mDevicesDeploying.fetch_sub(1, std::memory_order_relaxed) && !mTerminating)
             {
-                mWorkerThread->PostTask([this] { workerDeployDevices(); });
+                mWorkerThread->PostTask([this]
+                {
+                    bool reset = mDevicesDeployingNeedsReset.exchange(false, std::memory_order_relaxed);
+                    workerDeployDevices(reset);
+                });
             }
         });
 }
@@ -792,7 +844,7 @@ void LLWebRTCImpl::setCaptureDevice(const std::string &id)
     if (mRecordingDevice != id)
     {
         mRecordingDevice = id;
-        deployDevices();
+        deployDevices(false);
     }
 }
 
@@ -801,7 +853,7 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
     if (mPlayoutDevice != id)
     {
         mPlayoutDevice = id;
-        deployDevices();
+        deployDevices(false);
     }
 }
 
@@ -821,7 +873,7 @@ void LLWebRTCImpl::setVoiceEnabled(bool enable)
                 // across calls and mute/unmute), and start playout if there's
                 // already a connection to render.
                 mDeviceModule->Init();
-                workerDeployDevices();
+                workerDeployDevices(false);
             }
             else
             {
@@ -842,15 +894,61 @@ void LLWebRTCImpl::updateDevices()
         return;
     }
 
+    // Snapshot the previous lists so we can diff them against the freshly
+    // enumerated ones below -- both to detect whether the currently-selected
+    // playout/recording device disappeared (which forces a module reset)
+    // and to report any devices that are newly present (for diagnostics).
+    LLWebRTCVoiceDeviceList previousPlayoutDeviceList = mPlayoutDeviceList;
+    LLWebRTCVoiceDeviceList previousRecordingDeviceList = mRecordingDeviceList;
+
+    auto deviceStillPresent = [](const LLWebRTCVoiceDeviceList& list, const std::string& id) -> bool
+    {
+        if (id.empty() || id == "Default")
+        {
+            return true;
+        }
+        return std::any_of(list.begin(), list.end(),
+            [&id](const LLWebRTCVoiceDevice& device) { return device.mID == id; });
+    };
+
+    // Logs any device present in newList that wasn't present in oldList.
+    auto logNewlyAddedDevices = [](const LLWebRTCVoiceDeviceList& oldList,
+        const LLWebRTCVoiceDeviceList& newList,
+        const char* label)
+    {
+        for (const auto& device : newList)
+        {
+            bool wasPresent = std::any_of(oldList.begin(), oldList.end(),
+                [&device](const LLWebRTCVoiceDevice& old_device) { return old_device.mID == device.mID; });
+            if (!wasPresent)
+            {
+                RTC_LOG(LS_INFO) << "updateDevices: " << label << " device added: name='" << device.mDisplayName
+                    << "' id='" << device.mID << "'";
+            }
+        }
+    };
+
+    bool hadPlayoutDevice = deviceStillPresent(mPlayoutDeviceList, mPlayoutDevice);
+    bool hadRecordingDevice = deviceStillPresent(mRecordingDeviceList, mRecordingDevice);
+
     int16_t renderDeviceCount  = mDeviceModule->PlayoutDevices();
 
     mPlayoutDeviceList.clear();
+    std::string newDefaultPlayoutDeviceGuid;
 #if WEBRTC_WIN
     int16_t index = 0;
 #else
     // index zero is always "Default" for darwin/linux,
     // which is a special case, so skip it.
     int16_t index = 1;
+    {
+        char name[webrtc::kAdmMaxDeviceNameSize];
+        char guid[webrtc::kAdmMaxGuidSize];
+        if (renderDeviceCount > 0 && mDeviceModule->PlayoutDeviceName(0, name, guid) == 0)
+        {
+            newDefaultPlayoutDeviceGuid = guid;
+        }
+    }
 #endif
     for (; index < renderDeviceCount; index++)
     {
@@ -864,12 +962,21 @@ void LLWebRTCImpl::updateDevices()
     int16_t captureDeviceCount        = mDeviceModule->RecordingDevices();
 
     mRecordingDeviceList.clear();
+    std::string newDefaultRecordingDeviceGuid;
 #if WEBRTC_WIN
     index = 0;
 #else
     // index zero is always "Default" for darwin/linux,
     // which is a special case, so skip it.
     index = 1;
+    {
+        char name[webrtc::kAdmMaxDeviceNameSize];
+        char guid[webrtc::kAdmMaxGuidSize];
+        if (captureDeviceCount > 0 && mDeviceModule->RecordingDeviceName(0, name, guid) == 0)
+        {
+            newDefaultRecordingDeviceGuid = guid;
+        }
+    }
 #endif
     for (; index < captureDeviceCount; index++)
     {
@@ -882,18 +989,57 @@ void LLWebRTCImpl::updateDevices()
 
     RTC_LOG(LS_INFO) << "updateDevices, playout count: " << renderDeviceCount << "; capture count: " << captureDeviceCount;
 
+    logNewlyAddedDevices(previousPlayoutDeviceList, mPlayoutDeviceList, "playout");
+    logNewlyAddedDevices(previousRecordingDeviceList, mRecordingDeviceList, "recording");
+
     for (auto &observer : mVoiceDevicesObserverList)
     {
         observer->OnDevicesChanged(mPlayoutDeviceList, mRecordingDeviceList);
     }
 
-    deployDevices();
+    // Force a reinit if a device in use disappeared from the list.
+    bool lostPlayoutDevice = hadPlayoutDevice && !deviceStillPresent(mPlayoutDeviceList, mPlayoutDevice);
+    bool lostRecordingDevice = hadRecordingDevice && !deviceStillPresent(mRecordingDeviceList, mRecordingDevice);
+
+    // Force a reinit if the OS-resolved default device changed
+    // On windows this is going to be unused.
+    bool defaultPlayoutChanged = mPlayoutDevice == "Default"
+        && mHaveDefaultPlayoutDeviceGuid
+        && !newDefaultPlayoutDeviceGuid.empty()
+        && mDefaultPlayoutDeviceGuid != newDefaultPlayoutDeviceGuid;
+    bool defaultRecordingChanged = mRecordingDevice == "Default"
+        && mHaveDefaultRecordingDeviceGuid
+        && !newDefaultRecordingDeviceGuid.empty()
+        && mDefaultRecordingDeviceGuid != newDefaultRecordingDeviceGuid;
+
+    if (defaultPlayoutChanged)
+    {
+        RTC_LOG(LS_INFO) << "updateDevices: default playout device changed";
+    }
+    if (defaultRecordingChanged)
+    {
+        RTC_LOG(LS_INFO) << "updateDevices: default recording device changed";
+    }
+
+    mDefaultPlayoutDeviceGuid = newDefaultPlayoutDeviceGuid;
+    mDefaultRecordingDeviceGuid = newDefaultRecordingDeviceGuid;
+    mHaveDefaultPlayoutDeviceGuid = true;
+    mHaveDefaultRecordingDeviceGuid = true;
+
+    bool reset_module = lostPlayoutDevice || lostRecordingDevice || defaultPlayoutChanged || defaultRecordingChanged;
+
+    deployDevices(reset_module);
 }
 
 void LLWebRTCImpl::OnDevicesUpdated()
 {
     // OnDevicesUpdated() is called on macOS CoreAudio's device-change callback
     // thread.  Calling updateDevices() on that thread causes a deadlock.
+    // It can also fire at any time, including during shutdown.
+    if (mTerminating)
+    {
+        return;
+    }
     mWorkerThread->PostTask([this] { updateDevices(); });
 }
 
@@ -938,15 +1084,27 @@ void LLWebRTCImpl::setTuningMode(bool enable)
         });
 }
 
-void LLWebRTCImpl::deployDevices()
+void LLWebRTCImpl::deployDevices(bool reset_module)
 {
-    if (0 < mDevicesDeploying.fetch_add(1, std::memory_order_relaxed))
+    // Don't queue new work once shutdown has started
+    if (mTerminating)
     {
         return;
     }
+    if (0 < mDevicesDeploying.fetch_add(1, std::memory_order_relaxed))
+    {
+        if (reset_module)
+        {
+            mDevicesDeployingNeedsReset.store(true, std::memory_order_relaxed);
+        }
+        return;
+    }
     mWorkerThread->PostTask(
-        [this] {
-            workerDeployDevices();
+        [this, reset_module] {
+
+            bool reset = mDevicesDeployingNeedsReset.exchange(false, std::memory_order_relaxed);
+            reset |= reset_module;
+            workerDeployDevices(reset);
         });
 }
 
@@ -1046,18 +1204,25 @@ void LLWebRTCImpl::freePeerConnection(LLWebRTCPeerConnectionInterface* peer_conn
             // to, but the engine's send stream was still active then (and the
             // engine's own StopRecording is intentionally a no-op), so the stop
             // only sticks once the connection -- and its stream -- is gone.
-            mWorkerThread->PostTask(
-                [this]()
-                {
-                    if (mDeviceModule)
+            // Don't post once shutdown has started.
+            if (!mTerminating)
+            {
+                mWorkerThread->PostTask(
+                    [this]()
                     {
-                        mDeviceModule->StopPlayout();
-                        if (!mVoiceEnabled)
+                        if (mDeviceModule)
                         {
-                            mDeviceModule->ForceStopRecording();
+                            if (mDeviceModule->Playing())
+                            {
+                                mDeviceModule->StopPlayout();
+                            }
+                            if (!mVoiceEnabled)
+                            {
+                                mDeviceModule->ForceStopRecording();
+                            }
                         }
-                    }
-                });
+                    });
+            }
         }
     }
 }
@@ -1071,6 +1236,10 @@ void LLWebRTCImpl::startPlayout()
     // it's already running if voice is on and must stay off if voice is off.
     // Starting it here would also let a stray kConnected during voice-disable
     // teardown re-open the mic.
+    if (mTerminating)
+    {
+        return;
+    }
     mWorkerThread->PostTask(
         [this]()
         {

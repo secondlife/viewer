@@ -614,7 +614,14 @@ void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
                 else if (ctrl->isType(TYPE_LLSD))
                 {
                     // Command-line LLSD should support a notation format string
-                    ctrl->setValueFromNotation(onevalue(option, value), false);
+                    // Note that LeapCommand is an TYPE_LLSD, but generaly is not a notation string,
+                    // so keep a fallback to saving value directly.
+                    // To preserve pre-setValueFromNotation, everything has a fallback.
+                    std::string strvalue = onevalue(option, value);
+                    if (!ctrl->setValueFromNotation(strvalue, false))
+                    {
+                        ctrl->setValue(LLSD::String(strvalue), false);
+                    }
                 }
                 else
                 {

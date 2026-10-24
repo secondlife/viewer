@@ -34,6 +34,8 @@
 #include "llcommandhandler.h"
 #include "llviewercontrol.h"
 #include "llstatusbar.h"
+#include "llcorehttputil.h"
+#include "llcoros.h"
 
 // support for secondlife:///app/buycurrencyhtml/{ACTION}/{NEXT_ACTION}/{RETURN_CODE} SLapps
 class LLBuyCurrencyHTMLHandler :
@@ -86,53 +88,85 @@ public:
 };
 LLBuyCurrencyHTMLHandler gBuyCurrencyHTMLHandler;
 
+bool LLBuyCurrencyHTML::sWebFloaterEnabled = false;
+
+////////////////////////////////////////////////////////////////////////////////
+// static
+static void checkFeatureFlag_coro(std::string check_url)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("CheckBuyCurrencyURL", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
+
+    LLCore::HttpOptions::ptr_t httpOptions = std::make_shared<LLCore::HttpOptions>();
+    httpOptions->setRetries(0);
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, check_url, httpOptions);
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    LLBuyCurrencyHTML::sWebFloaterEnabled = !(status.isHttpStatus() && status.getType() == 501);
+}
+
+// static
+void LLBuyCurrencyHTML::checkFeatureFlag()
+{
+    std::string check_url = LLFloaterBuyCurrencyHTML::buildURL();
+    LLCoros::instance().launch("checkFeatureFlag_coro",
+        [check_url]() { checkFeatureFlag_coro(check_url); });
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // static
 // Opens the legacy XUI based floater or new HTML based one based on
-// the QuickBuyCurrency value in settings.xml - this overload is for
+// the BuyCurrencyHTML value in settings.xml - this overload is for
 // the case where the amount is not requested.
 void LLBuyCurrencyHTML::openCurrencyFloater()
 {
-    if ( gSavedSettings.getBOOL( "QuickBuyCurrency" ) )
+    if (gSavedSettings.getBOOL("BuyCurrencyHTML") && sWebFloaterEnabled)
     {
-        // HTML version
-        LLBuyCurrencyHTML::showDialog( false, "", 0 );
+        LLBuyCurrencyHTML::showDialog();
     }
     else
     {
         // legacy version
         LLFloaterBuyCurrency::buyCurrency();
-    };
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // static
 // Opens the legacy XUI based floater or new HTML based one based on
-// the QuickBuyCurrency value in settings.xml - this overload is for
+// the BuyCurrencyHTML value in settings.xml - this overload is for
 // the case where the amount and a string to display are requested.
 void LLBuyCurrencyHTML::openCurrencyFloater( const std::string& message, S32 sum )
 {
-    if ( gSavedSettings.getBOOL( "QuickBuyCurrency" ) )
+    if (gSavedSettings.getBOOL("BuyCurrencyHTML") && sWebFloaterEnabled)
     {
-        // HTML version
-        LLBuyCurrencyHTML::showDialog( true, message, sum );
+        LLBuyCurrencyHTML::showDialog(sum - gStatusBar->getBalance());
+        LLFloaterBuyCurrencyHTML* floater = dynamic_cast<LLFloaterBuyCurrencyHTML*>(LLFloaterReg::getInstance("buy_currency_html"));
+        if (floater)
+        {
+            floater->setFallbackContext(message, sum);
+        }
     }
     else
     {
         // legacy version
         LLFloaterBuyCurrency::buyCurrency( message, sum );
-    };
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // static
-void LLBuyCurrencyHTML::showDialog( bool specific_sum_requested, const std::string& message, S32 sum )
+void LLBuyCurrencyHTML::showDialog(S32 shortfall)
 {
     LLFloaterBuyCurrencyHTML* buy_currency_floater = dynamic_cast< LLFloaterBuyCurrencyHTML* >( LLFloaterReg::getInstance( "buy_currency_html" ) );
     if ( buy_currency_floater )
     {
         // pass on flag indicating if we want to buy specific amount and if so, how much
-        buy_currency_floater->setParams( specific_sum_requested, message, sum );
+        buy_currency_floater->setShortfall(shortfall);
 
         // force navigate to new URL
         buy_currency_floater->navigateToFinalURL();
@@ -144,7 +178,7 @@ void LLBuyCurrencyHTML::showDialog( bool specific_sum_requested, const std::stri
         buy_currency_floater->setFrontmost( take_focus );
 
         // spec calls for floater to be centered on client window
-        buy_currency_floater->center();
+        //buy_currency_floater->center();
     }
     else
     {
@@ -161,7 +195,4 @@ void LLBuyCurrencyHTML::closeDialog()
     {
         buy_currency_floater->closeFloater();
     };
-
-    // Update L$ balance in the status bar in case L$ were purchased
-    LLStatusBar::sendMoneyBalanceRequest();
 }

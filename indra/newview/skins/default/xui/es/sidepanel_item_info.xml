@@ -38,7 +38,8 @@
 			<text name="LabelItemDescTitle">
 				Descripción:
 			</text>
-            <text_editor name="LabelItemDesc" tool_tip="Cuando la opción «Mostrar Consejos al pasar el cursor en Todos los objetos» en los parámetros del visor esté seleccionada, cada vez que coloques el cursor del mouse sobre un objeto aparecerá su descripción. La descripción del prim está limitada a 127 bytes, cualquier string más larga quedará recortada."/>
+			<line_editor name="LabelItemDescSingleLine" tool_tip="Cuando la opción «Mostrar Consejos al pasar el cursor en Todos los objetos» en los parámetros del visor esté seleccionada, cada vez que coloques el cursor del mouse sobre un objeto aparecerá su descripción. La descripción del prim está limitada a 127 bytes, cualquier string más larga quedará recortada."/>
+			<text_editor name="LabelItemDescMultiLine" tool_tip="Cuando la opción «Mostrar Consejos al pasar el cursor en Todos los objetos» en los parámetros del visor esté seleccionada, cada vez que coloques el cursor del mouse sobre un objeto aparecerá su descripción. La descripción del prim está limitada a 127 bytes, cualquier string más larga quedará recortada."/>
 			<text name="LabelCreatorTitle">
 				Creador:
 			</text>

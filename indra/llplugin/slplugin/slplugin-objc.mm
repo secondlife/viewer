@@ -55,6 +55,9 @@ void LLCocoaPlugin::setupCocoa()
         //  Needed for Carbon based applications which call into Cocoa
         NSApplicationLoad();
 
+        // Ensure at runtime that SLPlugin gets treated as an accessory and should not have a dock icon
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyAccessory];
+
         //  Must first call [[[NSWindow alloc] init] release] to get the NSWindow machinery set up so that NSCursor can use a window to cache the cursor image
         [[[NSWindow alloc] init] release];
 

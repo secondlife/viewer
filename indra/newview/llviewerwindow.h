@@ -221,6 +221,7 @@ public:
                 void handleMouseDragged(LLWindow *window,  LLCoordGL pos, MASK mask);
     /*virtual*/ void handleMouseLeave(LLWindow *window);
     /*virtual*/ void handleResize(LLWindow *window,  S32 x,  S32 y);
+    /*virtual*/ void handleRequestResolutionUpdate(LLWindow* window);
     /*virtual*/ void handleFocus(LLWindow *window);
     /*virtual*/ void handleFocusLost(LLWindow *window);
     /*virtual*/ bool handleActivate(LLWindow *window, bool activated);
@@ -229,7 +230,9 @@ public:
     /*virtual*/ bool handlePaint(LLWindow *window,  S32 x,  S32 y,  S32 width,  S32 height);
     /*virtual*/ void handleScrollWheel(LLWindow *window,  S32 clicks);
     /*virtual*/ void handleScrollHWheel(LLWindow *window,  S32 clicks);
-    /*virtual*/ bool handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleLeftMouseDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleRightMouseDoubleClick(LLWindow* window, LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleMiddleMouseDoubleClick(LLWindow* window, LLCoordGL pos, MASK mask);
     /*virtual*/ void handleWindowBlock(LLWindow *window);
     /*virtual*/ void handleWindowUnblock(LLWindow *window);
     /*virtual*/ void handleDataCopy(LLWindow *window, S32 data_type, void *data);

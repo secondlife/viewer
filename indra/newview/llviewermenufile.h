@@ -72,7 +72,8 @@ bool get_bulk_upload_expected_cost(
     S32& bvh_count,
     S32& textures_2k_count);
 
-void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLUUID &dest_folder);
+void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLUUID &dest_folder,
+                    const LLUUID& material_dest = LLUUID::null, const LLUUID& texture_dest = LLUUID::null);
 
 void upload_single_file(
     const std::vector<std::string>& filenames,
@@ -84,6 +85,9 @@ void upload_bulk(
     LLFilePicker::ELoadFilter type,
     bool allow_2k,
     const LLUUID& dest);
+
+void start_folder_recursive_upload(const std::string& local_dir, const LLUUID& dest, bool allow_2k);
+void start_bulk_folder_upload_after_pick(const std::vector<std::string>& dirs, const std::string& proposed_name, const LLUUID& dest);
 
 //consider moving all file pickers below to more suitable place
 class LLFilePickerThread : public LLThread

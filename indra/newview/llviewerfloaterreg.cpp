@@ -92,6 +92,7 @@
 #include "llfloaterinspect.h"
 #include "llfloaterinventorysettings.h"
 #include "llfloaterinventorythumbnailshelper.h"
+#include "llfloaterjoin.h"
 #include "llfloaterjoystick.h"
 #include "llfloaterlagmeter.h"
 #include "llfloaterland.h"
@@ -101,6 +102,7 @@
 #include "llfloatermap.h"
 #include "llfloatermarketplace.h"
 #include "llfloatermarketplacelistings.h"
+#include "llfloatermaturitydialog.h"
 #include "llfloatermediasettings.h"
 #include "llfloatermemleak.h"
 #include "llfloatermodelpreview.h"
@@ -153,6 +155,7 @@
 #include "llfloatertranslationsettings.h"
 #include "llfloateruipreview.h"
 #include "llfloaterwebcontent.h"
+#include "llfloaterwebmodal.h"
 #include "llfloatervoicevolume.h"
 #include "llfloaterwhitelistentry.h"
 #include "llfloaterwindowsize.h"
@@ -405,6 +408,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("item_properties", "floater_item_properties.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterItemProperties>);
     LLFloaterReg::add("task_properties", "floater_task_properties.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterItemProperties>);
     LLFloaterReg::add("inventory_settings", "floater_inventory_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterInventorySettings>);
+    LLFloaterReg::add("join", "floater_join.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterJoin>);
     LLInspectAvatarUtil::registerFloater();
     LLInspectGroupUtil::registerFloater();
     LLInspectObjectUtil::registerFloater();
@@ -424,6 +428,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("marketplace", "floater_marketplace.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMarketplace>);
     LLFloaterReg::add("marketplace_listings", "floater_marketplace_listings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMarketplaceListings>);
     LLFloaterReg::add("marketplace_validation", "floater_marketplace_validation.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMarketplaceValidation>);
+    LLFloaterReg::add("maturity_dialog", "floater_maturity_dialog.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMaturityDialog>);
     LLFloaterReg::add("message_critical", "floater_critical.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTOS>);
     LLFloaterReg::add("message_tos", "floater_tos.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTOS>);
     LLFloaterReg::add("moveview", "floater_moveview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMove>);
@@ -517,6 +522,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("upload_sound", "floater_sound_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSoundPreview>, "upload");
 
     LLFloaterReg::add("web_content", "floater_web_content.xml", (LLFloaterBuildFunc)&LLFloaterWebContent::create);
+    LLFloaterReg::add("web_modal", "floater_web_modal.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWebModal>);
     LLFloaterReg::add("whitelist_entry", "floater_whitelist_entry.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWhiteListEntry>);
     LLFloaterReg::add("window_size", "floater_window_size.xml", &LLFloaterReg::build<LLFloaterWindowSize>);
     LLFloaterReg::add("world_map", "floater_world_map.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWorldMap>);

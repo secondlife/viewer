@@ -48,6 +48,8 @@ inline constexpr DWORD WM_POST_UNINSTALL_MSG_UPDATE = 2;
 
 typedef void (*LLW32MsgCallback)(const MSG &msg);
 
+struct LLImeCompositionSnapshot;
+
 class LLWindowWin32 : public LLWindow
 {
 public:
@@ -62,7 +64,11 @@ public:
     void restore() override;
     bool getFullscreen();
     bool getPosition(LLCoordScreen *position) override;
+
+    // Outer window frame size in pixels (includes title bar and borders).
+    // Note OS Specific behavior: On macOS excludes title bar.
     bool getSize(LLCoordScreen *size) override;
+
     bool getSize(LLCoordWindow *size) override;
     bool setPosition(LLCoordScreen position) override;
     bool setSizeImpl(LLCoordScreen size) override;
@@ -177,7 +183,7 @@ protected:
     void    fillCompositionLogfont(LOGFONT *logfont);
     U32     fillReconvertString(const LLWString &text, S32 focus, S32 focus_length, RECONVERTSTRING *reconvert_string);
     void    handleStartCompositionMessage();
-    void    handleCompositionMessage(U32 indexes);
+    void    handleCompositionMessage(const LLImeCompositionSnapshot& snapshot);
     bool    handleImeRequests(WPARAM request, LPARAM param, LRESULT *result);
 
     // Additional function to request and hold a high-performance GPU on Windows 10+

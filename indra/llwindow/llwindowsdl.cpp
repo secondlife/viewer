@@ -1281,17 +1281,35 @@ SDL_AppResult LLWindowSDL::handleEvent(const SDL_Event& event)
             if (event.button.button == SDL_BUTTON_LEFT)  // left
             {
                 if (event.button.clicks == 2)
-                    mCallbacks->handleDoubleClick(this, openGlCoord, mask);
+                {
+                    mCallbacks->handleLeftMouseDoubleClick(this, openGlCoord, mask);
+                }
                 else
+                {
                     mCallbacks->handleMouseDown(this, openGlCoord, mask);
+                }
             }
             else if (event.button.button == SDL_BUTTON_RIGHT)
             {
-                mCallbacks->handleRightMouseDown(this, openGlCoord, mask);
+                if (event.button.clicks == 2)
+                {
+                    mCallbacks->handleRightMouseDoubleClick(this, openGlCoord, mask);
+                }
+                else
+                {
+                    mCallbacks->handleRightMouseDown(this, openGlCoord, mask);
+                }
             }
             else if (event.button.button == SDL_BUTTON_MIDDLE)  // middle
             {
-                mCallbacks->handleMiddleMouseDown(this, openGlCoord, mask);
+                if (event.button.clicks == 2)
+                {
+                    mCallbacks->handleMiddleMouseDoubleClick(this, openGlCoord, mask);
+                }
+                else
+                {
+                    mCallbacks->handleMiddleMouseDown(this, openGlCoord, mask);
+                }
             }
             else
             {

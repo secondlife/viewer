@@ -138,8 +138,11 @@ void callRightMouseDown(float *pos, unsigned int mask);
 void callRightMouseUp(float *pos, unsigned int mask);
 void callLeftMouseDown(float *pos, unsigned int mask);
 void callLeftMouseUp(float *pos, unsigned int mask);
-void callDoubleClick(float *pos, unsigned int mask);
+void callLeftDoubleClick(float *pos, unsigned int mask);
+void callRightDoubleClick(float *pos, unsigned int mask);
+void callMiddleDoubleClick(float *pos, unsigned int mask);
 void callResize(unsigned int width, unsigned int height);
+void callRequestResolutionUpdate();
 void callMouseMoved(float *pos, unsigned int mask);
 void callMouseDragged(float *pos, unsigned int mask);
 void callScrollMoved(float deltaX, float deltaY);
@@ -157,6 +160,7 @@ void callFocusLost();
 void callModifier(unsigned int mask);
 void callQuitHandler();
 void commitCurrentPreedit(GLViewRef glView);
+bool windowCallbacksReady();
 
 #include <string>
 void callHandleDragEntered(std::string url);

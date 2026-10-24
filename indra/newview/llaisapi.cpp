@@ -947,7 +947,8 @@ void AISAPI::InvokeAISCommandCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t ht
         LL_WARNS("Inventory") << ll_pretty_print_sd(result) << LL_ENDL;
     }
 
-    LL_DEBUGS("Inventory", "AIS3") << "Result: " << result << LL_ENDL;
+    // To large, only log with "AIS3", not inventory
+    LL_DEBUGS("AIS3") << "Result: " << result << LL_ENDL;
     onUpdateReceived(result, type, body);
 
     if (callback != nullptr)

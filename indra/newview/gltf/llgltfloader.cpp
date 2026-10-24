@@ -1576,10 +1576,18 @@ void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map
         glm::quat rotation;
         glm::decompose(translated_joint, scale, rotation, translation_override, skew, perspective);
 
-        glm::mat4 viewer_rotation_scale(1.0f);
-        viewer_rotation_scale = glm::rotate(viewer_rotation_scale, glm::radians(viewer_data.mRotation[0]), glm::vec3(1, 0, 0));
-        viewer_rotation_scale = glm::rotate(viewer_rotation_scale, glm::radians(viewer_data.mRotation[1]), glm::vec3(0, 1, 0));
-        viewer_rotation_scale = glm::rotate(viewer_rotation_scale, glm::radians(viewer_data.mRotation[2]), glm::vec3(0, 0, 1));
+        // Match the rotation convention used by LLAvatarAppearance::setupBone().
+        // Convert LLQuaternion's (x, y, z, w) components to GLM's (w, x, y, z).
+        const LLQuaternion viewer_rotation = mayaQ(
+            viewer_data.mRotation[0],
+            viewer_data.mRotation[1],
+            viewer_data.mRotation[2],
+            LLQuaternion::XYZ);
+        glm::mat4 viewer_rotation_scale = glm::mat4_cast(glm::quat(
+            viewer_rotation.mQ[VW],
+            viewer_rotation.mQ[VX],
+            viewer_rotation.mQ[VY],
+            viewer_rotation.mQ[VZ]));
         viewer_rotation_scale = glm::scale(viewer_rotation_scale, viewer_data.mScale);
 
         // Viewer allows overrides, which are base joint with applied translation override.

@@ -484,6 +484,11 @@ private:
 
     llwebrtc::LLWebRTCDeviceInterface *mWebRTCDeviceInterface;
 
+    // Config + interface it was last applied to, used by updateSettings() to
+    // detect real changes and to reapply after the interface is recreated.
+    llwebrtc::LLWebRTCDeviceInterface::AudioConfig mAudioConfig;
+    llwebrtc::LLWebRTCDeviceInterface *mAudioConfigInterface;
+
     LLVoiceDeviceList mCaptureDevices;
     LLVoiceDeviceList mRenderDevices;
 
