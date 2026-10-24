@@ -203,7 +203,7 @@ LLSD& LLBasicCertificate::_initLLSD()
         mLLSDInfo[CERT_SERIAL_NUMBER] = cert_string_from_asn1_integer(sn);
     }
 
-    ASN1_OCTET_STRING* skeyid = (ASN1_OCTET_STRING*)X509_get_ext_d2i(mCert, NID_subject_key_identifier, NULL, NULL);
+    ASN1_OCTET_STRING* skeyid = (ASN1_OCTET_STRING*)X509_get_ext_d2i(mCert, NID_subject_key_identifier, nullptr, nullptr);
     if (skeyid != NULL)
     {
         mLLSDInfo[CERT_SUBJECT_KEY_IDENTIFIER] = cert_string_from_octet_string(skeyid);
@@ -517,11 +517,11 @@ bool cert_hash_from_public_key(X509* cert, std::string &hash)
     }
 
     // Extract the internal raw bit string data of the public key
-    const unsigned char* pk_data = NULL;
+    ASN1_OBJECT*         pk_alg  = nullptr;
+    const unsigned char* pk_data = nullptr;
     int                  pk_len  = 0;
-    ASN1_OBJECT*         pk_alg  = NULL;
 
-    if (!X509_PUBKEY_get0_param(&pk_alg, &pk_data, &pk_len, NULL, pubkey))
+    if (!X509_PUBKEY_get0_param(&pk_alg, &pk_data, &pk_len, nullptr, pubkey))
     {
         LL_WARNS("SECAPI") << "Error getting public key parameters" << LL_ENDL;
         return false;
@@ -531,7 +531,7 @@ bool cert_hash_from_public_key(X509* cert, std::string &hash)
     unsigned char md[EVP_MAX_MD_SIZE];
     ASN1_OCTET_STRING value;
     value.data = md;
-    if (!EVP_Digest(pk_data, pk_len, value.data, (unsigned int*)&value.length, EVP_sha1(), NULL))
+    if (!EVP_Digest(pk_data, pk_len, value.data, (unsigned int*)&value.length, EVP_sha1(), nullptr))
     {
         LL_WARNS("SECAPI") << "Hash calculation failed" << LL_ENDL;
         return false;
@@ -653,12 +653,12 @@ int LLBasicCertificateVector::load_from(const std::filesystem::path& file_path, 
         BIO* file_bio = BIO_new_file(file_path.string().c_str(), "rt");
         if (file_bio)
         {
-            X509* cert_x509 = NULL;
-            while ((PEM_read_bio_X509(file_bio, &cert_x509, 0, NULL)) && (cert_x509 != NULL))
+            X509* cert_x509 = nullptr;
+            while ((PEM_read_bio_X509(file_bio, &cert_x509, 0, nullptr)) && (cert_x509 != nullptr))
             {
                 loaded += verify_and_add(cert_x509, system, suppress_expire_warning);
                 X509_free(cert_x509);
-                cert_x509 = NULL;
+                cert_x509 = nullptr;
             }
             BIO_free(file_bio);
         }
