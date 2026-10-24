@@ -95,6 +95,7 @@ namespace {
     const uint32_t SET_HIDDEN_RESTORE_DELAY_MS = 200;  // 200 ms to unmute again after hiding during teleport
     const uint32_t MUTE_FADE_DELAY_MS       = 500;   // 20ms fade followed by 480ms silence gets rid of the click just after unmuting.
                                                      // This is because the buffers and processing is cleared by the silence.
+                                                     // With StopMicCaptureWhenMuted, this is also the delay before capture is actually stopped.
 
     const F32 SPEAKING_AUDIO_LEVEL = 0.30;
 
@@ -231,7 +232,8 @@ LLWebRTCVoiceClient::LLWebRTCVoiceClient() :
     mIsProcessingChannels(false),
     mIsCoroutineActive(false),
     mWebRTCPump("WebRTCClientPump"),
-    mWebRTCDeviceInterface(nullptr)
+    mWebRTCDeviceInterface(nullptr),
+    mAudioConfigInterface(nullptr)
 {
     sShuttingDown = false;
     sWebRTCTerminated = false;
@@ -257,6 +259,11 @@ void LLWebRTCVoiceClient::cleanupSingleton()
     if (mAvatarNameCacheConnection.connected())
     {
         mAvatarNameCacheConnection.disconnect();
+    }
+
+    if (mStopMicCaptureOnMuteConnection.connected())
+    {
+        mStopMicCaptureOnMuteConnection.disconnect();
     }
 
     sShuttingDown = true;
@@ -307,6 +314,21 @@ void LLWebRTCVoiceClient::initWebRTC()
             return false;
         });
     }
+
+    // Connect StopMicCaptureWhenMuted control so the changes apply instantly
+    if (!mStopMicCaptureOnMuteConnection.connected())
+    {
+        mStopMicCaptureOnMuteConnection =
+            gSavedSettings.getControl("StopMicCaptureWhenMuted")->getSignal()->connect(
+                [this](LLControlVariable*, const LLSD& new_val, const LLSD&)
+                {
+                    if (mWebRTCDeviceInterface)
+                    {
+                        mWebRTCDeviceInterface->setStopCaptureOnMute(new_val.asInteger());
+                    }
+                });
+    }
+    mWebRTCDeviceInterface->setStopCaptureOnMute(gSavedSettings.getS32("StopMicCaptureWhenMuted"));
 
     refreshDeviceLists();
 }
@@ -502,9 +524,13 @@ void LLWebRTCVoiceClient::updateSettings()
         static LLCachedControl<F32> sMicLevel(gSavedSettings, "AudioLevelMic");
         setMicGain(sMicLevel);
 
-        llwebrtc::LLWebRTCDeviceInterface::AudioConfig config;
+        // Diff against the last-applied config, not a fresh AudioConfig, so
+        // prefs matching the struct's defaults are still detected as changes.
+        llwebrtc::LLWebRTCDeviceInterface::AudioConfig config = mAudioConfig;
 
-        bool audioConfigChanged = false;
+        // Also reapply if the interface was (re)created, since a new one's
+        // audio processing starts back at hardcoded defaults.
+        bool audioConfigChanged = (mWebRTCDeviceInterface != mAudioConfigInterface);
 
         static LLCachedControl<bool> sEchoCancellation(gSavedSettings, "VoiceEchoCancellation", true);
         if (sEchoCancellation != config.mEchoCancellation)
@@ -534,6 +560,8 @@ void LLWebRTCVoiceClient::updateSettings()
         if (audioConfigChanged && mWebRTCDeviceInterface)
         {
             mWebRTCDeviceInterface->setAudioConfig(config);
+            mAudioConfig          = config;
+            mAudioConfigInterface = mWebRTCDeviceInterface;
         }
     }
 }
@@ -1729,14 +1757,20 @@ void LLWebRTCVoiceClient::setMuteMic(bool muted)
 
     mMuteMic = muted;
 
-    if (mIsInTuningMode)
+    if (mIsInTuningMode &&!gSavedSettings.getS32("StopMicCaptureWhenMuted"))
     {
         return;
     }
 
     if (mWebRTCDeviceInterface)
     {
-        mWebRTCDeviceInterface->setMute(muted, muted ? MUTE_FADE_DELAY_MS : 0);  // delay for 40ms on mute to allow buffers to empty
+        // Delay on mute to let the fade and silence flush buffers (and, if enabled, before capture stops)
+        mWebRTCDeviceInterface->setMute(muted, muted ? MUTE_FADE_DELAY_MS : 0);
+    }
+
+    if (mIsInTuningMode)
+    {
+        return;
     }
 
     // when you're hidden, your mic is always muted.
@@ -2599,6 +2633,12 @@ void LLVoiceWebRTCConnection::OnIceCandidate(const llwebrtc::LLWebRTCIceCandidat
 
 void LLVoiceWebRTCConnection::processIceUpdates()
 {
+    // Don't launch a coroutine on every tick; only do so when there's actually ice data to send and we're not shutting down.
+    if (LLWebRTCVoiceClient::isShuttingDown() || (mIceCandidates.empty() && !mIceCompleted))
+    {
+        return;
+    }
+
     mOutstandingRequests++;
 
     LLCoros::getInstance()->launch("LLVoiceWebRTCConnection::processIceUpdatesCoro",

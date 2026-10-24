@@ -1075,6 +1075,8 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
                 {
                     // Some segments, like LLInlineViewSegment do not permit splitting
                     // and should not be interrupted by emoji segments
+                    // Also don't split links in two for emojis. Link's tooltip takes
+                    // precedence over emoji's tooltip.
                     continue;
                 }
             }
@@ -3564,19 +3566,7 @@ LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 e
     mEditor(editor),
     mLastGeneration(-1)
 {
-    mFontHeight = mStyle->getFont()->getLineHeight();
-    mCanEdit = !mStyle->getDrawHighlightBg();
-    if (!mCanEdit)
-    {
-        // Emoji shouldn't split the segment with the mention.
-        mPermitsEmoji = false;
-    }
-
-    LLUIImagePtr image = mStyle->getImage();
-    if (image.notNull())
-    {
-        mImageLoadedConnection = image->addLoadedCallback(boost::bind(&LLTextBase::needsReflow, &mEditor, start));
-    }
+    refreshFromStyle();
 }
 
 LLNormalTextSegment::LLNormalTextSegment( const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
@@ -3593,6 +3583,28 @@ LLNormalTextSegment::LLNormalTextSegment( const LLUIColor& color, S32 start, S32
 LLNormalTextSegment::~LLNormalTextSegment()
 {
     mImageLoadedConnection.disconnect();
+}
+
+void LLNormalTextSegment::refreshFromStyle()
+{
+    mFontHeight = mStyle->getFont()->getLineHeight();
+    mCanEdit = !mStyle->getDrawHighlightBg();
+    if (!mCanEdit)
+    {
+        // Emoji shouldn't split the segment with the mention.
+        mPermitsEmoji = false;
+    }
+    if (mStyle->isLink())
+    {
+        // Emoji shouldn't split links.
+        mPermitsEmoji = false;
+    }
+
+    LLUIImagePtr image = mStyle->getImage();
+    if (image.notNull())
+    {
+        mImageLoadedConnection = image->addLoadedCallback(boost::bind(&LLTextBase::needsReflow, &mEditor, mStart));
+    }
 }
 
 

@@ -43,6 +43,13 @@ public:
 
     static void onClickSearch(void *userdata);
     static void onKeystrokeName(LLLineEditor* line, void* data);
+
+private:
+    void onResultsRightClick(LLUICtrl* ctrl, S32 x, S32 y);
+    void onViewProfile();
+
+    LLHandle<LLContextMenu> mPopupMenuHandle;
+    LLUUID mSelectedAvatarID;
 };
 
 #endif

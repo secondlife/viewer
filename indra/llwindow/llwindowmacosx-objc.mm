@@ -238,9 +238,9 @@ GLViewRef createOpenGLView(NSWindowRef window, unsigned int samples, bool vsync)
     return glview;
 }
 
-void glSwapBuffers(void* context)
+void glSwapBuffers(GLViewRef view)
 {
-    [(NSOpenGLContext*)context flushBuffer];
+    [[(LLOpenGLView*)view openGLContext] flushBuffer];
 }
 
 CGLContextObj getCGLContextObj(GLViewRef view)

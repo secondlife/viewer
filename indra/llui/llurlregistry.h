@@ -36,6 +36,7 @@
 #include <string>
 
 class LLKeyBindingToStringHandler;
+class LLGameControllerBindingToStringHandler;
 
 /// This default callback for findUrl() simply ignores any label updates
 void LLUrlRegistryNullCallback(const std::string &url,
@@ -92,6 +93,10 @@ public:
     // Set handler for url registry to be capable of parsing and populating keybindings
     void setKeybindingHandler(LLKeyBindingToStringHandler* handler);
 
+    // Set handler for url registry to be capable of parsing and populating
+    // game-controller bindings.
+    void setGameControllerHandler(LLGameControllerBindingToStringHandler* handler);
+
     bool containsAgentMention(const std::string& text);
 
 private:
@@ -103,6 +108,7 @@ private:
     LLUrlEntryBase* mUrlEntrySLLabel;
     LLUrlEntryBase* mUrlEntryNoLink;
     LLUrlEntryBase* mUrlEntryKeybinding;
+    LLUrlEntryBase* mUrlEntryGameController;
     LLUrlEntryBase* mUrlEntryAgentMention;
 };
 

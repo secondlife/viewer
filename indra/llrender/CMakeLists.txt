@@ -115,3 +115,8 @@ endif()
 if (USE_PRECOMPILED_HEADERS)
  target_precompile_headers(llrender REUSE_FROM llprecompiled)
 endif ()
+
+if (LL_TESTS)
+  include(LLAddBuildTest)
+  LL_ADD_INTEGRATION_TEST(llgltexture "" "llrender")
+endif ()

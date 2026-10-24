@@ -108,7 +108,7 @@ NSWindowRef createNSWindow(int x, int y, int width, int height);
 #include <OpenGL/OpenGL.h>
 
 GLViewRef createOpenGLView(NSWindowRef window, unsigned int samples, bool vsync);
-void glSwapBuffers(void* context);
+void glSwapBuffers(GLViewRef view);
 CGLContextObj getCGLContextObj(GLViewRef view);
 unsigned long getVramSize(GLViewRef view);
 float getDeviceUnitSize(GLViewRef view);
@@ -138,7 +138,9 @@ void callRightMouseDown(float *pos, unsigned int mask);
 void callRightMouseUp(float *pos, unsigned int mask);
 void callLeftMouseDown(float *pos, unsigned int mask);
 void callLeftMouseUp(float *pos, unsigned int mask);
-void callDoubleClick(float *pos, unsigned int mask);
+void callLeftDoubleClick(float *pos, unsigned int mask);
+void callRightDoubleClick(float *pos, unsigned int mask);
+void callMiddleDoubleClick(float *pos, unsigned int mask);
 void callResize(unsigned int width, unsigned int height);
 void callRequestResolutionUpdate();
 void callMouseMoved(float *pos, unsigned int mask);
