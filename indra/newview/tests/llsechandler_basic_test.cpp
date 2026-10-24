@@ -355,7 +355,6 @@ namespace tut
         "-----END CERTIFICATE-----\n"
     );
 
-
     const std::string mPemIntermediateCert(
         "Certificate:\n"
         "    Data:\n"
@@ -1070,8 +1069,13 @@ namespace tut
         X509_free(found_x509);
 
         find_info["subjectKeyIdentifier"] = "00:00:00:00"; // bogus
-        current_cert =test_vector->find(find_info);
+        current_cert = test_vector->find(find_info);
         ensure("didn't find cert", current_cert == test_vector->end());
+
+        // try to instantiate a vector from the OS system store
+        test_vector = new LLSystemCertificateVector(false);
+        int num = test_vector->size();
+        ensure("found certs from system store", num > 0);
     }
 
     // test cert store
@@ -1124,7 +1128,6 @@ namespace tut
         X509_free(test_cert);
         current_cert++;
         ensure("end of cert store", current_cert == test_store->end());
-
     }
 
     // cert name wildcard matching
