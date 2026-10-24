@@ -1417,19 +1417,19 @@ void LLBasicCertificateStore::validate(int validation_policy,
                                        const LLSD& validation_params)
 {
     // If --no-verify-ssl-cert was passed on the command line, stop right now.
-    if(gSavedSettings.getBOOL("NoVerifySSLCert"))
+    if (gSavedSettings.getBOOL("NoVerifySSLCert"))
     {
         LL_WARNS_ONCE("SECAPI") << "All Certificate validation disabled; viewer operation is insecure" << LL_ENDL;
         return;
     }
 
-    if(cert_chain->size() < 1)
+    if (cert_chain->size() < 1)
     {
         LLTHROW(LLCertException(LLSD::emptyMap(), "No certs in chain"));
     }
     iterator current_cert = cert_chain->begin();
     LLSD validation_date;
-    if(validation_params.has(CERT_VALIDATION_DATE))
+    if (validation_params.has(CERT_VALIDATION_DATE))
     {
         validation_date = validation_params[CERT_VALIDATION_DATE];
     }
@@ -1438,20 +1438,20 @@ void LLBasicCertificateStore::validate(int validation_policy,
     LLSD current_cert_info;
     (*current_cert)->getLLSD(current_cert_info);
 
-    if(validation_policy & VALIDATION_POLICY_HOSTNAME)
+    if (validation_policy & VALIDATION_POLICY_HOSTNAME)
     {
-        if(!validation_params.has(CERT_HOSTNAME))
+        if (!validation_params.has(CERT_HOSTNAME))
         {
             LLTHROW(LLCertException(current_cert_info, "No hostname passed in for validation"));
         }
-        if(!current_cert_info.has(CERT_SUBJECT_NAME) || !current_cert_info[CERT_SUBJECT_NAME].has(CERT_NAME_CN))
+        if (!current_cert_info.has(CERT_SUBJECT_NAME) || !current_cert_info[CERT_SUBJECT_NAME].has(CERT_NAME_CN))
         {
             LLTHROW(LLInvalidCertificate(current_cert_info));
         }
 
         LL_DEBUGS("SECAPI") << "Validating the hostname " << validation_params[CERT_HOSTNAME].asString() <<
              "against the cert CN " << current_cert_info[CERT_SUBJECT_NAME][CERT_NAME_CN].asString() << LL_ENDL;
-        if(!_cert_hostname_wildcard_match(validation_params[CERT_HOSTNAME].asString(),
+        if (!_cert_hostname_wildcard_match(validation_params[CERT_HOSTNAME].asString(),
                                           current_cert_info[CERT_SUBJECT_NAME][CERT_NAME_CN].asString()))
         {
             throw LLCertValidationHostnameException(validation_params[CERT_HOSTNAME].asString(),
@@ -1461,7 +1461,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
 
     // check the cache of already validated certs
     X509* cert_x509 = (*current_cert)->getOpenSSLX509();
-    if(!cert_x509)
+    if (!cert_x509)
     {
         LLTHROW(LLInvalidCertificate(current_cert_info));
     }
@@ -1477,19 +1477,19 @@ void LLBasicCertificateStore::validate(int validation_policy,
 
     X509_free(cert_x509);
     cert_x509 = NULL;
-    if(skeyid.empty())
+    if (skeyid.empty())
     {
         LLTHROW(LLCertException(current_cert_info, "No Subject Key Id"));
     }
 
     t_cert_cache::iterator cache_entry = mTrustedCertCache.find(skeyid);
-    if(cache_entry != mTrustedCertCache.end())
+    if (cache_entry != mTrustedCertCache.end())
     {
         // this cert is in the cache, so validate the time.
-        if(validation_policy & VALIDATION_POLICY_TIME)
+        if (validation_policy & VALIDATION_POLICY_TIME)
         {
             LLDate validation_date;
-            if(validation_params.has(CERT_VALIDATION_DATE))
+            if (validation_params.has(CERT_VALIDATION_DATE))
             {
                 validation_date = validation_params[CERT_VALIDATION_DATE];
             }
@@ -1498,8 +1498,8 @@ void LLBasicCertificateStore::validate(int validation_policy,
                 validation_date = LLDate((double)time(NULL)); // current time
             }
 
-            if((validation_date < cache_entry->second.first) ||
-               (validation_date > cache_entry->second.second))
+            if ((validation_date < cache_entry->second.first) ||
+                (validation_date > cache_entry->second.second))
             {
                 LLTHROW(LLCertValidationExpirationException(current_cert_info, validation_date));
             }
@@ -1517,10 +1517,10 @@ void LLBasicCertificateStore::validate(int validation_policy,
     int depth = 0;
     LLPointer<LLCertificate> previous_cert;
     // loop through the cert chain, validating the current cert against the next one.
-    while(current_cert != cert_chain->end())
+    while (current_cert != cert_chain->end())
     {
         int local_validation_policy = validation_policy;
-        if(current_cert == cert_chain->begin())
+        if (current_cert == cert_chain->begin())
         {
             // for the child cert, we don't validate CA stuff
             local_validation_policy &= ~(VALIDATION_POLICY_CA_KU |
@@ -1530,7 +1530,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
         {
             // for non-child certs, we don't validate SSL Key usage
             local_validation_policy &= ~VALIDATION_POLICY_SSL_KU;
-            if(!_verify_signature((*current_cert),
+            if (!_verify_signature((*current_cert),
                                   previous_cert))
             {
                 LLSD previous_cert_info;
@@ -1555,7 +1555,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
             cert_search_params[CERT_SUBJECT_NAME_STRING] = current_cert_info[CERT_SUBJECT_NAME_STRING];
         }
         LLCertificateStore::iterator found_store_cert = find(cert_search_params);
-        if(found_store_cert != end())
+        if (found_store_cert != end())
         {
             mTrustedCertCache[skeyid] = std::pair<LLDate, LLDate>(from_time, to_time);
             LL_DEBUGS("SECAPI") << "Valid cert "
@@ -1573,21 +1573,21 @@ void LLBasicCertificateStore::validate(int validation_policy,
         // is the parent in the cert store?
         cert_search_params = LLSD::emptyMap();
         cert_search_params[CERT_SUBJECT_NAME_STRING] = current_cert_info[CERT_ISSUER_NAME_STRING];
-        if(current_cert_info.has(CERT_AUTHORITY_KEY_IDENTIFIER))
+        if (current_cert_info.has(CERT_AUTHORITY_KEY_IDENTIFIER))
         {
             LLSD cert_aki = current_cert_info[CERT_AUTHORITY_KEY_IDENTIFIER];
-            if(cert_aki.has(CERT_AUTHORITY_KEY_IDENTIFIER_ID))
+            if (cert_aki.has(CERT_AUTHORITY_KEY_IDENTIFIER_ID))
             {
                 cert_search_params[CERT_SUBJECT_KEY_IDENTIFIER] = cert_aki[CERT_AUTHORITY_KEY_IDENTIFIER_ID];
             }
-            if(cert_aki.has(CERT_AUTHORITY_KEY_IDENTIFIER_SERIAL))
+            if (cert_aki.has(CERT_AUTHORITY_KEY_IDENTIFIER_SERIAL))
             {
                 cert_search_params[CERT_SERIAL_NUMBER] = cert_aki[CERT_AUTHORITY_KEY_IDENTIFIER_SERIAL];
             }
         }
         found_store_cert = find(cert_search_params);
 
-        if(found_store_cert != end())
+        if (found_store_cert != end())
         {
             // validate the store cert against the depth
             _validateCert(validation_policy & VALIDATION_POLICY_CA_BASIC_CONSTRAINTS,
@@ -1596,7 +1596,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
                           depth);
 
             // verify the signature of the CA
-            if(!_verify_signature((*found_store_cert),
+            if (!_verify_signature((*found_store_cert),
                                   (*current_cert)))
             {
                 LLTHROW(LLCertValidationInvalidSignatureException(current_cert_info));
@@ -1614,12 +1614,12 @@ void LLBasicCertificateStore::validate(int validation_policy,
         previous_cert = (*current_cert);
         current_cert++;
         depth++;
-        if(current_cert != cert_chain->end())
+        if (current_cert != cert_chain->end())
         {
             (*current_cert)->getLLSD(current_cert_info);
         }
     }
-    if(validation_policy & VALIDATION_POLICY_TRUSTED)
+    if (validation_policy & VALIDATION_POLICY_TRUSTED)
     {
         // we reached the end without finding a trusted cert.
         LLSD last_cert_info;
