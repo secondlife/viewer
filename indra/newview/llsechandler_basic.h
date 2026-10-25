@@ -37,12 +37,6 @@
 #include <vector>
 #include <filesystem>
 
-// helpers
-extern LLSD cert_name_from_X509_NAME(X509_NAME* name);
-extern std::string cert_string_name_from_X509_NAME(X509_NAME* name);
-extern std::string cert_string_from_asn1_integer(ASN1_INTEGER* value);
-extern LLDate cert_date_from_asn1_time(ASN1_TIME* asn1_time);
-
 // class LLCertificate
 //
 class LLBasicCertificate : public LLCertificate

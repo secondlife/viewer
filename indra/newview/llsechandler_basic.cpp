@@ -66,9 +66,15 @@ static const std::string DEFAULT_CREDENTIAL_STORAGE = "credential";
 // 128 bits of salt data...
 #define STORE_SALT_SIZE 16
 #define BUFFER_READ_SIZE 256
-std::string cert_string_from_asn1_string(ASN1_STRING* value);
-std::string cert_string_from_octet_string(ASN1_OCTET_STRING* value);
-bool cert_hash_from_public_key(X509* cert, std::string& hash);
+
+// X509 helper functions
+static LLSD cert_name_from_X509_NAME(X509_NAME* name);
+static std::string cert_string_name_from_X509_NAME(X509_NAME* name);
+static std::string cert_string_from_asn1_integer(ASN1_INTEGER* value);
+static LLDate cert_date_from_asn1_time(ASN1_TIME* asn1_time);
+static std::string cert_string_from_asn1_string(ASN1_STRING* value);
+static std::string cert_string_from_octet_string(unsigned char* data, int length);
+static bool cert_hash_from_public_key(X509* cert, std::string& hash);
 
 LLSD _basic_constraints_ext(X509* cert);
 LLSD _key_usage_ext(X509* cert);
@@ -206,7 +212,7 @@ LLSD& LLBasicCertificate::_initLLSD()
     ASN1_OCTET_STRING* skeyid = (ASN1_OCTET_STRING*)X509_get_ext_d2i(mCert, NID_subject_key_identifier, nullptr, nullptr);
     if (skeyid != NULL)
     {
-        mLLSDInfo[CERT_SUBJECT_KEY_IDENTIFIER] = cert_string_from_octet_string(skeyid);
+        mLLSDInfo[CERT_SUBJECT_KEY_IDENTIFIER] = cert_string_from_octet_string(skeyid->data, skeyid->length);
         ASN1_OCTET_STRING_free(skeyid);
     }
     else
@@ -327,10 +333,10 @@ std::string _subject_key_identifier(X509 *cert)
 {
     std::string result;
     ASN1_OCTET_STRING *skeyid = (ASN1_OCTET_STRING *)X509_get_ext_d2i(cert, NID_subject_key_identifier, NULL, NULL);
-    if(skeyid)
+    if (skeyid)
     {
-        result = cert_string_from_octet_string(skeyid);
-        ASN1_OCTET_STRING_free( skeyid );
+        result = cert_string_from_octet_string(skeyid->data, skeyid->length);
+        ASN1_OCTET_STRING_free(skeyid);
     }
     return result;
 }
@@ -340,19 +346,19 @@ LLSD _authority_key_identifier(X509* cert)
 {
     LLSD result;
     AUTHORITY_KEYID *akeyid = (AUTHORITY_KEYID *)X509_get_ext_d2i(cert, NID_authority_key_identifier, NULL, NULL);
-    if(akeyid)
+    if (akeyid)
     {
         result = LLSD::emptyMap();
-        if(akeyid->keyid)
+        if (akeyid->keyid)
         {
-            result[CERT_AUTHORITY_KEY_IDENTIFIER_ID] = cert_string_from_octet_string(akeyid->keyid);
+            result[CERT_AUTHORITY_KEY_IDENTIFIER_ID] = cert_string_from_octet_string(akeyid->keyid->data, akeyid->keyid->length);
         }
-        if(akeyid->serial)
+        if (akeyid->serial)
         {
             result[CERT_AUTHORITY_KEY_IDENTIFIER_SERIAL] = cert_string_from_asn1_integer(akeyid->serial);
         }
 
-        AUTHORITY_KEYID_free( akeyid );
+        AUTHORITY_KEYID_free(akeyid);
     }
     // we ignore the issuer name in the authority key identifier, we check the issuer name via
     // the issuer name entry in the cert.
@@ -429,17 +435,17 @@ std::string cert_string_from_asn1_integer(ASN1_INTEGER* value)
 
 // Generate a string from an OCTET string.
 // we retrieve as a binary string and format it into a hex string with colon separater
-std::string cert_string_from_octet_string(ASN1_OCTET_STRING* value)
+std::string cert_string_from_octet_string(unsigned char* data, int length)
 {
     std::stringstream result;
     result << std::hex << std::setprecision(2);
-    for (int i = 0; i < value->length; i++)
+    for (int i = 0; i < length; i++)
     {
         if (i != 0)
         {
             result << ":";
         }
-        result << std::setfill('0') << std::setw(2) << (int)value->data[i];
+        result << std::setfill('0') << std::setw(2) << (int)data[i];
     }
     return result.str();
 }
@@ -529,16 +535,15 @@ bool cert_hash_from_public_key(X509* cert, std::string &hash)
 
     // Compute SHA-1 hash of the public key data (RFC 5280 method 1)
     unsigned char md[EVP_MAX_MD_SIZE];
-    ASN1_OCTET_STRING value;
-    value.data = md;
-    if (!EVP_Digest(pk_data, pk_len, value.data, (unsigned int*)&value.length, EVP_sha1(), nullptr))
+    unsigned int  length = 0;
+    if (!EVP_Digest(pk_data, pk_len, md, &length, EVP_sha1(), nullptr))
     {
         LL_WARNS("SECAPI") << "Hash calculation failed" << LL_ENDL;
         return false;
     }
 
     // Print the result in standard hex format
-    hash = cert_string_from_octet_string(&value);
+    hash = cert_string_from_octet_string(md, (int)length);
     return true;
 }
 
