@@ -189,6 +189,10 @@ void LLMessageSystem::init()
 
     mActualBytesIn          = 0;
     mActualBytesOut         = 0;
+    mStatsBytesIn           = 0;
+    mStatsBytesOut          = 0;
+    mDumpBytesIn            = 0;
+    mDumpBytesOut           = 0;
     mDropPercentage         = 0.0f;
     mPacketsToDrop          = 0;
     mNumDroppedPackets      = 0;
@@ -1121,13 +1125,17 @@ void LLMessageSystem::dumpPacketRingStats()
 {
     mNumDroppedPacketsTotal += mNumDroppedPackets;
     LL_INFOS("Messaging") << "buffered_packets=" << getNumBufferedPackets()
-                          << "buffered_bytes=" << (mHighPriorityInbound.getNumBufferedBytes() + mLowPriorityInbound.getNumBufferedBytes())
-                          << "recently_dropped=" << mNumDroppedPackets
-                          << "total_dropped=" << mNumDroppedPacketsTotal
-                          << "dropped_percentage=" << mDropPercentage << "%"
-                          << "bytes_IN=" << mActualBytesIn
-                          << "bytes_OUT=" << mActualBytesOut << LL_ENDL;
+                          << " buffered_bytes=" << (mHighPriorityInbound.getNumBufferedBytes() + mLowPriorityInbound.getNumBufferedBytes())
+                          << " recently_dropped=" << mNumDroppedPackets
+                          << " total_dropped=" << mNumDroppedPacketsTotal
+                          << " dropped_percentage=" << mDropPercentage << "%"
+                          << " bytes_IN=" << (mActualBytesIn - mDumpBytesIn)
+                          << " bytes_OUT=" << (mActualBytesOut - mDumpBytesOut)
+                          << " total_bytes_IN=" << mActualBytesIn
+                          << " total_bytes_OUT=" << mActualBytesOut << LL_ENDL;
     mNumDroppedPackets = 0;
+    mDumpBytesIn = mActualBytesIn;
+    mDumpBytesOut = mActualBytesOut;
 }
 
 void LLMessageSystem::copyMessageReceivedToSend()
