@@ -2,9 +2,9 @@
 <floater
   legacy_header_height="18"
   can_resize="true"
-  height="600"
+  height="850"
   layout="topleft"
-  min_height="175"
+  min_height="500"
   min_width="500"
   name="media_monitor"
   help_topic="contents"
@@ -12,11 +12,11 @@
   width="800">
     <scroll_list
        top="20"
-       height="510"
+       height="300"
        draw_stripes="true"
        bg_stripe_color="0.25 0.25 0.25 0.5"
        draw_heading="true"
-       follows="all"
+       follows="left|top|right"
        layout="topleft"
        left="8"
        multi_select="true"
@@ -60,7 +60,7 @@
              relative_width="0.10" />
     </scroll_list>
     <button
-      follows="left|bottom"
+      follows="left|top"
       height="22"
       image_overlay="Zoom_Off"
       image_disabled="PushButton_Disabled"
@@ -68,14 +68,14 @@
       image_selected="PushButton_Selected"
       image_unselected="PushButton_Off"
       hover_glow_amount="0.15"
-      layout="bottomleft"
+      layout="topleft"
       left="10"
       name="zoom_btn"
-      bottom="34"
+      top="330"
       tool_tip="Zoom into selected media"
       width="22" />
     <button
-      follows="left|bottom"
+      follows="left|top"
       height="22"
       image_overlay="UnZoom_Off"
       image_disabled="PushButton_Disabled"
@@ -83,40 +83,63 @@
       image_selected="PushButton_Selected"
       image_unselected="PushButton_Off"
       hover_glow_amount="0.15"
-      layout="bottomleft"
+      layout="topleft"
       left="10"
       name="unzoom_btn"
-      bottom="34"
+      top="330"
       tool_tip="Zoom back from selected media"
       visible="false"
       width="22" />
     <slider_bar
       name="volume_slider"
-      follows="left|bottom"
-      layout="bottomleft"
+      follows="left|top"
+      layout="topleft"
       left="44"
-      bottom="35"
+      top="330"
       height="20"
       increment="0.01"
       initial_value="1.0"
       tool_tip="Audio volume for the selected media"
       width="200" />
     <button
-      follows="left|bottom"
+      follows="left|top"
       height="20"
       label="Refresh"
-      layout="bottomleft"
+      layout="topleft"
       left="10"
       name="refresh_btn"
-      bottom="10"
+      top="362"
       width="70" />
     <button
-      follows="right|bottom"
+      follows="right|top"
       height="20"
       label="Close"
-      layout="bottomleft"
+      layout="topleft"
       right="-10"
       name="close_btn"
-      bottom="10"
+      top="362"
       width="70" />
+    <text
+      follows="left|top"
+      height="16"
+      layout="topleft"
+      left="10"
+      name="producer_log_label"
+      top="392"
+      width="400">
+        Producer log (SLCefProducer / SLVlcProducer stdout+stderr):
+    </text>
+    <text_editor
+      follows="all"
+      font="Monospace"
+      height="428"
+      layout="topleft"
+      left="8"
+      right="-8"
+      max_length="65536"
+      name="producer_log"
+      top="412"
+      read_only="true"
+      track_end="true"
+      word_wrap="true" />
 </floater>

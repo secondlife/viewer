@@ -35,6 +35,7 @@ class LLEventTimer;
 class LLScrollListCtrl;
 class LLButton;
 class LLSlider;
+class LLTextEditor;
 class LLToggleableMenu;
 
 class LLFloaterMediaMonitor:
@@ -58,6 +59,16 @@ class LLFloaterMediaMonitor:
         // in updateDisplayList() for how the selection itself survives that rebuild.
         void updateSelectedMediaControls();
 
+        // Rewrites the producer-log panel from LLEmbeddedBrowser::getProducerLogLines()'s
+        // current snapshot for both backends -- called at the end of updateDisplayList(),
+        // so it shares that same refresh cadence rather than needing its own timer. A full
+        // rewrite each tick, not an incremental append, matching updateDisplayList()'s own
+        // deleteAllItems()-then-rebuild convention for the media list above; producer_log's
+        // own track_end="true" (see floater_media_monitor.xml) keeps the view pinned to the
+        // bottom across each rewrite, but only while the user hasn't scrolled up to read
+        // earlier output.
+        void updateLogDisplay();
+
         void onRefreshBtn();
         void onCloseBtn();
         void onZoomBtn();
@@ -70,6 +81,7 @@ class LLFloaterMediaMonitor:
         LLButton* mZoomBtn;
         LLButton* mUnzoomBtn;
         LLSlider* mVolumeSlider;
+        LLTextEditor* mLogText;
         LLToggleableMenu* mContextMenu;
 
         // Which media (if any) our own Zoom button last zoomed the camera onto --

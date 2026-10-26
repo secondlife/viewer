@@ -32,11 +32,13 @@
 #include "llagentcamera.h"
 #include "llbutton.h"
 #include "llclipboard.h"
+#include "llembeddedbrowser.h"
 #include "lleventtimer.h"
 #include "llformat.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llslider.h"
+#include "lltexteditor.h"
 #include "lltoggleablemenu.h"
 #include "lluictrlfactory.h"
 #include "lluuid.h"
@@ -115,6 +117,7 @@ bool LLFloaterMediaMonitor::postBuild()
     mZoomBtn = getChild<LLButton>("zoom_btn");
     mUnzoomBtn = getChild<LLButton>("unzoom_btn");
     mVolumeSlider = getChild<LLSlider>("volume_slider");
+    mLogText = getChild<LLTextEditor>("producer_log");
 
     // Refresh list of media manually
     getChild<LLUICtrl>("refresh_btn")->setCommitCallback(boost::bind(&LLFloaterMediaMonitor::onRefreshBtn, this));
@@ -191,6 +194,30 @@ void LLFloaterMediaMonitor::updateDisplayList()
     S32 count = static_cast<S32>(media_list.size());
     S32 max_instances = LLViewerMedia::getInstance()->getMaxInstances();
     setTitle(llformat("%s - %d/%d instances", mBaseTitle.c_str(), count, max_instances));
+
+    updateLogDisplay();
+}
+
+void LLFloaterMediaMonitor::updateLogDisplay()
+{
+    std::vector<std::string> cef_lines =
+        LLEmbeddedBrowser::instance().getProducerLogLines(LLEmbeddedBrowserBackend::Cef);
+    std::vector<std::string> vlc_lines =
+        LLEmbeddedBrowser::instance().getProducerLogLines(LLEmbeddedBrowserBackend::LibVlc);
+
+    mLogText->clear();
+
+    mLogText->appendText("=== SLCefProducer ===\n", false);
+    for (const std::string& line : cef_lines)
+    {
+        mLogText->appendText(line + "\n", false);
+    }
+
+    mLogText->appendText("\n=== SLVlcProducer ===\n", false);
+    for (const std::string& line : vlc_lines)
+    {
+        mLogText->appendText(line + "\n", false);
+    }
 }
 
 void LLFloaterMediaMonitor::updateSelectedMediaControls()

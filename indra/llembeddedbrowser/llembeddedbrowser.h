@@ -37,6 +37,7 @@
 #include <string>
 #include <vector>
 
+#include "llevents.h"
 #include "llsingleton.h"
 #include "llmutex.h"
 
@@ -552,6 +553,14 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         // rather than inheriting an already-exhausted one.
         void resetRelaunchAttempts(LLEmbeddedBrowserBackend backend);
 
+        // Snapshot of the given backend's captured producer stdout/stderr lines (see
+        // ProducerHandle::logLines below) for LLFloaterMediaMonitor's log panel. Returns
+        // a copy rather than a reference so the floater can read/scroll it without
+        // holding mProducerMutex for the duration -- that lock is also taken from a
+        // background thread (maybeRelaunchProducer()), so holding it any longer than
+        // necessary from the main thread isn't worth the allocation saved.
+        std::vector<std::string> getProducerLogLines(LLEmbeddedBrowserBackend backend) const;
+
     private:
         // Launches the given backend's own producer (SLCefProducer or SLVlcProducer) via
         // LLProcess, storing the result in mProducers[backend].process. Returns false
@@ -559,6 +568,18 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         // platform (see LLDir::getSLCefProducerLauncher()/getSLVlcProducerLauncher()) or
         // the launch itself failed. Caller must hold mProducerMutex.
         bool launchProducer(LLEmbeddedBrowserBackend backend);
+
+        // Drains whatever complete lines are currently available on the given backend's
+        // stdout/stderr pipe into mProducers[backend].logLines (capped -- see
+        // kMaxLogLines in llembeddedbrowser.cpp). Called from the LLEventPump listeners
+        // launchProducer() registers on each pipe's getPump() -- see ProducerHandle's
+        // stdoutListener/stderrListener below. line_prefix distinguishes stderr lines
+        // ("[stderr] ") since stdout and stderr are two separate OS pipes drained
+        // independently: their relative arrival order in the merged log is whatever
+        // order the two listeners happened to fire in that tick, not necessarily the
+        // producer's own real write order.
+        void drainProducerLogPipe(LLEmbeddedBrowserBackend backend, const std::shared_ptr<LLProcess>& proc,
+                                   int slot, const char* line_prefix);
 
         // Looks up a tab under mTabsMutex and returns a shared_ptr copy rather than a
         // reference into the map, so callers can safely call (potentially slow) methods
@@ -619,6 +640,19 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
             std::shared_ptr<LLProcess> process;
             int relaunchAttempts = 0;
             std::chrono::steady_clock::time_point lastRelaunchAttempt;
+
+            // Captured stdout/stderr lines from this producer process, for
+            // LLFloaterMediaMonitor's log panel -- an in-app, all-3-platforms
+            // replacement for the Windows-only --console/AllocConsole() path
+            // (EmbeddedBrowserProducerConsole). Bounded (see kMaxLogLines in
+            // llembeddedbrowser.cpp) so a noisy producer can't grow this unbounded;
+            // oldest lines drop first. stdoutListener/stderrListener are
+            // LLTempBoundListener (a scoped_connection), so reassigning them on a
+            // relaunch (see launchProducer()) automatically disconnects the previous
+            // producer's listeners first -- no explicit disconnect() needed.
+            std::deque<std::string> logLines;
+            LLTempBoundListener stdoutListener;
+            LLTempBoundListener stderrListener;
         };
 
         // Guards mProducers -- touched from init()/reset() on the main thread and from

@@ -99,14 +99,41 @@ bool g_console_enabled = false;
 // log_file_path constructor argument) so this stays easy to skim.
 std::ofstream g_log_file;
 
+#if defined(_WIN32)
+// The Windows console screen buffer for an optionally-attached debug console (see
+// show_debug_console() below). Kept as its own handle, separate from stdout/stderr,
+// so that attaching a console never disturbs the pipe LLProcess already wired those
+// to -- see log_line()'s own comment on why that pipe must stay intact regardless.
+// INVALID_HANDLE_VALUE until a console is actually attached.
+HANDLE g_console_out = INVALID_HANDLE_VALUE;
+#endif
+
 // A small, deliberately ad hoc set of colored loggers -- info/connect/
 // disconnect today, more as needed later. Not a general logging
 // framework; just enough structure that adding another call site is a
 // one-line thing rather than reinventing formatting each time.
-void log_line(const char* color, const std::string& msg)
+void log_line([[maybe_unused]] const char* color, const std::string& msg)
 {
-    if (g_console_enabled) std::cout << color << msg << "\x1b[0m\n";
-    else                    std::cout << msg << "\n";
+    // Always plain text, always to std::cout: this is the pipe LLProcess wired back
+    // to the Viewer (see llembeddedbrowser.cpp's drainProducerLogPipe(), which feeds
+    // LLFloaterMediaMonitor's log panel on all 3 platforms). It must never carry ANSI
+    // color codes, and must never be retargeted away from that pipe just because a
+    // debug console is also attached -- show_debug_console() used to freopen stdout/
+    // stderr onto the new console, which silently cut this pipe off entirely the
+    // moment --console was used, and the Viewer's log panel went dead past its very
+    // first line as a result.
+    std::cout << msg << "\n";
+#if defined(_WIN32)
+    // The optional debug console (--console / EmbeddedBrowserProducerConsole) gets
+    // its own colored copy via the dedicated screen-buffer handle above instead, so
+    // it can keep its colors without the pipe above ever seeing them.
+    if (g_console_enabled && g_console_out != INVALID_HANDLE_VALUE)
+    {
+        const std::string colored = std::string(color) + msg + "\x1b[0m\r\n";
+        DWORD written = 0;
+        WriteFile(g_console_out, colored.data(), static_cast<DWORD>(colored.size()), &written, nullptr);
+    }
+#endif
     if (g_log_file) g_log_file << msg << std::endl;
 }
 void log_info(const std::string& msg)       { log_line("\x1b[38;5;103m", msg); } // blue
@@ -294,16 +321,17 @@ void free_slot(Slot& s, int index, LibVlcTabManager& vlcMgr,
 bool is_mouse_up(std::uint8_t action) { return action == 0; }
 
 #if defined(_WIN32)
-// Attaches a new console to this (normally windowless) process and
-// redirects stdio to it, so the existing std::cout/std::cerr diagnostics
-// become visible. Opt-in only -- see run_producer()'s --console handling.
+// Attaches a new console to this (normally windowless) process so its colored
+// diagnostics (see log_line()) become visible there too. Deliberately does NOT
+// freopen stdout/stderr onto it -- that was this function's original approach, and
+// it broke the Viewer's own pipe capture of this process's output (see
+// llembeddedbrowser.cpp's drainProducerLogPipe()) the moment a debug console was
+// also attached, since freopen severs the CRT stream from whatever it pointed at
+// before, including the pipe LLProcess set up at launch. Opt-in only -- see
+// run_producer()'s --console handling.
 void show_debug_console()
 {
     AllocConsole();
-    FILE* fp = nullptr;
-    freopen_s(&fp, "CONOUT$", "w", stdout);
-    freopen_s(&fp, "CONOUT$", "w", stderr);
-    freopen_s(&fp, "CONIN$",  "r", stdin);
 
     // A freshly allocated Windows console does not interpret ANSI escape
     // codes by default, even on a VT100-capable build of Windows -- has to
@@ -315,16 +343,17 @@ void show_debug_console()
     // not retarget an explicitly-provided standard handle to the new
     // console -- it stays pointing at that pipe, so GetConsoleMode on it
     // fails with ERROR_ACCESS_DENIED. Open the console device by name
-    // instead, same as the freopen_s calls above do for stdio.
-    HANDLE out = CreateFileW(L"CONOUT$", GENERIC_READ | GENERIC_WRITE,
-                              FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
-                              OPEN_EXISTING, 0, nullptr);
+    // instead, and keep this handle open afterwards (see g_console_out) so
+    // log_line() can write the colored duplicate straight to it, rather
+    // than ever touching stdout/stderr themselves.
+    g_console_out = CreateFileW(L"CONOUT$", GENERIC_READ | GENERIC_WRITE,
+                                 FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
+                                 OPEN_EXISTING, 0, nullptr);
     DWORD mode = 0;
-    if (out != INVALID_HANDLE_VALUE && GetConsoleMode(out, &mode))
+    if (g_console_out != INVALID_HANDLE_VALUE && GetConsoleMode(g_console_out, &mode))
     {
-        SetConsoleMode(out, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+        SetConsoleMode(g_console_out, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
     }
-    if (out != INVALID_HANDLE_VALUE) CloseHandle(out);
 
     g_console_enabled = true;
 }
@@ -379,6 +408,14 @@ std::filesystem::path get_exe_path()
 // point below actually got called.
 int run_producer(int argc, char** argv)
 {
+    // Unbuffered, before a single byte can be logged: stdout isn't a tty here (see
+    // FileParam("pipe") in llembeddedbrowser.cpp's launchProducer()), so the CRT
+    // defaults to fully buffering it -- without this, log_line()'s writes would sit
+    // in this process's own buffer, invisible to the Viewer's Media Monitor log panel,
+    // until that buffer happened to fill or this process exited, rather than showing
+    // up as each line is actually logged.
+    std::setvbuf(stdout, nullptr, _IONBF, 0);
+
     int slot_count = kSlotCount;
     bool show_console = false;
     for (int i = 1; i < argc; ++i)

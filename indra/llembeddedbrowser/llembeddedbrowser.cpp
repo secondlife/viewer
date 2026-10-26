@@ -44,6 +44,7 @@
 #include "llapp.h"
 #include "llcontrol.h"
 #include "lldir.h"
+#include "llevents.h"
 #include "llprocess.h"
 
 // llembeddedbrowser sits below newview in the link graph, so gSavedSettings
@@ -86,6 +87,11 @@ namespace {
     // than an unbounded spin.
     constexpr int  kMaxRelaunchAttempts = 3;
     constexpr auto kRelaunchBackoff     = std::chrono::seconds(5);
+
+    // Caps LLEmbeddedBrowser::ProducerHandle::logLines -- enough scrollback for
+    // LLFloaterMediaMonitor's log panel to be useful without the deque growing
+    // unbounded if a producer gets chatty (or stays open across a long session).
+    constexpr std::size_t kMaxLogLines = 1000;
 }
 
 LLEmbeddedBrowserTab::LLEmbeddedBrowserTab(LLEmbeddedBrowser* browser, unsigned int id, const std::string& url, unsigned int width, unsigned int height, bool isUI, LLEmbeddedBrowserBackend backend, unsigned int maxWidth, unsigned int maxHeight, bool audioCapture) :
@@ -1095,6 +1101,17 @@ bool LLEmbeddedBrowser::launchProducer(LLEmbeddedBrowserBackend backend)
         params.args.add("--cache-dir=" + gDirUtilp->add(gDirUtilp->getCacheDir(false), "cef_profile"));
     }
 
+    // stdin stays inherited/unused; stdout+stderr are piped back so
+    // LLFloaterMediaMonitor can show live producer diagnostics in-app on all 3
+    // platforms (see drainProducerLogPipe() below). This is independent of
+    // EmbeddedBrowserProducerConsole/--console above, which only attaches a Windows-
+    // only AllocConsole() window -- the producer already writes every log line to
+    // plain stdout unconditionally (see log_line() in llcefproducer.cpp/
+    // llvlcproducer.cpp), this just captures it instead of letting it vanish.
+    params.files.add(LLProcess::FileParam());
+    params.files.add(LLProcess::FileParam("pipe"));
+    params.files.add(LLProcess::FileParam("pipe"));
+
     LLProcessPtr proc = LLProcess::create(params);
     if (!proc)
     {
@@ -1103,8 +1120,55 @@ bool LLEmbeddedBrowser::launchProducer(LLEmbeddedBrowserBackend backend)
     }
 
     LL_INFOS() << "Launched " << producer_name << ", pid " << proc->getProcessID() << LL_ENDL;
-    mProducers[static_cast<std::size_t>(backend)].process = proc;
+
+    auto& handle = mProducers[static_cast<std::size_t>(backend)];
+    handle.process = proc;
+    handle.logLines.push_back("[launched, pid " + std::to_string(proc->getProcessID()) + "]");
+
+    // Captures proc by value so each listener's own lifetime (and the pipe it reads)
+    // matches the specific LLProcess it was registered against. A later relaunch
+    // reassigns handle.stdoutListener/stderrListener below, which disconnects these
+    // (via LLTempBoundListener's destructor) before the new listeners are wired up.
+    handle.stdoutListener = proc->getReadPipe(LLProcess::STDOUT).getPump().listen(
+        producer_name,
+        [this, backend, proc](const LLSD&)
+        {
+            drainProducerLogPipe(backend, proc, static_cast<int>(LLProcess::STDOUT), "");
+            return false;
+        });
+    handle.stderrListener = proc->getReadPipe(LLProcess::STDERR).getPump().listen(
+        producer_name,
+        [this, backend, proc](const LLSD&)
+        {
+            drainProducerLogPipe(backend, proc, static_cast<int>(LLProcess::STDERR), "[stderr] ");
+            return false;
+        });
+
     return true;
+}
+
+void LLEmbeddedBrowser::drainProducerLogPipe(LLEmbeddedBrowserBackend backend, const std::shared_ptr<LLProcess>& proc,
+                                              int slot, const char* line_prefix)
+{
+    LLProcess::ReadPipe& pipe = proc->getReadPipe(static_cast<LLProcess::FILESLOT>(slot));
+
+    LLMutexLock lock(&mProducerMutex);
+    auto& lines = mProducers[static_cast<std::size_t>(backend)].logLines;
+    while (pipe.contains('\n'))
+    {
+        lines.push_back(line_prefix + pipe.getline());
+    }
+    while (lines.size() > kMaxLogLines)
+    {
+        lines.pop_front();
+    }
+}
+
+std::vector<std::string> LLEmbeddedBrowser::getProducerLogLines(LLEmbeddedBrowserBackend backend) const
+{
+    LLMutexLock lock(&mProducerMutex);
+    const auto& lines = mProducers[static_cast<std::size_t>(backend)].logLines;
+    return std::vector<std::string>(lines.begin(), lines.end());
 }
 
 void LLEmbeddedBrowser::maybeRelaunchProducer(LLEmbeddedBrowserBackend backend)
