@@ -264,10 +264,13 @@ namespace
     void audio_flush_cb(void* data, int64_t /*pts*/)
     {
         // A seek or track change: whatever was queued for the old position is now wrong.
+        // Also drop any pause latch, as clearAudio() does -- a seek while paused isn't
+        // guaranteed a matching audio_resume_cb, and a stuck audioPaused gates PopAudio() forever.
         Tab* t = static_cast<Tab*>(data);
         std::lock_guard<std::mutex> lock(t->audioMutex);
         t->audioQueue.clear();
         t->audioQueuedFrames = 0;
+        t->audioPaused = false;
     }
     void audio_drain_cb(void* data)
     {
