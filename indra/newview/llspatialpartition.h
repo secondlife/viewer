@@ -270,7 +270,14 @@ public:
             }
 
             // groups of one ensemble keep their bounds order among themselves
-            return lhs->mDepth > rhs->mDepth;
+            if (lhs->mDepth != rhs->mDepth)
+            {
+                return lhs->mDepth > rhs->mDepth;
+            }
+
+            // coincident bounds (e.g. layered copies) tie on every key above,
+            // so pin their order across frames
+            return std::less<const LLSpatialGroup*>()(lhs, rhs);
         }
     };
 
