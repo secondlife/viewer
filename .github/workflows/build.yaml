@@ -178,6 +178,10 @@ jobs:
       - name: Determine source branch
         id: which-branch
         uses: secondlife/viewer-build-util/which-branch@v2
+        env:
+          # which_branch.py writes PR text to $GITHUB_OUTPUT using the default
+          # encoding, which is cp1252 on Windows; force UTF-8.
+          PYTHONUTF8: "1"
         with:
           token: ${{ github.token }}
 
