@@ -471,10 +471,10 @@ public:
     void setDropPercentage(F32 percent_to_drop);
 
     // UDP byte-accounting
-    S32  getActualInBytes()  const { return mActualBytesIn; }
-    S32  getActualOutBytes() const { return mActualBytesOut; }
-    S32  getAndResetActualInBits()  { S32 bits = mActualBytesIn  * 8; mActualBytesIn  = 0; return bits; }
-    S32  getAndResetActualOutBits() { S32 bits = mActualBytesOut * 8; mActualBytesOut = 0; return bits; }
+    S64  getActualInBytes()  const { return mActualBytesIn; }
+    S64  getActualOutBytes() const { return mActualBytesOut; }
+    S32  getAndResetActualInBits()  { S32 bits = (S32)(mActualBytesIn  - mStatsBytesIn)  * 8; mStatsBytesIn  = mActualBytesIn;  return bits; }
+    S32  getAndResetActualOutBits() { S32 bits = (S32)(mActualBytesOut - mStatsBytesOut) * 8; mStatsBytesOut = mActualBytesOut; return bits; }
 
     // Get number of "dropped" inbound packets
     S32  getTotalNumDroppedPackets()   const { return mNumDroppedPacketsTotal + mNumDroppedPackets; }
@@ -981,8 +981,12 @@ private:
     bool isHighPriorityMessage(const LLPacketBuffer& pkt) const;
 
     // Packet-loss simulation and byte-accounting state
-    S32 mActualBytesIn;
-    S32 mActualBytesOut;
+    S64 mActualBytesIn;
+    S64 mActualBytesOut;
+    S64 mStatsBytesIn;          // totals at last getAndResetActual*Bits()
+    S64 mStatsBytesOut;
+    S64 mDumpBytesIn;           // totals at last dumpPacketRingStats()
+    S64 mDumpBytesOut;
     F32 mDropPercentage;        // % of inbound packets to drop
     U32 mPacketsToDrop;         // drop next N inbound packets
     S32 mNumDroppedPackets;     // inbound
