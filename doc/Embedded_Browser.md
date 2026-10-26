@@ -88,18 +88,20 @@ crash in one never affects the other.
 
 ## CEF version used
 
-The Viewer currently runs CEF `154.0.34+g14c5a08+chromium-154.0.8037.98`,
+The Viewer currently runs CEF `156.0.14+g4fa4ab5+chromium-156.0.8078.48`,
 built internally (not from the public Spotify Automated Builds project)
 with media codec support enabled, so formats like H.264 video play without
 the "codec not found" errors a stock CEF build would show on sites like
 Twitch. It is uploaded once to Second Life's own S3 build bucket since
 building it takes too long and too many resources to run in GitHub Actions
-CI (typically a couple of days). This bump (from 152.0.6) confirmed drop-in
-against `llcefbrowser`'s own source with no code changes needed, but did
-surface one real packaging fix: CEF 154 no longer bundles `libEGL.so`/
-`libGLESv2.so` for Linux, and `build-cmd.sh`'s own hardcoded copy of CEF's
-binary-file manifest hadn't been updated to match, breaking the Linux leg
-of the first release attempt (`v1.50.0`) until fixed in `v1.50.1`.
+CI (typically a couple of days). This bump (from 154.0.34) confirmed
+drop-in against `llcefbrowser`'s own source with no code changes needed,
+and this time `build-cmd.sh`'s hardcoded Linux binary-file manifest (the
+drift point the 152->154 bump exposed) needed no update either -- checked
+directly against both the new CEF version's real `cef_variables.cmake`
+and the actual downloaded linux64 package contents, both still exactly
+`chrome-sandbox`/`libcef.so`/`libvk_swiftshader.so`/`libvulkan.so.1`/
+`v8_context_snapshot.bin`/`vk_swiftshader_icd.json`.
 
 As of the 151 update, `llcefbrowser` no longer shares this package with
 `secondlife/dullahan` (the legacy plugin's own CEF wrapper) the way it used
