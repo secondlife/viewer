@@ -1074,8 +1074,7 @@ namespace tut
 
         // try to instantiate a vector from the OS system store
         test_vector = new LLSystemCertificateVector(false);
-        int num = test_vector->size();
-        ensure("found certs from system store", num > 0);
+        ensure("found certs from system store", test_vector->size() > 0);
     }
 
     // test cert store

@@ -72,20 +72,19 @@ static LLSD cert_name_from_X509_NAME(X509_NAME* name);
 static std::string cert_string_name_from_X509_NAME(X509_NAME* name);
 static std::string cert_string_from_asn1_integer(ASN1_INTEGER* value);
 static LLDate cert_date_from_asn1_time(ASN1_TIME* asn1_time);
-static std::string cert_string_from_asn1_string(ASN1_STRING* value);
 static std::string cert_string_from_octet_string(unsigned char* data, int length);
 static bool cert_hash_from_public_key(X509* cert, std::string& hash);
 
-LLSD _basic_constraints_ext(X509* cert);
-LLSD _key_usage_ext(X509* cert);
-LLSD _ext_key_usage_ext(X509* cert);
-std::string _subject_key_identifier(X509 *cert);
-LLSD _authority_key_identifier(X509* cert);
-void _validateCert(int validation_policy,
-                   LLPointer<LLCertificate> cert,
-                   const LLSD& validation_params,
-                   int depth,
-                   bool suppress_expire_warning = false);
+static LLSD _basic_constraints_ext(X509* cert);
+static LLSD _key_usage_ext(X509* cert);
+static LLSD _ext_key_usage_ext(X509* cert);
+static std::string _subject_key_identifier(X509 *cert);
+static LLSD _authority_key_identifier(X509* cert);
+static void _validateCert(int validation_policy,
+                          LLPointer<LLCertificate> cert,
+                          const LLSD& validation_params,
+                          int depth,
+                          bool suppress_expire_warning = false);
 
 LLBasicCertificate::LLBasicCertificate(const std::string& pem_cert, bool isSystem,
                                        const LLSD* validation_params) : mSystem(isSystem)
@@ -448,33 +447,6 @@ std::string cert_string_from_octet_string(unsigned char* data, int length)
         result << std::setfill('0') << std::setw(2) << (int)data[i];
     }
     return result.str();
-}
-
-// Generate a string from an ASN1 integer.  ASN1 Integers are
-// bignums, so they can be 'infinitely' long, therefore we
-// cannot simply use a conversion to U64 or something.
-// We retrieve as a readable string for UI
-
-std::string cert_string_from_asn1_string(ASN1_STRING* value)
-{
-    char * string_bio_chars = NULL;
-    std::string result;
-    // get a memory bio
-    BIO *string_bio = BIO_new(BIO_s_mem());
-    if(!string_bio)
-    {
-        // stream the name into the bio.  The name will be in the 'short name' format
-        ASN1_STRING_print_ex(string_bio, value, ASN1_STRFLGS_RFC2253);
-        int length = BIO_get_mem_data(string_bio, &string_bio_chars);
-        result = std::string(string_bio_chars, length);
-        BIO_free(string_bio);
-    }
-    else
-    {
-        LL_WARNS("SECAPI") << "Could not allocate an openssl memory BIO." << LL_ENDL;
-    }
-
-    return result;
 }
 
 // retrieve a date structure from an ASN1 time, for
@@ -889,22 +861,27 @@ int LLSystemCertificateVector::load_from_system(bool suppress_expire_warning)
                     else
                     {
                         CFStringRef nameRef = nullptr;
-                        if (suppress_expire_warning)
-                        {
-                            LL_DEBUGS("SECAPI");
-                        }
-                        else
-                        {
-                            LL_WARNS("SECAPI");
-                        }
-
                         if (!SecCertificateCopyCommonName(certRef, &nameRef))
                         {
-                            LL_CONT << "Certificate '" << stringFromCFString(nameRef) << "' rejected. Ignore it." << LL_ENDL;
+                            if (suppress_expire_warning)
+                            {
+                                LL_DEBUGS("SECAPI") << "Certificate '" << stringFromCFString(nameRef) << "' rejected. Ignore it." << LL_ENDL;
+                            }
+                            else
+                            {
+                                LL_WARNS("SECAPI") << "Certificate '" << stringFromCFString(nameRef) << "' rejected. Ignore it." << LL_ENDL;
+                            }
                         }
                         else
                         {
-                            LL_CONT << "Unnamed certificate rejected. Ignore it." << LL_ENDL;
+                            if (suppress_expire_warning)
+                            {
+                                LL_DEBUGS("SECAPI") << "Unnamed certificate rejected. Ignore it." << LL_ENDL;
+                            }
+                            else
+                            {
+                                LL_WARNS("SECAPI") << "Unnamed certificate rejected. Ignore it." << LL_ENDL;
+                            }
                         }
 
                         if (nameRef != nullptr)
