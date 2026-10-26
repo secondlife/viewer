@@ -27,6 +27,7 @@
 #include "llgamecontrol.h"
 
 #include <algorithm>
+#include <cmath>
 #include <unordered_map>
 
 #include "SDL3/SDL.h"
@@ -1010,6 +1011,13 @@ S16 LLGameControl::Options::AxisOptions::computeModifiedValue(S16 raw_value) con
     {
         new_value = 0;
     }
+    else if (mCurve != DEFAULT_AXIS_CURVE)
+    {
+        // Apply the response curve to the magnitude, keeping the sign.
+        F32 normalized = (F32)new_value / 32767.f;
+        F32 curved = std::copysign(std::pow(std::fabs(normalized), (F32)mCurve / 100.f), normalized);
+        new_value = (S16)std::clamp((S32)std::lround(curved * 32767.f), -32768, 32767);
+    }
     return new_value;
 }
 
@@ -1018,6 +1026,7 @@ void LLGameControl::Options::AxisOptions::resetToDefaults()
     mMultiplier = 1;
     mDeadZone = DEFAULT_AXIS_DEAD_ZONE;
     mOffset = 0;
+    mCurve = DEFAULT_AXIS_CURVE;
 }
 
 LLGameControl::Options::Options()
@@ -1125,6 +1134,10 @@ std::string LLGameControl::Options::AxisOptions::saveToString() const
     if (mOffset)
     {
         options.push_back(llformat("offset:%d", mOffset));
+    }
+    if (mCurve != DEFAULT_AXIS_CURVE)
+    {
+        options.push_back(llformat("curve:%u", mCurve));
     }
 
     std::string result = LLStringUtil::join(options);
@@ -1255,6 +1268,21 @@ void LLGameControl::Options::AxisOptions::loadFromString(std::string options)
         else
         {
             mOffset = (S16)number;
+        }
+    }
+
+    std::string curve = pairs["curve"];
+    if (!curve.empty())
+    {
+        U32 number;
+        if (LLStringUtil::convertToU32(curve, number) && number >= MIN_AXIS_CURVE && number <= MAX_AXIS_CURVE
+            && std::to_string(number) == curve)
+        {
+            mCurve = (U16)number;
+        }
+        else
+        {
+            LL_WARNS("SDL3") << "Invalid curve value: '" << curve << "'" << LL_ENDL;
         }
     }
 }

@@ -371,7 +371,7 @@
                 height="23"
                 width="140"
                 label="Restore Defaults"
-                tool_tip="Restores the default Offset, Invert, and Dead Zone for every axis of the selected device."/>
+                tool_tip="Restores the default Offset, Invert, Dead Zone, and Curve for every axis of the selected device."/>
             <button
                 name="auto_calibrate"
                 layout="topleft"
@@ -411,13 +411,14 @@
                         multi_select="false"
                         selection_type="header"
                         fg_disable_color="ScrollUnselectedColor">
-                        <scroll_list.columns name="input_glyph" label="Input"          relative_width="0.12"/>
-                        <scroll_list.columns name="input"       label="Axis"           relative_width="0.18"/>
-                        <scroll_list.columns name="raw_value"   label="Raw Value"      relative_width="0.14"/>
-                        <scroll_list.columns name="offset"      label="Offset"         relative_width="0.10"/>
-                        <scroll_list.columns name="invert"      label="Invert"         type="checkbox" relative_width="0.10"/>
+                        <scroll_list.columns name="input_glyph" label="Input"          relative_width="0.10"/>
+                        <scroll_list.columns name="input"       label="Axis"           relative_width="0.16"/>
+                        <scroll_list.columns name="raw_value"   label="Raw Value"      relative_width="0.13"/>
+                        <scroll_list.columns name="offset"      label="Offset"         relative_width="0.09"/>
+                        <scroll_list.columns name="invert"      label="Invert"         type="checkbox" relative_width="0.09"/>
                         <scroll_list.columns name="dead_zone"   label="Dead Zone"      relative_width="0.15"/>
-                        <scroll_list.columns name="fixed_value" label="Adjusted Value" relative_width="0.21"/>
+                        <scroll_list.columns name="curve"       label="Curve %"        relative_width="0.09"/>
+                        <scroll_list.columns name="fixed_value" label="Adjusted Value" relative_width="0.19"/>
                     </scroll_list>
                 </panel>
                 <panel
