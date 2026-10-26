@@ -328,7 +328,22 @@ void LLSliderCtrl::onEditorCommit( LLUICtrl* ctrl, const LLSD& userdata )
     {
         LLLocale locale(LLLocale::USER_LOCALE);
         val = (F32) atof( text.c_str() );
-        if( self->mSlider->getMinValue() <= val && val <= self->mSlider->getMaxValue() )
+
+        // Accept values out of range due to display rounding.
+        // For example: An input with a minimum of 0.001 displayed as 0.00 should accept 0 and clamp it to 0.001
+        F32 min_val = self->mSlider->getMinValue();
+        F32 max_val = self->mSlider->getMaxValue();
+        F32 half_step = (F32)(0.5 / pow(10.0, (F64)self->mPrecision));
+        if (val < min_val && min_val - val <= half_step)
+        {
+            val = min_val;
+        }
+        else if (val > max_val && val - max_val <= half_step)
+        {
+            val = max_val;
+        }
+
+        if( min_val <= val && val <= max_val )
         {
             self->setValue( val );  // set the value temporarily so that the callback can retrieve it.
             if( !self->mValidateSignal || (*(self->mValidateSignal))( self, val ) )
