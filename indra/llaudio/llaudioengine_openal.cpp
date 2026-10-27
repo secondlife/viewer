@@ -31,6 +31,10 @@
 #include "llaudioengine_openal.h"
 #include "lllistener_openal.h"
 
+#include <algorithm>
+#include <cstring>
+#include <thread>
+
 
 const float LLAudioEngine_OpenAL::WIND_BUFFER_SIZE_SEC = 0.05f;
 
@@ -49,7 +53,9 @@ LLAudioEngine_OpenAL::LLAudioEngine_OpenAL()
     mHasSystemEventsExt(false),
     mEventControlSOFT(NULL),
     mEventCallbackSOFT(NULL),
-    mDefaultDeviceChanged(false)
+    mDefaultDeviceChanged(false),
+    mHasCallbackBufferExt(false),
+    mBufferCallbackSOFT(NULL)
 {
 }
 
@@ -126,6 +132,15 @@ bool LLAudioEngine_OpenAL::init(void* userdata, const std::string &app_title)
             << "a viewer restart will be needed to pick up default device changes" << LL_ENDL;
     }
 
+    mHasCallbackBufferExt = alIsExtensionPresent("AL_SOFT_callback_buffer") && alIsExtensionPresent("AL_EXT_FLOAT32");
+    if (mHasCallbackBufferExt)
+    {
+        mBufferCallbackSOFT = (LPALBUFFERCALLBACKSOFT)alGetProcAddress("alBufferCallbackSOFT");
+        mHasCallbackBufferExt = (mBufferCallbackSOFT != NULL);
+    }
+    LL_INFOS() << "AL_SOFT_callback_buffer " << (mHasCallbackBufferExt ? "supported" : "NOT supported")
+        << " (needed for viewer-side embedded browser audio)" << LL_ENDL;
+
     return true;
 }
 
@@ -172,6 +187,8 @@ void LLAudioEngine_OpenAL::allocateListener()
 void LLAudioEngine_OpenAL::idle()
 {
     LLAudioEngine::idle();
+
+    updateStreamedSources();
 
     if (mDefaultDeviceChanged)
     {
@@ -234,6 +251,17 @@ void LLAudioEngine_OpenAL::shutdown()
         mEventControlSOFT(1, events, ALC_FALSE);
         mEventCallbackSOFT(NULL, NULL);
     }
+
+    // Callers may still hold streamed sources; their AL objects must go before the
+    // context does. The objects themselves stay valid (and silent) until released.
+    for (auto& weak_source : mStreamedSources)
+    {
+        if (auto source = weak_source.lock())
+        {
+            source->releaseAL();
+        }
+    }
+    mStreamedSources.clear();
 
     LLAudioEngine::shutdown();
 
@@ -677,6 +705,371 @@ void LLAudioEngine_OpenAL::updateWind(LLVector3 wind_vec, F32 camera_altitude)
         alSourcePlay(mWindSource);
 
         LL_DEBUGS() << "Wind had stopped - probably ran out of buffers - restarting: " << (unprocessed+mNumEmptyWindALBuffers) << " now queued." << LL_ENDL;
+    }
+}
+
+// ------------
+
+std::shared_ptr<LLStreamedAudioSource> LLAudioEngine_OpenAL::createStreamedSource(U32 prebuffer_ms, bool spatial)
+{
+    if (!mHasCallbackBufferExt)
+    {
+        return nullptr;
+    }
+
+    auto source = std::make_shared<LLStreamedAudioSourceOpenAL>(prebuffer_ms, spatial);
+    if (!source->initAL(mBufferCallbackSOFT))
+    {
+        return nullptr;
+    }
+
+    mStreamedSources.erase(std::remove_if(mStreamedSources.begin(), mStreamedSources.end(),
+                                          [](const std::weak_ptr<LLStreamedAudioSourceOpenAL>& w) { return w.expired(); }),
+                           mStreamedSources.end());
+    mStreamedSources.push_back(source);
+    return source;
+}
+
+void LLAudioEngine_OpenAL::updateStreamedSources()
+{
+    for (auto& weak_source : mStreamedSources)
+    {
+        if (auto source = weak_source.lock())
+        {
+            source->updateAL();
+        }
+    }
+}
+
+LLStreamedAudioSourceOpenAL::LLStreamedAudioSourceOpenAL(U32 prebuffer_ms, bool spatial)
+    : mSpatial(spatial),
+      mChannels(spatial ? 1 : 2),
+      mRing(RING_FRAMES * mChannels, 0.f),
+      mPrebufferMs(llclamp(prebuffer_ms, 10U, MAX_LATENCY_MS / 2))
+{
+}
+
+LLStreamedAudioSourceOpenAL::~LLStreamedAudioSourceOpenAL()
+{
+    releaseAL();
+}
+
+bool LLStreamedAudioSourceOpenAL::initAL(LPALBUFFERCALLBACKSOFT buffer_callback_fn)
+{
+    alGetError(); // clear
+
+    alGenBuffers(1, &mALBuffer);
+    alGenSources(1, &mALSource);
+    if (alGetError() != AL_NO_ERROR)
+    {
+        LL_WARNS() << "Failed to allocate streamed audio source" << LL_ENDL;
+        releaseAL();
+        return false;
+    }
+
+    mBufferCallbackFn = buffer_callback_fn;
+    specifyBuffer(DEFAULT_SAMPLE_RATE);
+
+    // Starts pinned to the listener (a spatial source moves into the world on its first
+    // setPositionGlobal()). Never distance-attenuated by OpenAL, either way: the caller's
+    // own gain carries distance falloff, so it keeps its existing curve and settings
+    // (MediaRollOff*) rather than switching to OpenAL's distance model. No Doppler
+    // either -- it would pitch-shift a live stream and skew its buffer fill level; see
+    // setPositionGlobal() for how that's kept true once the source is in the world.
+    alSourcei(mALSource, AL_SOURCE_RELATIVE, AL_TRUE);
+    alSource3f(mALSource, AL_POSITION, 0.f, 0.f, 0.f);
+    alSource3f(mALSource, AL_VELOCITY, 0.f, 0.f, 0.f);
+    alSourcef(mALSource, AL_ROLLOFF_FACTOR, 0.f);
+    alSourcef(mALSource, AL_GAIN, 0.f); // silent until the caller's first setGain()
+
+    // Plays continuously from here on: fill() hands back silence whenever there's nothing
+    // to play, so the source never runs dry and stops on its own.
+    alSourcePlay(mALSource);
+
+    ALenum error = alGetError();
+    if (error != AL_NO_ERROR)
+    {
+        LL_WARNS() << "Failed to start streamed audio source: AL error " << error << LL_ENDL;
+        releaseAL();
+        return false;
+    }
+    return true;
+}
+
+void LLStreamedAudioSourceOpenAL::specifyBuffer(U32 sample_rate)
+{
+    mBufferCallbackFn(mALBuffer, mSpatial ? AL_FORMAT_MONO_FLOAT32 : AL_FORMAT_STEREO_FLOAT32, sample_rate,
+                      &LLStreamedAudioSourceOpenAL::bufferCallback, this);
+    alSourcei(mALSource, AL_BUFFER, mALBuffer);
+    mPlayRate.store(sample_rate, std::memory_order_relaxed);
+}
+
+void LLStreamedAudioSourceOpenAL::updateAL()
+{
+    const U32 stream_rate = mStreamRate.load(std::memory_order_relaxed);
+    if (mALSource == AL_NONE || stream_rate == 0 || stream_rate == mPlayRate.load(std::memory_order_relaxed))
+    {
+        return;
+    }
+
+    // A callback buffer can only be re-specified while nothing is using it -- stopped, and
+    // with no fill() call still in flight (see fenceCallback()). Every other source
+    // property (gain, position, ...) survives this untouched.
+    alGetError();
+    alSourceStop(mALSource);
+    fenceCallback();
+    alSourcei(mALSource, AL_BUFFER, AL_NONE);
+    specifyBuffer(stream_rate);
+    mCallbackEnabled.store(true, std::memory_order_seq_cst);
+    alSourcePlay(mALSource);
+
+    ALenum error = alGetError();
+    if (error != AL_NO_ERROR)
+    {
+        LL_WARNS() << "Failed to switch streamed audio source to " << stream_rate << "Hz: AL error " << error << LL_ENDL;
+    }
+}
+
+void LLStreamedAudioSourceOpenAL::releaseAL()
+{
+    // Order matters: once the source is stopped and the buffer detached and deleted,
+    // OpenAL Soft makes no further bufferCallback() calls, so `this` may then be freed.
+    // fenceCallback() makes sure none is still running, too, rather than trusting
+    // alSourceStop() to have waited for it. Left disabled: nothing plays after this.
+    if (mALSource != AL_NONE)
+    {
+        alSourceStop(mALSource);
+        fenceCallback();
+        alSourcei(mALSource, AL_BUFFER, AL_NONE);
+        alDeleteSources(1, &mALSource);
+        mALSource = AL_NONE;
+    }
+    if (mALBuffer != AL_NONE)
+    {
+        alDeleteBuffers(1, &mALBuffer);
+        mALBuffer = AL_NONE;
+    }
+}
+
+void LLStreamedAudioSourceOpenAL::setPositionGlobal(const LLVector3d& pos_global)
+{
+    if (!mSpatial || mALSource == AL_NONE)
+    {
+        return;
+    }
+    if (mHeadRelative)
+    {
+        mHeadRelative = false;
+        alSourcei(mALSource, AL_SOURCE_RELATIVE, AL_FALSE);
+    }
+    // Same single-precision global frame LLAudioChannelOpenAL::update3DPosition() and the
+    // listener (see audio_update_listener()) already use.
+    LLVector3 float_pos;
+    float_pos.setVec(pos_global);
+    alSourcefv(mALSource, AL_POSITION, float_pos.mV);
+
+    // Doppler comes from the source's velocity relative to the listener's, and the
+    // listener moves with the avatar (see audio_update_listener()) -- so a zero source
+    // velocity still pitch-shifts the stream whenever the avatar walks or flies, and makes
+    // the mixer pull from the ring faster or slower than it's fed. Matching the listener's
+    // velocity cancels it out; refreshed every frame, since the caller sets the position
+    // every frame. A head-relative source needs none of this (see clearPosition()).
+    ALfloat listener_velocity[3] = { 0.f, 0.f, 0.f };
+    alGetListenerfv(AL_VELOCITY, listener_velocity);
+    alSourcefv(mALSource, AL_VELOCITY, listener_velocity);
+}
+
+void LLStreamedAudioSourceOpenAL::clearPosition()
+{
+    if (!mSpatial || mALSource == AL_NONE || mHeadRelative)
+    {
+        return;
+    }
+    mHeadRelative = true;
+    alSourcei(mALSource, AL_SOURCE_RELATIVE, AL_TRUE);
+    alSource3f(mALSource, AL_POSITION, 0.f, 0.f, 0.f);
+    alSource3f(mALSource, AL_VELOCITY, 0.f, 0.f, 0.f); // relative to the listener now
+}
+
+void LLStreamedAudioSourceOpenAL::pushPCM(const F32* interleaved, U32 frames, U32 sample_rate, U32 channels)
+{
+    if (sample_rate < MIN_SAMPLE_RATE || sample_rate > MAX_SAMPLE_RATE || channels == 0)
+    {
+        mFormatDrops.fetch_add(1, std::memory_order_relaxed);
+        return;
+    }
+    // Picked up by updateAL() on the main thread. Anything already in the ring at the old
+    // rate plays at the new one -- at most a fraction of a second's pitch glitch, on what is
+    // in practice a once-per-stream event.
+    if (mStreamRate.load(std::memory_order_relaxed) != sample_rate)
+    {
+        mStreamRate.store(sample_rate, std::memory_order_relaxed);
+    }
+
+    const U64 write_pos = mWritePos.load(std::memory_order_relaxed);
+    const U64 read_pos = mReadPos.load(std::memory_order_acquire);
+    const U64 free_frames = RING_FRAMES - (write_pos - read_pos);
+    if (frames > free_frames)
+    {
+        // The mixer isn't keeping up at all (it pulls latency back down itself long before
+        // this fills under normal drift) -- drop the newest audio rather than block.
+        mOverruns.fetch_add(frames, std::memory_order_relaxed);
+        return;
+    }
+
+    for (U32 f = 0; f < frames; ++f)
+    {
+        const F32* src = interleaved + (size_t)f * channels;
+        F32* dst = &mRing[(size_t)((write_pos + f) & (RING_FRAMES - 1)) * mChannels];
+        // Anything beyond stereo: only front left/right are kept.
+        const F32 left = src[0];
+        const F32 right = (channels == 1) ? src[0] : src[1];
+        if (mChannels == 1)
+        {
+            // Averaged rather than summed, so a full-scale stereo signal can't clip --
+            // and content that's identical in both channels comes through unchanged.
+            dst[0] = 0.5f * (left + right);
+        }
+        else
+        {
+            dst[0] = left;
+            dst[1] = right;
+        }
+    }
+
+    mStreamStopped.store(false, std::memory_order_relaxed);
+    mWritePos.store(write_pos + frames, std::memory_order_release);
+}
+
+void LLStreamedAudioSourceOpenAL::streamStopped()
+{
+    mStreamStopped.store(true, std::memory_order_relaxed);
+}
+
+void LLStreamedAudioSourceOpenAL::setGain(F32 gain)
+{
+    if (mALSource != AL_NONE)
+    {
+        alSourcef(mALSource, AL_GAIN, llclamp(gain, 0.f, 1.f));
+    }
+}
+
+LLStreamedAudioSource::Stats LLStreamedAudioSourceOpenAL::getStats() const
+{
+    Stats stats;
+    stats.mUnderruns = mUnderruns.load(std::memory_order_relaxed);
+    stats.mOverruns = mOverruns.load(std::memory_order_relaxed);
+    stats.mSkippedFrames = mSkippedFrames.load(std::memory_order_relaxed);
+    stats.mFormatDrops = mFormatDrops.load(std::memory_order_relaxed);
+    const U64 read_pos = mReadPos.load(std::memory_order_acquire);
+    const U64 buffered = mWritePos.load(std::memory_order_acquire) - read_pos;
+    stats.mSampleRate = mPlayRate.load(std::memory_order_relaxed);
+    stats.mBufferedMs = (U32)(buffered * 1000 / stats.mSampleRate);
+    stats.mFramesPlayed = read_pos;
+    if (mALSource != AL_NONE)
+    {
+        ALint state = AL_STOPPED;
+        alGetSourcei(mALSource, AL_SOURCE_STATE, &state);
+        stats.mEnginePlaying = (state == AL_PLAYING);
+        alGetSourcef(mALSource, AL_GAIN, &stats.mEngineGain);
+        alGetListenerf(AL_GAIN, &stats.mListenerGain);
+    }
+    return stats;
+}
+
+// static
+ALsizei AL_APIENTRY LLStreamedAudioSourceOpenAL::bufferCallback(ALvoid* userptr, ALvoid* sampledata, ALsizei numbytes) noexcept
+{
+    // Always fill the whole request: returning fewer bytes tells OpenAL the stream has
+    // ended, which would stop the source for good.
+    auto* self = static_cast<LLStreamedAudioSourceOpenAL*>(userptr);
+    self->mCallbacksInFlight.fetch_add(1, std::memory_order_seq_cst);
+    if (self->mCallbackEnabled.load(std::memory_order_seq_cst))
+    {
+        self->fill(static_cast<F32*>(sampledata), (U32)numbytes / (self->mChannels * sizeof(F32)));
+    }
+    else
+    {
+        std::memset(sampledata, 0, (size_t)numbytes); // being fenced out -- see fenceCallback()
+    }
+    self->mCallbacksInFlight.fetch_sub(1, std::memory_order_release);
+    return numbytes;
+}
+
+void LLStreamedAudioSourceOpenAL::fenceCallback()
+{
+    mCallbackEnabled.store(false, std::memory_order_seq_cst);
+    // Bounded by one fill() call -- a few microseconds of copying -- and normally not
+    // entered at all, since alSourceStop() has already waited out the mixer on OpenAL Soft.
+    while (mCallbacksInFlight.load(std::memory_order_seq_cst) != 0)
+    {
+        std::this_thread::yield();
+    }
+}
+
+void LLStreamedAudioSourceOpenAL::fill(F32* out, U32 frames) noexcept
+{
+    const U64 write_pos = mWritePos.load(std::memory_order_acquire);
+    U64 read_pos = mReadPos.load(std::memory_order_relaxed);
+    U64 available = write_pos - read_pos;
+
+    const U32 rate = mPlayRate.load(std::memory_order_relaxed);
+
+    // pushPCM() has started feeding a different rate than mALBuffer is specified at, and
+    // updateAL() hasn't rebound it yet -- that waits for the main thread, which can stall
+    // for longer than the prebuffer (a teleport, a heavy frame). Playing on would run the
+    // new samples at the old rate (e.g. CEF's 44.1kHz ~9% fast on the default 48kHz) and
+    // judge prebuffer/latency in the wrong units, so hold silent instead, consuming
+    // nothing; once rebound, the latency cap below drops whatever backlog built up. Read
+    // after mWritePos's acquire, so it's at least as new as the samples counted above.
+    const U32 stream_rate = mStreamRate.load(std::memory_order_relaxed);
+    if (stream_rate != 0 && stream_rate != rate)
+    {
+        std::fill(out, out + (size_t)frames * mChannels, 0.f);
+        return;
+    }
+    const U64 prebuffer_frames = (U64)mPrebufferMs * rate / 1000;
+    const U64 max_latency_frames = (U64)MAX_LATENCY_MS * rate / 1000;
+
+    if (!mPlaying)
+    {
+        if (available == 0 || (available < prebuffer_frames && !mStreamStopped.load(std::memory_order_relaxed)))
+        {
+            std::fill(out, out + (size_t)frames * mChannels, 0.f);
+            return;
+        }
+        mPlaying = true;
+    }
+
+    if (available > max_latency_frames)
+    {
+        // The feeder's clock is running ahead of the device's, or a stall let a backlog
+        // build up -- skip back to the prebuffer target instead of carrying that latency.
+        const U64 skip = available - prebuffer_frames;
+        read_pos += skip;
+        available -= skip;
+        mSkippedFrames.fetch_add(skip, std::memory_order_relaxed);
+    }
+
+    const U32 count = (U32)llmin<U64>(available, frames);
+    for (U32 f = 0; f < count; ++f)
+    {
+        const F32* src = &mRing[(size_t)((read_pos + f) & (RING_FRAMES - 1)) * mChannels];
+        for (U32 ch = 0; ch < mChannels; ++ch)
+        {
+            out[f * mChannels + ch] = src[ch];
+        }
+    }
+    mReadPos.store(read_pos + count, std::memory_order_release);
+
+    if (count < frames)
+    {
+        std::fill(out + (size_t)count * mChannels, out + (size_t)frames * mChannels, 0.f);
+        mPlaying = false; // prebuffer again before resuming, rather than stuttering
+        if (!mStreamStopped.load(std::memory_order_relaxed))
+        {
+            mUnderruns.fetch_add(1, std::memory_order_relaxed);
+        }
     }
 }
 

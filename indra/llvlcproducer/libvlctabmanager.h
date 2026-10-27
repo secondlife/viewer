@@ -105,7 +105,10 @@ public:
     // every width/height Resize() will ever be asked for (llvlcproducer.cpp already
     // clamps every resize request to this same ceiling), so no in-flight picture at any
     // prior size can ever overrun it.
-    VlcTabHandle CreateTab(int width, int height, int maxWidth, int maxHeight);
+    //
+    // audioCapture: hand this tab's decoded audio to the caller (see PopAudio()) instead
+    // of libvlc playing it itself -- the starting value for SetAudioCapture().
+    VlcTabHandle CreateTab(int width, int height, int maxWidth, int maxHeight, bool audioCapture = false);
 
     // Same handle/tab-reuse machinery as CreateTab, but for an audio-only client
     // (SLVlcProducer's parcel/streaming-music IPC client -- see llvlcproducer.cpp's own
@@ -115,8 +118,9 @@ public:
     // same shared libvlc_instance_t and the same
     // Open()/SetVolume()/Play()/Pause()/Stop()/ConsumeLoadStart()/ConsumeLoadEnd()/
     // ConsumePlaybackStateChange() plumbing as a video tab -- only video-specific setup
-    // is skipped. Resize() is a safe no-op on a handle from here.
-    VlcTabHandle CreateAudioTrack();
+    // is skipped. Resize() is a safe no-op on a handle from here. audioCapture: as for
+    // CreateTab().
+    VlcTabHandle CreateAudioTrack(bool audioCapture = false);
 
     void DestroyTab(VlcTabHandle handle);
     void DestroyAll();
@@ -147,8 +151,16 @@ public:
     void Resize(VlcTabHandle handle, int width, int height);
 
     // volume0to100: matches libvlc_audio_set_volume()'s own native range directly, no
-    // scaling. See kSetVolume/kSetMuted in cefshm_protocol.h.
+    // scaling. See kSetVolume/kSetMuted in cefshm_protocol.h. Remembered and applied to
+    // every player Open() creates, but only while libvlc is playing the audio itself -- a
+    // capturing player stays at 100%, since the caller applies its own gain.
     void SetVolume(VlcTabHandle handle, int volume0to100);
+
+    // Switches between handing this tab's audio to the caller (see PopAudio()) and libvlc
+    // playing it itself. libvlc only picks its audio output when a player is created, so a
+    // playing tab is reopened at its current position (a brief interruption, as for a
+    // resize); a paused/stopped one switches when Play() next resumes it.
+    void SetAudioCapture(VlcTabHandle handle, bool capture);
 
     // Play/pause toggle -- used for click-to-pause/resume (there's only one gesture --
     // a click -- to map, so a toggle is the right shape there). A no-op before the
@@ -188,6 +200,31 @@ public:
     // (rather than just trusting its own last-sent Play/Pause/Stop command), namely that
     // TogglePlayPause() (the click-to-pause gesture) can also change this independently.
     bool ConsumePlaybackStateChange(VlcTabHandle handle, bool& out_playing);
+
+    // The format a capturing tab's audio is always delivered in -- libvlc converts
+    // whatever the source is to this (libvlc_audio_set_format()).
+    static constexpr std::uint32_t kCaptureSampleRate = 48000;
+    static constexpr std::uint32_t kCaptureChannels   = 2;
+
+    // Pops the oldest block of captured audio (see CreateTab()'s audioCapture) that's
+    // due -- interleaved float32, kCaptureChannels per frame -- false if there's none
+    // yet. libvlc decodes ahead of time, so blocks are held back until close to their
+    // own play time rather than handed over the moment they're decoded: released early,
+    // a burst decoded well ahead of time would run past the consumer's latency cap and
+    // be skipped, and audio would drift ahead of this tab's video. Same polled,
+    // main-thread-only shape as CopyLatestFrame() -- libvlc's own audio thread only ever
+    // queues. ptsUs is the block's play time, on libvlc's own clock.
+    bool PopAudio(VlcTabHandle handle, std::vector<float>& out_samples, std::uint32_t& out_frames,
+                  std::int64_t& out_ptsUs);
+
+    // Edge-triggered, like ConsumeLoadStart(): true once after a capturing tab's audio
+    // stopped on purpose (paused, stopped, ended), so the consumer can tell that silence
+    // apart from an underrun.
+    bool ConsumeAudioStopped(VlcTabHandle handle);
+
+    // Blocks of captured audio discarded because they piled up unread (the main loop
+    // stalled) -- for diagnostics.
+    std::uint64_t GetAudioDroppedFrames(VlcTabHandle handle) const;
 
 private:
     class Impl;

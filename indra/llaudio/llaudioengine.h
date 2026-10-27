@@ -31,6 +31,7 @@
 #include <list>
 #include <map>
 #include <array>
+#include <memory>
 
 #include "v3math.h"
 #include "v3dmath.h"
@@ -58,6 +59,56 @@ class LLAudioChannelOpenAL;
 class LLAudioBuffer;
 class LLStreamingAudioInterface;
 struct SoundData;
+
+// A continuous stream of PCM pushed in by the caller (e.g. embedded-browser media audio
+// delivered by SLCefProducer/SLVlcProducer) rather than a decoded asset. Independent of the
+// LLAudioChannel pool: each one owns its own engine-level voice for its whole lifetime, and
+// buffers enough audio internally to ride out the jitter of whatever thread is feeding it.
+// See LLAudioEngine::createStreamedSource().
+class LLStreamedAudioSource
+{
+public:
+    virtual ~LLStreamedAudioSource() = default;
+
+    // Interleaved float samples, from any one thread at a time (not necessarily the main
+    // thread). Converted to this source's own channel layout as needed, and played at
+    // whatever sample_rate is given (the engine resamples); a nonsensical rate is dropped
+    // and counted in Stats::mFormatDrops.
+    virtual void pushPCM(const F32* interleaved, U32 frames, U32 sample_rate, U32 channels) = 0;
+
+    // The feeder stopped producing audio on purpose: play out what's buffered, then go
+    // idle without counting the silence that follows as an underrun. Same thread as pushPCM().
+    virtual void streamStopped() = 0;
+
+    // Main thread only. Linear, 0..1 -- on top of the engine's own master gain.
+    virtual void setGain(F32 gain) = 0;
+
+    // Main thread only; ignored by a non-spatial source. Places the sound at a point in the
+    // world (same global frame as the listener), panned/HRTF'd by the engine but not
+    // distance-attenuated by it -- distance falloff stays the caller's job, via setGain().
+    virtual void setPositionGlobal(const LLVector3d& pos_global) = 0;
+    // Main thread only; ignored by a non-spatial source. Plays from the listener's own
+    // position: audible, but not directional -- for when there's no meaningful world
+    // position (e.g. a HUD attachment, or an object that isn't known yet).
+    virtual void clearPosition() = 0;
+
+    struct Stats
+    {
+        U64 mUnderruns = 0;    // ran dry mid-stream
+        U64 mOverruns = 0;     // pushPCM() frames discarded because the buffer was full
+        U64 mSkippedFrames = 0; // frames discarded to pull latency back down after drift/a stall
+        U64 mFormatDrops = 0;  // pushPCM() calls discarded for a nonsensical format
+        U32 mBufferedMs = 0;   // currently queued, not yet played
+        U32 mSampleRate = 0;   // the rate currently being played at
+        U64 mFramesPlayed = 0; // handed to the engine's mixer so far
+        // Read back from the engine itself rather than our own record of what was asked
+        // for -- these are what's actually in effect.
+        F32 mEngineGain = 0.f;
+        F32 mListenerGain = 0.f;
+        bool mEnginePlaying = false;
+    };
+    virtual Stats getStats() const = 0;
+};
 
 //
 //  LLAudioEngine definition
@@ -157,6 +208,16 @@ public:
     // use a value from 0.0 to 1.0, inclusive
     void setInternetStreamGain(F32 vol);
     std::string getInternetStreamURL();
+
+    // A new caller-fed PCM stream (see LLStreamedAudioSource), starting playback once
+    // prebuffer_ms of audio has been pushed. spatial streams are mixed down to mono and
+    // positioned in the world (see setPositionGlobal()); non-spatial ones stay stereo and
+    // play straight to the listener. Null if this engine can't do it -- callers should then
+    // leave audio to whatever was producing it instead.
+    virtual std::shared_ptr<LLStreamedAudioSource> createStreamedSource(U32 prebuffer_ms, bool spatial) { return nullptr; }
+    // Whether createStreamedSource() can succeed at all -- for deciding up front whether to
+    // ask for audio as PCM, without allocating a source before it's actually needed.
+    virtual bool supportsStreamedSources() const { return false; }
 
     // For debugging usage
     virtual LLVector3 getListenerPos();

@@ -33,7 +33,6 @@
 #include "llappviewer.h"
 #include "llaudioengine.h"  // for gAudiop
 #include "llcallbacklist.h"
-#include "llapr.h" // TEMPORARY DIAGNOSTIC -- see updateEmbeddedBrowserEvents()'s own comment
 #include "lldir.h"
 #include "lldiriterator.h"
 #include "llembeddedbrowser.h"
@@ -189,6 +188,7 @@ static const F32 LLVIEWERMEDIA_CREATE_DELAY = 1.0f;
 // happened, matching what actually occurred from the user's point of view.
 static const F32 EMBEDDED_BROWSER_DISCONNECT_GRACE_PERIOD = 2.0f;
 static F32 sGlobalVolume = 1.0f;
+static F32 sGlobalVolumeExcludingMaster = 1.0f;
 static bool sForceUpdate = false;
 static LLUUID sOnlyAudibleTextureID = LLUUID::null;
 static F64 sLowestLoadableImplInterest = 0.0f;
@@ -547,11 +547,12 @@ bool LLViewerMedia::textureHasMedia(const LLUUID& texture_id)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMedia::setVolume(F32 volume)
+void LLViewerMedia::setVolume(F32 volume, F32 volume_excluding_master)
 {
-    if(volume != sGlobalVolume || sForceUpdate)
+    if(volume != sGlobalVolume || volume_excluding_master != sGlobalVolumeExcludingMaster || sForceUpdate)
     {
         sGlobalVolume = volume;
+        sGlobalVolumeExcludingMaster = volume_excluding_master;
         impl_list::iterator iter = sViewerMediaImplList.begin();
         impl_list::iterator end = sViewerMediaImplList.end();
 
@@ -569,6 +570,12 @@ void LLViewerMedia::setVolume(F32 volume)
 F32 LLViewerMedia::getVolume()
 {
     return sGlobalVolume;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+F32 LLViewerMedia::getVolumeExcludingMaster()
+{
+    return sGlobalVolumeExcludingMaster;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -654,6 +661,19 @@ LLSD LLViewerMedia::getEmbeddedBrowserDebugInfo()
         }
 
         row["backend"] = (impl->getEmbeddedBrowserBackend() == LLEmbeddedBrowserBackend::LibVlc) ? "LibVLC" : "CEF";
+
+        // Who is actually playing this media's audio -- see LLViewerMediaImpl::
+        // mEmbeddedBrowserAudio. Stats only exist for the Viewer-side case.
+        row["audio"] = impl->isEmbeddedBrowserAudioViaViewer() ? "viewer" : "producer";
+        if (const auto& audio = impl->getEmbeddedBrowserAudio())
+        {
+            const LLStreamedAudioSource::Stats stats = audio->getStats();
+            row["audio_buffered_ms"] = (LLSD::Integer)stats.mBufferedMs;
+            row["audio_underruns"] = (LLSD::Integer)stats.mUnderruns;
+            row["audio_overruns"] = (LLSD::Integer)stats.mOverruns;
+            row["audio_skipped_frames"] = (LLSD::Integer)stats.mSkippedFrames;
+            row["audio_format_drops"] = (LLSD::Integer)stats.mFormatDrops;
+        }
 
         LLPluginClassMedia::EPriority priority = impl->getPriority();
         row["priority"] = (LLSD::Integer)priority;
@@ -838,6 +858,35 @@ static const F32 EMBEDDED_BROWSER_RENDER_RATE_DEMOTION_GRACE_PERIOD = 2.0f;
 // updateVolume() -- without that snap, a level drifting to e.g. 0.004f would stop
 // sending (below the deadband) and leave a permanent faint trickle of audio.
 static const F32 EMBEDDED_BROWSER_VOLUME_EPSILON = 0.01f;
+
+// Hands a tab's captured audio (see LLEmbeddedBrowserAudioSink) straight to its Viewer-side
+// stream -- called on the tab's own update thread, which LLStreamedAudioSource::pushPCM()
+// is built to accept.
+class LLEmbeddedBrowserAudioToStream : public LLEmbeddedBrowserAudioSink
+{
+public:
+    LLEmbeddedBrowserAudioToStream(std::shared_ptr<LLStreamedAudioSource> stream,
+                                   std::atomic<bool>& captured)
+        : mStream(std::move(stream)), mCaptured(captured)
+    {
+    }
+
+    void onAudioPacket(const float* interleaved, unsigned int frames, unsigned int sampleRate,
+                       unsigned int channels) override
+    {
+        mStream->pushPCM(interleaved, frames, sampleRate, channels);
+        mCaptured.store(true);
+    }
+
+    void onAudioStreamStopped() override
+    {
+        mStream->streamStopped();
+    }
+
+private:
+    std::shared_ptr<LLStreamedAudioSource> mStream;
+    std::atomic<bool>& mCaptured;
+};
 
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE("Update Media");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_SPARE_IDLE("Spare Idle");
@@ -2145,11 +2194,44 @@ void LLViewerMediaImpl::createMediaSource()
             << ", url=" << backend_log_url
             << LL_ENDL;
 
+        // Ask the producer to hand this tab's audio to us (see mEmbeddedBrowserAudio) only
+        // if there's actually somewhere to play it -- no audio engine, or one that can't do
+        // caller-fed streams, leaves the producer playing it itself exactly as before.
+        // Both backends: SLCefProducer captures via CEF's CefAudioHandler, SLVlcProducer
+        // via libvlc's audio callbacks. Prim media is positioned in the world (see
+        // mEmbeddedBrowserAudioPositionGlobal); UI and parcel media have no position and
+        // stay stereo. Create the stream and attach its sink before starting the browser
+        // update thread, so audio can't be claimed before there's somewhere to send it.
+        static LLCachedControl<bool> audio_via_viewer(gSavedSettings, "EmbeddedBrowserAudioViaViewer");
+        mEmbeddedBrowserAudioRequested = audio_via_viewer() && gAudiop && gAudiop->supportsStreamedSources();
+        // HUD media has no world position to pan from (see calculateInterest()), so it
+        // keeps its stereo too rather than being mixed down only to play from the listener.
+        mEmbeddedBrowserAudioSpatial = !mUsedInUI && !isParcelMedia() && !isAttachedToHUD();
+        std::shared_ptr<LLEmbeddedBrowserAudioSink> audio_sink;
+        if (mEmbeddedBrowserAudioRequested)
+        {
+            static LLCachedControl<U32> audio_prebuffer_ms(gSavedSettings, "EmbeddedBrowserAudioPrebufferMs");
+            mEmbeddedBrowserAudioCaptured.store(false);
+            mEmbeddedBrowserAudio = gAudiop->createStreamedSource(audio_prebuffer_ms(), mEmbeddedBrowserAudioSpatial);
+            if (mEmbeddedBrowserAudio)
+            {
+                audio_sink = std::make_shared<LLEmbeddedBrowserAudioToStream>(
+                    mEmbeddedBrowserAudio, mEmbeddedBrowserAudioCaptured);
+            }
+            else
+            {
+                mEmbeddedBrowserAudioRequested = false;
+                LL_WARNS("MediaAudio") << "Couldn't create an audio stream for embedded-browser media (id="
+                    << mTextureId << ") -- leaving its audio to the producer" << LL_ENDL;
+            }
+        }
+
         // Matches loadURI()'s legacy-plugin behavior: data: URIs need their payload
         // re-escaped (see LLURI::escapePathAndData()'s dedicated data: handling) to parse
         // correctly -- plain http(s) URLs pass through this unchanged either way.
-        mEmbeddedBrowserId = LLEmbeddedBrowser::getInstance()->create(LLURI::escapePathAndData(mMediaURL), width, height, mUsedInUI, mEmbeddedBrowserBackend,
-                                                                       gSavedSettings.getBOOL("EmbeddedBrowserCefAudioCapture"));
+        mEmbeddedBrowserId = LLEmbeddedBrowser::getInstance()->create(LLURI::escapePathAndData(mMediaURL), width, height, mUsedInUI,
+                                                                       mEmbeddedBrowserBackend, mEmbeddedBrowserAudioRequested,
+                                                                       std::move(audio_sink));
         // setPageZoomFactor() may have already updated mZoomFactor before this tab
         // existed (e.g. ensureMediaSourceExists()'s own call, which runs right before
         // this) -- apply whatever it currently is now that there's a real tab to send
@@ -2208,6 +2290,9 @@ void LLViewerMediaImpl::destroyMediaSource()
             LLEmbeddedBrowser::getInstance()->setVolume(mEmbeddedBrowserId, 0.0f);
         }
         LLEmbeddedBrowser::getInstance()->setMuted(mEmbeddedBrowserId, true);
+        releaseEmbeddedBrowserAudio();
+        mEmbeddedBrowserAudioRequested = false;
+        mEmbeddedBrowserAudioClaimed = false;
         LLEmbeddedBrowser::getInstance()->destroy(mEmbeddedBrowserId);
         mUseEmbeddedBrowser = false;
         // A freshly created tab always starts unmuted -- reset this so a stale
@@ -2698,8 +2783,9 @@ void LLViewerMediaImpl::updateVolume()
     LL_RECORD_BLOCK_TIME(FTM_MEDIA_UPDATE_VOLUME);
     if(mMediaSource || mUseEmbeddedBrowser)
     {
-        // always scale the volume by the global media volume
-        F32 volume = mRequestedVolume * LLViewerMedia::getInstance()->getVolume();
+        // This media's own level -- its requested volume, distance rolloff and the
+        // only-audible-texture override -- before any global media volume is applied.
+        F32 local_volume = mRequestedVolume;
 
         if (mProximityCamera > 0)
         {
@@ -2708,7 +2794,7 @@ void LLViewerMediaImpl::updateVolume()
             static LLCachedControl<F32> media_rolloff_rate(gSavedSettings, "MediaRollOffRate");
             if (mProximityCamera > media_rolloff_max())
             {
-                volume = 0;
+                local_volume = 0;
             }
             else if (mProximityCamera > media_rolloff_min())
             {
@@ -2718,15 +2804,18 @@ void LLViewerMediaImpl::updateVolume()
                 F64 attenuation = 1.0 + (media_rolloff_rate() * adjusted_distance);
                 attenuation = 1.0 / (attenuation * attenuation);
                 // the attenuation multiplier should never be more than one since that would increase volume
-                volume = volume * (F32)llmin(1.0, attenuation);
+                local_volume = local_volume * (F32)llmin(1.0, attenuation);
             }
         }
 
         bool audible = (sOnlyAudibleTextureID == LLUUID::null || sOnlyAudibleTextureID == mTextureId);
         if (!audible)
         {
-            volume = 0.0f;
+            local_volume = 0.0f;
         }
+
+        // always scale the volume by the global media volume
+        F32 volume = local_volume * LLViewerMedia::getInstance()->getVolume();
 
         if (mMediaSource)
         {
@@ -2734,67 +2823,97 @@ void LLViewerMediaImpl::updateVolume()
         }
         else if (mUseEmbeddedBrowser)
         {
-            if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::LibVlc)
+            // Always kept current, captured or not: it's what the producer plays at whenever
+            // it plays this tab's audio itself -- before this tab's claim on the audio
+            // channel lands (or if it never does -- see kSlotFlagAudioCapture), for a CEF
+            // stream that was already playing when the claim landed, and after a reconnect
+            // to a producer that declines capture.
+            sendEmbeddedBrowserProducerVolume(volume);
+
+            const bool audio_captured = isEmbeddedBrowserAudioClaimed() &&
+                (mEmbeddedBrowserBackend != LLEmbeddedBrowserBackend::Cef ||
+                 mEmbeddedBrowserAudioCaptured.load());
+            if (audio_captured)
             {
-                // Unlike CEF, libvlc exposes a real per-player output gain, so a
-                // LibVLC-backed slot gets the same smooth distance-rolloff curve the
-                // legacy plugin had -- the volume computed above goes through as-is
-                // rather than collapsing to the mute decision below.
+                // The producer is handing this tab's audio to us rather than playing it
+                // (see mEmbeddedBrowserAudio), so the full, continuous rolloff curve goes
+                // straight onto the stream. A claim alone isn't enough: an already-playing
+                // CEF stream remains on native output until it ends, so keep its effective DOM
+                // volume until captured PCM reaches the Viewer. Excluding master: OpenAL
+                // already applies that as its listener gain. Set every frame rather than
+                // deduped -- it's a local engine call, not an IPC opcode.
+                const F32 gain = local_volume * LLViewerMedia::getInstance()->getVolumeExcludingMaster();
+                if (mEmbeddedBrowserAudio)
+                {
+                    mEmbeddedBrowserAudio->setGain(gain);
+                }
+
+                // The page's own <video>/<audio> elements must stay at full volume: the
+                // stream's gain is the volume control now. Anything less isn't just quieter
+                // -- Chromium stops an element's audio stream entirely at volume 0, leaving
+                // nothing to capture. That's exactly what happened when a level injected by
+                // the branch below, before the claim landed, stayed in effect afterwards:
+                // often 0, since a tab created during the login/teleport progress screen
+                // (sOnlyAudibleTextureID) or out of range starts out silent. Setting
+                // mEmbeddedBrowserCefVolume also makes LoadEnd's per-navigation re-injection
+                // (see updateEmbeddedBrowserEvents()) use 1.0 from here on. Requires both
+                // the claim and a captured packet: a claim alone doesn't reroute a CEF
+                // stream that was already playing, so it must keep the real level until it
+                // ends. CEF only -- a LibVLC slot has no page/DOM to script.
+                if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef && mEmbeddedBrowserCefVolume != 1.f)
+                {
+                    mEmbeddedBrowserCefVolume = 1.f;
+                    executeJavaScript(buildEmbeddedBrowserVolumeUpdateScript(1.f));
+                }
+
+                // A no-op for a non-spatial (UI/parcel) stream.
+                if (mEmbeddedBrowserAudio && mEmbeddedBrowserAudioHasPosition)
+                {
+                    mEmbeddedBrowserAudio->setPositionGlobal(mEmbeddedBrowserAudioPositionGlobal);
+                }
+                else if (mEmbeddedBrowserAudio)
+                {
+                    mEmbeddedBrowserAudio->clearPosition();
+                }
+
+                // What was asked for versus what OpenAL reports is actually in effect --
+                // enable debug logging for the MediaAudio tag to see it.
+                if (mEmbeddedBrowserAudio && mEmbeddedBrowserAudioLogTimer.hasExpired())
+                {
+                    mEmbeddedBrowserAudioLogTimer.resetWithExpiry(5.f);
+                    const LLStreamedAudioSource::Stats stats = mEmbeddedBrowserAudio->getStats();
+                    LL_DEBUGS("MediaAudio") << "id=" << mTextureId
+                        << " local_volume=" << local_volume
+                        << " volume_excl_master=" << LLViewerMedia::getInstance()->getVolumeExcludingMaster()
+                        << " gain=" << gain
+                        << " position=" << (mEmbeddedBrowserAudioHasPosition ? mEmbeddedBrowserAudioPositionGlobal : LLVector3d::zero)
+                        << (mEmbeddedBrowserAudioHasPosition ? "" : " (listener)")
+                        << " al_gain=" << stats.mEngineGain
+                        << " al_listener_gain=" << stats.mListenerGain
+                        << " al_playing=" << (stats.mEnginePlaying ? "yes" : "no")
+                        << " engine_muted=" << ((gAudiop && gAudiop->getMuted()) ? "yes" : "no")
+                        << " frames_played=" << stats.mFramesPlayed
+                        << " buffered_ms=" << stats.mBufferedMs
+                        << " underruns=" << stats.mUnderruns << LL_ENDL;
+                }
+            }
+            else if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef)
+            {
+                // On top of sendEmbeddedBrowserProducerVolume()'s hard mute, a JS-injected
+                // best-effort approximation of the real computed volume (see
+                // buildEmbeddedBrowserVolumeUpdateScript()'s own comment for what this can't
+                // reach) gives a smooth fade for pages it does work on, rather than a flat
+                // mute/unmute jump.
                 //
-                // Snapped to exact silence below the epsilon so "out of range" is
-                // genuinely silent rather than merely very quiet, and so the dedupe
-                // below can never leave a residual trickle of audio.
-                F32 send_volume = (volume < EMBEDDED_BROWSER_VOLUME_EPSILON) ? 0.0f : volume;
-
-                // Recomputed every frame, and mProximityCamera jitters continuously as
-                // the camera moves -- only send when the level actually changes by an
-                // audible amount, the same way mEmbeddedBrowserMuted gates the CEF
-                // path below. mEmbeddedBrowserVolume starts at -1.f, which no clamped
-                // level can equal, so the first call after tab creation always sends.
-                if (fabsf(send_volume - mEmbeddedBrowserVolume) >= EMBEDDED_BROWSER_VOLUME_EPSILON)
-                {
-                    mEmbeddedBrowserVolume = send_volume;
-                    LLEmbeddedBrowser::getInstance()->setVolume(mEmbeddedBrowserId, send_volume);
-                }
-            }
-            else if (gSavedSettings.getBOOL("EmbeddedBrowserCefAudioCapture"))
-            {
-                // Raw PCM capture (CefAudioHandler) is on for this tab -- its native CEF
-                // audio output was muted once, permanently, at slot-creation time in
-                // llcefproducer.cpp specifically to avoid double playback once the
-                // colleague's OpenAL path takes over. Neither the hard setMuted() cutoff
-                // nor the JS-injected volume approximation below belong here any more --
-                // sending setMuted(false) as a capturing tab comes back into proximity
-                // range would silently un-mute its native output again (real double
-                // playback), and the JS hack would attenuate the very audio this path is
-                // supposed to deliver at full level for the Viewer's own distance/volume
-                // handling (on the captured PCM, via OpenAL) to apply once, not twice.
-            }
-            else
-            {
-                // CEF's public API has no continuous per-browser volume level (audio
-                // mixing happens inside Chromium's own audio service, not exposed to
-                // the embedder as a gain multiplier -- see kSetMuted's own comment in
-                // cefshm_protocol.h). kSetMuted/setMuted() stays as the immediate,
-                // guaranteed-to-work hard cutoff -- this is what actually silences
-                // embedded-browser media once it's out of rolloff range (e.g. after a
-                // teleport, where mProximityCamera becomes enormous), independent of
-                // whether the JS injection below has taken effect on this particular
-                // page. On top of that, a JS-injected best-effort approximation of the
-                // real computed volume (see buildEmbeddedBrowserVolumeUpdateScript()'s
-                // own comment for what this can't reach) gives a smooth fade for pages
-                // it does work on, rather than the previous flat mute/unmute jump.
-                bool should_mute = (volume <= 0.0f);
-                if (should_mute != mEmbeddedBrowserMuted)
-                {
-                    mEmbeddedBrowserMuted = should_mute;
-                    LLEmbeddedBrowser::getInstance()->setMuted(mEmbeddedBrowserId, should_mute);
-                    LL_INFOS("MediaVolume") << "CEF media (id=" << mTextureId << ") setMuted("
-                        << (should_mute ? "true" : "false") << ")" << LL_ENDL;
-                }
+                // Not while this tab's audio capture is still undecided (requested, but not
+                // yet connected to learn whether the producer granted it): a 0 injected now
+                // could silence a stream before its routing is known. The hard mute still
+                // covers the gap; a declined tab picks up its real level here once connected.
+                unsigned int slot_index = 0;
+                const bool capture_undecided = mEmbeddedBrowserAudioRequested && !getEmbeddedBrowserSlotIndex(slot_index);
 
                 F32 send_volume = (volume < EMBEDDED_BROWSER_VOLUME_EPSILON) ? 0.0f : volume;
-                if (fabsf(send_volume - mEmbeddedBrowserCefVolume) >= EMBEDDED_BROWSER_VOLUME_EPSILON)
+                if (!capture_undecided && fabsf(send_volume - mEmbeddedBrowserCefVolume) >= EMBEDDED_BROWSER_VOLUME_EPSILON)
                 {
                     mEmbeddedBrowserCefVolume = send_volume;
                     LL_INFOS("MediaVolume") << "CEF media (id=" << mTextureId
@@ -2803,6 +2922,49 @@ void LLViewerMediaImpl::updateVolume()
                 }
             }
         }
+    }
+}
+
+void LLViewerMediaImpl::sendEmbeddedBrowserProducerVolume(F32 volume)
+{
+    if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::LibVlc)
+    {
+        // Unlike CEF, libvlc exposes a real per-player output gain, so a LibVLC-backed slot
+        // gets the same smooth distance-rolloff curve the legacy plugin had -- the volume
+        // goes through as-is rather than collapsing to the mute decision below.
+        //
+        // Snapped to exact silence below the epsilon so "out of range" is genuinely silent
+        // rather than merely very quiet, and so the dedupe below can never leave a residual
+        // trickle of audio.
+        F32 send_volume = (volume < EMBEDDED_BROWSER_VOLUME_EPSILON) ? 0.0f : volume;
+
+        // Recomputed every frame, and mProximityCamera jitters continuously as the camera
+        // moves -- only send when the level actually changes by an audible amount, the same
+        // way mEmbeddedBrowserMuted gates the CEF path below. mEmbeddedBrowserVolume starts
+        // at -1.f, which no clamped level can equal, so the first call after tab creation
+        // always sends.
+        if (fabsf(send_volume - mEmbeddedBrowserVolume) >= EMBEDDED_BROWSER_VOLUME_EPSILON)
+        {
+            mEmbeddedBrowserVolume = send_volume;
+            LLEmbeddedBrowser::getInstance()->setVolume(mEmbeddedBrowserId, send_volume);
+        }
+        return;
+    }
+
+    // CEF's public API has no continuous per-browser volume level (audio mixing happens
+    // inside Chromium's own audio service, not exposed to the embedder as a gain multiplier
+    // -- see kSetMuted's own comment in cefshm_protocol.h). kSetMuted/setMuted() stays as the
+    // immediate, guaranteed-to-work hard cutoff -- this is what actually silences
+    // embedded-browser media once it's out of rolloff range (e.g. after a teleport, where
+    // mProximityCamera becomes enormous), independent of whether updateVolume()'s JS
+    // injection has taken effect on this particular page.
+    bool should_mute = (volume <= 0.0f);
+    if (should_mute != mEmbeddedBrowserMuted)
+    {
+        mEmbeddedBrowserMuted = should_mute;
+        LLEmbeddedBrowser::getInstance()->setMuted(mEmbeddedBrowserId, should_mute);
+        LL_INFOS("MediaVolume") << "CEF media (id=" << mTextureId << ") setMuted("
+            << (should_mute ? "true" : "false") << ")" << LL_ENDL;
     }
 }
 
@@ -3794,6 +3956,10 @@ void LLViewerMediaImpl::update()
         // suspend flags either -- those only guard the texture-copy step below.
         updateEmbeddedBrowserEvents();
 
+        // Before updateVolume(), so a stream created this frame gets its gain and position
+        // straight away.
+        updateEmbeddedBrowserAudioSource();
+
         // Also unconditional, matching the legacy branch's own updateVolume() call
         // above (before its suspend/visible checks) -- audio should mute/unmute
         // based on distance and priority regardless of whether the texture itself
@@ -4347,112 +4513,8 @@ static ECursorType cursorTypeFromEmbeddedBrowserCursor(unsigned int cef_cursor_t
     }
 }
 
-// ============================================================================
-// TEMPORARY DIAGNOSTIC -- not part of the real feature, remove once real
-// end-to-end verification of CEF audio-PCM capture (EmbeddedBrowserCefAudioCapture)
-// is done. Drains LLEmbeddedBrowser::popAudioPacket() into a PER-TAB accumulator,
-// keyed by embedded-browser id -- several simultaneous audio-capturing tabs each
-// get their own independent WAV file rather than one shared, interleaved mess
-// (2026-10-08: this started mattering for real once testing needed more than one
-// simultaneously-capturing tab at a time). Periodically rewrites each tab's WAV
-// file so the result survives even if the viewer is force-quit mid-test. Planar
-// float32 -> interleaved int16 (clamped), standard PCM so any media player can
-// open it directly. See doc/Embedded_Browser.md for the real feature this is
-// verifying.
-namespace {
-    struct AudioCaptureDiagState {
-        std::vector<std::int16_t> samples;
-        std::uint32_t sampleRate = 0;
-        std::uint32_t channels = 0;
-        int flushCounter = 0;
-    };
-    std::map<unsigned int, AudioCaptureDiagState> gAudioCaptureDiagByTab;
-
-    void writeAudioCaptureDiagWav(unsigned int tabId, AudioCaptureDiagState& state)
-    {
-        if (state.samples.empty() || state.sampleRate == 0 || state.channels == 0)
-        {
-            return;
-        }
-        std::string path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-            "cef_audio_capture_test_" + std::to_string(tabId) + ".wav");
-        LLAPRFile file;
-        if (file.open(path, LL_APR_WB) != APR_SUCCESS)
-        {
-            return;
-        }
-        const std::uint32_t data_bytes = std::uint32_t(state.samples.size() * sizeof(std::int16_t));
-        const std::uint32_t byte_rate = state.sampleRate * state.channels * 2;
-        const std::uint16_t block_align = std::uint16_t(state.channels * 2);
-        const std::uint32_t riff_size = 36 + data_bytes;
-
-        auto write_u32 = [&](std::uint32_t v) { file.write(&v, 4); };
-        auto write_u16 = [&](std::uint16_t v) { file.write(&v, 2); };
-
-        file.write("RIFF", 4);
-        write_u32(riff_size);
-        file.write("WAVEfmt ", 8);
-        write_u32(16);                      // fmt chunk size
-        write_u16(1);                       // PCM
-        write_u16(std::uint16_t(state.channels));
-        write_u32(state.sampleRate);
-        write_u32(byte_rate);
-        write_u16(block_align);
-        write_u16(16);                      // bits per sample
-        file.write("data", 4);
-        write_u32(data_bytes);
-        file.write(state.samples.data(), S32(data_bytes));
-
-        LL_INFOS("Media") << path << ": wrote " << data_bytes << " bytes ("
-                           << state.samples.size() / state.channels << " frames @ "
-                           << state.sampleRate << "Hz, " << state.channels
-                           << "ch) for tab " << tabId << LL_ENDL;
-    }
-}
-// ============================================================================
-
 void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
 {
-    // TEMPORARY DIAGNOSTIC -- see the block above. Drain every frame, regardless of
-    // suspend/visible, matching popEvent()'s own unconditional drain just below.
-    if (gSavedSettings.getBOOL("EmbeddedBrowserCefAudioCapture"))
-    {
-        AudioCaptureDiagState& state = gAudioCaptureDiagByTab[mEmbeddedBrowserId];
-        LLEmbeddedBrowserAudioPacket packet;
-        while (LLEmbeddedBrowser::getInstance()->popAudioPacket(mEmbeddedBrowserId, packet))
-        {
-            if (state.samples.empty())
-            {
-                state.channels = packet.mChannels;
-                // Real rate, now threaded through LLEmbeddedBrowserAudioPacket itself
-                // (was hardcoded here, guessed wrong at first -- 48000 instead of CEF's
-                // real 44100 -- which made captured audio play back slightly fast/sharp).
-                state.sampleRate = packet.mSampleRate;
-            }
-
-            const std::size_t base = state.samples.size();
-            state.samples.resize(base + packet.mSamples.size());
-            for (unsigned int ch = 0; ch < packet.mChannels; ++ch)
-            {
-                for (unsigned int f = 0; f < packet.mFrames; ++f)
-                {
-                    const float s = packet.mSamples[std::size_t(ch) * packet.mFrames + f];
-                    const float clamped = llclamp(s, -1.f, 1.f);
-                    state.samples[base + std::size_t(f) * packet.mChannels + ch] =
-                        std::int16_t(clamped * 32767.f);
-                }
-            }
-        }
-        // Rewrite the file roughly once a second (assuming ~every-frame calls at
-        // ~60fps) rather than on every single packet -- survives a force-quit without
-        // rewriting a multi-MB file every tick.
-        if (++state.flushCounter >= 60)
-        {
-            state.flushCounter = 0;
-            writeAudioCaptureDiagWav(mEmbeddedBrowserId, state);
-        }
-    }
-
     LLEmbeddedBrowserEvent event;
     while (LLEmbeddedBrowser::getInstance()->popEvent(mEmbeddedBrowserId, event))
     {
@@ -4463,11 +4525,7 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
                 break;
 
             case LLEmbeddedBrowserEventType::LoadEnd:
-                // See updateVolume()'s own comment -- a raw-PCM-capturing tab's native
-                // audio stays permanently muted and untouched by the JS volume hack,
-                // so there's nothing for this setup script to usefully do there.
-                if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef &&
-                    !gSavedSettings.getBOOL("EmbeddedBrowserCefAudioCapture"))
+                if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef)
                 {
                     // A fresh page has a fresh DOM/JS global scope -- any earlier
                     // MutationObserver this tab registered is gone with it, so the
@@ -5180,6 +5238,7 @@ void LLViewerMediaImpl::calculateInterest()
     // Calculate distance from the avatar, for use in the proximity calculation.
     mProximityDistance = 0.0f;
     mProximityCamera = 0.0f;
+    mEmbeddedBrowserAudioHasPosition = false;
     if(!mObjectList.empty())
     {
         // Just use the first object in the list.  We could go through the list and find the closest object, but this should work well enough.
@@ -5210,6 +5269,9 @@ void LLViewerMediaImpl::calculateInterest()
             }
             LLVector3d camera_delta = ear_position - obj_global;
             mProximityCamera = camera_delta.magVec();
+
+            mEmbeddedBrowserAudioPositionGlobal = obj_global;
+            mEmbeddedBrowserAudioHasPosition = true;
         }
     }
 
@@ -5599,6 +5661,50 @@ bool LLViewerMediaImpl::getEmbeddedBrowserSlotIndex(unsigned int& out_index) con
     }
 
     return LLEmbeddedBrowser::getInstance()->getSlotIndex(mEmbeddedBrowserId, out_index);
+}
+
+bool LLViewerMediaImpl::isEmbeddedBrowserAudioViaViewer()
+{
+    return mUseEmbeddedBrowser && mEmbeddedBrowserAudio;
+}
+
+bool LLViewerMediaImpl::isEmbeddedBrowserAudioClaimed()
+{
+    return mUseEmbeddedBrowser && mEmbeddedBrowserAudioClaimed;
+}
+
+void LLViewerMediaImpl::updateEmbeddedBrowserAudioSource()
+{
+    // The stream and sink are created before the browser update thread can claim this tab's
+    // audio channel (see createMediaSource()). Keep them attached while capture is requested,
+    // including while the producer is still retrying its claim.
+    mEmbeddedBrowserAudioClaimed = mEmbeddedBrowserAudioRequested &&
+                                   LLEmbeddedBrowser::getInstance()->isAudioClaimed(mEmbeddedBrowserId);
+    if (!mEmbeddedBrowserAudioRequested)
+    {
+        releaseEmbeddedBrowserAudio();
+    }
+}
+
+void LLViewerMediaImpl::releaseEmbeddedBrowserAudio()
+{
+    if (!mEmbeddedBrowserAudio)
+    {
+        mEmbeddedBrowserAudioCaptured.store(false);
+        return;
+    }
+
+    // Detach first: once setAudioSink() returns, the tab's update thread can no longer be
+    // pushing into this stream, so releasing it here (on the main thread, where its OpenAL
+    // teardown has to happen) is safe.
+    LLEmbeddedBrowser::getInstance()->setAudioSink(mEmbeddedBrowserId, nullptr);
+    mEmbeddedBrowserAudioCaptured.store(false);
+    const LLStreamedAudioSource::Stats stats = mEmbeddedBrowserAudio->getStats();
+    LL_INFOS("MediaAudio") << "Embedded-browser audio stream closed (id=" << mTextureId
+        << "): underruns=" << stats.mUnderruns << " overruns=" << stats.mOverruns
+        << " skipped_frames=" << stats.mSkippedFrames << " format_drops=" << stats.mFormatDrops
+        << " buffered_ms=" << stats.mBufferedMs << LL_ENDL;
+    mEmbeddedBrowserAudio.reset();
 }
 
 void LLViewerMediaImpl::setTextureID(LLUUID id)
