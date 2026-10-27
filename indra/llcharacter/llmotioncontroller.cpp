@@ -920,9 +920,17 @@ void LLMotionController::updateMotionsMinimal()
     updateLoadingMotions();
     resetJointSignatures();
 
-    // Catch non-looping anims that stop in this frame.
-    updateIdleActiveMotions();
-    deactivateStoppedMotions();
+    if (mPaused)
+    {
+        // The clock is stopped, so stopped motions would never finish easing out
+        deactivateStoppedMotions();
+    }
+    else
+    {
+        // Catch non-looping anims that stop in this frame, stopped motions are
+        // deactivated once their ease out is over
+        updateIdleActiveMotions();
+    }
 
     mHasRunOnce = true;
 }
