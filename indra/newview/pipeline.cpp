@@ -7574,13 +7574,6 @@ void LLPipeline::applyFXAA(LLRenderTarget* src, LLRenderTarget* dst)
                 mFXAAMap.bindTexture(0, channel, LLTexUnit::TFO_BILINEAR);
             }
 
-            gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
-            gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
-            gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
-            gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
-
-            glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
-
             F32 scale_x = (F32)width / mFXAAMap.getWidth();
             F32 scale_y = (F32)height / mFXAAMap.getHeight();
             shader->uniform2f(LLShaderMgr::FXAA_TC_SCALE, scale_x, scale_y);
