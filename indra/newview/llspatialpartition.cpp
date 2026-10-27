@@ -3710,7 +3710,10 @@ public:
     {
         LLDrawable* drawable = (LLDrawable*)entry->getDrawable();
 
-        if (!drawable || !gPipeline.hasRenderType(drawable->getRenderType()) || !drawable->isVisible())
+        // #5980 Terrain under opaque water is occluded by the water clip plane,
+        // but should still be pickable while culled
+        if (!drawable || !gPipeline.hasRenderType(drawable->getRenderType())
+            || (!drawable->isVisible() && drawable->getRenderType() != LLPipeline::RENDER_TYPE_TERRAIN))
         {
             return false;
         }
