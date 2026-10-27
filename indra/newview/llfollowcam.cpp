@@ -412,18 +412,18 @@ void LLFollowCam::update()
             simulated_pos_agent = lerp( simulated_pos_agent, whereCameraPositionWantsToBe, positionPullLerp );
         }
 
-        // Keep the simulated camera within the effective follow distance:
-        // - Keep requested distance capped by the viewer's maximum.
+        // Keep the simulated camera within the viewer's maximum distance:
+        // - Only the maximum is enforced, position lag is expected to let the
+        // camera drag beyond the requested distance while the camera subject moves.
         // - Rebuild its position from the subject-relative offset so a moving
         // avatar follows the intended camera geometry rather than the prior
         // camera position.
         // - Applied after position lag, which can move the simulated camera beyond
         //  its distance limit.
-        const F32 camera_distance_limit = llmin(mSimulatedDistance, mMaxCameraDistantFromSubject);
         const F32 distance_after_position_lag = (offsetSubjectPosition - simulated_pos_agent).magVec();
-        if ( distance_after_position_lag > camera_distance_limit )
+        if ( distance_after_position_lag > mMaxCameraDistantFromSubject )
         {
-            const F32 camera_distance_scale = camera_distance_limit / mSimulatedDistance;
+            const F32 camera_distance_scale = mMaxCameraDistantFromSubject / mSimulatedDistance;
             simulated_pos_agent = offsetSubjectPosition -
                 (positionOffsetFromSubject * camera_distance_scale);
         }
