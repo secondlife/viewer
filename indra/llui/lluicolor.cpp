@@ -60,10 +60,23 @@ const LLColor4& LLUIColor::get() const
 {
     const LLUIColor* cur = this;
     size_t depth = 0;
-    constexpr size_t MAX_COLOR_DEPTH = 4;
+    constexpr size_t MAX_COLOR_DEPTH = 10;
 
-    while (cur->mColorPtr != nullptr && depth < MAX_COLOR_DEPTH)
+    while (cur->mColorPtr != nullptr)
     {
+        if (depth >= MAX_COLOR_DEPTH)
+        {
+            // Check colors.xml for circular references.
+            // Avoid making 'deep' references in colors.xml, it results in an
+            // overhead that UI elements check through often and is not practical
+            // when, as an example 'WallkwayColor' referencing 'Black' would be
+            // more than enough.
+            llassert(false);
+
+            LL_WARNS_ONCE() << "LLUIColor reference depth exceeded maximum. Likely a circular reference." << LL_ENDL;
+            // Fallback to a default value.
+            return LLColor4::magenta;
+        }
         cur = cur->mColorPtr;
         depth++;
     }
