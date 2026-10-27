@@ -413,17 +413,21 @@ void LLFollowCam::update()
         }
 
         // Keep the simulated camera within the viewer's maximum distance:
-        // - Only the maximum is enforced, position lag is expected to let the
-        // camera drag beyond the requested distance while the camera subject moves.
+        // - Position lag is expected to let the camera drag beyond the requested
+        // distance while the camera subject moves, so the requested distance is not a limit.
+        // - Zooming in shrinks the limit by the same ratio, so a long lag that holds the
+        // camera at the maximum still lets the user zoom in.
         // - Rebuild its position from the subject-relative offset so a moving
         // avatar follows the intended camera geometry rather than the prior
         // camera position.
         // - Applied after position lag, which can move the simulated camera beyond
         //  its distance limit.
+        const F32 zoom_scale = llmin(mSimulatedDistance / mDistance, 1.f);
+        const F32 camera_distance_limit = mMaxCameraDistantFromSubject * zoom_scale;
         const F32 distance_after_position_lag = (offsetSubjectPosition - simulated_pos_agent).magVec();
-        if ( distance_after_position_lag > mMaxCameraDistantFromSubject )
+        if ( distance_after_position_lag > camera_distance_limit )
         {
-            const F32 camera_distance_scale = mMaxCameraDistantFromSubject / mSimulatedDistance;
+            const F32 camera_distance_scale = camera_distance_limit / mSimulatedDistance;
             simulated_pos_agent = offsetSubjectPosition -
                 (positionOffsetFromSubject * camera_distance_scale);
         }
