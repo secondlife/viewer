@@ -742,6 +742,8 @@ public:
 
     void setFeeObserverHandle(LLHandle<LLWholeModelFeeObserver> observer_handle) { mFeeObserverHandle = observer_handle; }
     void setUploadObserverHandle(LLHandle<LLWholeModelUploadObserver> observer_handle) { mUploadObserverHandle = observer_handle; }
+    // Main thread, once this thread has stopped: pass the fee response to the observer.
+    void deliverFeeResult();
 
     // Inherited from LLCore::HttpHandler
     virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
@@ -767,6 +769,9 @@ protected:
 private:
     LLHandle<LLWholeModelFeeObserver> mFeeObserverHandle;
     LLHandle<LLWholeModelUploadObserver> mUploadObserverHandle;
+    // Fee response recorded by this thread for deliverFeeResult(). The observer is
+    // a floater, so it must not be called (or its handle copied) from this thread.
+    std::function<void(LLWholeModelFeeObserver*)> mFeeResult;
 
     bool mDoUpload; // if false only model data will be requested, otherwise the model will be uploaded
     LLSD mModelData;
