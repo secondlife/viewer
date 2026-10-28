@@ -178,6 +178,10 @@ jobs:
       - name: Determine source branch
         id: which-branch
         uses: secondlife/viewer-build-util/which-branch@v2
+        env:
+          # which_branch.py writes PR text to $GITHUB_OUTPUT using the default
+          # encoding, which is cp1252 on Windows; force UTF-8.
+          PYTHONUTF8: "1"
         with:
           token: ${{ github.token }}
 
@@ -387,7 +391,7 @@ jobs:
     steps:
       - name: Sign and package Windows viewer
         if: env.AZURE_KEY_VAULT_URI && env.AZURE_CERT_NAME && env.AZURE_CLIENT_ID && env.AZURE_CLIENT_SECRET && env.AZURE_TENANT_ID
-        uses: secondlife/viewer-build-util/sign-pkg-windows@v2.1.0
+        uses: secondlife/viewer-build-util/sign-pkg-windows@v2.1.8
         with:
           vault_uri: "${{ env.AZURE_KEY_VAULT_URI }}"
           cert_name: "${{ env.AZURE_CERT_NAME }}"
@@ -434,7 +438,7 @@ jobs:
 
       - name: Sign and package Mac viewer
         if: env.SIGNING_CERT_MACOS && env.SIGNING_CERT_MACOS_IDENTITY && env.SIGNING_CERT_MACOS_PASSWORD && steps.note-creds.outputs.note_user && steps.note-creds.outputs.note_pass && steps.note-creds.outputs.note_team
-        uses: secondlife/viewer-build-util/sign-pkg-mac@v2.1.0
+        uses: secondlife/viewer-build-util/sign-pkg-mac@v2.1.8
         with:
           channel: ${{ needs.build.outputs.viewer_channel }}
           imagename: ${{ needs.build.outputs.imagename }}
@@ -476,7 +480,7 @@ jobs:
           tar -xJf "${{ needs.build.outputs.viewer_channel }}.sym.tar.xz" -C _artifacts
       - name: Post Windows symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
-        uses: BugSplat-Git/symbol-upload@3857759bd957dadb075509a4e951f04f9baa5ea3
+        uses: BugSplat-Git/symbol-upload@e019eb5090a6cd589268b9119e09cf4a18ace9ad
         with:
           clientId: "${{ env.SYMBOL_UPLOAD_CLIENT_ID }}"
           clientSecret: "${{ env.SYMBOL_UPLOAD_CLIENT_SECRET }}"
@@ -520,7 +524,7 @@ jobs:
           done
       - name: Post Mac symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
-        uses: BugSplat-Git/symbol-upload@3857759bd957dadb075509a4e951f04f9baa5ea3
+        uses: BugSplat-Git/symbol-upload@e019eb5090a6cd589268b9119e09cf4a18ace9ad
         with:
           clientId: "${{ env.SYMBOL_UPLOAD_CLIENT_ID }}"
           clientSecret: "${{ env.SYMBOL_UPLOAD_CLIENT_SECRET }}"

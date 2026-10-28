@@ -66,6 +66,7 @@ public:
                   LLMediaCtrl* web,
                   const std::string& nav_type,
                   bool trusted_browser);
+    bool isSensitive(const std::string& cmd) const;
 
 private:
     void notifySlurlBlocked();
@@ -170,6 +171,13 @@ bool LLCommandHandlerRegistry::dispatch(const std::string& cmd,
     return info.mHandler->handle(params, query_map, grid, web);
 }
 
+bool LLCommandHandlerRegistry::isSensitive(const std::string& cmd) const
+{
+    std::map<std::string, LLCommandHandlerInfo>::const_iterator it = mMap.find(cmd);
+    if (it == mMap.end() || !it->second.mHandler) return false;
+    return it->second.mHandler->isSensitive();
+}
+
 void LLCommandHandlerRegistry::notifySlurlBlocked()
 {
     static bool slurl_blocked = false;
@@ -229,6 +237,12 @@ bool LLCommandDispatcher::dispatch(const std::string& cmd,
 {
     return LLCommandHandlerRegistry::instance().dispatch(
         cmd, params, query_map, grid, web, nav_type, trusted_browser);
+}
+
+// static
+bool LLCommandDispatcher::isSensitive(const std::string& cmd)
+{
+    return LLCommandHandlerRegistry::instance().isSensitive(cmd);
 }
 
 static std::string lookup(LLCommandHandler::EUntrustedAccess value);

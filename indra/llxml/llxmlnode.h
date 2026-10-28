@@ -131,6 +131,7 @@ public:
     void setParent(LLXMLNodePtr& new_parent); // reparent if necessary
 
     // Deserialization
+    static std::string getLastFileError();
     static bool parseFile(
         const std::string& filename,
         LLXMLNodePtr& node,
@@ -336,6 +337,8 @@ protected:
     static const char *skipNonWhitespace(const char *str);
     static const char *parseInteger(const char *str, U64 *dest, bool *is_negative, U32 precision, Encoding encoding);
     static const char *parseFloat(const char *str, F64 *dest, U32 precision, Encoding encoding);
+
+    static thread_local std::string sLastXMLFileError;
 };
 
 #endif // LL_LLXMLNODE
