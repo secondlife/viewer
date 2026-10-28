@@ -204,6 +204,8 @@ namespace cefshm_demo
         // own longer comment on both, and on why 43-45 are retired.
         kAudioPacket = 46, // data = pack_audio_packet(...)
         kAudioStreamStopped = 47, // empty payload
+        kClearBrowsingData = 48, // CEF only, no LibVLC equivalent -- see
+                                 // indra/llcefproducer/cefshm_protocol.h's own comment.
     };
 
     inline std::uint32_t pack_u32(std::uint8_t* d, std::uint32_t v)

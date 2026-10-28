@@ -648,6 +648,10 @@ private:
     // See getFileDownloadFilename()/respondToFileDialog() above.
     std::string mEmbeddedFileDownloadFilename;
     long long mEmbeddedFileDialogId = 0;
+    // See updateEmbeddedBrowserEvents()'s AuthRequest case and
+    // LLViewerMedia::onAuthSubmit() -- echoed back via
+    // LLEmbeddedBrowser::respondToAuthRequest().
+    long long mEmbeddedAuthRequestId = 0;
     // See getStatusText() above.
     std::string mEmbeddedStatusText;
     // See getDebugMessageText() above.

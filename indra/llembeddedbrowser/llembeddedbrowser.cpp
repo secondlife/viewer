@@ -388,6 +388,14 @@ void LLEmbeddedBrowserTab::update()
                 event.mDialogId = queryId;
                 break;
             }
+            case kEventAuthRequest: {
+                event.type = LLEmbeddedBrowserEventType::AuthRequest;
+                std::int64_t requestId = 0;
+                bool isProxy = false; // not surfaced -- see the event type's own comment
+                unpack_auth_request(cmd.data.data(), cmd.data.size(), requestId, event.mText, event.mTarget, isProxy);
+                event.mDialogId = requestId;
+                break;
+            }
             case kEventStatusTextChanged:
                 event.type = LLEmbeddedBrowserEventType::StatusTextChanged;
                 event.mText = std::string(cmd.text());
@@ -923,6 +931,18 @@ void LLEmbeddedBrowserTab::respondToFileDialog(long long dialogId, const std::ve
     }
 }
 
+void LLEmbeddedBrowserTab::respondToAuthRequest(long long requestId, bool proceed, const std::string& username,
+                                                const std::string& password)
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        std::vector<std::uint8_t> payload(13 + username.size() + password.size());
+        const std::uint32_t n = pack_auth_response(payload.data(), requestId, proceed, username, password);
+        mSub->send(kAuthResponse, payload.data(), n);
+    }
+}
+
 void LLEmbeddedBrowserTab::respondToQuery(long long queryId, bool success, const std::string& response, int errorCode)
 {
     LLMutexLock lock(&mPixelMutex);
@@ -1019,6 +1039,18 @@ namespace {
         const std::uint32_t n = pack_openid_cookie(payload.data(), url, name, value, domain, path, httpOnly, secure,
                                                     alsoPrimContext);
         ctrl->send(kSetOpenIDCookie, payload.data(), n);
+    }
+
+    // See LLEmbeddedBrowser::clearBrowsingData()'s own comment. CEF's control channel
+    // only, same reasoning as broadcastOpenIDCookie() above.
+    void broadcastClearBrowsingData()
+    {
+        auto ctrl = claimControlChannel(kControlChannelName, kControlBroadcastTimeout);
+        if (!ctrl)
+        {
+            return;
+        }
+        ctrl->send(kClearBrowsingData);
     }
 }
 
@@ -1206,6 +1238,27 @@ bool LLEmbeddedBrowser::launchProducer(LLEmbeddedBrowserBackend backend)
         // browser-context cache/cookie-store concept at all, so there's nothing for it to
         // be told where to put.
         params.args.add("--cache-dir=" + gDirUtilp->add(gDirUtilp->getCacheDir(false), "cef_profile"));
+
+        // Mirrors the legacy CEF plugin's own BrowserJavascriptEnabled handling
+        // (see LLViewerMediaImpl::createMediaSource()'s now-dead legacy branch) --
+        // this is a CefBrowserSettings-level, process-wide toggle applied once at
+        // producer launch (see llCefBrowserLibInitOptions.h's own comment on why),
+        // so changing the preference takes effect on the next producer
+        // launch/relaunch rather than live, same as --cache-dir above.
+        if (!gSavedSettings.getBOOL("BrowserJavascriptEnabled"))
+        {
+            params.args.add("--disable-javascript");
+        }
+
+        // CookiesEnabled: same process-wide, launch-time-only shape as the JS
+        // toggle above -- maps onto CefSettings.cookieable_schemes_exclude_defaults
+        // with an empty cookieable_schemes_list, which means no scheme is
+        // cookieable at all (see llCefBrowserLibInitOptions.h's own comment on
+        // these two fields).
+        if (!gSavedSettings.getBOOL("CookiesEnabled"))
+        {
+            params.args.add("--disable-cookies");
+        }
     }
 
     // stdin stays inherited/unused; stdout+stderr are piped back so
@@ -1369,6 +1422,11 @@ void LLEmbeddedBrowser::setOpenIDCookie(const std::string& url, const std::strin
                                         bool alsoPrimContext)
 {
     broadcastOpenIDCookie(url, name, value, domain, path, httpOnly, secure, alsoPrimContext);
+}
+
+void LLEmbeddedBrowser::clearBrowsingData()
+{
+    broadcastClearBrowsingData();
 }
 
 void LLEmbeddedBrowser::setMaxDimensions(unsigned int max_width, unsigned int max_height)
@@ -1770,6 +1828,15 @@ void LLEmbeddedBrowser::respondToQuery(unsigned int id, long long queryId, bool 
     if (auto tab = findTab(id))
     {
         tab->respondToQuery(queryId, success, response, errorCode);
+    }
+}
+
+void LLEmbeddedBrowser::respondToAuthRequest(unsigned int id, long long requestId, bool proceed,
+                                              const std::string& username, const std::string& password)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->respondToAuthRequest(requestId, proceed, username, password);
     }
 }
 

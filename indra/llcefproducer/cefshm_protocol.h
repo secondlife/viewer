@@ -360,6 +360,32 @@ namespace cefshm_demo
         kAudioStreamStopped = 47, // empty payload -- the source stopped producing audio (page went
                            // quiet, media paused/ended): play out what's buffered, then go idle
                            // rather than treating the silence that follows as an underrun.
+
+        // consumer -> producer, control channel only (see kSetOpenIDCookie above for the
+        // same broadcast shape) -- CEF only, no LibVLC equivalent (LibVLC has no
+        // cookie-store concept at all). Preferences > Privacy > Clear History; empty
+        // payload, reaches llCefBrowserManager::DeleteAllCookies() (the UI cookie store
+        // only, same scope SetCookie/GetCookies already use).
+        kClearBrowsingData = 48,
+
+        // producer -> consumer, per-view channel -- CEF only, no LibVLC equivalent
+        // (there's no HTTP auth concept for a LibVLC-backed slot). Fired when a
+        // server/proxy requests HTTP Basic/Digest/NTLM credentials -- see
+        // llCefBrowserManager::SetOnAuthRequestCallback. data = pack_auth_request(...):
+        // {int64 requestId, uint8 isProxy, uint32 hostLen, host bytes, realm bytes
+        // (remainder)} -- origin/port/scheme aren't forwarded: nothing on the
+        // consumer side uses them today (the legacy plugin's own AuthRequest
+        // notification only ever showed HOST_NAME/REALM, see
+        // LLViewerMediaImpl::handleMediaEvent's MEDIA_EVENT_AUTH_REQUEST case).
+        kEventAuthRequest = 49,
+
+        // consumer -> producer, per-view channel. Responds to a pending
+        // kEventAuthRequest, straight into llCefBrowserManager::RespondToAuthRequest.
+        // data = pack_auth_response(...): {int64 requestId, uint8 proceed, uint32
+        // usernameLen, username bytes, password bytes (remainder)} -- proceed=false
+        // means the user canceled the credentials prompt; username/password are
+        // then ignored.
+        kAuthResponse = 50,
     };
 
     // kKeyEvent's own type/modifier tags -- deliberately our own small enums, not CEF's
@@ -696,6 +722,56 @@ namespace cefshm_demo
         if (!unpack_u32(d + 9, n - 9, err)) return false;
         errorCode = std::int32_t(err);
         response.assign(reinterpret_cast<const char*>(d + 13), n - 13);
+        return true;
+    }
+
+    inline std::uint32_t pack_auth_request(std::uint8_t* d, std::int64_t requestId, const std::string& host,
+                                            const std::string& realm, bool isProxy)
+    {
+        std::uint32_t n = pack_i64(d, requestId);
+        d[n] = isProxy ? 1 : 0;
+        n += 1;
+        n += pack_u32(d + n, std::uint32_t(host.size()));
+        std::memcpy(d + n, host.data(), host.size());
+        n += std::uint32_t(host.size());
+        std::memcpy(d + n, realm.data(), realm.size());
+        return n + std::uint32_t(realm.size());
+    }
+
+    inline bool unpack_auth_request(const std::uint8_t* d, std::size_t n, std::int64_t& requestId,
+                                     std::string& host, std::string& realm, bool& isProxy)
+    {
+        if (n < 13 || !unpack_i64(d, n, requestId)) return false;
+        isProxy = d[8] != 0;
+        std::uint32_t hostLen;
+        if (!unpack_u32(d + 9, n - 9, hostLen) || n < 13 + std::size_t(hostLen)) return false;
+        host.assign(reinterpret_cast<const char*>(d + 13), hostLen);
+        realm.assign(reinterpret_cast<const char*>(d + 13 + hostLen), n - 13 - hostLen);
+        return true;
+    }
+
+    inline std::uint32_t pack_auth_response(std::uint8_t* d, std::int64_t requestId, bool proceed,
+                                             const std::string& username, const std::string& password)
+    {
+        std::uint32_t n = pack_i64(d, requestId);
+        d[n] = proceed ? 1 : 0;
+        n += 1;
+        n += pack_u32(d + n, std::uint32_t(username.size()));
+        std::memcpy(d + n, username.data(), username.size());
+        n += std::uint32_t(username.size());
+        std::memcpy(d + n, password.data(), password.size());
+        return n + std::uint32_t(password.size());
+    }
+
+    inline bool unpack_auth_response(const std::uint8_t* d, std::size_t n, std::int64_t& requestId,
+                                      bool& proceed, std::string& username, std::string& password)
+    {
+        if (n < 13 || !unpack_i64(d, n, requestId)) return false;
+        proceed = d[8] != 0;
+        std::uint32_t userLen;
+        if (!unpack_u32(d + 9, n - 9, userLen) || n < 13 + std::size_t(userLen)) return false;
+        username.assign(reinterpret_cast<const char*>(d + 13), userLen);
+        password.assign(reinterpret_cast<const char*>(d + 13 + userLen), n - 13 - userLen);
         return true;
     }
 

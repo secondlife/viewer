@@ -672,6 +672,15 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
             slot->pub->send(kEventFileDialogRequest, payload.data(), n);
         }
     });
+    manager.SetOnAuthRequestCallback(handle, [slot](std::int64_t requestId, const std::string& /*originUrl*/,
+                                                     const std::string& host, int /*port*/, const std::string& realm,
+                                                     const std::string& /*scheme*/, bool isProxy) {
+        if (slot->pub) {
+            std::vector<std::uint8_t> payload(13 + host.size() + realm.size());
+            const std::uint32_t n = pack_auth_request(payload.data(), requestId, host, realm, isProxy);
+            slot->pub->send(kEventAuthRequest, payload.data(), n);
+        }
+    });
 
     return true;
 }
@@ -833,6 +842,8 @@ int run_producer(int argc, char** argv)
 
     int slot_count = kSlotCount;
     bool show_console = false;
+    bool disable_javascript = false;
+    bool disable_cookies = false;
     std::string cache_dir_arg;
     int remote_debugging_port = 0;
     const std::string kCacheDirPrefix = "--cache-dir=";
@@ -841,6 +852,8 @@ int run_producer(int argc, char** argv)
     {
         const std::string arg = argv[i];
         if (arg == "--console") { show_console = true; continue; }
+        if (arg == "--disable-javascript") { disable_javascript = true; continue; }
+        if (arg == "--disable-cookies") { disable_cookies = true; continue; }
         if (arg.rfind(kCacheDirPrefix, 0) == 0) { cache_dir_arg = arg.substr(kCacheDirPrefix.size()); continue; }
         if (arg.rfind(kRemoteDebuggingPortPrefix, 0) == 0) { remote_debugging_port = std::atoi(arg.c_str() + kRemoteDebuggingPortPrefix.size()); continue; }
         slot_count = std::atoi(argv[i]);
@@ -880,6 +893,17 @@ int run_producer(int argc, char** argv)
     init_options.logFile             = (exe_dir / "cefshm_producer_log.txt").string();
     init_options.userAgentProduct    = "SLCefProducer/1.0";
     init_options.remoteDebuggingPort = remote_debugging_port;
+    if (disable_javascript)
+    {
+        init_options.javascript = llCefFeatureState::Disabled;
+    }
+    if (disable_cookies)
+    {
+        // Empty cookieableSchemesList (the default) + exclude-defaults means no
+        // scheme is cookieable at all -- see llCefBrowserLibInitOptions.h's own
+        // comment on these two fields.
+        init_options.cookieableSchemesExcludeDefaults = true;
+    }
 #if defined(__APPLE__)
     // SLCefProducer isn't a real .app bundle (see viewer_manifest.py's own
     // comment on this) -- CEF's bundle-relative auto-detection for
@@ -990,6 +1014,13 @@ int run_producer(int argc, char** argv)
                 {
                     manager->SetCookie(url, name, value, domain, path, httpOnly, secure, nullptr, alsoPrimContext);
                 }
+                continue;
+            }
+            if (cmd.type == kClearBrowsingData)
+            {
+                // Preferences > Privacy > Clear History. UI cookie store only, same
+                // scope SetCookie/kSetOpenIDCookie above already use.
+                manager->DeleteAllCookies(nullptr);
                 continue;
             }
             if (cmd.type != kRequestSlot) continue;
@@ -1297,11 +1328,48 @@ int run_producer(int argc, char** argv)
                     }
                     break;
                 }
+                case kSetPlaybackAction: {
+                    // CEF has no native global play/pause/stop the way a LibVLC player
+                    // does (see this opcode's own comment in cefshm_protocol.h and
+                    // LLViewerMediaImpl::play()'s "no separate play step" comment) -- the
+                    // closest equivalent for a page that's already autoplaying is muting
+                    // it and pausing/resuming any <video>/<audio> elements via the same
+                    // JS-injection approach already used for volume (see
+                    // update_cef_audio_route() and the 2026-09-03 CEF-JS-volume work).
+                    // Stop and Pause do the same thing here -- there's no separate
+                    // "reset to the start" primitive worth adding for this.
+                    if (!cmd.data.empty()) {
+                        switch (cmd.data[0]) {
+                        case 0: // Play
+                            manager->SetAudioMuted(s.cefHandle, false);
+                            manager->ExecuteJavaScript(s.cefHandle,
+                                "document.querySelectorAll('video,audio').forEach(function(e){e.play().catch(function(){});});");
+                            break;
+                        case 1: // Pause
+                        case 2: // Stop
+                            manager->SetAudioMuted(s.cefHandle, true);
+                            manager->ExecuteJavaScript(s.cefHandle,
+                                "document.querySelectorAll('video,audio').forEach(function(e){e.pause();});");
+                            break;
+                        default: break;
+                        }
+                    }
+                    break;
+                }
                 case kFileDialogResponse: {
                     std::int64_t dialogId;
                     std::vector<std::string> filePaths;
                     if (unpack_file_dialog_response(cmd.data.data(), cmd.data.size(), dialogId, filePaths)) {
                         manager->RespondToFileDialog(s.cefHandle, dialogId, filePaths);
+                    }
+                    break;
+                }
+                case kAuthResponse: {
+                    std::int64_t requestId;
+                    bool proceed;
+                    std::string username, password;
+                    if (unpack_auth_response(cmd.data.data(), cmd.data.size(), requestId, proceed, username, password)) {
+                        manager->RespondToAuthRequest(s.cefHandle, requestId, proceed, username, password);
                     }
                     break;
                 }

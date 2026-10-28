@@ -76,12 +76,19 @@ enum class LLEmbeddedBrowserEventType
                            // never once per retry, so it's safe to notify the user from this
     ProducerReconnected,   // the connection came back after a ProducerDisconnected -- also
                            // edge-triggered, fires exactly once per recovery
-    JSQuery                // page JS called window.cefQuery({request: ..., onSuccess: ...,
+    JSQuery,               // page JS called window.cefQuery({request: ..., onSuccess: ...,
                            // onFailure: ...}). mText = the request string (often JSON, but
                            // opaque to this layer -- CEF only ever hands it over as a plain
                            // string); mDialogId = the query id to echo back to
                            // respondToQuery(); mPersistent mirrors CEF's own cefQuery
                            // persistent flag (see llCefBrowserJavaScriptBridge::OnQuery).
+    AuthRequest            // a server/proxy requested HTTP Basic/Digest/NTLM credentials.
+                           // mDialogId = an opaque id to echo back to respondToAuthRequest();
+                           // mText = the host; mTarget = the realm (both may be empty, but
+                           // always present, same as the legacy plugin's own AuthRequest
+                           // notification -- see LLViewerMediaImpl::handleMediaEvent's
+                           // MEDIA_EVENT_AUTH_REQUEST case). origin/port/scheme/isProxy
+                           // aren't surfaced here -- nothing on the consumer side uses them.
 };
 
 // Which producer-side implementation backs a slot. Fixed at kRequestSlot time and
@@ -324,6 +331,11 @@ class LLEmbeddedBrowserTab
         // only meaningful in that case). A no-op if queryId is unknown to the producer
         // any more (already responded to, or the page canceled by navigating away).
         void respondToQuery(long long queryId, bool success, const std::string& response, int errorCode = 0);
+        // Completes a pending AuthRequest event -- requestId must be the value from
+        // that event's mDialogId. proceed=false cancels the request (username/password
+        // are then ignored).
+        void respondToAuthRequest(long long requestId, bool proceed, const std::string& username,
+                                   const std::string& password);
 
         // Where this tab's captured audio goes -- null (the default) discards it. Once this
         // returns, the previous sink is guaranteed not to be called again, so the caller may
@@ -470,6 +482,14 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void setOpenIDCookie(const std::string& url, const std::string& name, const std::string& value,
                               const std::string& domain, const std::string& path, bool httpOnly, bool secure,
                               bool alsoPrimContext);
+
+        // Preferences > Privacy > Clear History. Same broadcast shape as
+        // setOpenIDCookie() -- CEF's control channel only, fire-and-forget,
+        // reaches llCefBrowserManager::DeleteAllCookies() (which already
+        // exists, clearing the UI cookie store) via a new kClearBrowsingData
+        // opcode. LibVLC has no cookie-store concept, so nothing is sent to
+        // SLVlcProducer.
+        void clearBrowsingData();
         void updateAll();
         const unsigned char* getPixels(unsigned int id);
         bool copyPixels(unsigned int id, std::vector<unsigned char>& out_pixels, unsigned int& out_width, unsigned int& out_height);
@@ -507,6 +527,8 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         bool getSlotIndex(unsigned int id, unsigned int& out_index);
         void respondToFileDialog(unsigned int id, long long dialogId, const std::vector<std::string>& filePaths);
         void respondToQuery(unsigned int id, long long queryId, bool success, const std::string& response, int errorCode = 0);
+        void respondToAuthRequest(unsigned int id, long long requestId, bool proceed, const std::string& username,
+                                   const std::string& password);
         bool popEvent(unsigned int id, LLEmbeddedBrowserEvent& out_event);
         void setAudioSink(unsigned int id, std::shared_ptr<LLEmbeddedBrowserAudioSink> sink);
         bool isAudioClaimed(unsigned int id);

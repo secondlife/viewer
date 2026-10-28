@@ -1368,6 +1368,13 @@ void LLViewerMedia::onAuthSubmit(const LLSD& notification, const LLSD& response)
     LLViewerMediaImpl *impl = LLViewerMedia::getMediaImplFromTextureID(notification["payload"]["media_id"]);
     if(impl)
     {
+        if (impl->mUseEmbeddedBrowser)
+        {
+            LLEmbeddedBrowser::getInstance()->respondToAuthRequest(impl->mEmbeddedBrowserId, impl->mEmbeddedAuthRequestId,
+                                                                    response["ok"], response["username"], response["password"]);
+            return;
+        }
+
         LLPluginClassMedia* media = impl->getMediaPlugin();
         if(media)
         {
@@ -1396,6 +1403,16 @@ void LLViewerMedia::clearAllCookies()
         {
             pimpl->mMediaSource->clear_cookies();
         }
+    }
+
+    // The loop above only ever reaches the legacy plugin path (mMediaSource) --
+    // meaningless once embedded-browser handles everything, since cookies live
+    // in SLCefProducer's own cookie store, not in any per-impl object here.
+    // One broadcast covers every tab (cookies are a single shared store, not
+    // per-tab -- see LLEmbeddedBrowser::clearBrowsingData()'s own comment).
+    if (gSavedSettings.getBOOL("UseEmbeddedBrowser"))
+    {
+        LLEmbeddedBrowser::getInstance()->clearBrowsingData();
     }
 }
 
@@ -2624,16 +2641,15 @@ void LLViewerMediaImpl::hideNotification()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::play()
 {
-    // Only meaningful for a LibVLC-backed embedded-browser slot -- see
-    // isEmbeddedBrowserPlaying()'s own comment. A CEF-backed slot has no separate play
-    // step (kSetUrl already autoplays), so this is a no-op there, matching how
-    // LLPanelPrimMediaControls never shows a Play button for CEF media in the first place.
+    // LLPanelPrimMediaControls never shows a Play button for CEF media in the first
+    // place (kSetUrl already autoplays there, so there's no "start" gesture for that
+    // control to make) -- but the global status-bar play/stop-all toggle applies to
+    // both backends, so both need to actually reach the producer here. See
+    // kSetPlaybackAction's producer-side handling (llcefproducer.cpp/llvlcproducer.cpp)
+    // for what each backend actually does with it.
     if (mUseEmbeddedBrowser)
     {
-        if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::LibVlc)
-        {
-            LLEmbeddedBrowser::getInstance()->play(mEmbeddedBrowserId);
-        }
+        LLEmbeddedBrowser::getInstance()->play(mEmbeddedBrowserId);
         return;
     }
 
@@ -2659,10 +2675,7 @@ void LLViewerMediaImpl::stop()
 {
     if (mUseEmbeddedBrowser)
     {
-        if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::LibVlc)
-        {
-            LLEmbeddedBrowser::getInstance()->stop(mEmbeddedBrowserId);
-        }
+        LLEmbeddedBrowser::getInstance()->stop(mEmbeddedBrowserId);
         return;
     }
 
@@ -2678,10 +2691,7 @@ void LLViewerMediaImpl::pause()
 {
     if (mUseEmbeddedBrowser)
     {
-        if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::LibVlc)
-        {
-            LLEmbeddedBrowser::getInstance()->pause(mEmbeddedBrowserId);
-        }
+        LLEmbeddedBrowser::getInstance()->pause(mEmbeddedBrowserId);
         return;
     }
 
@@ -3830,8 +3840,11 @@ bool LLViewerMediaImpl::handleUnicodeCharHere(llwchar uni_char)
 
     if (mMediaSource || mUseEmbeddedBrowser)
     {
-        // only accept 'printable' characters, sigh...
-        if (uni_char >= 32 // discard 'control' characters
+        // only accept 'printable' characters, plus Enter/Tab -- without these,
+        // the browser gets a keydown but no character event, so a page's own
+        // submit-on-Enter / focus-on-Tab handling never fires -- sigh...
+        if ((uni_char >= 32 // discard 'control' characters
+            || uni_char == '\r' || uni_char == '\n' || uni_char == '\t')
             && uni_char != 127) // SDL thinks this is 'delete' - yuck.
         {
             LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
@@ -4638,6 +4651,27 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
                         respondToFileDialog(std::vector<std::string>());
                         break;
                 }
+                break;
+            }
+
+            case LLEmbeddedBrowserEventType::AuthRequest:
+            {
+                // Same notification/substitutions the legacy plugin's own
+                // MEDIA_EVENT_AUTH_REQUEST case used (see LLViewerMediaImpl::
+                // handleMediaEvent below) -- just sourced from the wire event
+                // instead of plugin->getAuthURL()/getAuthRealm(), since there's
+                // no LLPluginClassMedia object to ask here.
+                mEmbeddedAuthRequestId = event.mDialogId;
+
+                LLNotification::Params auth_request_params;
+                auth_request_params.name = "AuthRequest";
+                LLSD args;
+                args["HOST_NAME"] = event.mText;
+                args["REALM"] = event.mTarget;
+                auth_request_params.substitutions = args;
+                auth_request_params.payload = LLSD().with("media_id", mTextureId);
+                auth_request_params.functor.function = boost::bind(&LLViewerMedia::authSubmitCallback, _1, _2);
+                LLNotifications::instance().add(auth_request_params);
                 break;
             }
 

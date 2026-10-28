@@ -196,6 +196,17 @@ public:
         virtual bool    wantsKeyUpKeyDown() const;
         virtual bool    wantsReturnKey() const;
 
+        // Give this control first crack at Ctrl/Cmd-modified keys (e.g.
+        // Ctrl/Cmd+A) while it has keyboard focus, same as LLPreviewScript's
+        // editor does for its own accelerators, so the page itself (or the
+        // embedded browser's native handling) gets a chance before the
+        // Viewer's own menu accelerators claim the keystroke.
+        // Not marked 'override' -- matches this class's existing convention
+        // (every other override here, e.g. handleKeyHere/postBuild/draw
+        // above, also omits it); adding it here alone would make
+        // -Winconsistent-missing-override flag all the others as errors.
+        virtual bool    hasAccelerators() const { return true; }
+
         virtual bool    acceptsTextInput() const { return true; }
 
         std::string getMediaMimeType();
