@@ -3340,7 +3340,15 @@ bool LLViewerWindow::handleUnicodeChar(llwchar uni_char, MASK mask)
     if ((uni_char == 13 && mask != MASK_CONTROL)
         || (uni_char == 3 && mask == MASK_NONE) )
     {
-        if (mask != MASK_ALT)
+        // See handleTranslatedKeyDown()'s own "RIDER" comment -- same reasoning,
+        // same hook: a control that wants the return key (the embedded browser's
+        // LLMediaCtrl/LLViewerMediaFocus, so a page can submit-on-Enter) needs it
+        // to actually reach handleUnicodeCharHere() as a real character, not be
+        // hijacked here first. Without this check, handleTranslatedKeyDown()'s own
+        // fix only ever delivered a keydown -- CEF still never got the character
+        // event a page's own submit-on-Enter listener needs.
+        LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
+        if (mask != MASK_ALT && !(keyboard_focus && keyboard_focus->wantsReturnKey()))
         {
             // remaps, handles ignored cases and returns back to viewer window.
             return gViewerInput.handleKey(KEY_RETURN, mask, gKeyboard->getKeyRepeated(KEY_RETURN));
