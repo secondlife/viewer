@@ -1144,12 +1144,18 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 
             total_cpu += pimpl->getCPUUsage();
 
-            if (!pimpl->getUsedInUI() && pimpl->hasMedia())
+            // hasMedia() alone is false for embedded-browser media (only reflects the
+            // legacy mMediaSource pointer) -- same workaround already used at other
+            // call sites in this file. Without it, the status bar's play/pause icon
+            // never saw embedded-browser-backed prim media as "showing" or "playing"
+            // at all, so it stayed stuck on "not playing".
+            const bool pimpl_has_media = pimpl->hasMedia() || pimpl->isUsingEmbeddedBrowser();
+            if (!pimpl->getUsedInUI() && pimpl_has_media)
             {
                 mAnyMediaShowing = true;
             }
 
-            if (!pimpl->getUsedInUI() && pimpl->hasMedia() && (pimpl->isMediaPlaying() || !pimpl->isMediaTimeBased()))
+            if (!pimpl->getUsedInUI() && pimpl_has_media && (pimpl->isMediaPlaying() || !pimpl->isMediaTimeBased()))
             {
                 // consider visible non-timebased media as playing
                 mAnyMediaPlaying = true;
@@ -1347,7 +1353,13 @@ void LLViewerMedia::setAllMediaPaused(bool val)
 bool LLViewerMedia::isParcelMediaPlaying()
 {
     viewer_media_t media = LLViewerParcelMedia::getInstance()->getParcelMedia();
-    return (LLViewerMedia::hasParcelMedia() && media && media->hasMedia());
+    // hasMedia() alone is false for embedded-browser media (it only reflects the
+    // legacy mMediaSource pointer) -- same already-established workaround used at
+    // many other call sites in this file/llmediactrl.cpp/llpanelnearbymedia.cpp.
+    // Without this, the status bar's play/pause icon never reflected embedded-
+    // browser-backed parcel media actually playing, so it stayed stuck showing
+    // "not playing" and the toggle button never did anything but repeatedly stop.
+    return (LLViewerMedia::hasParcelMedia() && media && (media->hasMedia() || media->isUsingEmbeddedBrowser()));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
