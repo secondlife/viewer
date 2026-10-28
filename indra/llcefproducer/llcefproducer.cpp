@@ -545,7 +545,18 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
         return false;
     }
 
-    llCefBrowserHandle handle = manager.CreateBrowser("about:blank", int(kDefaultWidth), int(kDefaultHeight), isUI);
+    // Empty, not "about:blank" -- an explicit initial navigation (even to
+    // about:blank) is still a real navigation as far as Chromium's
+    // NavigationController is concerned, so it would consume the "initial
+    // entry" slot itself (see llCefBrowser::OnAfterCreated()'s own comment),
+    // leaving the real first page (sent moments later via kSetUrl ->
+    // Navigate()) to be the entry that replaces it rather than the one that
+    // appends after it -- back button stays disabled for one extra
+    // navigation. An empty initial url performs no navigation at all (CEF's
+    // own default background color already renders a blank canvas either
+    // way, see backgroundColor in llCefBrowserLibInitOptions), leaving the
+    // real first page as the genuinely first, non-initial entry.
+    llCefBrowserHandle handle = manager.CreateBrowser("", int(kDefaultWidth), int(kDefaultHeight), isUI);
     if (!handle.IsValid()) {
         log_error("slot " + std::to_string(index) + ": CreateBrowser failed");
         return false; // pub destructs here, cleanly unlinking the segment we just made
