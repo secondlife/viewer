@@ -637,6 +637,23 @@ bool LLEmbeddedBrowserTab::copyPixels(std::vector<unsigned char>& out_pixels, un
 void LLEmbeddedBrowserTab::navigate(const std::string& url)
 {
     LLMutexLock lock(&mPixelMutex);
+
+    // A no-op re-navigate to the already-current URL is never useful on its own --
+    // there's a dedicated Reload opcode/button for that -- and at least one caller
+    // (LLFloaterWebContent::onEnterAddress(), confirmed via direct Viewer-log
+    // tracing) fires its commit callback twice for a single Enter keypress,
+    // sending the identical URL here twice back to back. Two near-simultaneous
+    // Navigate() calls to the same URL race CEF's own NavigationController: the
+    // second one can abort/restart the first's still-pending commit, delaying (or
+    // occasionally dropping) the CanGoBack()-flipping-true update a tester expects
+    // right after navigating. LLFloaterMarketplace::openMarketplace() already
+    // guards against exactly this same-URL-recommit pattern at its own call site;
+    // doing it here too covers every caller, not just that one.
+    if (url == mCurrentUrl)
+    {
+        return;
+    }
+
     mCurrentUrl = url;
     if (mSub)
     {

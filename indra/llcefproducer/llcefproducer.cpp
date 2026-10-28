@@ -610,24 +610,26 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
     // goes null the instant free_slot() runs, so every callback re-checks it
     // rather than capturing the LLPublisher directly.
     Slot* slot = &s;
-    auto send_nav_state = [slot, &manager, handle]() {
-        if (slot->pub) {
-            std::uint8_t payload[2] = { manager.CanGoBack(handle)    ? std::uint8_t(1) : std::uint8_t(0),
-                                         manager.CanGoForward(handle) ? std::uint8_t(1) : std::uint8_t(0) };
-            slot->pub->send(kEventNavStateChanged, payload, 2);
-        }
-    };
-    manager.SetOnLoadStartCallback(handle, [slot, send_nav_state]() {
+    manager.SetOnLoadStartCallback(handle, [slot]() {
         if (slot->pub) slot->pub->send(kEventLoadStart);
-        send_nav_state();
     });
-    manager.SetOnLoadEndCallback(handle, [slot, send_nav_state](int httpStatusCode) {
+    manager.SetOnLoadEndCallback(handle, [slot](int httpStatusCode) {
         if (slot->pub) {
             std::uint8_t payload[4];
             pack_u32(payload, std::uint32_t(httpStatusCode));
             slot->pub->send(kEventLoadEnd, payload, 4);
         }
-        send_nav_state();
+    });
+    // Trust OnLoadingStateChange's own canGoBack/canGoForward parameters rather
+    // than separately querying manager.CanGoBack()/CanGoForward() reactively from
+    // inside the load-start/load-end callbacks above -- see this callback's own
+    // comment in llCefBrowser.cpp for why that read the state one step too early.
+    manager.SetOnLoadingStateChangeCallback(handle, [slot](bool /*isLoading*/, bool canGoBack, bool canGoForward) {
+        if (slot->pub) {
+            std::uint8_t payload[2] = { canGoBack    ? std::uint8_t(1) : std::uint8_t(0),
+                                         canGoForward ? std::uint8_t(1) : std::uint8_t(0) };
+            slot->pub->send(kEventNavStateChanged, payload, 2);
+        }
     });
     manager.SetOnTitleChangeCallback(handle, [slot](const std::string& title) {
         if (slot->pub) slot->pub->send_text(kEventTitleChanged, title);
