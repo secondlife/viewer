@@ -636,6 +636,12 @@ public:
     // otherwise.
     static void setMouseCursorPosition(S32 pixel_x, S32 pixel_y, S32 rect_width, S32 rect_height);
 
+    // Feeds the real mouse buttons into CONTROL_MODE_CURSOR's "Mouse click left"/
+    // "Mouse click right" ModeButtons bits, so hardware clicks reach LSL the same way
+    // controller-simulated clicks do. Only consumed while the mode is
+    // CONTROL_MODE_CURSOR; harmless to call unconditionally otherwise.
+    static void setMouseCursorButtons(bool left_down, bool right_down);
+
     // call this after putting a GameControlData packet on the wire
     static void updateResendPeriod();
 
