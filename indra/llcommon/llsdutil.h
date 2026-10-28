@@ -535,21 +535,21 @@ private:
 // when encountered in a map. A key name of "*" can be specified as a wild card
 // and will specify the default behavior.  If no wild card is given and the clone
 // encounters a name not in the filter, that value will be skipped.
-LLSD llsd_clone(LLSD value, LLSD filter = LLSD());
+LLSD llsd_clone(const LLSD& value, const LLSD& filter = LLSD());
 
 // Creates a shallow copy of a map or array.  If passed any other type of LLSD
 // object it simply returns that value.  See llsd_clone for a description of
 // the filter parameter.
-LLSD llsd_shallow(LLSD value, LLSD filter = LLSD());
+LLSD llsd_shallow(const LLSD& value, const LLSD& filter = LLSD());
 
 namespace llsd
 {
 
 // llsd namespace aliases
 inline
-LLSD clone  (LLSD value, LLSD filter=LLSD()) { return llsd_clone  (value, filter); }
+LLSD clone  (const LLSD& value, const LLSD& filter=LLSD()) { return llsd_clone  (value, filter); }
 inline
-LLSD shallow(LLSD value, LLSD filter=LLSD()) { return llsd_shallow(value, filter); }
+LLSD shallow(const LLSD& value, const LLSD& filter=LLSD()) { return llsd_shallow(value, filter); }
 
 } // namespace llsd
 

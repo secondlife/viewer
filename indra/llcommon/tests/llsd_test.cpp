@@ -931,11 +931,28 @@ namespace tut
         original["string"] = "three";
         const LLSD& corig(original);
 
+        {
+            SDCleanupCheck check;
+            LLSD filter;
+            filter["*"] = true;
+            filter["array"] = false;
+            U32 allocations = llsd::allocationCount();
+            LLSD filtered(llsd_clone(original, filter));
+            // the array is skipped: outer map, inner map and binary, and no copies
+            // of original's containers or of the filter
+            ensure_equals("llsd_clone with filter allocations", llsd::allocationCount() - allocations, 3U);
+            ensure("filtered out array", !filtered.has("array"));
+            ensureTypeAndValue("filtered int", filtered["map"]["int"], 1);
+        }
+
+        U32 allocations = llsd::allocationCount();
         U32 outstanding = llsd::outstandingCount();
         LLSD clone(llsd_clone(original));
         const LLSD& cclone(clone);
         // outer map, inner map, array and binary; the other values are shared, which
-        // is safe because a shared value is copied before it is changed
+        // is safe because a shared value is copied before it is changed. Nothing
+        // else is allocated, not even a temporary copy of original's containers.
+        ensure_equals("llsd_clone allocations", llsd::allocationCount() - allocations, 4U);
         ensure_equals("llsd_clone new values", llsd::outstandingCount() - outstanding, 4U);
 
         ensureTypeAndValue("clone int", cclone["map"]["int"], 1);
@@ -955,6 +972,36 @@ namespace tut
 
     template<> template<>
     void SDTestObject::test<18>()
+        // llsd_shallow() makes a new top-level map or array and shares its members
+    {
+        SDCleanupCheck check;
+
+        LLSD original;
+        original["map"]["int"] = 1;
+        original["string"] = "two";
+        const LLSD& corig(original);
+
+        U32 allocations = llsd::allocationCount();
+        LLSD shallow(llsd_shallow(original));
+        const LLSD& cshallow(shallow);
+        ensure_equals("llsd_shallow allocations", llsd::allocationCount() - allocations, 1U);
+        ensureTypeAndValue("shallow int", cshallow["map"]["int"], 1);
+        ensureTypeAndValue("shallow string", cshallow["string"], "two");
+
+        // the inner map is shared, so changing it through the copy copies it first
+        shallow["map"]["int"] = 10;
+        shallow["new"] = 3;
+        ensureTypeAndValue("original int", corig["map"]["int"], 1);
+        ensure("original has no new key", !corig.has("new"));
+
+        allocations = llsd::allocationCount();
+        LLSD scalar(llsd_shallow(corig["string"]));
+        ensure_equals("llsd_shallow scalar allocations", llsd::allocationCount() - allocations, 0U);
+        ensureTypeAndValue("llsd_shallow scalar", scalar, "two");
+    }
+
+    template<> template<>
+    void SDTestObject::test<19>()
         // several threads copy and release parts of one value
     {
         SDCleanupCheck check;
