@@ -273,6 +273,13 @@ public:
     static const U16 MAX_AXIS_DEAD_ZONE = 16384;
     static const U16 MAX_AXIS_OFFSET = 16384;
 
+    // Response curve exponent, stored as an integer percentage so it can be edited
+    // with the integer spinner: 100 = linear, <100 = more sensitive near the center
+    // of travel, >100 = finer control near the center (exponent = value / 100).
+    static constexpr U16 DEFAULT_AXIS_CURVE = 100;
+    static constexpr U16 MIN_AXIS_CURVE = 50;
+    static constexpr U16 MAX_AXIS_CURVE = 300;
+
     // Default dead zone applied to a freshly-constructed / reset axis
     // is nonzero because most controllers have a bit of hysteresis or offset.
     static constexpr U16 DEFAULT_AXIS_DEAD_ZONE = 2048;
@@ -319,6 +326,7 @@ public:
             S32 mMultiplier = 1;
             U16 mDeadZone { DEFAULT_AXIS_DEAD_ZONE };
             S16 mOffset { 0 };
+            U16 mCurve { DEFAULT_AXIS_CURVE };
 
             void resetToDefaults();
 
