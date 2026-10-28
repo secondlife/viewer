@@ -76,6 +76,7 @@ namespace
     int gArgC = 0;
     char **gArgV = NULL;
     LLAppViewerLinux* gViewerAppPtr = NULL;
+    bool gViewerInitialized = false;
     void (*gOldTerminateHandler)() = NULL;
 }
 
@@ -222,6 +223,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
         return SDL_APP_FAILURE;
     }
 
+    gViewerInitialized = true;
     return SDL_APP_CONTINUE;
 }
 
@@ -266,6 +268,15 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
+    if (!gViewerInitialized)
+    {
+        // SDL calls SDL_AppQuit() even when SDL_AppInit() failed. A failed
+        // init() either never got far enough to need cleanup or already
+        // tore everything down itself (e.g. the SLURL handoff fast exit),
+        // so running cleanup() here would recreate singletons and crash.
+        return;
+    }
+
     if (!LLApp::isError())
     {
         //
@@ -356,6 +367,10 @@ static void DoMethodeCall (GDBusConnection       *connection,
 
     g_variant_get (parameters, "(&s)", &slurl);
     dispatchSLURL(slurl);
+
+    // Reply so the sender's g_dbus_proxy_call_sync() returns right away
+    // instead of blocking until its timeout expires.
+    g_dbus_method_invocation_return_value(invocation, nullptr);
 }
 
 GDBusNodeInfo *gBusNodeInfo = nullptr;
@@ -432,6 +447,18 @@ bool LLAppViewerLinux::sendURLToOtherInstance(const std::string& url)
         return false;
     }
 
+    // The proxy is created even if nobody owns the service name, so check
+    // that another viewer is actually running before handing off.
+    gchar *pOwner = g_dbus_proxy_get_name_owner( pProxy );
+    if( !pOwner )
+    {
+        LL_INFOS() << "No running viewer to pass the SLURL to, starting normally." << LL_ENDL;
+        g_object_unref( pProxy );
+        g_object_unref( pBus );
+        return false;
+    }
+    g_free( pOwner );
+
     auto *pArgs = g_variant_new( "(s)", url.c_str() );
     if( !pArgs )
     {
@@ -440,18 +467,24 @@ bool LLAppViewerLinux::sendURLToOtherInstance(const std::string& url)
         return false;
     }
 
+    GError *pError = nullptr;
     auto pRes  = g_dbus_proxy_call_sync(pProxy,
                                         "GoSLURL",
                                         pArgs,
                                         G_DBUS_CALL_FLAGS_NONE,
-                                        -1, nullptr, nullptr);
+                                        5000, nullptr, &pError);
 
-
-
-    if( pRes )
-        g_variant_unref( pRes );
     g_object_unref( pProxy );
     g_object_unref( pBus );
+
+    if( !pRes )
+    {
+        LL_WARNS() << "Passing the SLURL to the running viewer failed: " << pError->message << LL_ENDL;
+        g_error_free( pError );
+        return false;
+    }
+
+    g_variant_unref( pRes );
     return true;
 }
 
