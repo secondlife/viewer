@@ -542,6 +542,35 @@ attributedStringInfo getSegments(NSAttributedString *str)
     }
 }
 
+// Cmd+A on a CEF-focused page (e.g. the login screen, or any embedded-browser
+// floater) did nothing: AppKit's "Edit > Select All" menu item (SecondLife.xib,
+// keyEquivalent "a") claims Cmd+A via performKeyEquivalent: before keyDown:
+// above ever sees it, sending this selector to the first responder instead --
+// entirely bypassing keyDown:/callKeyDown and therefore the Viewer's own
+// cross-platform keyboard dispatch (LLViewerWindow, LLMediaCtrl::
+// hasAccelerators(), etc.), none of which ever runs for this specific
+// shortcut on Mac. Forward it manually into the same raw-keydown path
+// keyDown: uses -- NOT by replaying a synthetic event through keyDown:
+// itself, since that calls [[self inputContext] handleEvent:], the exact
+// mechanism that routes Cmd+A to this selector in the first place, which
+// would recurse. A raw keydown alone is sufficient: CEF/Blink treat "select
+// all" as a keydown-level editing command, not something that depends on a
+// character/IME event the way text submission does.
+- (void)selectAll:(id)sender
+{
+    NativeKeyEventData eventData;
+    memset(&eventData, 0, sizeof(NativeKeyEventData));
+    eventData.mKeyEvent = NativeKeyEventData::KEYDOWN;
+    eventData.mEventType = NSEventTypeKeyDown;
+    eventData.mEventModifiers = NSEventModifierFlagCommand;
+    eventData.mEventKeyCode = kVK_ANSI_A;
+    eventData.mEventChars = 'a';
+    eventData.mEventUnmodChars = 'a';
+    eventData.mEventRepeat = false;
+
+    callKeyDown(&eventData, kVK_ANSI_A, NSEventModifierFlagCommand, 'a');
+}
+
 - (void)flagsChanged:(NSEvent *)theEvent
 {
     NativeKeyEventData eventData = extractKeyDataFromModifierEvent(theEvent);
