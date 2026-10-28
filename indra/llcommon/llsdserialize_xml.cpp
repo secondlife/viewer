@@ -62,6 +62,7 @@ LLSDXMLFormatter::~LLSDXMLFormatter()
 S32 LLSDXMLFormatter::format(const LLSD& data, std::ostream& ostr,
                              EFormatterOptions options) const
 {
+    LLSDParser::LLSDClassicLocaleGuard locale_guard(ostr);
     std::streamsize old_precision = ostr.precision(25);
     std::ios_base::iostate old_exceptions = ostr.exceptions();
     // Merged exception mask: preserve the caller's bits and add failbit|badbit
