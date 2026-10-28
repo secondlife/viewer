@@ -151,6 +151,7 @@ LLDir_Mac::LLDir_Mac()
         bool is_applications_install = (install_root.rfind("/Applications", 0) == 0);
         bool is_dmg = (mExecutablePathAndName.rfind("/Volumes/", 0) == 0);
         bool is_translocated = (mExecutablePathAndName.find("/AppTranslocation/") != std::string::npos);
+        mMounted = (is_dmg || is_translocated) && !is_applications_install;
 
 #if LL_VELOPACK
         // Detect a portable (Velopack) install: the executable lives at

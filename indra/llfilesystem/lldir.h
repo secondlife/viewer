@@ -196,6 +196,7 @@ class LLDir
     virtual void updatePerAccountChatLogsDir();
 
     const std::string& getRunContextDescription() const { return mRunContextDescription; }
+    bool isRunningFromMountedOrTranslocatedImage() const { return mMounted; }
     virtual void dumpCurrentDirectories(LLError::ELevel level = LLError::LEVEL_DEBUG);
 
     // Open the system file browser to reveal a file or directory
@@ -290,6 +291,7 @@ protected:
     // A short, human readable description of how/where the executable is
     // currently running from
     std::string mRunContextDescription;
+    bool mMounted = false;
 };
 
 void dir_exists_or_crash(const std::string &dir_name);

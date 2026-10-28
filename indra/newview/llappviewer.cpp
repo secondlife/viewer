@@ -2626,23 +2626,48 @@ bool LLAppViewer::initConfiguration()
 
         LL_WARNS() << "Cannot load default configuration file " << settings_file_list
             << (parse_error.empty() ? "" : (" - " + parse_error)) << LL_ENDL;
-        LLError::LLUserWarningMsg::showMissingFiles();
-        if (gDirUtilp->fileExists(settings_file_list))
+#if LL_DARWIN
+        // On macOS the files can be present, yet unreadable because
+        // the user launched the app directly off a mounted .dmg.
+        if (gDirUtilp->isRunningFromMountedOrTranslocatedImage())
         {
-            LL_ERRS() << "Cannot load default configuration file settings_files.xml. "
-                << "Please reinstall viewer from https://secondlife.com/support/downloads/ "
-                << "and contact https://support.secondlife.com if issue persists after reinstall. "
-                << "Reason: " << (parse_error.empty() ? "unknown (file is present but could not be parsed)" : parse_error)
-                << ". Install type: " << run_context
-                << LL_ENDL;
-        }
-        else
-        {
+            const std::string message =
+                "Second Life viewer can't run directly from this disk image.\n\n"
+                "Please drag the Second Life application into your Applications "
+                "folder (or another folder on your Mac's hard drive) and launch "
+                "it from there to finish installing.";
+            OSMessageBox(message, "Finish Installing Second Life", OSMB_OK);
+            // While this is likely not app's fault, report to bugsplat either way,
+            // This is the first extarnal xml file, tracking it's crash frequency
+            // tells if something went wrong with LLFile.
             LL_ERRS() << "Default configuration file settings_files.xml not found. "
                 << "Please reinstall viewer from https://secondlife.com/support/downloads/ "
                 << "and contact https://support.secondlife.com if issue persists after reinstall. "
                 << "Install type: " << run_context
                 << LL_ENDL;
+            return false;
+        }
+        else
+#endif // LL_DARWIN
+        {
+            LLError::LLUserWarningMsg::showMissingFiles();
+            if (gDirUtilp->fileExists(settings_file_list))
+            {
+                LL_ERRS() << "Cannot load default configuration file settings_files.xml. "
+                    << "Please reinstall viewer from https://secondlife.com/support/downloads/ "
+                    << "and contact https://support.secondlife.com if issue persists after reinstall. "
+                    << "Reason: " << (parse_error.empty() ? "unknown (file is present but could not be parsed)" : parse_error)
+                    << ". Install type: " << run_context
+                    << LL_ENDL;
+            }
+            else
+            {
+                LL_ERRS() << "Default configuration file settings_files.xml not found. "
+                    << "Please reinstall viewer from https://secondlife.com/support/downloads/ "
+                    << "and contact https://support.secondlife.com if issue persists after reinstall. "
+                    << "Install type: " << run_context
+                    << LL_ENDL;
+            }
         }
     }
 
