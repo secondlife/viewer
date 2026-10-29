@@ -65,6 +65,19 @@ namespace {
     constexpr auto kSlotRequestTimeout        = std::chrono::seconds(2);
     constexpr auto kSlotReplyPollInterval     = std::chrono::milliseconds(5);
 
+    // LLEmbeddedBrowser::requestProducerVersion()'s own claim timeout -- deliberately
+    // much longer than kControlClaimTimeout above. That one is fine at 3s because its
+    // only caller (LLEmbeddedBrowserTab::connectToProducer()) is retried every tick on
+    // failure, so a slow producer just costs a few more ticks, not a lost attempt.
+    // requestProducerVersion() runs exactly once per backend per session, on its own
+    // background thread -- it costs nothing to let it wait out a producer whose control
+    // channel doesn't exist yet because it's still mid-startup (e.g. SLVlcProducer's
+    // libvlc_new(), which runs to completion before that producer even creates its
+    // control-channel publisher -- see run_producer() there), but a failed one-shot
+    // attempt means Help > About's version field silently stays empty until a real tab
+    // happens to connect, with no second chance.
+    constexpr auto kVersionProbeClaimTimeout = std::chrono::seconds(20);
+
     // How long a one-shot, best-effort control-channel broadcast (kShutdownProducer,
     // kSetOpenIDCookie) will retry claiming the channel before giving up silently.
     constexpr auto kControlBroadcastTimeout = std::chrono::milliseconds(500);
@@ -1380,21 +1393,31 @@ void LLEmbeddedBrowser::requestProducerVersion(LLEmbeddedBrowserBackend backend)
     // can still be assigned here to leak.
     handle.versionRequestThread = std::thread([this, is_vlc, control_channel_name]()
     {
+        const char* producer_name = is_vlc ? "SLVlcProducer" : "SLCefProducer";
+
         // Same claim/send/reply shape as LLEmbeddedBrowserTab::connectToProducer()'s
         // own kRequestSlot round trip -- just over the control channel directly, with
-        // no slot ever allocated. Any failure/timeout here is silently fine: the
-        // existing per-slot kEventVersionInfo path still populates the version once a
-        // real tab (or, for LibVLC, LLStreamingAudio_LibVLC) actually connects, same
-        // as before this function existed.
-        auto ctrl = claimControlChannel(control_channel_name, kControlClaimTimeout);
+        // no slot ever allocated. A failure/timeout here still leaves the existing
+        // per-slot kEventVersionInfo path to populate the version once a real tab (or,
+        // for LibVLC, LLStreamingAudio_LibVLC) actually connects, same as before this
+        // function existed -- logged rather than silent, so a one-shot miss (e.g. a
+        // producer still mid-startup when the claim window above closes) is visible
+        // instead of just leaving Help > About empty with no explanation.
+        auto ctrl = claimControlChannel(control_channel_name, kVersionProbeClaimTimeout);
         if (!ctrl)
         {
+            LL_WARNS() << producer_name << ": requestProducerVersion() never claimed the "
+                          "control channel within " << kVersionProbeClaimTimeout.count() <<
+                          "s -- Help > About's version field will stay empty until a real "
+                          "tab connects" << LL_ENDL;
             return;
         }
 
         std::uint64_t req_id = 0;
         if (!ctrl->send(kRequestVersion, nullptr, 0, 0, &req_id))
         {
+            LL_WARNS() << producer_name << ": requestProducerVersion() claimed the control "
+                          "channel but failed to send kRequestVersion" << LL_ENDL;
             return;
         }
 
@@ -1406,6 +1429,8 @@ void LLEmbeddedBrowser::requestProducerVersion(LLEmbeddedBrowserBackend backend)
             {
                 if (reply.type == kVersionInfo)
                 {
+                    LL_INFOS() << producer_name << ": requestProducerVersion() got \"" <<
+                                  reply.text() << "\"" << LL_ENDL;
                     if (is_vlc)
                     {
                         setVlcProducerVersion(std::string(reply.text()));
@@ -1419,6 +1444,9 @@ void LLEmbeddedBrowser::requestProducerVersion(LLEmbeddedBrowserBackend backend)
             }
             std::this_thread::sleep_for(kSlotReplyPollInterval);
         }
+        LL_WARNS() << producer_name << ": requestProducerVersion() claimed the control "
+                      "channel but got no kVersionInfo reply within " << kSlotRequestTimeout.count() <<
+                      "s" << LL_ENDL;
     });
 }
 
