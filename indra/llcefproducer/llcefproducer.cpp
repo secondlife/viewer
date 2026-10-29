@@ -858,9 +858,11 @@ int run_producer(int argc, char** argv)
     bool disable_javascript = false;
     bool disable_cookies = false;
     std::string cache_dir_arg;
+    std::string proxy_server_arg;
     int remote_debugging_port = 0;
     const std::string kCacheDirPrefix = "--cache-dir=";
     const std::string kRemoteDebuggingPortPrefix = "--remote-debugging-port=";
+    const std::string kProxyServerPrefix = "--proxy-server=";
     for (int i = 1; i < argc; ++i)
     {
         const std::string arg = argv[i];
@@ -869,6 +871,7 @@ int run_producer(int argc, char** argv)
         if (arg == "--disable-cookies") { disable_cookies = true; continue; }
         if (arg.rfind(kCacheDirPrefix, 0) == 0) { cache_dir_arg = arg.substr(kCacheDirPrefix.size()); continue; }
         if (arg.rfind(kRemoteDebuggingPortPrefix, 0) == 0) { remote_debugging_port = std::atoi(arg.c_str() + kRemoteDebuggingPortPrefix.size()); continue; }
+        if (arg.rfind(kProxyServerPrefix, 0) == 0) { proxy_server_arg = arg.substr(kProxyServerPrefix.size()); continue; }
         slot_count = std::atoi(argv[i]);
     }
     if (slot_count <= 0) slot_count = 1;
@@ -916,6 +919,22 @@ int run_producer(int argc, char** argv)
         // scheme is cookieable at all -- see llCefBrowserLibInitOptions.h's own
         // comment on these two fields.
         init_options.cookieableSchemesExcludeDefaults = true;
+    }
+    // llCefBrowserLibInitOptions::noProxyServer defaults to true (forces direct
+    // connections via the "no-proxy-server" switch, ignoring even the OS/system
+    // proxy config) -- left at that default, nothing here ever overrode it, so
+    // this producer could never use any proxy at all, regardless of Viewer
+    // settings. The legacy CEF plugin's own default behavior (an unset
+    // proxy_host_port) deferred to the system proxy, not "no proxy ever" -- match
+    // that here: only force no-proxy-server when BrowserProxyEnabled is
+    // explicitly on with no address resolved into proxy_server_arg below (i.e.
+    // never, in practice, since llembeddedbrowser.cpp only ever sends
+    // --proxy-server with a real address) -- otherwise let CEF fall through to
+    // the OS/system proxy by default, same as the legacy plugin did.
+    init_options.noProxyServer = false;
+    if (!proxy_server_arg.empty())
+    {
+        init_options.proxyServer = proxy_server_arg;
     }
 #if defined(__APPLE__)
     // SLCefProducer isn't a real .app bundle (see viewer_manifest.py's own

@@ -1285,6 +1285,24 @@ bool LLEmbeddedBrowser::launchProducer(LLEmbeddedBrowserBackend backend)
         {
             params.args.add("--disable-cookies");
         }
+
+        // Mirrors the legacy CEF plugin's own BrowserProxyEnabled/Address/Port
+        // handling (see LLViewerMediaImpl::createMediaSource()'s now-dead legacy
+        // branch, and LLViewerMedia::setProxyConfig() -- both still legacy-
+        // plugin-only). Same process-wide, launch-time-only shape as the JS/
+        // Cookies toggles above. Only passed when explicitly enabled with a
+        // real address -- when not enabled, the producer defaults to the OS/
+        // system proxy configuration (see llcefproducer.cpp's own comment on
+        // why that needs its own explicit fix too, not just this flag).
+        if (gSavedSettings.getBOOL("BrowserProxyEnabled"))
+        {
+            const std::string proxy_address = gSavedSettings.getString("BrowserProxyAddress");
+            if (!proxy_address.empty())
+            {
+                params.args.add("--proxy-server=" + proxy_address + ":" +
+                                 std::to_string(gSavedSettings.getS32("BrowserProxyPort")));
+            }
+        }
     }
 
     // stdin stays inherited/unused; stdout+stderr are piped back so
