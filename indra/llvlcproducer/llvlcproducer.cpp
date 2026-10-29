@@ -652,7 +652,9 @@ int run_producer(int argc, char** argv)
     LibVlcTabManager vlcMgr(libvlc_log_path.string());
     if (vlcMgr.IsReady())
     {
-        log_info("SLVlcProducer: libvlc ready");
+        // Matches llcefproducer.cpp's own startup banner, which already includes
+        // its own library version -- this one never did.
+        log_info("SLVlcProducer: libvlc ready, version " + vlcMgr.GetVersion());
     }
     else
     {
