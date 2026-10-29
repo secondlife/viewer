@@ -206,6 +206,10 @@ namespace cefshm_demo
         kAudioStreamStopped = 47, // empty payload
         kClearBrowsingData = 48, // CEF only, no LibVLC equivalent -- see
                                  // indra/llcefproducer/cefshm_protocol.h's own comment.
+        // 49/50 (kEventAuthRequest/kAuthResponse) and 51 (kSelectAll) are CEF
+        // only too, no LibVLC equivalent -- see indra/llcefproducer/
+        // cefshm_protocol.h's own comments.
+        kSelectAll = 51,
     };
 
     inline std::uint32_t pack_u32(std::uint8_t* d, std::uint32_t v)

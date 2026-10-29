@@ -3799,6 +3799,22 @@ bool LLViewerMediaImpl::handleKeyHere(KEY key, MASK mask)
                     native_key_data["cef_is_system_key"].asBoolean());
                 result = true;
             }
+
+            // Select All needs its own explicit call (see selectAll() and
+            // kSelectAll's own comment in cefshm_protocol.h) -- confirmed via
+            // live testing that the RawKeyDown forward just above, while it
+            // does reach CEF correctly, does not by itself trigger Blink's
+            // internal select-all in this windowless/OSR embedding (unlike a
+            // normal windowed Chrome browser). The legacy CEF plugin handled
+            // this the same way: its own key handler called Dullahan's
+            // editSelectAll() explicitly rather than relying on the raw key
+            // event alone. Ctrl (mapped from Cmd on Mac) with no other
+            // modifier, matching the "A" accelerator's own binding in
+            // menu_edit.xml/SecondLife.xib.
+            if (key == 'A' && mask == MASK_CONTROL)
+            {
+                selectAll();
+            }
         }
         else
         {
@@ -5237,7 +5253,12 @@ LLViewerMediaImpl::canDoDelete() const
 void
 LLViewerMediaImpl::selectAll()
 {
-    if (mMediaSource)
+    // Unlike cut()/copy()/paste() just above, this one was never updated for
+    // embedded-browser media at all -- confirmed via live testing that this
+    // was the actual cause of Ctrl/Cmd+A doing nothing on a CEF-focused page.
+    if (mUseEmbeddedBrowser)
+        LLEmbeddedBrowser::getInstance()->selectAll(mEmbeddedBrowserId);
+    else if (mMediaSource)
         mMediaSource->selectAll();
 }
 
@@ -5246,7 +5267,12 @@ LLViewerMediaImpl::selectAll()
 bool
 LLViewerMediaImpl::canSelectAll() const
 {
-    if (mMediaSource)
+    // See selectAll()'s own comment. CEF exposes no real edit-capability query,
+    // same reasoning as canCut()/canCopy()/canPaste() above -- unconditionally
+    // enabled.
+    if (mUseEmbeddedBrowser)
+        return true;
+    else if (mMediaSource)
         return mMediaSource->canSelectAll();
     else
         return false;

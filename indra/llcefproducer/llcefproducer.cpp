@@ -1326,6 +1326,9 @@ int run_producer(int argc, char** argv)
                 case kPaste:
                     manager->Paste(s.cefHandle);
                     break;
+                case kSelectAll:
+                    manager->SelectAll(s.cefHandle);
+                    break;
                 case kGoBack:
                     manager->GoBack(s.cefHandle);
                     break;

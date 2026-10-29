@@ -258,6 +258,11 @@ class LLEmbeddedBrowserTab
         void cut();
         void copy();
         void paste();
+        // Straight into llCefBrowserManager::SelectAll() (CefFrame::SelectAll()
+        // on the focused frame) -- see kSelectAll's own comment in
+        // cefshm_protocol.h for why this needs to be explicit rather than
+        // relying on the raw Ctrl/Cmd+A keydown alone.
+        void selectAll();
         unsigned int getWidth() const;
         unsigned int getHeight() const;
 
@@ -508,6 +513,7 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         void cut(unsigned int id);
         void copy(unsigned int id);
         void paste(unsigned int id);
+        void selectAll(unsigned int id);
 
         void mouseMove(unsigned int id, int x, int y);
         void mouseButton(unsigned int id, int x, int y, unsigned char button, bool is_down, unsigned char click_count = 1);

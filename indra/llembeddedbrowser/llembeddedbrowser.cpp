@@ -883,6 +883,15 @@ void LLEmbeddedBrowserTab::paste()
     }
 }
 
+void LLEmbeddedBrowserTab::selectAll()
+{
+    LLMutexLock lock(&mPixelMutex);
+    if (mSub)
+    {
+        mSub->send(kSelectAll);
+    }
+}
+
 void LLEmbeddedBrowserTab::goBack()
 {
     LLMutexLock lock(&mPixelMutex);
@@ -1829,6 +1838,14 @@ void LLEmbeddedBrowser::paste(unsigned int id)
     if (auto tab = findTab(id))
     {
         tab->paste();
+    }
+}
+
+void LLEmbeddedBrowser::selectAll(unsigned int id)
+{
+    if (auto tab = findTab(id))
+    {
+        tab->selectAll();
     }
 }
 

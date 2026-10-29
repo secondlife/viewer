@@ -386,6 +386,17 @@ namespace cefshm_demo
         // means the user canceled the credentials prompt; username/password are
         // then ignored.
         kAuthResponse = 50,
+
+        // consumer -> producer, per-view channel -- empty payload, straight into
+        // llCefBrowserManager::SelectAll() (which calls CefFrame::SelectAll() on
+        // the focused frame directly, same as kCut/kCopy/kPaste do for their own
+        // CefFrame methods). Needed because forwarding Ctrl/Cmd+A as a raw
+        // keydown (kKeyEvent) alone does not reliably trigger Blink's own
+        // select-all handling in this windowless/OSR embedding -- confirmed via
+        // live testing (the raw keydown reaches the browser, CEF accepts it, but
+        // nothing gets selected). The legacy CEF plugin had the exact same
+        // explicit call via Dullahan's own CefFrame::SelectAll() wrapper.
+        kSelectAll = 51,
     };
 
     // kKeyEvent's own type/modifier tags -- deliberately our own small enums, not CEF's
