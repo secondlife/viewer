@@ -1268,6 +1268,19 @@ LLSD::Real string_to_real(std::string_view in_string)
     return ((EOF == c) ? v : 0.0);
 }
 
+// Locale-independent variant of string_to_real()
+LLSD::Real string_to_real_classic(std::string_view in_string)
+{
+    LLSD::Real v = 0.0;
+    boost::iostreams::stream<boost::iostreams::array_source> i_stream(in_string.data(), in_string.size());
+    // Force classic locale
+    i_stream.imbue(std::locale::classic());
+    i_stream >> v;
+
+    int c = i_stream.get();
+    return ((EOF == c) ? v : 0.0);
+}
+
 U32 allocationCount()                               { return LLSD::Impl::sAllocationCount; }
 U32 outstandingCount()                              { return LLSD::Impl::sOutstandingCount; }
 
