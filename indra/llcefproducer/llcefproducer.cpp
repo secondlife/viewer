@@ -528,6 +528,22 @@ void clear_cef_audio_callbacks(Slot& s, llCefBrowserManager& manager)
     manager.SetOnAudioStreamErrorCallback(s.cefHandle, nullptr);
 }
 
+// Matches how the Viewer's own About-box embedded-browser block reads (see
+// llappviewer.cpp). Build-time constants only -- safe to call before any browser or
+// even llCefBrowserLib::Initialize() exists. Used both for kEventVersionInfo (sent
+// once per slot, right after allocation, below) and kRequestVersion (the
+// control-channel, slot-independent equivalent of the same information -- see
+// cefshm_protocol.h and run_producer()'s own control-channel dispatch loop).
+std::string cef_version_string()
+{
+    return std::to_string(LLCEFBROWSER_VERSION_MAJOR) + "." + std::to_string(LLCEFBROWSER_VERSION_MINOR) +
+           " (" + LLCEFBROWSER_VERSION_GITHASH + ")\n"
+           "  CEF: " + std::to_string(CEF_VERSION_MAJOR) + "." + std::to_string(CEF_VERSION_MINOR) + "." +
+           std::to_string(CEF_VERSION_PATCH) + "\n"
+           "  Chromium: " + std::to_string(CHROME_VERSION_MAJOR) + "." + std::to_string(CHROME_VERSION_MINOR) + "." +
+           std::to_string(CHROME_VERSION_BUILD) + "." + std::to_string(CHROME_VERSION_PATCH);
+}
+
 // Spins up this slot's real instance: a CEF browser plus its llshmframe
 // segment. Leaves s untouched on failure, cleaning up whichever half of the
 // pair already succeeded.
@@ -593,14 +609,7 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
     // match how the Viewer's own About-box embedded-browser block reads
     // (see llappviewer.cpp).
     {
-        const std::string version_str =
-            std::to_string(LLCEFBROWSER_VERSION_MAJOR) + "." + std::to_string(LLCEFBROWSER_VERSION_MINOR) +
-            " (" + LLCEFBROWSER_VERSION_GITHASH + ")\n"
-            "  CEF: " + std::to_string(CEF_VERSION_MAJOR) + "." + std::to_string(CEF_VERSION_MINOR) + "." +
-            std::to_string(CEF_VERSION_PATCH) + "\n"
-            "  Chromium: " + std::to_string(CHROME_VERSION_MAJOR) + "." + std::to_string(CHROME_VERSION_MINOR) + "." +
-            std::to_string(CHROME_VERSION_BUILD) + "." + std::to_string(CHROME_VERSION_PATCH);
-        s.pub->send_text(kEventVersionInfo, version_str);
+        s.pub->send_text(kEventVersionInfo, cef_version_string());
     }
 
     // Forward a subset of llCefBrowserManager's own event callbacks to this
@@ -1053,6 +1062,13 @@ int run_producer(int argc, char** argv)
                 // Preferences > Privacy > Clear History. UI cookie store only, same
                 // scope SetCookie/kSetOpenIDCookie above already use.
                 manager->DeleteAllCookies(nullptr);
+                continue;
+            }
+            if (cmd.type == kRequestVersion)
+            {
+                // Slot-independent equivalent of kEventVersionInfo above -- see
+                // cef_version_string()'s own comment and cefshm_protocol.h.
+                control->send_text(kVersionInfo, cef_version_string(), cmd.id);
                 continue;
             }
             if (cmd.type != kRequestSlot) continue;

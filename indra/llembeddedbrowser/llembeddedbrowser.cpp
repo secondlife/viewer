@@ -1116,11 +1116,19 @@ void LLEmbeddedBrowser::init()
         LL_WARNS() << "SLCefProducer failed to launch -- CEF-backed embedded-browser "
                       "media will not work this session (see the warning above for why)" << LL_ENDL;
     }
+    else
+    {
+        requestProducerVersion(LLEmbeddedBrowserBackend::Cef);
+    }
     if (!launchProducer(LLEmbeddedBrowserBackend::LibVlc))
     {
         LL_WARNS() << "SLVlcProducer failed to launch -- LibVLC-backed embedded-browser "
                       "media (RTSP/RTMP, etc.) will not work this session (see the "
                       "warning above for why)" << LL_ENDL;
+    }
+    else
+    {
+        requestProducerVersion(LLEmbeddedBrowserBackend::LibVlc);
     }
 }
 
@@ -1170,6 +1178,16 @@ void LLEmbeddedBrowser::reset()
     LLMutexLock lock(&mProducerMutex);
     auto& cef_producer = mProducers[static_cast<std::size_t>(LLEmbeddedBrowserBackend::Cef)];
     auto& vlc_producer = mProducers[static_cast<std::size_t>(LLEmbeddedBrowserBackend::LibVlc)];
+
+    // Join first, before anything else below -- these threads call back into this
+    // object's own setCefBrowserVersion()/setVlcProducerVersion(), so they must not
+    // still be running once this method returns (see requestProducerVersion()'s own
+    // comment). In the overwhelmingly common case this session has been running for
+    // more than a few seconds, so both already finished (one way or the other) long
+    // ago and this returns immediately; only a near-instant quit right after launch
+    // can actually block here, bounded by that function's own claim/reply timeouts.
+    if (cef_producer.versionRequestThread.joinable()) cef_producer.versionRequestThread.join();
+    if (vlc_producer.versionRequestThread.joinable()) vlc_producer.versionRequestThread.join();
 
     // Ask both nicely first, before waiting on either: LLProcess::kill() is a hard
     // TerminateProcess() on Windows (see its own implementation -- apr_proc_kill() with
@@ -1349,6 +1367,59 @@ bool LLEmbeddedBrowser::launchProducer(LLEmbeddedBrowserBackend backend)
         });
 
     return true;
+}
+
+void LLEmbeddedBrowser::requestProducerVersion(LLEmbeddedBrowserBackend backend)
+{
+    const bool is_vlc = (backend == LLEmbeddedBrowserBackend::LibVlc);
+    const std::string control_channel_name = is_vlc ? kVlcControlChannelName : kControlChannelName;
+    auto& handle = mProducers[static_cast<std::size_t>(backend)];
+
+    // Caller (init(), holding mProducerMutex) only ever calls this once per backend,
+    // right after that backend's own launchProducer() succeeds -- no previous thread
+    // can still be assigned here to leak.
+    handle.versionRequestThread = std::thread([this, is_vlc, control_channel_name]()
+    {
+        // Same claim/send/reply shape as LLEmbeddedBrowserTab::connectToProducer()'s
+        // own kRequestSlot round trip -- just over the control channel directly, with
+        // no slot ever allocated. Any failure/timeout here is silently fine: the
+        // existing per-slot kEventVersionInfo path still populates the version once a
+        // real tab (or, for LibVLC, LLStreamingAudio_LibVLC) actually connects, same
+        // as before this function existed.
+        auto ctrl = claimControlChannel(control_channel_name, kControlClaimTimeout);
+        if (!ctrl)
+        {
+            return;
+        }
+
+        std::uint64_t req_id = 0;
+        if (!ctrl->send(kRequestVersion, nullptr, 0, 0, &req_id))
+        {
+            return;
+        }
+
+        LLShmCommand reply;
+        const auto reply_deadline = std::chrono::steady_clock::now() + kSlotRequestTimeout;
+        while (std::chrono::steady_clock::now() < reply_deadline)
+        {
+            if (ctrl->receive(reply) && reply.reply_to == req_id)
+            {
+                if (reply.type == kVersionInfo)
+                {
+                    if (is_vlc)
+                    {
+                        setVlcProducerVersion(std::string(reply.text()));
+                    }
+                    else
+                    {
+                        setCefBrowserVersion(std::string(reply.text()));
+                    }
+                }
+                return;
+            }
+            std::this_thread::sleep_for(kSlotReplyPollInterval);
+        }
+    });
 }
 
 void LLEmbeddedBrowser::drainProducerLogPipe(LLEmbeddedBrowserBackend backend, const std::shared_ptr<LLProcess>& proc,

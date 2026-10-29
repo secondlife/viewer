@@ -392,6 +392,23 @@ namespace cefshm_demo
         // nothing gets selected). The legacy CEF plugin had the exact same
         // explicit call via Dullahan's own CefFrame::SelectAll() wrapper.
         kSelectAll = 51,
+
+        // consumer -> producer, control channel only; reply_to = request id. Empty
+        // payload. Lets the Viewer learn a producer's own version immediately after
+        // launching it, without creating (and immediately tearing down) a throwaway
+        // slot just to receive kEventVersionInfo -- needed specifically because,
+        // unlike CEF (whose login-screen slot exists almost immediately), nothing
+        // creates a LibVLC slot automatically at startup, so the Help > About
+        // floater's LIBVLC_VERSION field would otherwise stay empty until the first
+        // RTSP/RTMP/parcel-audio tab connects. See
+        // LLEmbeddedBrowser::requestProducerVersion().
+        kRequestVersion = 52,
+
+        // producer -> consumer, control channel only; reply_to = request id. Text
+        // payload: the exact same string kEventVersionInfo already sends per-slot
+        // (see its own comment above for the two backends' formats) -- this is just
+        // an earlier, slot-independent way to ask for it.
+        kVersionInfo = 53,
     };
 
     // kKeyEvent's own type/modifier tags -- deliberately our own small enums, not CEF's

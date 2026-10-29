@@ -705,6 +705,22 @@ int run_producer(int argc, char** argv)
         while (control->receive(cmd))
         {
             if (cmd.type == kShutdownProducer) { g_run = 0; continue; }
+            if (cmd.type == kRequestVersion)
+            {
+                // Slot-independent equivalent of kEventVersionInfo's own libvlc_get_version()
+                // string (see allocate_slot()'s own comment and cefshm_protocol.h) -- this is
+                // the one that actually matters for this producer (see kRequestVersion's own
+                // comment there): unlike SLCefProducer's login-screen slot, nothing creates a
+                // LibVLC slot automatically at startup. No reply at all if libvlc itself never
+                // came up -- same as a producer too old to know this opcode, it just leaves the
+                // Viewer's request to time out and fall back to the per-slot path, which will
+                // keep failing too in that case anyway.
+                if (vlcMgr.IsReady())
+                {
+                    control->send_text(kVersionInfo, vlcMgr.GetVersion(), cmd.id);
+                }
+                continue;
+            }
             if (cmd.type != kRequestSlot) continue;
 
             // Defaults match the old, isUI-only payload's fallback (see

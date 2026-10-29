@@ -210,6 +210,18 @@ namespace cefshm_demo
         // only too, no LibVLC equivalent -- see indra/llcefproducer/
         // cefshm_protocol.h's own comments.
         kSelectAll = 51,
+
+        // consumer -> producer, control channel only; reply_to = request id. Both
+        // backends, unlike the three CEF-only ones just above -- this is the one this
+        // producer actually needs, since nothing creates a LibVLC slot automatically
+        // at startup the way CEF's login-screen slot does. See indra/llembeddedbrowser/
+        // cefshm_protocol.h's own longer comment and
+        // LLEmbeddedBrowser::requestProducerVersion().
+        kRequestVersion = 52,
+
+        // producer -> consumer, control channel only; reply_to = request id. Text
+        // payload: the exact same string kEventVersionInfo already sends per-slot.
+        kVersionInfo = 53,
     };
 
     inline std::uint32_t pack_u32(std::uint8_t* d, std::uint32_t v)

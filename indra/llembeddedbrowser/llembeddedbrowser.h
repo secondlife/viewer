@@ -34,6 +34,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "llevents.h"
@@ -607,6 +608,19 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         // the launch itself failed. Caller must hold mProducerMutex.
         bool launchProducer(LLEmbeddedBrowserBackend backend);
 
+        // Spawns ProducerHandle::versionRequestThread for the given backend, right
+        // after launchProducer() succeeds for it -- asks the just-launched producer
+        // for its own version over a kRequestVersion/kVersionInfo control-channel
+        // round trip (see cefshm_protocol.h), the same claim/send/reply shape
+        // LLEmbeddedBrowserTab::connectToProducer() already uses for kRequestSlot,
+        // but without ever allocating a slot. Runs off the main thread so a slow or
+        // unresponsive producer can never add to Viewer startup time; joined in
+        // reset() before this object (and the version setters it calls into) can be
+        // destroyed. A no-op either way if it never gets a reply in time -- the
+        // existing per-slot kEventVersionInfo fallback (once a real tab connects)
+        // still applies exactly as before this existed.
+        void requestProducerVersion(LLEmbeddedBrowserBackend backend);
+
         // Drains whatever complete lines are currently available on the given backend's
         // stdout/stderr pipe into mProducers[backend].logLines (capped -- see
         // kMaxLogLines in llembeddedbrowser.cpp). Called from the LLEventPump listeners
@@ -691,6 +705,13 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
             std::deque<std::string> logLines;
             LLTempBoundListener stdoutListener;
             LLTempBoundListener stderrListener;
+
+            // See requestProducerVersion()'s own comment. Only ever touched from the
+            // main thread (spawned in init(), joined in reset()) -- the thread body
+            // itself never touches ProducerHandle at all, so this needs no extra
+            // synchronization beyond what mProducerMutex already gives the rest of
+            // this struct.
+            std::thread versionRequestThread;
         };
 
         // Guards mProducers -- touched from init()/reset() on the main thread and from
