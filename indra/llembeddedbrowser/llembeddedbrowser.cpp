@@ -1395,15 +1395,36 @@ void LLEmbeddedBrowser::requestProducerVersion(LLEmbeddedBrowserBackend backend)
     {
         const char* producer_name = is_vlc ? "SLVlcProducer" : "SLCefProducer";
 
-        // Same claim/send/reply shape as LLEmbeddedBrowserTab::connectToProducer()'s
-        // own kRequestSlot round trip -- just over the control channel directly, with
-        // no slot ever allocated. A failure/timeout here still leaves the existing
-        // per-slot kEventVersionInfo path to populate the version once a real tab (or,
-        // for LibVLC, LLStreamingAudio_LibVLC) actually connects, same as before this
-        // function existed -- logged rather than silent, so a one-shot miss (e.g. a
-        // producer still mid-startup when the claim window above closes) is visible
-        // instead of just leaving Help > About empty with no explanation.
-        auto ctrl = claimControlChannel(control_channel_name, kVersionProbeClaimTimeout);
+        // Deliberately NOT claimControlChannel() -- that helper returns failure
+        // immediately (no retry at all) the moment LLSubscriber::open() reports
+        // !connected(), which is the right behavior for its other callers (a
+        // shutdown/cookie/clear-browsing-data broadcast, all fired well after a
+        // producer is already known to be running -- "not connected" there genuinely
+        // means "no producer at all," not "wait for it"). This call happens the
+        // instant launchProducer() returns, i.e. before the just-spawned child
+        // process has had any chance to start, let alone create its control-channel
+        // publisher -- claimControlChannel() would bail out on the very first
+        // check, making any timeout passed to it meaningless (confirmed live: the
+        // launch and the old "never claimed within 20s" warning shared the same
+        // timestamp to the second). This loop retries across BOTH failure shapes --
+        // not yet connected, and connected but owned by someone else -- same as
+        // LLEmbeddedBrowserTab::connectToProducer()'s own claim loop, just without
+        // that method's "no producer at all" early-out, since here that outcome is
+        // expected and transient, not a signal to give up.
+        std::unique_ptr<LLSubscriber> ctrl;
+        const auto claim_deadline = std::chrono::steady_clock::now() + kVersionProbeClaimTimeout;
+        for (;;)
+        {
+            ctrl = LLSubscriber::open(control_channel_name);
+            if (ctrl->connected() && ctrl->owns_command_channel()) break;
+            if (std::chrono::steady_clock::now() >= claim_deadline)
+            {
+                ctrl.reset();
+                break;
+            }
+            ctrl.reset(); // close before retrying -- same as claimControlChannel()'s own loop
+            std::this_thread::sleep_for(kControlClaimRetryInterval);
+        }
         if (!ctrl)
         {
             LL_WARNS() << producer_name << ": requestProducerVersion() never claimed the "
