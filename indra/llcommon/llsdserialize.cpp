@@ -148,6 +148,22 @@ namespace
 
     std::string llsd_format_classic(const char* fmt, ...)
     {
+#if LL_WINDOWS
+        classic_locale_t loc = llsd_thread_classic_locale();
+        va_list args;
+        va_start(args, fmt);
+        int n = loc ? _vscprintf_l(fmt, loc, args) : _vscprintf(fmt, args);
+        va_end(args);
+        if (n < 0)
+        {
+            return std::string();
+        }
+        std::vector<char> buffer(static_cast<size_t>(n) + 1);
+        va_start(args, fmt);
+        llsd_classic_vsnprintf(buffer.data(), buffer.size(), fmt, args);
+        va_end(args);
+        return std::string(buffer.data(), static_cast<size_t>(n));
+#else
         char buffer[256]; /* Flawfinder: ignore */
         va_list args;
         va_start(args, fmt);
@@ -166,6 +182,7 @@ namespace
             return std::string(big.data(), n);
         }
         return std::string(buffer, n);
+#endif
     }
 }
 
