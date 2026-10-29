@@ -33,16 +33,9 @@
 
 #include <iostream>
 #include <cstdarg>
+#include <locale.h>
 #include <vector>
 #include "apr_base64.h"
-
-#if LL_WINDOWS
-#include <locale.h>
-#elif LL_DARWIN
-#include <xlocale.h>
-#else
-#include <locale.h>
-#endif
 
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>
@@ -1493,69 +1486,6 @@ S32 LLSDFormatter::format(const LLSD& data, std::ostream& ostr, EFormatterOption
 {
     LLSDParser::LLSDClassicLocaleGuard locale_guard(ostr);
     return format_impl(data, ostr, options, 0);
-}
-
-namespace
-{
-    // RAII wrapper for a classic ("C") locale object, used to format numbers
-    // via locale-explicit snprintf variants without touching global/thread
-    // CRT or C++ locale state (avoids both the setlocale() thread-safety
-    // hazard and the MSVC num_put/sprintf_s crash tied to non-classic
-    // locales).
-#if LL_WINDOWS
-    struct ClassicLocale
-    {
-        _locale_t loc;
-        ClassicLocale() : loc(_create_locale(LC_ALL, "C")) {}
-        ~ClassicLocale() { if (loc) _free_locale(loc); }
-        ClassicLocale(const ClassicLocale&) = delete;
-        ClassicLocale& operator=(const ClassicLocale&) = delete;
-    };
-#else
-    // Shared by Darwin (vsnprintf_l) and Linux (uselocale) - both use the
-    // POSIX locale_t type and newlocale()/freelocale() to construct it.
-    struct ClassicLocale
-    {
-        locale_t loc;
-        ClassicLocale() : loc(newlocale(LC_ALL_MASK, "C", (locale_t)0)) {}
-        ~ClassicLocale() { if (loc) freelocale(loc); }
-        ClassicLocale(const ClassicLocale&) = delete;
-        ClassicLocale& operator=(const ClassicLocale&) = delete;
-    };
-#endif
-
-    // Thread-safe: each call constructs/destroys its own locale_t, no shared
-    // mutable state. _create_locale/newlocale are documented as thread-safe
-    // (they don't touch global/thread CRT locale state at all).
-    int classic_vsnprintf(char* buffer, size_t size, const char* fmt, va_list args)
-    {
-        static thread_local ClassicLocale classic; // cached per-thread, avoids
-        // re-creating the locale
-        // object on every call
-#if LL_WINDOWS
-        return _vsnprintf_s_l(buffer, size, _TRUNCATE, fmt, classic.loc, args);
-#elif LL_DARWIN
-        return vsnprintf_l(buffer, size, classic.loc, fmt, args);
-#else
-        // expects uselocale to be called beforehand
-        return vsnprintf(buffer, size, fmt, args);
-#endif
-    }
-
-    class LL_COMMON_API LLClassicLocaleGuard
-    {
-    public:
-        LLClassicLocaleGuard();
-        ~LLClassicLocaleGuard();
-
-        LLClassicLocaleGuard(const LLClassicLocaleGuard&) = delete;
-        LLClassicLocaleGuard& operator=(const LLClassicLocaleGuard&) = delete;
-
-    private:
-#if LL_LINUX
-        locale_t mPrevLocale;
-#endif
-    };
 }
 
 void LLSDFormatter::formatReal(LLSD::Real real, std::ostream& ostr) const

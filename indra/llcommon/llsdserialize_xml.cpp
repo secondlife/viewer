@@ -816,7 +816,6 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
                     // std::istringstream::operator>>(int&), which would not consume the
                     // ".23" portion.
 
-                    // Utilizes implementation used internally by LLSD::ImplString::asInteger
                     value = (int)llsd::string_to_real(mCurrentContent);
                 }
             }
@@ -824,8 +823,7 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
 
         case ELEMENT_REAL:
             {
-                // Utilizes implementation used internally by LLSD::ImplString::asReal
-                value = llsd::string_to_real(mCurrentContent);
+                value = llsd::string_to_real_classic(mCurrentContent);
 
                 // removed since this breaks when locale has decimal separator that isn't '.'
                 // investigated changing local to something compatible each time but deemed higher
