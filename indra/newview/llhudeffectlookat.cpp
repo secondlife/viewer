@@ -429,7 +429,7 @@ bool LLHUDEffectLookAt::setLookAt(ELookAtType target_type, LLViewerObject *objec
     // Don't affect the look at if object is gAgentAvatarp (cursor head follow)
     if (limit_lookat_hints && object != gAgentAvatarp)
     {
-        // If it is a object, position is an offset in its local space
+        // If it is an object, position is an offset in its local space
         if (object)
         {
             position = position * object->getRenderRotation() + object->getRenderPosition();
