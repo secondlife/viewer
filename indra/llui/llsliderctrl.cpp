@@ -334,11 +334,11 @@ void LLSliderCtrl::onEditorCommit( LLUICtrl* ctrl, const LLSD& userdata )
         F32 min_val = self->mSlider->getMinValue();
         F32 max_val = self->mSlider->getMaxValue();
         F32 half_step = (F32)(0.5 / pow(10.0, (F64)self->mPrecision));
-        if (val < min_val && min_val - val <= half_step)
+        if (val < min_val && min_val - val < half_step)
         {
             val = min_val;
         }
-        else if (val > max_val && val - max_val <= half_step)
+        else if (val > max_val && val - max_val < half_step)
         {
             val = max_val;
         }
