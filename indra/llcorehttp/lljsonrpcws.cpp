@@ -29,6 +29,7 @@
 #include "lljsonrpcws.h"
 #include "llerror.h"
 #include "llsdjson.h"
+#include "llsdutil.h"
 #include "lldate.h"
 #include "llcoros.h"
 #include "llmainthreadtask.h"
@@ -219,8 +220,11 @@ void LLJSONRPCConnection::processRequest(const LLSD& request)
             throw InternalError("Connection expired before method " + method
                                 + " could be launched");
         }
+        // The handler runs on the main thread while this thread is still releasing
+        // the request. Give it its own maps and arrays; the scalars inside stay
+        // shared, which the atomic LLSD use count makes safe.
         LLMainThreadTask::dispatch(
-            [handler, method, id, params, conn]()
+            [handler, method, id = llsd_clone(id), params = llsd_clone(params), conn]()
             {
                 LLCoros::instance().launch(
                     "JSONRPC::" + method,

@@ -2680,6 +2680,17 @@ bool LLMeshUploadThread::isDiscarded() const
     return mDiscarded;
 }
 
+void LLMeshUploadThread::deliverFeeResult()
+{
+    // The thread has stopped, so it no longer holds any part of the response.
+    LLWholeModelFeeObserver* observer(mFeeObserverHandle.get());
+    if (mFeeResult && observer)
+    {
+        mFeeResult(observer);
+    }
+    mFeeResult = nullptr;
+}
+
 void LLMeshUploadThread::run()
 {
     if (mDoUpload)
@@ -3298,7 +3309,6 @@ void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResp
     else
     {
         // model fee case
-        LLWholeModelFeeObserver* observer(mFeeObserverHandle.get());
         mWholeModelUploadURL.clear();
 
         if (! status)
@@ -3313,10 +3323,10 @@ void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResp
             body["error"]["identifier"] = "NetworkError";       // from asset-upload/upload_util.py
             log_upload_error(status, body, "fee", mModelData["name"].asString(), mTextureFiles);
 
-            if (observer)
-            {
-                observer->setModelPhysicsFeeErrorStatus(status.toULong(), reason, body["error"]);
-            }
+            mFeeResult = [status = status.toULong(), reason, error = body["error"]](LLWholeModelFeeObserver* observer)
+                {
+                    observer->setModelPhysicsFeeErrorStatus(status, reason, error);
+                };
         }
         else
         {
@@ -3335,21 +3345,21 @@ void LLMeshUploadThread::onCompleted(LLCore::HttpHandle handle, LLCore::HttpResp
             {
                 mWholeModelUploadURL = body["uploader"].asString();
 
-                if (observer)
-                {
-                    body["data"]["upload_price"] = body["upload_price"];
-                    observer->onModelPhysicsFeeReceived(body["data"], mWholeModelUploadURL);
-                }
+                body["data"]["upload_price"] = body["upload_price"];
+                mFeeResult = [data = body["data"], url = mWholeModelUploadURL](LLWholeModelFeeObserver* observer)
+                    {
+                        observer->onModelPhysicsFeeReceived(data, url);
+                    };
             }
             else
             {
                 LL_WARNS(LOG_MESH) << "Fee request failed.  Not in expected 'upload' state." << LL_ENDL;
                 log_upload_error(status, body, "fee", mModelData["name"].asString(), mTextureFiles);
 
-                if (observer)
-                {
-                    observer->setModelPhysicsFeeErrorStatus(status.toULong(), reason, body["error"]);
-                }
+                mFeeResult = [status = status.toULong(), reason, error = body["error"]](LLWholeModelFeeObserver* observer)
+                    {
+                        observer->setModelPhysicsFeeErrorStatus(status, reason, error);
+                    };
             }
         }
     }
@@ -4499,6 +4509,7 @@ void LLMeshRepository::notifyLoadedMeshes()
 
         if (thread->isStopped() && thread->finished())
         {
+            thread->deliverFeeResult();
             iter = mUploads.erase(iter);
             delete thread;
         }

@@ -36,6 +36,7 @@
 #include "llsdserialize.h"
 #include "stringize.h"
 
+#include <atomic>
 #include <limits>
 
 #include <boost/iostreams/device/array.hpp>
@@ -100,11 +101,21 @@ protected:
 
     virtual ~Impl();
 
-    bool shared() const                         { return (mUseCount > 1) && (mUseCount != STATIC_USAGE_COUNT); }
+    bool shared() const
+    {
+        U32 count = mUseCount.load(std::memory_order_acquire);
+        return (count > 1) && (count != STATIC_USAGE_COUNT);
+    }
 
-    U32 mUseCount;
+    // Worker threads copy and release values that another thread also holds
+    // (e.g. closures posted through LL::WorkQueue), so the count must be
+    // atomic: a lost update frees an Impl while it is still referenced.
+    std::atomic<U32> mUseCount;
 
 public:
+    static bool release(Impl* var);
+        ///< drop one use of var; true when that was the last use
+
     static void destruct(Impl*& var);
         ///< safely decrement or destroy var
 
@@ -189,8 +200,8 @@ public:
 
     static const LLSD& undef();
 
-    static U32 sAllocationCount;
-    static U32 sOutstandingCount;
+    static std::atomic<U32> sAllocationCount;
+    static std::atomic<U32> sOutstandingCount;
 };
 
 #ifdef NAME_UNNAMED_NAMESPACE
@@ -605,8 +616,8 @@ namespace
         std::cout << "LLSD Net Objects: " << llsd::sLLSDNetObjects << std::endl;
         std::cout << "LLSD allocations: " << llsd::sLLSDAllocationCount << std::endl;
 
-        std::cout << "LLSD::Impl Net Objects: " << sOutstandingCount << std::endl;
-        std::cout << "LLSD::Impl allocations: " << sAllocationCount << std::endl;
+        std::cout << "LLSD::Impl Net Objects: " << sOutstandingCount.load() << std::endl;
+        std::cout << "LLSD::Impl allocations: " << sAllocationCount.load() << std::endl;
 
         Impl::dumpStats();
     }
@@ -810,8 +821,8 @@ namespace
 LLSD::Impl::Impl()
     : mUseCount(0)
 {
-    ++sAllocationCount;
-    ++sOutstandingCount;
+    sAllocationCount.fetch_add(1, std::memory_order_relaxed);
+    sOutstandingCount.fetch_add(1, std::memory_order_relaxed);
 }
 
 LLSD::Impl::Impl(StaticAllocationMarker)
@@ -821,12 +832,19 @@ LLSD::Impl::Impl(StaticAllocationMarker)
 
 LLSD::Impl::~Impl()
 {
-    --sOutstandingCount;
+    sOutstandingCount.fetch_sub(1, std::memory_order_relaxed);
+}
+
+bool LLSD::Impl::release(Impl* var)
+{
+    // The last release must observe every other holder's use before deleting.
+    return var && var->mUseCount.load(std::memory_order_relaxed) != STATIC_USAGE_COUNT
+        && var->mUseCount.fetch_sub(1, std::memory_order_acq_rel) == 1;
 }
 
 void LLSD::Impl::destruct(Impl*& var)
 {
-    if (var && var->mUseCount != STATIC_USAGE_COUNT && --var->mUseCount == 0)
+    if (release(var))
     {
         delete var;
     }
@@ -834,11 +852,11 @@ void LLSD::Impl::destruct(Impl*& var)
 
 void LLSD::Impl::reset(Impl*& var, Impl* impl)
 {
-    if (impl && impl->mUseCount != STATIC_USAGE_COUNT)
+    if (impl && impl->mUseCount.load(std::memory_order_relaxed) != STATIC_USAGE_COUNT)
     {
-        ++impl->mUseCount;
+        impl->mUseCount.fetch_add(1, std::memory_order_relaxed);
     }
-    if (var  &&  var->mUseCount != STATIC_USAGE_COUNT && --var->mUseCount == 0)
+    if (release(var))
     {
         delete var;
     }
@@ -847,7 +865,7 @@ void LLSD::Impl::reset(Impl*& var, Impl* impl)
 
 void LLSD::Impl::move(Impl*& var, Impl*& impl)
 {
-    if (var && var->mUseCount != STATIC_USAGE_COUNT && --var->mUseCount == 0)
+    if (release(var))
     {
         delete var; // destroy var if usage falls to 0 and not static
     }
@@ -1007,8 +1025,8 @@ void LLSD::Impl::calcStats(S32 type_counts[], S32 share_counts[]) const
 }
 
 
-U32 LLSD::Impl::sAllocationCount = 0;
-U32 LLSD::Impl::sOutstandingCount = 0;
+std::atomic<U32> LLSD::Impl::sAllocationCount(0);
+std::atomic<U32> LLSD::Impl::sOutstandingCount(0);
 
 
 
@@ -1268,8 +1286,8 @@ LLSD::Real string_to_real(std::string_view in_string)
     return ((EOF == c) ? v : 0.0);
 }
 
-U32 allocationCount()                               { return LLSD::Impl::sAllocationCount; }
-U32 outstandingCount()                              { return LLSD::Impl::sOutstandingCount; }
+U32 allocationCount()                               { return LLSD::Impl::sAllocationCount.load(); }
+U32 outstandingCount()                              { return LLSD::Impl::sOutstandingCount.load(); }
 
 // Diagnostic dump of contents in an LLSD object
 void dumpStats(const LLSD& llsd)                    { LLSD::Impl::getImpl(llsd).dumpStats(); }

@@ -31,7 +31,12 @@
 #include "llsd.h"
 
 #include "llsdtraits.h"
+#include "llsdutil.h"
 #include "llstring.h"
+
+#include <atomic>
+#include <thread>
+#include <vector>
 
 using std::fpclassify;
 
@@ -809,6 +814,256 @@ namespace tut
         LLSD v;
         v = (const char*)NULL;
         ensure("type is a string", v.isString());
+    }
+
+    template<> template<>
+    void SDTestObject::test<15>()
+        // move construction and assignment
+    {
+        SDCleanupCheck check;
+
+        {
+            SDAllocationCheck check("move construct", 3);
+            LLSD a;
+            a["one"] = 1;
+            a["two"] = "two";                   // 3 (map, 1 and "two")
+            LLSD b(std::move(a));
+            const LLSD& cb(b);
+            ensure("move construct leaves source undefined", a.isUndefined());
+            ensureTypeAndValue("move construct one", cb["one"], 1);
+            ensureTypeAndValue("move construct two", cb["two"], "two");
+        }
+
+        {
+            SDAllocationCheck check("move assign onto sole holder", 2);
+            LLSD a = 42;
+            LLSD b = "doomed";
+            U32 outstanding = llsd::outstandingCount();
+            b = std::move(a);
+            ensure_equals("move assign frees old value", llsd::outstandingCount(), outstanding - 1);
+            ensure("move assign leaves source undefined", a.isUndefined());
+            ensureTypeAndValue("move assign value", b, 42);
+        }
+
+        {
+            SDAllocationCheck check("move assign onto shared holder", 2);
+            LLSD a = 42;
+            LLSD b = "kept";
+            LLSD c(b);
+            U32 outstanding = llsd::outstandingCount();
+            b = std::move(a);
+            ensure_equals("move assign keeps shared value", llsd::outstandingCount(), outstanding);
+            ensureTypeAndValue("other holder keeps value", c, "kept");
+            ensureTypeAndValue("move assign onto shared value", b, 42);
+            // c now holds the only use, so this changes it in place (no allocation)
+            c = "changed in place";
+            ensureTypeAndValue("sole holder changed", c, "changed in place");
+        }
+
+        {
+            SDAllocationCheck check("move undefined", 1);
+            LLSD a;
+            LLSD b = 7;
+            b = std::move(a);
+            ensure("move undefined target", b.isUndefined());
+            ensure("move undefined source", a.isUndefined());
+        }
+
+        {
+            SDAllocationCheck check("self move", 1);
+            LLSD a = 5;
+            LLSD& alias(a);
+            a = std::move(alias);
+            // the value is unspecified, but it must be usable and must not leak
+            ensure("self move leaves a valid value", a.isUndefined() || a.asInteger() == 5);
+        }
+    }
+
+    template<> template<>
+    void SDTestObject::test<16>()
+        // copy-on-write of a shared map copies only what changes
+    {
+        SDCleanupCheck check;
+
+        LLSD a;
+        a["int"] = 1;
+        a["string"] = "two";
+        a["array"].append(3.0);
+        const LLSD& ca(a);
+
+        {
+            SDAllocationCheck check("copy-on-write", 5);
+            LLSD b(a);
+            const LLSD& cb(b);
+            b["new"] = 4;                       // 2 (b's own map and 4)
+            b["int"] = 10;                      // 3 (10)
+            b["array"].append(5.0);             // 5 (b's own array and 5.0)
+
+            ensure("original has no new key", !ca.has("new"));
+            ensureTypeAndValue("original int", ca["int"], 1);
+            ensure_equals("original array size", ca["array"].size(), 1);
+            ensureTypeAndValue("copy new", cb["new"], 4);
+            ensureTypeAndValue("copy int", cb["int"], 10);
+            ensureTypeAndValue("copy string", cb["string"], "two");
+            ensure_equals("copy array size", cb["array"].size(), 2);
+        }
+
+        {
+            // b is gone, so a again holds the only use of each member
+            SDAllocationCheck check("sole holder changes in place", 0);
+            a["int"] = 2;
+            a["string"] = "changed in place";
+            ensureTypeAndValue("in place int", ca["int"], 2);
+            ensureTypeAndValue("in place string", ca["string"], "changed in place");
+        }
+    }
+
+    template<> template<>
+    void SDTestObject::test<17>()
+        // llsd_clone() makes new maps, arrays and binaries, and shares other values
+    {
+        SDCleanupCheck check;
+
+        LLSD original;
+        original["map"]["int"] = 1;
+        original["array"].append("two");
+        original["binary"] = LLSD::Binary{ 1, 2, 3 };
+        original["string"] = "three";
+        const LLSD& corig(original);
+
+        {
+            SDCleanupCheck check;
+            LLSD filter;
+            filter["*"] = true;
+            filter["array"] = false;
+            U32 allocations = llsd::allocationCount();
+            LLSD filtered(llsd_clone(original, filter));
+            // the array is skipped: outer map, inner map and binary, and no copies
+            // of original's containers or of the filter
+            ensure_equals("llsd_clone with filter allocations", llsd::allocationCount() - allocations, 3U);
+            ensure("filtered out array", !filtered.has("array"));
+            ensureTypeAndValue("filtered int", filtered["map"]["int"], 1);
+        }
+
+        U32 allocations = llsd::allocationCount();
+        U32 outstanding = llsd::outstandingCount();
+        LLSD clone(llsd_clone(original));
+        const LLSD& cclone(clone);
+        // outer map, inner map, array and binary; the other values are shared, which
+        // is safe because a shared value is copied before it is changed. Nothing
+        // else is allocated, not even a temporary copy of original's containers.
+        ensure_equals("llsd_clone allocations", llsd::allocationCount() - allocations, 4U);
+        ensure_equals("llsd_clone new values", llsd::outstandingCount() - outstanding, 4U);
+
+        ensureTypeAndValue("clone int", cclone["map"]["int"], 1);
+        ensureTypeAndValue("clone array", cclone["array"][0], "two");
+        ensure("clone binary", cclone["binary"].asBinary() == corig["binary"].asBinary());
+        ensureTypeAndValue("clone string", cclone["string"], "three");
+
+        clone["map"]["int"] = 10;
+        clone["array"][0] = "changed";
+        clone["array"].append(4);
+        clone["string"] = "changed";
+        ensureTypeAndValue("original int", corig["map"]["int"], 1);
+        ensure_equals("original array size", corig["array"].size(), 1);
+        ensureTypeAndValue("original array", corig["array"][0], "two");
+        ensureTypeAndValue("original string", corig["string"], "three");
+    }
+
+    template<> template<>
+    void SDTestObject::test<18>()
+        // llsd_shallow() makes a new top-level map or array and shares its members
+    {
+        SDCleanupCheck check;
+
+        LLSD original;
+        original["map"]["int"] = 1;
+        original["string"] = "two";
+        const LLSD& corig(original);
+
+        U32 allocations = llsd::allocationCount();
+        LLSD shallow(llsd_shallow(original));
+        const LLSD& cshallow(shallow);
+        ensure_equals("llsd_shallow allocations", llsd::allocationCount() - allocations, 1U);
+        ensureTypeAndValue("shallow int", cshallow["map"]["int"], 1);
+        ensureTypeAndValue("shallow string", cshallow["string"], "two");
+
+        // the inner map is shared, so changing it through the copy copies it first
+        shallow["map"]["int"] = 10;
+        shallow["new"] = 3;
+        ensureTypeAndValue("original int", corig["map"]["int"], 1);
+        ensure("original has no new key", !corig.has("new"));
+
+        allocations = llsd::allocationCount();
+        LLSD scalar(llsd_shallow(corig["string"]));
+        ensure_equals("llsd_shallow scalar allocations", llsd::allocationCount() - allocations, 0U);
+        ensureTypeAndValue("llsd_shallow scalar", scalar, "two");
+    }
+
+    template<> template<>
+    void SDTestObject::test<19>()
+        // several threads copy and release parts of one value
+    {
+        SDCleanupCheck check;
+
+        // Enough work that a non-atomic use count usually loses an update,
+        // which then crashes or fails the checks below.
+        const int THREADS = 8;
+        const int ITERATIONS = 50000;
+
+        LLUUID id;
+        id.generate();
+        LLSD value;
+        value["int"] = 1;
+        value["string"] = "two";
+        value["array"].append(3.0);
+        value["array"].append(LLSD::emptyMap());
+        value["map"]["uuid"] = id;
+        const LLSD& cvalue(value);
+
+        std::atomic<bool> go(false);
+        std::vector<std::thread> threads;
+        for (int t = 0; t < THREADS; ++t)
+        {
+            threads.emplace_back(
+                [&cvalue, &go, t]()
+                {
+                    while (!go.load())
+                    {
+                        std::this_thread::yield();
+                    }
+                    for (int i = 0; i < ITERATIONS; ++i)
+                    {
+                        LLSD whole(cvalue);
+                        LLSD member(cvalue["map"]);
+                        LLSD element(cvalue["array"][1]);
+                        // copy-on-write copies the map, adding a use to every member
+                        whole["thread"] = t;
+                        // and again for the array, which whole still shares
+                        LLSD array(whole["array"]);
+                        array.append(i);
+                    }
+                });
+        }
+        go = true;
+        for (std::thread& thread : threads)
+        {
+            thread.join();
+        }
+
+        ensureTypeAndValue("int intact", cvalue["int"], 1);
+        ensureTypeAndValue("string intact", cvalue["string"], "two");
+        ensure_equals("array size intact", cvalue["array"].size(), 2);
+        ensureTypeAndValue("array element intact", cvalue["array"][0], 3.0);
+        ensureTypeAndValue("map intact", cvalue["map"]["uuid"], id);
+        ensure("no thread key", !cvalue.has("thread"));
+
+        // Every copy has been released, so value holds the only use of its map
+        // and members again, and changes them in place.
+        SDAllocationCheck alloc("sole holder after threads", 0);
+        value["int"] = 10;
+        value["string"] = "changed in place";
+        ensureTypeAndValue("int changed", cvalue["int"], 10);
     }
 
     /* TO DO:

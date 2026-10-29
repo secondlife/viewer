@@ -51,8 +51,10 @@
 #include "llpreviewscript.h"
 #include "llprocess.h"
 #include "llregex.h"
+#include "llmainthreadtask.h"
 #include "llmd5.h"
 #include "llsdjson.h"
+#include "llsdutil.h"
 #include "llselectmgr.h"
 #include "lltrans.h"
 #include "lluuid.h"
@@ -1305,13 +1307,18 @@ LLSD LLScriptEditorWSServer::handleSyntaxRequest(const LLSD& params) const
     }
 
     response["id"] = mLastSyntaxId;
+    // This runs on the websocket thread, but the main thread owns and replaces the
+    // keyword definitions: copy them there, so this thread gets its own maps and
+    // arrays (the strings inside stay shared, which the atomic use count makes safe).
     if (category == "defs.lua")
     {
-        response["defs"] = LLSyntaxDefCache::instance().getLuaKeywords();
+        response["defs"] = LLMainThreadTask::dispatch(
+            []() { return llsd_clone(LLSyntaxDefCache::instance().getLuaKeywords()); });
     }
     else if (category == "defs.lsl")
     {
-        response["defs"] = LLSyntaxDefCache::instance().getLSLKeywords();
+        response["defs"] = LLMainThreadTask::dispatch(
+            []() { return llsd_clone(LLSyntaxDefCache::instance().getLSLKeywords()); });
     }
     else
     {

@@ -946,7 +946,7 @@ LLSD drill(const LLSD& blob, const LLSD& path)
 // Construct a deep partial clone of of an LLSD object. primitive types share
 // references, however maps, arrays and binary objects are duplicated. An optional
 // filter may be include to exclude/include keys in a map.
-LLSD llsd_clone(LLSD value, LLSD filter)
+LLSD llsd_clone(const LLSD& value, const LLSD& filter)
 {
     LL_PROFILE_ZONE_SCOPED;
 
@@ -999,7 +999,7 @@ LLSD llsd_clone(LLSD value, LLSD filter)
     return clone;
 }
 
-LLSD llsd_shallow(LLSD value, LLSD filter)
+LLSD llsd_shallow(const LLSD& value, const LLSD& filter)
 {
     LLSD shallow;
     bool has_filter(filter.isMap());
