@@ -70,7 +70,9 @@ class LLDir
 
     virtual S32 deleteFilesInDir(const std::string &dirname, const std::string &mask);
     U32 deleteDirAndContents(const std::string& dir_name);
-    std::vector<std::string> getFilesInDir(const std::string &dirname);
+    // get a list of file names inside the directory
+    std::vector<std::string> getFilesInDir(const std::filesystem::path &dirname) const;
+    std::vector<std::string> getFilesInDir(const std::string &dirname) const;
 // pure virtual functions
     virtual std::string getCurPath() = 0;
     virtual bool fileExists(const std::string &filename) const;

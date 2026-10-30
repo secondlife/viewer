@@ -90,10 +90,14 @@ LLDir::~LLDir()
 {
 }
 
-std::vector<std::string> LLDir::getFilesInDir(const std::string &dirname)
+std::vector<std::string> LLDir::getFilesInDir(const std::string& dirname) const
+{
+    return getFilesInDir(fsyspath(dirname));
+};
+
+std::vector<std::string> LLDir::getFilesInDir(const std::filesystem::path &dir_path) const
 {
     // Returns a vector of filenames in the directory.
-    fsyspath dir_path(dirname);
     std::vector<std::string> v;
     std::error_code ec;
     if (std::filesystem::is_directory(dir_path, ec))
