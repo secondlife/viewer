@@ -119,7 +119,8 @@ public:
     // words. HB
     inline U64 getDigest64() const
     {
-        U64* tmp = (U64*)mData;
+        U64 tmp[2];
+        memcpy(tmp, mData, sizeof(tmp));
         return tmp[0] ^ tmp[1];
     }
 
