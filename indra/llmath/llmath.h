@@ -27,6 +27,7 @@
 #ifndef LLMATH_H
 #define LLMATH_H
 
+#include <bit>
 #include <cmath>
 #include <cstdlib>
 #include <vector>
@@ -81,46 +82,68 @@ constexpr F32 FP_MAG_THRESHOLD = 0.0000001f;
 // TODO: Replace with logic like is_approx_equal
 constexpr bool is_approx_zero(F32 f) { return (-F_APPROXIMATELY_ZERO < f) && (f < F_APPROXIMATELY_ZERO); }
 
-// These functions work by interpreting sign+exp+mantissa as an unsigned
-// integer.
+// These functions work by interpreting sign+exp+mantissa as an unsigned integer,
+// after reversing the order of negative values and adjusting the sign bit.
 // For example:
 // x = <sign>1 <exponent>00000010 <mantissa>00000000000000000000000
 // y = <sign>1 <exponent>00000001 <mantissa>11111111111111111111111
 //
-// interpreted as ints =
-// x = 10000001000000000000000000000000
-// y = 10000000111111111111111111111111
-// which is clearly a different of 1 in the least significant bit
+// transformed into ints =
+// x = 01111111000000000000000000000000
+// y = 01111111000000000000000000000001
+// which is clearly a difference of 1 in the least significant bit.
 // Values with the same exponent can be trivially shown to work.
 //
-// WARNING: Denormals of opposite sign do not work
-// x = <sign>1 <exponent>00000000 <mantissa>00000000000000000000001
-// y = <sign>0 <exponent>00000000 <mantissa>00000000000000000000001
-// Although these values differ by 2 in the LSB, the sign bit makes
-// the int comparison fail.
+// NaNs never compare equal; identical infinities compare equal.
 //
-// WARNING: NaNs can compare equal
-// There is no special treatment of exceptional values like NaNs
-//
-// WARNING: Infinity is comparable with F32_MAX and negative
-// infinity is comparable with F32_MIN
+// Returns true if two floating-point values are equal or within one ULP.
 
 // handles negative and positive zeros
-inline bool is_zero(F32 x)
+constexpr bool is_zero(F32 x)
 {
-    return (*(U32*)(&x) & 0x7fffffff) == 0;
+    return (std::bit_cast<U32>(x) & 0x7FFFFFFF) == 0;
 }
 
-inline bool is_approx_equal(F32 x, F32 y)
+constexpr bool is_approx_equal(F32 x, F32 y)
 {
-    constexpr S32 COMPARE_MANTISSA_UP_TO_BIT = 0x02;
-    return (std::abs((S32) ((U32&)x - (U32&)y) ) < COMPARE_MANTISSA_UP_TO_BIT);
+    constexpr U32 COMPARE_MANTISSA_UP_TO_BIT = 0x02;
+    constexpr U32 SIGN_MASK = U32(1) << 31;
+    constexpr U32 EXPONENT_MASK = 0x7F800000;
+    constexpr U32 MANTISSA_MASK = 0x007FFFFF;
+
+    U32 xb = std::bit_cast<U32>(x);
+    U32 yb = std::bit_cast<U32>(y);
+
+    if ((xb & EXPONENT_MASK) == EXPONENT_MASK ||
+        (yb & EXPONENT_MASK) == EXPONENT_MASK)
+        return xb == yb && (xb & MANTISSA_MASK) == 0;
+
+    xb = (xb & SIGN_MASK) ? (~xb + U32(1)) : (xb | SIGN_MASK);
+    yb = (yb & SIGN_MASK) ? (~yb + U32(1)) : (yb | SIGN_MASK);
+
+    const U32 diff = xb > yb ? xb - yb : yb - xb;
+    return diff < COMPARE_MANTISSA_UP_TO_BIT;
 }
 
-inline bool is_approx_equal(F64 x, F64 y)
+constexpr bool is_approx_equal(F64 x, F64 y)
 {
-    constexpr S64 COMPARE_MANTISSA_UP_TO_BIT = 0x02;
-    return (std::abs((S32) ((U64&)x - (U64&)y) ) < COMPARE_MANTISSA_UP_TO_BIT);
+    constexpr U64 COMPARE_MANTISSA_UP_TO_BIT = 0x02;
+    constexpr U64 SIGN_MASK = U64(1) << 63;
+    constexpr U64 EXPONENT_MASK = 0x7FF0000000000000ULL;
+    constexpr U64 MANTISSA_MASK = 0x000FFFFFFFFFFFFFULL;
+
+    U64 xb = std::bit_cast<U64>(x);
+    U64 yb = std::bit_cast<U64>(y);
+
+    if ((xb & EXPONENT_MASK) == EXPONENT_MASK ||
+        (yb & EXPONENT_MASK) == EXPONENT_MASK)
+        return xb == yb && (xb & MANTISSA_MASK) == 0;
+
+    xb = (xb & SIGN_MASK) ? (~xb + U64(1)) : (xb | SIGN_MASK);
+    yb = (yb & SIGN_MASK) ? (~yb + U64(1)) : (yb | SIGN_MASK);
+
+    const U64 diff = xb > yb ? xb - yb : yb - xb;
+    return diff < COMPARE_MANTISSA_UP_TO_BIT;
 }
 
 inline S32 llabs(const S32 a)
