@@ -1177,6 +1177,22 @@ to exercise the producer half again without the Viewer.
   also cover `libvlc.so.5`/`libvlccore.so.9` - the warning runs, and is
   visible in the terminal, before launch, naming `SLVlcProducer` specifically
   rather than the main binary.
+- **HTML5 drag-and-drop works, but shows no ghost image while dragging.**
+  (`llcefbrowser` v1.55.0.) A draggable element (e.g. an image) can now
+  actually be dragged and dropped - CEF's windowless rendering mode never
+  starts the drag at all without the host implementing
+  `CefRenderHandler::StartDragging` plus the `DragTarget*`/`DragSource*`
+  handshake on `CefBrowserHost`, which `llCefBrowser` now does. What is
+  still missing is the semi-transparent image that follows the cursor
+  during the drag, the way it does in a desktop browser - CEF's windowless
+  mode does not render that overlay itself either; the host is expected to
+  draw it, using `CefDragData::GetImage()`/`GetImageHotspot()` (available
+  from the moment `StartDragging` fires) composited onto the view buffer
+  the same way the existing popup layer already is (see
+  `llCefBrowser::CompositePopup()`). Not implemented: judged not worth the
+  extra `llcefbrowser` release cycle for a purely cosmetic gap, once it was
+  clear the underlying drag-and-drop mechanism itself was the real, now-fixed
+  bug rather than the synthesized mouse events. Pull requests welcome.
 - **The legacy media plugin has not been removed, but can no longer actually
   be built.** `media_plugins/cef`, `llplugin/slplugin`, and the
   `ENABLE_MEDIA_PLUGINS` build option (off by default) remain in the
