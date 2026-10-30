@@ -1792,7 +1792,7 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
     bool alpha = color_alpha;
     if (imagep)
     {
-        alpha = alpha || (imagep->getComponents() == 4 && imagep->getType() != LLViewerTexture::MEDIA_TEXTURE) || (imagep->getComponents() == 2);
+        alpha = alpha || (imagep->getComponents() == 4) || (imagep->getComponents() == 2);
     }
 
     if (alpha && mat)
