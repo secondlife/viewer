@@ -310,6 +310,27 @@ void callFocus()
     }
 }
 
+static LLWindowCallbacks::TextInputType focusTextInputType()
+{
+    if (gWindowImplementation && gWindowImplementation->getCallbacks())
+    {
+        return gWindowImplementation->getCallbacks()->handleFocusTextInputType(gWindowImplementation);
+    }
+    return LLWindowCallbacks::TEXT_INPUT_NONE;
+}
+
+// The focused element takes text from input methods (through the Input Window if it has no inline support).
+bool callFocusTakesInputMethodText()
+{
+    return focusTextInputType() == LLWindowCallbacks::TEXT_INPUT_ANY;
+}
+
+// The focused element takes text, but not from input methods (e.g. a password field).
+bool callFocusTakesPlainTextOnly()
+{
+    return focusTextInputType() == LLWindowCallbacks::TEXT_INPUT_PLAIN;
+}
+
 void callFocusLost()
 {
     if (gWindowImplementation && gWindowImplementation->getCallbacks())
@@ -521,6 +542,12 @@ void callWindowFocus()
 
 void callWindowUnfocus()
 {
+    // The input method drops its composition when the application is deactivated,
+    // so commit the marked text; otherwise it stays in the editor and the next key is lost.
+    if (gWindowImplementation)
+    {
+        gWindowImplementation->interruptLanguageTextInput();
+    }
     if ( gWindowImplementation && gWindowImplementation->getCallbacks() )
     {
         gWindowImplementation->getCallbacks()->handleFocusLost(gWindowImplementation);
@@ -659,11 +686,23 @@ void callQuitHandler()
     }
 }
 
+// The input method counts in UTF-16 code units, the editor in characters (UTF-32),
+// so ranges are converted in both directions.
+static void utf16_range(const LLWString &text, S32 wposition, S32 wlength, int *position, int *length)
+{
+    *position = wstring_utf16_length(text, 0, wposition);
+    *length = wstring_utf16_length(text, wposition, wlength);
+}
+
 void getPreeditSelectionRange(int *position, int *length)
 {
     if (gWindowImplementation && gWindowImplementation->getPreeditor())
     {
-        gWindowImplementation->getPreeditor()->getSelectionRange(position, length);
+        LLPreeditor *preeditor = gWindowImplementation->getPreeditor();
+        S32 wposition = 0;
+        S32 wlength = 0;
+        preeditor->getSelectionRange(&wposition, &wlength);
+        utf16_range(preeditor->getPreeditString(), wposition, wlength, position, length);
     }
 }
 
@@ -671,8 +710,50 @@ void getPreeditMarkedRange(int *position, int *length)
 {
     if (gWindowImplementation && gWindowImplementation->getPreeditor())
     {
-        gWindowImplementation->getPreeditor()->getPreeditRange(position, length);
+        LLPreeditor *preeditor = gWindowImplementation->getPreeditor();
+        S32 wposition = 0;
+        S32 wlength = 0;
+        preeditor->getPreeditRange(&wposition, &wlength);
+        utf16_range(preeditor->getPreeditString(), wposition, wlength, position, length);
     }
+}
+
+// The editor text as UTF-16, so input methods can read the text around the caret.
+// Empty when the focused control does not take input method text (e.g. passwords).
+std::basic_string<unsigned short> getPreeditText()
+{
+    if (gWindowImplementation && gWindowImplementation->getPreeditor())
+    {
+        return wstring_to_utf16str(gWindowImplementation->getPreeditor()->getPreeditString());
+    }
+    return std::basic_string<unsigned short>();
+}
+
+// Replaces a range of committed text (UTF-16 offsets), as input methods such as
+// Vietnamese Telex or the accent menu do when they rewrite the last typed letters.
+bool replacePreeditText(unsigned int location, unsigned int length, const unsigned short *text, long text_len)
+{
+    if (!gWindowImplementation || !gWindowImplementation->getPreeditor())
+    {
+        return false;
+    }
+    LLPreeditor *preeditor = gWindowImplementation->getPreeditor();
+    const LLWString current = preeditor->getPreeditString();
+    if ((S64)location + length > wstring_utf16_length(current, 0, (S32)current.length()))
+    {
+        return false;
+    }
+    bool unaligned = false;
+    const S32 wlocation = wstring_wstring_length_from_utf16_length(current, 0, location, &unaligned);
+    bool unaligned_end = false;
+    const S32 wlength = wstring_wstring_length_from_utf16_length(current, wlocation, length, &unaligned_end);
+    if (unaligned || unaligned_end)
+    {
+        return false;
+    }
+
+    preeditor->replaceCommittedText(wlocation, wlength, utf16str_to_wstring(llutf16string(text, text_len)));
+    return true;
 }
 
 void setPreeditMarkedRange(int position, int length)
@@ -683,11 +764,41 @@ void setPreeditMarkedRange(int position, int length)
     }
 }
 
+// Set while the current composition takes the place of a range the input method asked
+// to replace. That range is already removed, so the composition must not overwrite
+// any other text, even in overwrite mode.
+static bool sPreeditReplacesRange = false;
+
+// Puts the keyboard in insert mode for the lifetime of this object, when asked to.
+class LLForceInsertMode
+{
+public:
+    LLForceInsertMode(bool force)
+    :   mToggled(force && gKeyboard && gKeyboard->getInsertMode() == LL_KIM_OVERWRITE)
+    {
+        if (mToggled)
+        {
+            gKeyboard->toggleInsertMode();
+        }
+    }
+    ~LLForceInsertMode()
+    {
+        if (mToggled)
+        {
+            gKeyboard->toggleInsertMode();
+        }
+    }
+private:
+    bool mToggled;
+};
+
+// Only used to commit the marked text from insertText:.
 bool handleUnicodeCharacter(wchar_t c)
 {
     bool success = false;
     if (gWindowImplementation && gWindowImplementation->getPreeditor())
     {
+        LLForceInsertMode insert_mode(sPreeditReplacesRange);
         success = gWindowImplementation->getPreeditor()->handleUnicodeCharHere(c);
     }
 
@@ -702,6 +813,38 @@ void resetPreedit()
     }
 }
 
+// Turn the current preedit (marked text) into committed text in the focused editor.
+void commitPreedit()
+{
+    if (gWindowImplementation && gWindowImplementation->getPreeditor())
+    {
+        LLPreeditor *preeditor = gWindowImplementation->getPreeditor();
+        S32 position = 0;
+        S32 length = 0;
+        preeditor->getPreeditRange(&position, &length);
+        if (length <= 0)
+        {
+            return;
+        }
+
+        const LLWString text = preeditor->getPreeditString();
+        if (position < 0 || position + length > (S32)text.length())
+        {
+            preeditor->resetPreedit();
+            return;
+        }
+
+        // This also runs while focus moves to another control (the editor loses
+        // focus first), so insert the text without relying on keyboard focus.
+        const LLWString committed = text.substr(position, length);
+        preeditor->resetPreedit();
+        // In overwrite mode the reset restores the characters the preedit covered;
+        // the committed text takes their place (none in insert mode).
+        const S32 restored = (S32)preeditor->getPreeditString().length() - ((S32)text.length() - length);
+        preeditor->replaceCommittedText(position, llmax(restored, 0), committed);
+    }
+}
+
 // For reasons of convenience, handle IME updates here.
 // This largely mirrors the old implementation, only sans the carbon parameters.
 void setMarkedText(unsigned short *unitext, unsigned int *selectedRange, unsigned int *replacementRange, long text_len, attributedStringInfo segments)
@@ -709,20 +852,36 @@ void setMarkedText(unsigned short *unitext, unsigned int *selectedRange, unsigne
     if (gWindowImplementation && gWindowImplementation->getPreeditor())
     {
         LLPreeditor *preeditor = gWindowImplementation->getPreeditor();
+        S32 marked_position = 0;
+        S32 marked_length = 0;
+        preeditor->getPreeditRange(&marked_position, &marked_length);
+        if (marked_length <= 0)
+        {
+            // A new composition.
+            sPreeditReplacesRange = false;
+        }
         preeditor->resetPreedit();
         // This should be a viable replacement for the kEventParamTextInputSendReplaceRange parameter.
-        if (replacementRange[0] < replacementRange[1])
+        // replacementRange is {location, length}; a zero length means there is nothing to replace.
+        if (replacementRange[1] > 0)
         {
             const LLWString& text = preeditor->getPreeditString();
             const S32 location = wstring_wstring_length_from_utf16_length(text, 0, replacementRange[0]);
             const S32 length = wstring_wstring_length_from_utf16_length(text, location, replacementRange[1]);
-            preeditor->markAsPreedit(location, length);
+            if (location >= 0 && length > 0 && location + length <= (S32)text.length())
+            {
+                // The marked text replaces that range, as in native text views; the
+                // preedit is then inserted where the removed text was.
+                preeditor->replaceCommittedText(location, length, LLWString());
+                sPreeditReplacesRange = true;
+            }
         }
 
         LLWString fix_str = utf16str_to_wstring(llutf16string(unitext, text_len));
 
         S32 caret_position = fix_str.length();
 
+        LLForceInsertMode insert_mode(sPreeditReplacesRange);
         preeditor->updatePreedit(fix_str, segments.seg_lengths, segments.seg_standouts, caret_position);
     }
 }

@@ -2300,7 +2300,15 @@ void LLLineEditor::setFocus( bool new_state )
         // fine on 1.15.0.2, since all prevalidate func reject any
         // non-ASCII characters.  I'm not sure on future versions,
         // however.
+#if LL_DARWIN
+        // Password fields are excluded as in updateAllowingLanguageInput(), so the input
+        // method can neither compose in them nor read their text.  Not on Windows: some
+        // input methods keep composing after being turned off there, and the composition
+        // is then shown unmasked in the input method's own window.
+        getWindow()->allowLanguageTextInput(this, !mPrevalidator && !mDrawAsterixes);
+#else
         getWindow()->allowLanguageTextInput(this, !mPrevalidator);
+#endif
     }
 }
 
@@ -2711,6 +2719,52 @@ void LLLineEditor::markAsPreedit(S32 position, S32 length)
 S32 LLLineEditor::getPreeditFontSize() const
 {
     return ll_round(mGLFont->getLineHeight() * LLUI::getScaleFactor().mV[VY]);
+}
+
+void LLLineEditor::replaceCommittedText(S32 position, S32 length, const LLWString &text)
+{
+    if (mReadOnly || position < 0 || length < 0 || position + length > mText.length())
+    {
+        return;
+    }
+
+    // Apply the same limits as typed characters, but to the edit as a whole.
+    LLWString new_text = mText.getWString();
+    new_text.replace(position, length, text);
+    bool allowed = prevalidateInput(text) &&
+        wstring_utf8_length(new_text) <= mMaxLengthBytes &&
+        (!mMaxLengthChars || (S32)new_text.length() <= mMaxLengthChars) &&
+        (!mPrevalidator || mPrevalidator.validate(new_text));
+    if (allowed && !mAllowEmoji)
+    {
+        for (llwchar c : text)
+        {
+            if (LLStringOps::isEmoji(c))
+            {
+                allowed = false;
+                break;
+            }
+        }
+    }
+    if (!allowed)
+    {
+        LLUI::getInstance()->reportBadKeystroke();
+        return;
+    }
+
+    deselect();
+    mText.erase(position, length);
+    mText.insert(position, text);
+    setCursor(position + (S32)text.length());
+
+    mFontBufferPreSelection.reset();
+    mFontBufferSelection.reset();
+    mFontBufferPostSelection.reset();
+
+    mKeystrokeTimer.reset();
+    onKeystroke();
+
+    mSpellCheckTimer.setTimerExpirySec(SPELLCHECK_DELAY);
 }
 
 void LLLineEditor::setReplaceNewlinesWithSpaces(bool replace)
