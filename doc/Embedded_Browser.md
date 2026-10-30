@@ -481,6 +481,21 @@ immediately:
   `SLCefProducer.exe` serves Chrome's remote-debugging-protocol DevTools UI
   on that port.
 
+## Producer version reporting
+
+Help > About's `LIBVLC_VERSION` and `EMBEDDED_LLCEFBROWSER_VERSION` fields are
+populated as soon as each producer launches (2026-10-29), not only after the
+first tab backed by that producer actually connects. This works over a new,
+slot-independent `kRequestVersion`/`kVersionInfo` opcode pair on the control
+channel (`cefshm_protocol.h`, all three copies) - `LLEmbeddedBrowser::
+requestProducerVersion(backend)` spawns a background thread right after
+`launchProducer()` succeeds in `init()`, so the Viewer can ask a just-started
+producer for its own version without creating a throwaway tab/slot just to
+get one. If either field is ever empty again, check the Viewer log for
+`requestProducerVersion` - it logs a distinct line for every outcome (claim
+timeout, send failure, no reply, or success with the version string), so the
+failure mode is never silent.
+
 ## Media Monitor: a live list of active media
 
 `LLFloaterMediaMonitor` (`indra/newview/llfloatermediamonitor.{h,cpp}`,
@@ -594,6 +609,22 @@ signature (confirmed valid via `Get-AuthenticodeSignature`) and its
 embedded manifest's execution level (confirmed `asInvoker`, no elevation
 requested). Neither was the issue.
 
+## Viewer proxy settings
+
+The Viewer's own HTTP/SOCKS proxy settings (`BrowserProxyEnabled`,
+`BrowserProxyAddress`, `BrowserProxyPort`) are passed through to
+`SLCefProducer.exe` as a `--proxy-server=` launch flag
+(`llembeddedbrowser.cpp`'s `launchProducer()`), so embedded-browser traffic
+honors the same proxy the rest of the Viewer does. LibVLC-backed media
+(`SLVlcProducer.exe`) does not go through this - LibVLC has its own, separate
+proxy-configuration surface, not wired up here.
+
+A more fundamental bug was found and fixed along the way (2026-10-29):
+`llCefBrowserLibInitOptions::noProxyServer` defaulted to `true`, with nothing
+ever overriding it, meaning the CEF producer could not use any proxy at all
+regardless of this setting - not just unconfigured, but structurally
+incapable of it until that default was corrected.
+
 ## Developer console
 
 An earlier attempt used CEF's own in-process DevTools popup
@@ -622,6 +653,19 @@ Rendering panel that opens, check "Frame Rendering Stats". This overlays a
 real-time FPS/dropped-frames/GPU-raster readout directly on the page,
 useful for checking the distance/priority render-throttling tiers above
 are actually taking effect on a given tab.
+
+## Link clicks: no real popup windows
+
+A `target="_blank"` link, an arbitrary unnamed/new target, or a
+`window.open()` call now navigates the same embedded-browser instance in
+place, rather than opening a second one (`llcefbrowser` 1.55.0, 2026-10-30).
+There is no real multi-window/multi-tab popup support here, so CEF's own
+`OnBeforePopup` loads the target URL directly into the browser's main frame
+and cancels the popup CEF would otherwise create. Before this fix, a popup
+click was instead forwarded up as a `click_href`-style event, which the
+Viewer's `LLWeb::loadURL()` turned into a brand new `web_content` floater
+every time (a fresh UUID per click meant a fresh floater instance) - the
+opposite of what a user clicking a same-page link generally expects.
 
 ## JS Bridge: page JS calling back into the Viewer
 
