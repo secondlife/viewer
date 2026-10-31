@@ -76,6 +76,7 @@
 								<button label="新增[FRAME]" name="add_frame"/>
 								<button label="載入[FRAME]" name="btn_load_frame"/>
 								<button label="刪除[FRAME]" name="delete_frame"/>
+								<button label="另存為[FRAME]..." name="btn_save_frame"/>
 							</layout_panel>
 						</layout_stack>
 					</panel>

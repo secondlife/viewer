@@ -76,6 +76,7 @@
 								<button label="[FRAME] Ekle" name="add_frame"/>
 								<button label="[FRAME] Yükle" name="btn_load_frame"/>
 								<button label="[FRAME] Sil" name="delete_frame"/>
+								<button label="[FRAME] olarak kaydet..." name="btn_save_frame"/>
 							</layout_panel>
 						</layout_stack>
 					</panel>

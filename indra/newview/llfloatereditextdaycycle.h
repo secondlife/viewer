@@ -113,6 +113,8 @@ private:
     //virtual void                onClickCloseBtn(bool app_quitting = false) override;
     //void                        onButtonImport();
     void                        onButtonLoadFrame();
+    void                        onButtonSaveFrame();
+    void                        onSaveFrameAsCommit(const LLSD& notification, const LLSD& response, const LLSettingsBase::ptr_t& settings);
     void                        onAddFrame();
     void                        onRemoveFrame();
     void                        onCloneTrack();
@@ -201,6 +203,7 @@ private:
     LLButton*                   mDeleteFrameButton;
     LLButton*                   mImportButton;
     LLButton*                   mLoadFrame;
+    LLButton*                   mSaveFrame;
     LLButton *                  mCloneTrack;
     LLButton *                  mLoadTrack;
     LLButton *                  mClearTrack;

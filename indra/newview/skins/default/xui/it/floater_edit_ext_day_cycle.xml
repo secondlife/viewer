@@ -76,6 +76,7 @@
 								<button label="Aggiungi [FRAME]" name="add_frame"/>
 								<button label="Carica [FRAME]" name="btn_load_frame"/>
 								<button label="Elimina [FRAME]" name="delete_frame"/>
+								<button label="Salva [FRAME] come..." name="btn_save_frame"/>
 							</layout_panel>
 						</layout_stack>
 					</panel>

@@ -494,6 +494,14 @@
                                         top_pad="0"
                                         left_delta="0"
                                         name="delete_frame" />
+                                <button
+                                        follows="left|top"
+                                        height="23"
+                                        width="135"
+                                        label="Save as [FRAME]..."
+                                        top_pad="0"
+                                        left_delta="0"
+                                        name="btn_save_frame" />
                             </layout_panel>
                         </layout_stack>
                     </panel>
