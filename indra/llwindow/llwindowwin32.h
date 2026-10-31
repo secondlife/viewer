@@ -185,6 +185,7 @@ protected:
     void    handleStartCompositionMessage();
     void    handleCompositionMessage(const LLImeCompositionSnapshot& snapshot);
     bool    handleImeRequests(WPARAM request, LPARAM param, LRESULT *result);
+    void    updateImeCache();
 
     // Additional function to request and hold a high-performance GPU on Windows 10+
     //
@@ -261,6 +262,36 @@ protected:
     LLRect          mLanguageTextInputAreaGL;
 
     LLPreeditor     *mPreeditor;
+
+    // WM_IME_REQUEST is answered synchronously on the window thread, which has no GL context and races with the main thread.
+    // The main thread keeps what the requests need here, see updateImeCache().
+    struct ImeLocation
+    {
+        bool        mValid = false;
+        LLCoordGL   mCaret;
+        LLRect      mBounds;
+        LLRect      mControl;
+    };
+    struct ImeCache
+    {
+        bool                        mValid = false;
+        ImeLocation                 mCursor;            // IMR_CANDIDATEWINDOW
+        LLWString                   mPreeditText;       // IMR_QUERYCHARPOSITION, preedit characters only
+        std::vector<ImeLocation>    mPreeditLocations;  // one per preedit character, plus one past the end
+        LLWString                   mFeedContext;       // IMR_DOCUMENTFEED, context without the preedit
+        S32                         mFeedPreedit = 0;   // preedit position in mFeedContext
+        LLWString                   mSelectionContext;  // IMR_RECONVERTSTRING, context around the selection
+        S32                         mSelectionContextOffset = 0; // position of mSelectionContext in the text
+        S32                         mSelect = 0;        // selection, in the text
+        S32                         mSelectLength = 0;
+
+        // What the cache was built from
+        LLPreeditor*                mPreeditor = nullptr;
+        S32                         mPreeditStart = 0;
+        S32                         mTextLength = 0;
+    };
+    LLMutex         mImeCacheMutex;
+    ImeCache        mImeCache;
 
     LLDragDropWin32* mDragDrop;
 
