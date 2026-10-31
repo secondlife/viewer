@@ -86,6 +86,7 @@ namespace {
     const std::string BTN_DELFRAME("delete_frame");
     const std::string BTN_IMPORT("btn_import");
     const std::string BTN_LOADFRAME("btn_load_frame");
+    const std::string BTN_SAVEFRAME("btn_save_frame");
     const std::string BTN_CLONETRACK("copy_track");
     const std::string BTN_LOADTRACK("load_track");
     const std::string BTN_CLEARTRACK("clear_track");
@@ -174,6 +175,7 @@ LLFloaterEditExtDayCycle::LLFloaterEditExtDayCycle(const LLSD &key) :
     mCurrentTimeLabel(nullptr),
     mImportButton(nullptr),
     mLoadFrame(nullptr),
+    mSaveFrame(nullptr),
     mSkyBlender(),
     mWaterBlender(),
     mScratchSky(),
@@ -214,6 +216,7 @@ bool LLFloaterEditExtDayCycle::postBuild()
     mCurrentTimeLabel = getChild<LLTextBox>(LBL_CURRENT_TIME, true);
     mImportButton = getChild<LLButton>(BTN_IMPORT, true);
     mLoadFrame = getChild<LLButton>(BTN_LOADFRAME, true);
+    mSaveFrame = getChild<LLButton>(BTN_SAVEFRAME, true);
     mCloneTrack = getChild<LLButton>(BTN_CLONETRACK, true);
     mLoadTrack = getChild<LLButton>(BTN_LOADTRACK, true);
     mClearTrack = getChild<LLButton>(BTN_CLEARTRACK, true);
@@ -228,6 +231,7 @@ bool LLFloaterEditExtDayCycle::postBuild()
     mDeleteFrameButton->setCommitCallback([this](LLUICtrl*, const LLSD&) { onRemoveFrame(); });
     mImportButton->setCommitCallback([this](LLUICtrl*, const LLSD&) { onButtonImport(); });
     mLoadFrame->setCommitCallback([this](LLUICtrl*, const LLSD&) { onButtonLoadFrame(); });
+    mSaveFrame->setCommitCallback([this](LLUICtrl*, const LLSD&) { onButtonSaveFrame(); });
 
     mCloneTrack->setCommitCallback([this](LLUICtrl*, const LLSD&) { onCloneTrack(); });
     mLoadTrack->setCommitCallback([this](LLUICtrl*, const LLSD&) { onLoadTrack();});
@@ -691,6 +695,71 @@ void LLFloaterEditExtDayCycle::onButtonApply(LLUICtrl *ctrl)
 void LLFloaterEditExtDayCycle::onButtonLoadFrame()
 {
     doOpenInventoryFloater((mCurrentTrack == LLSettingsDay::TRACK_WATER) ? LLSettingsType::ST_WATER : LLSettingsType::ST_SKY, LLUUID::null);
+}
+
+void LLFloaterEditExtDayCycle::onButtonSaveFrame()
+{
+    if (!mCurrentEdit || !mCanCopy || !mCanSave || !canUseInventory() || mIsPlaying)
+    {
+        return;
+    }
+
+    LLSettingsBase::ptr_t setting = mCurrentEdit->buildDerivedClone();
+    if (!setting)
+    {
+        LL_WARNS("ENVDAYEDIT") << "Unable to clone selected daycycle keyframe." << LL_ENDL;
+        return;
+    }
+
+    LLSD args;
+    args["DESC"] = setting->getName();
+    LLNotificationsUtil::add("SaveSettingAs", args, LLSD(), boost::bind(&LLFloaterEditExtDayCycle::onSaveFrameAsCommit, this, _1, _2, setting));
+}
+
+void LLFloaterEditExtDayCycle::onSaveFrameAsCommit(const LLSD& notification, const LLSD& response, const LLSettingsBase::ptr_t& settings)
+{
+    if (LLNotificationsUtil::getSelectedOption(notification, response) != 0 ||
+        !settings || !mCanCopy || !mCanSave || !canUseInventory())
+    {
+        return;
+    }
+
+    std::string settings_name = response["message"].asString();
+    LLInventoryObject::correctInventoryName(settings_name);
+    if (settings_name.empty())
+    {
+        settings_name = "Unnamed";
+    }
+
+    LLHandle<LLFloater> floater_handle = getHandle();
+    LLSettingsVOBase::inventory_result_fn callback = [floater_handle](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results)
+    {
+        if (!floater_handle.isDead())
+        {
+            LLFloaterEditExtDayCycle* floater = static_cast<LLFloaterEditExtDayCycle*>(floater_handle.get());
+            floater->LLFloaterEditEnvironmentBase::onInventoryCreated(asset_id, inventory_id, results);
+        }
+    };
+
+    LLUUID parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
+    if (mInventoryItem)
+    {
+        parent_id = mInventoryItem->getParentUUID();
+        U32 next_owner_perm = mInventoryItem->getPermissions().getMaskNextOwner();
+
+        const LLUUID& marketplace_id = gInventory.getMarketplaceListingsUUID();
+        if (marketplace_id == parent_id ||
+            gInventory.isObjectDescendentOf(mInventoryItem->getUUID(), gInventory.getLibraryRootFolderID()))
+        {
+            parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
+        }
+
+        LLSettingsVOBase::createInventoryItem(settings, next_owner_perm, parent_id, settings_name, callback);
+    }
+    else
+    {
+        LLSettingsVOBase::createInventoryItem(settings, parent_id, settings_name, callback);
+    }
 }
 
 void LLFloaterEditExtDayCycle::onAddFrame()
@@ -1171,6 +1240,7 @@ void LLFloaterEditExtDayCycle::updateLabels()
     mAddFrameButton->setLabelArg("[FRAME]", getString(label_arg));
     mDeleteFrameButton->setLabelArg("[FRAME]", getString(label_arg));
     mLoadFrame->setLabelArg("[FRAME]", getString(label_arg));
+    mSaveFrame->setLabelArg("[FRAME]", getString(label_arg));
 }
 
 void LLFloaterEditExtDayCycle::updateButtons()
@@ -1208,6 +1278,7 @@ void LLFloaterEditExtDayCycle::updateButtons()
     mAddFrameButton->setEnabled(can_manipulate && isAddingFrameAllowed());
     mDeleteFrameButton->setEnabled(can_manipulate && isRemovingFrameAllowed());
     mLoadFrame->setEnabled(can_manipulate);
+    mSaveFrame->setEnabled(canUseInventory() && mCanCopy && mCanSave && mCurrentEdit && !mIsPlaying);
 
     bool enable_play = (bool)mEditDay;
     childSetEnabled(BTN_PLAY, enable_play);
