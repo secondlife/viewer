@@ -82,10 +82,14 @@ BOOL CALLBACK di8_list_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr,
         // We always include the device if it is from 3DConnexion, otherwise
         // if the GameControl feature is enabled then we perfer to route other devices to it.
         std::string product_name = ll_convert<std::string>(std::wstring(device_instance_ptr->tszProductName));
-        bool include_device = LLViewerJoystick::is3DConnexionDevice(product_name);
+        // For HID devices DirectInput encodes the USB ids in guidProduct as MAKELONG(VID, PID)
+        U16 vendor_id = LOWORD(device_instance_ptr->guidProduct.Data1);
+        U16 product_id = HIWORD(device_instance_ptr->guidProduct.Data1);
+        bool include_device = LLViewerJoystick::is3DConnexionDevice(vendor_id, product_id, product_name);
 
         if (include_device)
         {
+            product_name = LLViewerJoystick::get3DConnexionDeviceName(vendor_id, product_id, product_name);
             S32 size = sizeof(GUID);
             LLSD::Binary data; //just an std::vector
             data.resize(size);
@@ -313,8 +317,8 @@ void LLFloaterJoystick::refreshListOfDevices()
 #endif
         // We always include the device if it is from 3DConnexion, otherwise we only
         // support the device in this context when GameControl feature is disabled.
-        std::string desc = LLViewerJoystick::getInstance()->getDescription();
-        bool include_device = LLViewerJoystick::is3DConnexionDevice(desc);
+        std::string desc = joystick->getDescription();
+        bool include_device = joystick->isLikeSpaceNavigator();
 
         if (include_device)
         {
