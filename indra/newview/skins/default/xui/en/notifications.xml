@@ -2229,6 +2229,54 @@ Please make sure you own all of the selected objects.
 
   <notification
    icon="alertmodal.tga"
+   name="DropUploadUnsupported"
+   type="alertmodal">
+The file extension [EXTENSION] is not supported for drag-and-drop upload.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DropUploadFileUnavailable"
+   type="alertmodal">
+The dropped file could not be accessed. Check that it still exists and that you have permission to read it.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DropUploadModelBusy"
+   type="alertmodal">
+The model upload preview is busy. Wait for it to finish before dropping another model.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DropUploadModelUnavailable"
+   type="alertmodal">
+The model upload preview could not be opened.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DropUploadSingleFileOnly"
+   type="alertmodal">
+Drop one file at a time.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DropUploadLocalFilesDisabled"
+   type="alertmodal">
+Local file access is disabled. Enable local file system browsing in Preferences to upload files.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="NoFileExtension"
    type="alertmodal">
 No file extension for the file: &apos;[FILE]&apos;

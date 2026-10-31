@@ -385,7 +385,7 @@ void LLMediaFilePicker::notify(const std::vector<std::string>& filenames)
 //============================================================================
 
 #if LL_WINDOWS
-static std::string SOUND_EXTENSIONS = "wav";
+static std::string SOUND_EXTENSIONS = "wav ogg";
 static std::string IMAGE_EXTENSIONS = "tga bmp jpg jpeg png";
 static std::string ANIM_EXTENSIONS =  "bvh anim";
 static std::string XML_EXTENSIONS = "xml";
@@ -501,18 +501,24 @@ void upload_single_file(
         args["dest"] = dest;
         if (type == LLFilePicker::FFLOAD_WAV)
         {
-            // pre-qualify wavs to make sure the format is acceptable
-            std::string error_msg;
-            if (check_for_invalid_wav_formats(filename, error_msg))
+            std::string extension = gDirUtilp->getExtension(filename);
+            LLStringUtil::toLower(extension);
+            if (extension == "ogg")
             {
-                LL_INFOS() << error_msg << ": " << filename << LL_ENDL;
-                LLSD args;
-                args["FILE"] = filename;
-                LLNotificationsUtil::add(error_msg, args);
-                return;
+                LLFloaterReg::showInstance("upload_sound", args);
             }
             else
             {
+                // pre-qualify wavs to make sure the format is acceptable
+                std::string error_msg;
+                if (check_for_invalid_wav_formats(filename, error_msg))
+                {
+                    LL_INFOS() << error_msg << ": " << filename << LL_ENDL;
+                    LLSD args;
+                    args["FILE"] = filename;
+                    LLNotificationsUtil::add(error_msg, args);
+                    return;
+                }
                 LLFloaterReg::showInstance("upload_sound", args);
             }
         }

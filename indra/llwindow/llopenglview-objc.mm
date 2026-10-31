@@ -596,16 +596,43 @@ attributedStringInfo getSegments(NSAttributedString *str)
     NSPasteboard *pboard;
     NSDragOperation sourceDragMask;
 
+    mLastDraggedUrl.clear();
+
     sourceDragMask = [sender draggingSourceOperationMask];
 
     pboard = [sender draggingPasteboard];
 
     if ([[pboard types] containsObject:NSPasteboardTypeURL])
     {
-        if (sourceDragMask & NSDragOperationLink) {
-            NSURL *fileUrl = [[pboard readObjectsForClasses:[NSArray arrayWithObject:[NSURL class]] options:[NSDictionary dictionary]] objectAtIndex:0];
+        NSArray *urls = [pboard readObjectsForClasses:[NSArray arrayWithObject:[NSURL class]] options:[NSDictionary dictionary]];
+        if ([urls count] == 1) {
+            NSURL *fileUrl = [urls objectAtIndex:0];
+            NSDragOperation operation = NSDragOperationNone;
+            if ([fileUrl isFileURL])
+            {
+                if (sourceDragMask & NSDragOperationCopy)
+                {
+                    operation = NSDragOperationCopy;
+                }
+                else if (sourceDragMask & NSDragOperationLink)
+                {
+                    operation = NSDragOperationLink;
+                }
+            }
+            else if (sourceDragMask & NSDragOperationLink)
+            {
+                operation = NSDragOperationLink;
+            }
+            else if (sourceDragMask & NSDragOperationCopy)
+            {
+                operation = NSDragOperationCopy;
+            }
+            if (operation == NSDragOperationNone)
+            {
+                return NSDragOperationNone;
+            }
             mLastDraggedUrl = [[fileUrl absoluteString] UTF8String];
-            return NSDragOperationLink;
+            return operation;
         }
     }
     return NSDragOperationNone;
@@ -614,8 +641,20 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (NSDragOperation)draggingUpdated:(id <NSDraggingInfo>)sender
 {
     callHandleDragUpdated(mLastDraggedUrl);
-
-    return NSDragOperationLink;
+    NSDragOperation sourceMask = [sender draggingSourceOperationMask];
+    if (mLastDraggedUrl.rfind("file://", 0) == 0 && (sourceMask & NSDragOperationCopy))
+    {
+        return NSDragOperationCopy;
+    }
+    if (sourceMask & NSDragOperationLink)
+    {
+        return NSDragOperationLink;
+    }
+    if (sourceMask & NSDragOperationCopy)
+    {
+        return NSDragOperationCopy;
+    }
+    return NSDragOperationNone;
 }
 
 - (void) draggingExited:(id<NSDraggingInfo>)sender
