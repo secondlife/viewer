@@ -51,7 +51,7 @@
 LLFilePicker LLFilePicker::sInstance;
 
 #if LL_WINDOWS && !LL_SDL_WINDOW
-#define SOUND_FILTER L"Sounds (*.wav)\0*.wav\0"
+#define SOUND_FILTER L"Sounds (*.wav; *.ogg)\0*.wav;*.ogg\0"
 #define IMAGE_FILTER L"Images (*.tga; *.bmp; *.jpg; *.jpeg; *.png)\0*.tga;*.bmp;*.jpg;*.jpeg;*.png\0"
 #define ANIM_FILTER L"Animations (*.bvh; *.anim)\0*.bvh;*.anim\0"
 #define COLLADA_FILTER L"Scene (*.dae)\0*.dae\0"
@@ -180,13 +180,13 @@ namespace
         case LLFilePicker::FFLOAD_ALL:
         case LLFilePicker::FFLOAD_EXE:
             filter_vec.push_back({ "All Files (*.*)", "*" });
-            filter_vec.push_back({ "Sounds (*.wav)", "wav" });
+            filter_vec.push_back({ "Sounds (*.wav; *.ogg)", "wav;ogg" });
             filter_vec.push_back({ "Images (*.tga; *.bmp; *.jpg; *.jpeg; *.png)", "tga;bmp;jpg;jpeg;png" });
             filter_vec.push_back({ "Animations (*.bvh; *.anim)", "bvh;anim" });
             filter_vec.push_back({ "GLTF Files (*.gltf; *.glb)", "gltf;glb" });
             break;
         case LLFilePicker::FFLOAD_WAV:
-            filter_vec.push_back({ "Sounds (*.wav)", "wav" });
+            filter_vec.push_back({ "Sounds (*.wav; *.ogg)", "wav;ogg" });
             break;
         case LLFilePicker::FFLOAD_IMAGE:
             filter_vec.push_back({ "Images (*.tga; *.bmp; *.jpg; *.jpeg; *.png)", "tga;bmp;jpg;jpeg;png" });
@@ -1106,6 +1106,7 @@ std::unique_ptr<std::vector<std::string>> LLFilePicker::navOpenFilterProc(ELoadF
             break;
         case FFLOAD_WAV:
             allowedv->push_back("wav");
+            allowedv->push_back("ogg");
             break;
         case FFLOAD_ANIM:
             allowedv->push_back("bvh");

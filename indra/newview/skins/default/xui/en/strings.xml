@@ -4,6 +4,14 @@
      For example, the strings used in avatar chat bubbles, and strings
      that are returned from one component and may appear in many places-->
 <strings>
+  <string name="DragDropUploadHint">Drop one supported file to upload</string>
+  <string name="DragDropUploadHintType">Drop [TYPE] to open its upload dialog</string>
+  <string name="DragDropUploadUnsupportedHint">Unsupported file extension: [EXTENSION]</string>
+  <string name="DragDropUploadDisabledHint">Local file access is disabled in Preferences</string>
+  <string name="DragDropUploadImage">an image</string>
+  <string name="DragDropUploadSound">a sound</string>
+  <string name="DragDropUploadAnimation">an animation</string>
+  <string name="DragDropUploadModel">a 3D model</string>
 
 	<!-- Default Args - these arguments will be replaced in all strings -->
 	<string name="SECOND_LIFE">Second Life</string>

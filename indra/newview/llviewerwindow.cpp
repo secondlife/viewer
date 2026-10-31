@@ -51,6 +51,7 @@
 #include "llviewquery.h"
 #include "llxmltree.h"
 #include "llslurl.h"
+#include "lluri.h"
 #include "llrender.h"
 
 #include "stringize.h"
@@ -100,11 +101,13 @@
 #include "llface.h"
 #include "llfeaturemanager.h"
 #include "llfilepicker.h"
+#include "llfile.h"
 #include "llfirstuse.h"
 #include "llfloater.h"
 #include "llfloaterbuyland.h"
 #include "llfloatercamera.h"
 #include "llfloaterland.h"
+#include "llfloatermodelpreview.h"
 #include "llfloaterinspect.h"
 #include "llfloatermap.h"
 #include "llfloaternamedesc.h"
@@ -1279,6 +1282,136 @@ bool LLViewerWindow::handleMiddleMouseDown(LLWindow *window,  LLCoordGL pos, MAS
 LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *window, LLCoordGL pos, MASK mask, LLWindowCallbacks::DragNDropAction action, std::string data)
 {
     LLWindowCallbacks::DragNDropResult result = LLWindowCallbacks::DND_NONE;
+
+    // File URLs are used by macOS; Windows and SDL provide filesystem paths.
+    std::string file_path = data;
+    const bool is_file_url = file_path.rfind("file://", 0) == 0;
+    if (is_file_url)
+    {
+        LLURI file_uri(file_path);
+        file_path = LLURI::unescape(file_uri.path());
+    }
+    if (file_path.find('\0') != std::string::npos)
+    {
+        return LLWindowCallbacks::DND_NONE;
+    }
+
+    std::string extension = gDirUtilp->getExtension(file_path);
+    LLStringUtil::toLower(extension);
+    if (data.empty() && action == LLWindowCallbacks::DNDA_DROPPED)
+    {
+        LLNotificationsUtil::add("DropUploadSingleFileOnly");
+        return LLWindowCallbacks::DND_NONE;
+    }
+
+    LLFilePicker::ELoadFilter upload_filter = LLFilePicker::FFLOAD_ALL;
+    std::string upload_kind;
+    bool is_model = false;
+    if (extension == "jpg" || extension == "jpeg" || extension == "png" || extension == "bmp" || extension == "tga")
+    {
+        upload_filter = LLFilePicker::FFLOAD_IMAGE;
+        upload_kind = LLTrans::getString("DragDropUploadImage");
+    }
+    else if (extension == "wav" || extension == "ogg")
+    {
+        upload_filter = LLFilePicker::FFLOAD_WAV;
+        upload_kind = LLTrans::getString("DragDropUploadSound");
+    }
+    else if (extension == "bvh" || extension == "anim")
+    {
+        upload_filter = LLFilePicker::FFLOAD_ANIM;
+        upload_kind = LLTrans::getString("DragDropUploadAnimation");
+    }
+    else if (extension == "dae")
+    {
+        is_model = true;
+        upload_kind = LLTrans::getString("DragDropUploadModel");
+    }
+
+    const bool has_file_path = !file_path.empty() && LLFile::isfile(file_path);
+    if (has_file_path || is_file_url || (file_path.empty() && action != LLWindowCallbacks::DNDA_DROPPED))
+    {
+        if (action == LLWindowCallbacks::DNDA_START_TRACKING || action == LLWindowCallbacks::DNDA_TRACK)
+        {
+            LLRect tip_rect(pos.mX, pos.mY + 1, pos.mX + 1, pos.mY);
+            std::string hint;
+            if (has_file_path && !gSavedSettings.getBOOL("LocalFileSystemBrowsingEnabled"))
+            {
+                hint = LLTrans::getString("DragDropUploadDisabledHint");
+            }
+            else if (has_file_path && upload_kind.empty())
+            {
+                hint = LLTrans::getString("DragDropUploadUnsupportedHint", LLSDMap("EXTENSION", extension));
+            }
+            else if (has_file_path)
+            {
+                hint = LLTrans::getString("DragDropUploadHintType", LLSDMap("TYPE", upload_kind));
+            }
+            else
+            {
+                hint = LLTrans::getString("DragDropUploadHint");
+            }
+            LLToolTipMgr::instance().show(LLToolTip::Params()
+                .message(hint)
+                .sticky_rect(tip_rect)
+                .delay_time(0.f)
+                .visible_time_far(0.5f));
+            return LLWindowCallbacks::DND_COPY;
+        }
+
+        if (action == LLWindowCallbacks::DNDA_DROPPED)
+        {
+            if (!has_file_path)
+            {
+                LLNotificationsUtil::add("DropUploadFileUnavailable");
+                return LLWindowCallbacks::DND_NONE;
+            }
+            if (upload_kind.empty())
+            {
+                LLNotificationsUtil::add("DropUploadUnsupported", LLSDMap("EXTENSION", extension));
+                return LLWindowCallbacks::DND_NONE;
+            }
+            if (!gSavedSettings.getBOOL("LocalFileSystemBrowsingEnabled"))
+            {
+                LLNotificationsUtil::add("DropUploadLocalFilesDisabled");
+                return LLWindowCallbacks::DND_NONE;
+            }
+
+            if (gAgentCamera.cameraMouselook())
+            {
+                gAgentCamera.changeCameraToDefault();
+            }
+            if (is_model)
+            {
+                if (!LLConvexDecomposition::isFunctional())
+                {
+                    if (gGLManager.mIsApple)
+                    {
+                        LLNotificationsUtil::add("ModelUploaderMissingPhysicsApple");
+                        return LLWindowCallbacks::DND_NONE;
+                    }
+                    LLNotificationsUtil::add("ModelUploaderMissingPhysics");
+                }
+                LLFloaterModelPreview* preview = LLFloaterReg::showTypedInstance<LLFloaterModelPreview>("upload_model");
+                if (!preview)
+                {
+                    LLNotificationsUtil::add("DropUploadModelUnavailable");
+                    return LLWindowCallbacks::DND_NONE;
+                }
+                if (preview->isModelLoading())
+                {
+                    LLNotificationsUtil::add("DropUploadModelBusy");
+                    return LLWindowCallbacks::DND_NONE;
+                }
+                preview->loadModel(LLModel::LOD_HIGH, file_path);
+            }
+            else
+            {
+                upload_single_file(std::vector<std::string>{file_path}, upload_filter, LLUUID::null);
+            }
+            return LLWindowCallbacks::DND_COPY;
+        }
+    }
 
     const bool prim_media_dnd_enabled = gSavedSettings.getBOOL("PrimMediaDragNDrop");
     const bool slurl_dnd_enabled = gSavedSettings.getBOOL("SLURLDragNDrop");

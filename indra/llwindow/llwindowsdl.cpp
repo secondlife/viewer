@@ -1249,6 +1249,53 @@ SDL_AppResult LLWindowSDL::handleEvent(const SDL_Event& event)
 {
     switch(event.type)
     {
+        case SDL_EVENT_DROP_BEGIN:
+        {
+            mDropFile.clear();
+            mMultipleDropFiles = false;
+            mDropPosition = LLCoordGL(0, 0);
+            mCallbacks->handleDragNDrop(this, mDropPosition, gKeyboard->currentMask(true),
+                LLWindowCallbacks::DNDA_START_TRACKING, std::string());
+            break;
+        }
+
+        case SDL_EVENT_DROP_POSITION:
+        {
+            LLCoordWindow winCoord(llfloor(event.drop.x), llfloor(event.drop.y));
+            convertCoords(winCoord, &mDropPosition);
+            mCallbacks->handleDragNDrop(this, mDropPosition, gKeyboard->currentMask(true),
+                LLWindowCallbacks::DNDA_TRACK, std::string());
+            break;
+        }
+
+        case SDL_EVENT_DROP_FILE:
+        {
+            if (event.drop.data)
+            {
+                if (mDropFile.empty())
+                {
+                    mDropFile = event.drop.data;
+                }
+                else
+                {
+                    mMultipleDropFiles = true;
+                }
+            }
+            break;
+        }
+
+        case SDL_EVENT_DROP_COMPLETE:
+        {
+            const std::string file_path = mMultipleDropFiles ? std::string() : mDropFile;
+            mCallbacks->handleDragNDrop(this, mDropPosition, gKeyboard->currentMask(true),
+                LLWindowCallbacks::DNDA_DROPPED, file_path);
+            mCallbacks->handleDragNDrop(this, mDropPosition, gKeyboard->currentMask(true),
+                LLWindowCallbacks::DNDA_STOP_TRACKING, std::string());
+            mDropFile.clear();
+            mMultipleDropFiles = false;
+            break;
+        }
+
         case SDL_EVENT_MOUSE_MOTION:
         {
             LLCoordWindow winCoord(llfloor(event.motion.x), llfloor(event.motion.y));

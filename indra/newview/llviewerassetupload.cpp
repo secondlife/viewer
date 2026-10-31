@@ -33,6 +33,7 @@
 #include "lltrans.h"
 #include "lluuid.h"
 #include "llvorbisencode.h"
+#include "llfile.h"
 #include "lluploaddialog.h"
 #include "llnotificationsutil.h"
 #include "llagent.h"
@@ -340,6 +341,11 @@ bool LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(const std::string& e
         asset_type = LLAssetType::AT_SOUND;
         succ = true;
     }
+    else if (exten_lc == "ogg")
+    {
+        asset_type = LLAssetType::AT_SOUND;
+        succ = true;
+    }
     else if (exten_lc == "anim")
     {
         asset_type = LLAssetType::AT_ANIMATION;
@@ -394,6 +400,7 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
     std::string filename = gDirUtilp->getTempFilename();
 
     std::string exten = gDirUtilp->getExtension(getFileName());
+    LLStringUtil::toLower(exten);
 
     LLAssetType::EType assetType = LLAssetType::AT_NONE;
     U32 codec = IMG_CODEC_INVALID;
@@ -436,27 +443,35 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
     }
     else if (assetType == LLAssetType::AT_SOUND)
     {
-        S32 encodeResult = 0;
-
-        LL_INFOS() << "Attempting to encode wav as an ogg file" << LL_ENDL;
-
-        encodeResult = encode_vorbis_file(getFileName(), filename);
-
-        if (LLVORBISENC_NOERR != encodeResult)
+        if (exten == "ogg")
         {
-            switch (encodeResult)
+            // Ogg Vorbis is already in the format expected by the asset service.
+            if (!LLFile::copy(getFileName(), filename))
             {
-            case LLVORBISENC_DEST_OPEN_ERR:
-                errorMessage = llformat("Couldn't open temporary compressed sound file for writing: %s\n", filename.c_str());
+                errorMessage = llformat("Couldn't copy Ogg Vorbis sound file to temporary path: %s\n", filename.c_str());
                 errorLabel = "CannotOpenTemporarySoundFile";
-                break;
-
-            default:
-                errorMessage = llformat("Unknown vorbis encode failure on: %s\n", getFileName().c_str());
-                errorLabel = "UnknownVorbisEncodeFailure";
-                break;
+                error = true;
             }
-            error = true;
+        }
+        else
+        {
+            LL_INFOS() << "Attempting to encode wav as an ogg file" << LL_ENDL;
+
+            S32 encodeResult = encode_vorbis_file(getFileName(), filename);
+            if (LLVORBISENC_NOERR != encodeResult)
+            {
+                if (encodeResult == LLVORBISENC_DEST_OPEN_ERR)
+                {
+                    errorMessage = llformat("Couldn't open temporary compressed sound file for writing: %s\n", filename.c_str());
+                    errorLabel = "CannotOpenTemporarySoundFile";
+                }
+                else
+                {
+                    errorMessage = llformat("Unknown vorbis encode failure on: %s\n", getFileName().c_str());
+                    errorLabel = "UnknownVorbisEncodeFailure";
+                }
+                error = true;
+            }
         }
     }
     else if (exten == "bvh")
