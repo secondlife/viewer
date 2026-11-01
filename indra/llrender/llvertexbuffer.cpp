@@ -1176,6 +1176,12 @@ void LLVertexBuffer::destroyGLBuffer()
     if (mGLBuffer || mMappedData)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+        // The pool hands this name straight to the next buffer of the same size, which
+        // would then skip binding and setupVertexBuffer() and draw with our attribute offsets.
+        if (mGLBuffer && mGLBuffer == sGLRenderBuffer)
+        {
+            sGLRenderBuffer = 0;
+        }
         //llassert(sVBOPool);
         if (sVBOPool)
         {
@@ -1193,6 +1199,11 @@ void LLVertexBuffer::destroyGLIndices()
     if (mGLIndices || mMappedIndexData)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
+        // Same for indices: the next owner of this name must bind it.
+        if (mGLIndices && mGLIndices == sGLRenderIndices)
+        {
+            sGLRenderIndices = 0;
+        }
         //llassert(sVBOPool);
         if (sVBOPool)
         {
