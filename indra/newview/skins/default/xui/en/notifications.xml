@@ -2277,6 +2277,14 @@ Local file access is disabled. Enable local file system browsing in Preferences 
 
   <notification
    icon="alertmodal.tga"
+   name="DropUploadNotReady"
+   type="alertmodal">
+File uploads are unavailable until the viewer has finished connecting to a region.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="NoFileExtension"
    type="alertmodal">
 No file extension for the file: &apos;[FILE]&apos;

@@ -51,7 +51,6 @@
 #include "llviewquery.h"
 #include "llxmltree.h"
 #include "llslurl.h"
-#include "lluri.h"
 #include "llrender.h"
 
 #include "stringize.h"
@@ -1283,14 +1282,8 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
 {
     LLWindowCallbacks::DragNDropResult result = LLWindowCallbacks::DND_NONE;
 
-    // File URLs are used by macOS; Windows and SDL provide filesystem paths.
+    // All supported window backends provide filesystem paths for local files.
     std::string file_path = data;
-    const bool is_file_url = file_path.rfind("file://", 0) == 0;
-    if (is_file_url)
-    {
-        LLURI file_uri(file_path);
-        file_path = LLURI::unescape(file_uri.path());
-    }
     if (file_path.find('\0') != std::string::npos)
     {
         return LLWindowCallbacks::DND_NONE;
@@ -1329,7 +1322,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
     }
 
     const bool has_file_path = !file_path.empty() && LLFile::isfile(file_path);
-    if (has_file_path || is_file_url || (file_path.empty() && action != LLWindowCallbacks::DNDA_DROPPED))
+    if (has_file_path || (file_path.empty() && action != LLWindowCallbacks::DNDA_DROPPED))
     {
         if (action == LLWindowCallbacks::DNDA_START_TRACKING || action == LLWindowCallbacks::DNDA_TRACK)
         {
@@ -1374,6 +1367,11 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
             if (!gSavedSettings.getBOOL("LocalFileSystemBrowsingEnabled"))
             {
                 LLNotificationsUtil::add("DropUploadLocalFilesDisabled");
+                return LLWindowCallbacks::DND_NONE;
+            }
+            if (LLStartUp::getStartupState() < STATE_STARTED)
+            {
+                LLNotificationsUtil::add("DropUploadNotReady");
                 return LLWindowCallbacks::DND_NONE;
             }
 

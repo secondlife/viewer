@@ -258,7 +258,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (id) initWithFrame:(NSRect)frame withSamples:(NSUInteger)samples andVsync:(BOOL)vsync
 {
-    [self registerForDraggedTypes:[NSArray arrayWithObject:NSPasteboardTypeURL]];
+    [self registerForDraggedTypes:[NSArray arrayWithObjects:NSPasteboardTypeURL, NSPasteboardTypeFileURL, nil]];
+    mLastDraggedFile = false;
     [self initWithFrame:frame];
 
     // Initialize with a default "safe" pixel format that will work with versions dating back to OS X 10.6.
@@ -597,12 +598,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
     NSDragOperation sourceDragMask;
 
     mLastDraggedUrl.clear();
+    mLastDraggedFile = false;
 
     sourceDragMask = [sender draggingSourceOperationMask];
 
     pboard = [sender draggingPasteboard];
 
-    if ([[pboard types] containsObject:NSPasteboardTypeURL])
+    if ([[pboard types] containsObject:NSPasteboardTypeURL] ||
+        [[pboard types] containsObject:NSPasteboardTypeFileURL])
     {
         NSArray *urls = [pboard readObjectsForClasses:[NSArray arrayWithObject:[NSURL class]] options:[NSDictionary dictionary]];
         if ([urls count] == 1) {
@@ -631,7 +634,22 @@ attributedStringInfo getSegments(NSAttributedString *str)
             {
                 return NSDragOperationNone;
             }
-            mLastDraggedUrl = [[fileUrl absoluteString] UTF8String];
+            mLastDraggedFile = [fileUrl isFileURL];
+            if (mLastDraggedFile)
+            {
+                NSString *filePath = [fileUrl path];
+                const char *utf8Path = [filePath UTF8String];
+                if (!utf8Path || !*utf8Path)
+                {
+                    mLastDraggedFile = false;
+                    return NSDragOperationNone;
+                }
+                mLastDraggedUrl.assign(utf8Path);
+            }
+            else
+            {
+                mLastDraggedUrl = [[fileUrl absoluteString] UTF8String];
+            }
             return operation;
         }
     }
@@ -642,7 +660,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 {
     callHandleDragUpdated(mLastDraggedUrl);
     NSDragOperation sourceMask = [sender draggingSourceOperationMask];
-    if (mLastDraggedUrl.rfind("file://", 0) == 0 && (sourceMask & NSDragOperationCopy))
+    if (mLastDraggedFile && (sourceMask & NSDragOperationCopy))
     {
         return NSDragOperationCopy;
     }

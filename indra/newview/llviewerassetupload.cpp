@@ -445,8 +445,15 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
     {
         if (exten == "ogg")
         {
-            // Ogg Vorbis is already in the format expected by the asset service.
-            if (!LLFile::copy(getFileName(), filename))
+            std::string ogg_error;
+            if (check_for_invalid_ogg_formats(getFileName(), ogg_error) != LLVORBISENC_NOERR)
+            {
+                errorMessage = ogg_error;
+                errorLabel = "ProblemWithFile";
+                error = true;
+            }
+            // Valid Ogg Vorbis is already in the format expected by the asset service.
+            else if (!LLFile::copy(getFileName(), filename))
             {
                 errorMessage = llformat("Couldn't copy Ogg Vorbis sound file to temporary path: %s\n", filename.c_str());
                 errorLabel = "CannotOpenTemporarySoundFile";

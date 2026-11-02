@@ -27,6 +27,7 @@
 #include "linden_common.h"
 
 #include "vorbis/vorbisenc.h"
+#include "vorbis/vorbisfile.h"
 
 #include "llvorbisencode.h"
 #include "llerror.h"
@@ -164,6 +165,74 @@ S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& erro
     }
 
     return(LLVORBISENC_NOERR);
+}
+
+S32 check_for_invalid_ogg_formats(const std::string& in_fname, std::string& error_msg)
+{
+    error_msg.clear();
+
+    OggVorbis_File vorbis_file{};
+    if (ov_fopen(in_fname.c_str(), &vorbis_file) < 0)
+    {
+        error_msg = "File is not a valid Ogg Vorbis stream.";
+        return LLVORBISENC_OGG_FORMAT_ERR;
+    }
+
+    S32 result = LLVORBISENC_NOERR;
+    long stream_count = ov_streams(&vorbis_file);
+    ogg_int64_t total_samples = 0;
+
+    if (stream_count <= 0)
+    {
+        error_msg = "File does not contain an Ogg Vorbis stream.";
+        result = LLVORBISENC_OGG_FORMAT_ERR;
+    }
+    else
+    {
+        for (long stream = 0; stream < stream_count; ++stream)
+        {
+            vorbis_info *info = ov_info(&vorbis_file, stream);
+            if (!info)
+            {
+                error_msg = "File does not contain valid Ogg Vorbis stream information.";
+                result = LLVORBISENC_OGG_FORMAT_ERR;
+                break;
+            }
+
+            // The viewer's sound decoder writes a mono, 44.1 kHz WAV header.
+            if (info->channels != 1)
+            {
+                error_msg = "Ogg Vorbis sound must be mono.";
+                result = LLVORBISENC_MULTICHANNEL_ERR;
+                break;
+            }
+            if (info->rate != static_cast<long>(LLVORBIS_CLIP_SAMPLE_RATE))
+            {
+                error_msg = "Ogg Vorbis sound must use a 44.1 kHz sample rate.";
+                result = LLVORBISENC_UNSUPPORTED_SAMPLE_RATE;
+                break;
+            }
+
+            ogg_int64_t stream_samples = ov_pcm_total(&vorbis_file, stream);
+            if (stream_samples <= 0)
+            {
+                error_msg = "Ogg Vorbis sound does not contain valid audio samples.";
+                result = LLVORBISENC_OGG_FORMAT_ERR;
+                break;
+            }
+            total_samples += stream_samples;
+        }
+    }
+
+    if (result == LLVORBISENC_NOERR &&
+        total_samples > static_cast<ogg_int64_t>(LLVORBIS_CLIP_MAX_TIME * LLVORBIS_CLIP_SAMPLE_RATE))
+    {
+        error_msg = "Ogg Vorbis sound is longer than 30 seconds.";
+        result = LLVORBISENC_CLIP_TOO_LONG;
+    }
+
+    ov_clear(&vorbis_file);
+    return result;
 }
 
 S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname)

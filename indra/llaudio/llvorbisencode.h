@@ -39,6 +39,7 @@ const S32 LLVORBISENC_UNSUPPORTED_SAMPLE_RATE      = 8; // unsupported sample ra
 const S32 LLVORBISENC_UNSUPPORTED_WORD_SIZE        = 9; // unsupported word size
 const S32 LLVORBISENC_CLIP_TOO_LONG                = 10; // source file is too long
 const S32 LLVORBISENC_CHUNK_SIZE_ERR               = 11; // chunk size is wrong
+const S32 LLVORBISENC_OGG_FORMAT_ERR               = 12; // not a valid Ogg Vorbis stream
 
 const F32 LLVORBIS_CLIP_MAX_TIME                               = 30.0f;
 const U8  LLVORBIS_CLIP_MAX_CHANNELS                   = 2;
@@ -53,6 +54,7 @@ const size_t LLVORBIS_CLIP_REJECT_SAMPLES              = LLVORBIS_CLIP_MAX_SAMPL
 const size_t LLVORBIS_CLIP_REJECT_SIZE                 = LLVORBIS_CLIP_MAX_SAMPLE_DATA * 3;
 
 S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& error_msg);
+S32 check_for_invalid_ogg_formats(const std::string& in_fname, std::string& error_msg);
 S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname);
 
 #endif
