@@ -89,6 +89,10 @@ public:
     {
 #if LL_WINDOWS
         TerminateThread(mNativeHandle, 0);
+        // TerminateThread is asynchronous
+        // Block here until the OS confirms the thread
+        // has truly exited to avoid a use-after-free race.
+        WaitForSingleObject(mNativeHandle, INFINITE);
 #else
         pthread_cancel(mNativeHandle);
 #endif

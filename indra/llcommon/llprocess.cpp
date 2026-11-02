@@ -546,6 +546,11 @@ LLProcessPtr LLProcess::create(const LLSDOrParams& params)
 {
     try
     {
+#if LL_DARWIN
+        // On mac os X, the child process must be created on the main thread to avoid a fork-lock deadlock.
+        assert_main_thread();
+#endif // LL_DARWIN
+
         // Construct and then register the mainloop connection separately.
         // connectMainloop() calls shared_from_this(), which requires the
         // shared_ptr control block to be fully initialized — this is only true
