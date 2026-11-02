@@ -26,6 +26,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llconversationloglist.h"
+#include "llchatservicehistory.h"
 #include "llfiltereditor.h"
 #include "llfloaterconversationlog.h"
 #include "llfloaterreg.h"
@@ -36,6 +37,7 @@ LLFloaterConversationLog::LLFloaterConversationLog(const LLSD& key)
     mConversationLogList(NULL)
 {
     mCommitCallbackRegistrar.add("CallLog.Action",  boost::bind(&LLFloaterConversationLog::onCustomAction,  this, _2));
+    mEnableCallbackRegistrar.add("CallLog.Enable",  boost::bind(&LLFloaterConversationLog::isActionEnabled, this, _2));
     mEnableCallbackRegistrar.add("CallLog.Check",   boost::bind(&LLFloaterConversationLog::isActionChecked, this, _2));
 }
 
@@ -106,12 +108,20 @@ void LLFloaterConversationLog::onCustomAction (const LLSD& userdata)
     }
     else if ("view_nearby_chat_history" == command_name)
     {
-        LLFloaterReg::showInstance("preview_conversation", LLSD(LLUUID::null), true);
+        if (!LLChatServiceHistory::historySuppressed())
+        {
+            LLFloaterReg::showInstance("preview_conversation", LLSD(LLUUID::null), true);
+        }
     }
 }
 
 bool LLFloaterConversationLog::isActionEnabled(const LLSD& userdata)
 {
+    // Disable nearby history while account state or transcript deletion suppresses it.
+    if (userdata.asString() == "view_nearby_chat_history")
+    {
+        return !LLChatServiceHistory::historySuppressed();
+    }
     return true;
 }
 

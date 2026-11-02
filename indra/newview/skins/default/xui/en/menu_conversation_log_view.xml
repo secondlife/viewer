@@ -51,5 +51,8 @@
       <on_click
        function="CallLog.Action"
        parameter="view_nearby_chat_history" />
+      <on_enable
+       function="CallLog.Enable"
+       parameter="view_nearby_chat_history" />
   </menu_item_call>
 </toggleable_menu>

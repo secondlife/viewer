@@ -547,6 +547,8 @@ namespace llsd
 {
     // Used by LLSD::ImplString to convert string type to real
     LLSD::Real string_to_real(std::string_view in_string);
+    // Locale-independent variant of string_to_real()
+    LLSD::Real string_to_real_classic(std::string_view in_string);
 
 #ifdef LLSD_DEBUG_INFO
 /** @name Unit Testing Interface */

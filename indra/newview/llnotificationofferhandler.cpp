@@ -150,6 +150,8 @@ bool LLOfferHandler::processNotification(const LLNotificationPtr& notification, 
         {
             // log only to file if notif panel can be embedded to IM and IM is opened
             bool file_only = add_notif_to_im && LLHandlerUtil::isIMFloaterOpened(notification);
+            // Only a log paired with an inline offer may be hidden during replay.
+            const LLUUID notification_id = add_notif_to_im ? notification->getID() : LLUUID::null;
             if ((notification->getName() == "TeleportOffered"
                 || notification->getName() == "TeleportOffered_MaturityExceeded"
                 || notification->getName() == "TeleportOffered_MaturityBlocked"))
@@ -157,11 +159,11 @@ bool LLOfferHandler::processNotification(const LLNotificationPtr& notification, 
                 boost::regex r("<icon\\s*>\\s*([^<]*)?\\s*</icon\\s*>( - )?",
                     boost::regex::perl|boost::regex::icase);
                 std::string stripped_msg = boost::regex_replace(notification->getMessage(), r, "");
-                LLHandlerUtil::logToIMP2P(notification->getPayload()["from_id"], stripped_msg,file_only);
+                LLHandlerUtil::logToIMP2P(notification->getPayload()["from_id"], stripped_msg, file_only, notification_id);
             }
             else
             {
-                LLHandlerUtil::logToIMP2P(notification, file_only);
+                LLHandlerUtil::logToIMP2P(notification, file_only, notification_id);
             }
         }
     }
@@ -171,22 +173,29 @@ bool LLOfferHandler::processNotification(const LLNotificationPtr& notification, 
 
 /*virtual*/ void LLOfferHandler::onChange(LLNotificationPtr p)
 {
-    auto panelp = LLToastNotifyPanel::getInstance(p->getID());
-    if (panelp)
+    bool has_toast_panel = false;
+
+    // An IM projection and a toast can coexist for one notification; refresh the former and still close the latter.
+    for (LLToastNotifyPanel& panel : LLToastNotifyPanel::instance_snapshot())
     {
-        //
-        // HACK: if we're dealing with a notification embedded in IM, update it
-        // otherwise remove its toast
-        //
-        if (dynamic_cast<LLIMToastNotifyPanel*>(panelp.get()))
+        if (panel.isDead() || panel.getID() != p->getID())
         {
-            panelp->updateNotification();
+            continue;
+        }
+
+        if (LLIMToastNotifyPanel* im_panel = dynamic_cast<LLIMToastNotifyPanel*>(&panel))
+        {
+            im_panel->updateNotification();
         }
         else
         {
-            // if notification has changed, hide it
-            mChannel.get()->removeToastByNotificationID(p->getID());
+            has_toast_panel = true;
         }
+    }
+
+    if (has_toast_panel)
+    {
+        mChannel.get()->removeToastByNotificationID(p->getID());
     }
 }
 

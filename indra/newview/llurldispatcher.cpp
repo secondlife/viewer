@@ -159,7 +159,14 @@ bool LLURLDispatcherImpl::dispatchApp(const LLSLURL& slurl,
                                       LLMediaCtrl* web,
                                       bool trusted_browser)
 {
-    LL_INFOS() << "cmd: " << slurl.getAppCmd() << " path: " << slurl.getAppPath() << " query: " << slurl.getAppQuery() << LL_ENDL;
+    // don't log path/query for sensitive commands
+    std::string app_info = "cmd: " + slurl.getAppCmd();
+    if (!LLCommandDispatcher::isSensitive(slurl.getAppCmd()))
+    {
+        app_info += " path: " + slurl.getAppPath().asString() + " query: " + slurl.getAppQuery();
+    }
+    LL_INFOS() << app_info << LL_ENDL;
+
     const LLSD& query_map = LLURI::queryMap(slurl.getAppQuery());
     bool handled = LLCommandDispatcher::dispatch(
             slurl.getAppCmd(), slurl.getAppPath(), query_map, slurl.getGrid(), web, nav_type, trusted_browser);

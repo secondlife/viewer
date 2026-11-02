@@ -44,10 +44,12 @@ class LLNotificationForm;
  *
  * Replaces class LLNotifyBox.
  *
+ * Toast and IM projections can overlap until deferred view deletion completes.
+ *
  * @deprecated this class will be removed after all toast panel types are
  *  implemented in separate classes.
  */
-class LLToastNotifyPanel: public LLCheckBoxToastPanel, public LLInstanceTracker<LLToastNotifyPanel, LLUUID, LLInstanceTrackerReplaceOnCollision>
+class LLToastNotifyPanel: public LLCheckBoxToastPanel, public LLInstanceTracker<LLToastNotifyPanel>
 {
 public:
     /**
