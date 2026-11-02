@@ -3520,7 +3520,7 @@ void LLMessageSystem::dumpPacketToLog()
     LL_WARNS("Messaging") << "Packet Size:" << mTrueReceiveSize << LL_ENDL;
     char line_buffer[256];      /* Flawfinder: ignore */
     S32 i;
-    S32 cur_line_pos = 0;
+    U32 cur_line_pos = 0;
     S32 cur_line = 0;
 
     for (i = 0; i < mTrueReceiveSize; i++)
