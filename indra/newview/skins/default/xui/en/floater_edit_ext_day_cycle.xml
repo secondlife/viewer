@@ -284,7 +284,7 @@
                                     auto_resize="false"
                                     user_resize="false"
                                     height="180"
-                                    width="200"
+                                    width="170"
                                     min_height="180"
                                     visible="true">
                                 <button
@@ -320,7 +320,7 @@
                                     auto_resize="false"
                                     user_resize="false"
                                     height="150"
-                                    width="200"
+                                    width="170"
                                     min_height="0"
                                     visible="true">
                                 <layout_stack
@@ -500,7 +500,7 @@
                                         width="135"
                                         label="Save as [FRAME]..."
                                         top_pad="0"
-                                        left_delta="0"
+                                        left_delta="-45"
                                         name="btn_save_frame" />
                             </layout_panel>
                         </layout_stack>
