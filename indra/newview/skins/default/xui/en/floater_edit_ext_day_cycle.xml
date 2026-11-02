@@ -472,7 +472,7 @@
                                 <button
                                         follows="top|left"
                                         height="23"
-                                        width="90"
+                                        width="135"
                                         left="10"
                                         top_pad="10"
                                         label="Add [FRAME]"
@@ -480,7 +480,7 @@
                                 <button
                                         follows="top|left"
                                         height="23"
-                                        width="90"
+                                        width="135"
                                         label="Load [FRAME]"
                                         top_pad="0"
                                         left_delta="0"
@@ -488,7 +488,7 @@
                                 <button
                                         follows="left|top"
                                         height="23"
-                                        width="90"
+                                        width="135"
                                         label="Delete [FRAME]"
                                         top_pad="0"
                                         left_delta="0"
