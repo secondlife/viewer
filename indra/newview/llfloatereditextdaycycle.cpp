@@ -126,6 +126,75 @@ namespace {
 
     const std::string STR_COMMIT_PARCEL("commit_parcel");
     const std::string STR_COMMIT_REGION("commit_region");
+
+    std::string getLocalTextureField(const LLSettingsBase::ptr_t &settings)
+    {
+        if (!settings)
+        {
+            return std::string();
+        }
+
+        if (settings->getSettingsType() == "water")
+        {
+            LLSettingsWater::ptr_t water = std::dynamic_pointer_cast<LLSettingsWater>(settings);
+            if (water)
+            {
+                if (LLLocalBitmapMgr::getInstance()->isLocal(water->getNormalMapID()))
+                {
+                    return LLTrans::getString("EnvironmentNormalMap");
+                }
+                if (LLLocalBitmapMgr::getInstance()->isLocal(water->getTransparentTextureID()))
+                {
+                    return LLTrans::getString("EnvironmentTransparent");
+                }
+            }
+        }
+        else if (settings->getSettingsType() == "sky")
+        {
+            LLSettingsSky::ptr_t sky = std::dynamic_pointer_cast<LLSettingsSky>(settings);
+            if (sky)
+            {
+                if (LLLocalBitmapMgr::getInstance()->isLocal(sky->getSunTextureId()))
+                {
+                    return LLTrans::getString("EnvironmentSun");
+                }
+                if (LLLocalBitmapMgr::getInstance()->isLocal(sky->getMoonTextureId()))
+                {
+                    return LLTrans::getString("EnvironmentMoon");
+                }
+                if (LLLocalBitmapMgr::getInstance()->isLocal(sky->getCloudNoiseTextureId()))
+                {
+                    return LLTrans::getString("EnvironmentCloudNoise");
+                }
+                if (LLLocalBitmapMgr::getInstance()->isLocal(sky->getBloomTextureId()))
+                {
+                    return LLTrans::getString("EnvironmentBloom");
+                }
+            }
+        }
+
+        return std::string();
+    }
+
+    void restrictPermissionMasks(LLPermissions &permissions, const LLPermissions &limits)
+    {
+        permissions.setMaskBase(permissions.getMaskBase() & limits.getMaskBase());
+        permissions.setMaskOwner(permissions.getMaskOwner() & limits.getMaskOwner());
+        permissions.setMaskGroup(permissions.getMaskGroup() & limits.getMaskGroup());
+        permissions.setMaskEveryone(permissions.getMaskEveryone() & limits.getMaskEveryone());
+        permissions.setMaskNext(permissions.getMaskNextOwner() & limits.getMaskNextOwner());
+    }
+
+    void clearPermissionBit(LLPermissions &permissions, PermissionBit bit)
+    {
+        const PermissionMask mask = ~static_cast<PermissionMask>(bit);
+        permissions.setMaskBase(permissions.getMaskBase() & mask);
+        permissions.setMaskOwner(permissions.getMaskOwner() & mask);
+        permissions.setMaskGroup(permissions.getMaskGroup() & mask);
+        permissions.setMaskEveryone(permissions.getMaskEveryone() & mask);
+        permissions.setMaskNext(permissions.getMaskNextOwner() & mask);
+    }
+
     //---------------------------------------------------------------------
 
 }
@@ -590,7 +659,7 @@ void LLFloaterEditExtDayCycle::onButtonApply(LLUICtrl *ctrl)
         return;
     }
 
-    // brute-force local texture scan
+    // Block local textures before saving any day-cycle asset.
     for (U32 i = 0; i <= LLSettingsDay::TRACK_MAX; i++)
     {
         LLSettingsDay::CycleTrack_t &day_track = dayclone->getCycleTrack(i);
@@ -602,55 +671,9 @@ void LLFloaterEditExtDayCycle::onButtonApply(LLUICtrl *ctrl)
         while (iter != end)
         {
             frame_num++;
-            std::string desc;
-            bool is_local = false; // because getString can be empty
-            if (i == LLSettingsDay::TRACK_WATER)
-            {
-                LLSettingsWater::ptr_t water = std::static_pointer_cast<LLSettingsWater>(iter->second);
-                if (water)
-                {
-                    // LLViewerFetchedTexture and check for FTT_LOCAL_FILE or check LLLocalBitmapMgr
-                    if (LLLocalBitmapMgr::getInstance()->isLocal(water->getNormalMapID()))
-                    {
-                        desc = LLTrans::getString("EnvironmentNormalMap");
-                        is_local = true;
-                    }
-                    else if (LLLocalBitmapMgr::getInstance()->isLocal(water->getTransparentTextureID()))
-                    {
-                        desc = LLTrans::getString("EnvironmentTransparent");
-                        is_local = true;
-                    }
-                }
-            }
-            else
-            {
-                LLSettingsSky::ptr_t sky = std::static_pointer_cast<LLSettingsSky>(iter->second);
-                if (sky)
-                {
-                    if (LLLocalBitmapMgr::getInstance()->isLocal(sky->getSunTextureId()))
-                    {
-                        desc = LLTrans::getString("EnvironmentSun");
-                        is_local = true;
-                    }
-                    else if (LLLocalBitmapMgr::getInstance()->isLocal(sky->getMoonTextureId()))
-                    {
-                        desc = LLTrans::getString("EnvironmentMoon");
-                        is_local = true;
-                    }
-                    else if (LLLocalBitmapMgr::getInstance()->isLocal(sky->getCloudNoiseTextureId()))
-                    {
-                        desc = LLTrans::getString("EnvironmentCloudNoise");
-                        is_local = true;
-                    }
-                    else if (LLLocalBitmapMgr::getInstance()->isLocal(sky->getBloomTextureId()))
-                    {
-                        desc = LLTrans::getString("EnvironmentBloom");
-                        is_local = true;
-                    }
-                }
-            }
+            const std::string desc = getLocalTextureField(iter->second);
 
-            if (is_local)
+            if (!desc.empty())
             {
                 LLSD args;
                 LLButton* button = getChild<LLButton>(track_tabs[i], true);
@@ -711,6 +734,26 @@ void LLFloaterEditExtDayCycle::onButtonSaveFrame()
         return;
     }
 
+    const std::string local_texture_field = getLocalTextureField(setting);
+    if (!local_texture_field.empty())
+    {
+        LLSD local_texture_args;
+        local_texture_args["FIELD"] = local_texture_field;
+        LLNotificationsUtil::add("WLLocalTextureFixedBlock", local_texture_args);
+        return;
+    }
+
+    // The saved frame is a child asset, so carry the enclosing day cycle's
+    // effective restrictions into the serialized frame.
+    if (!mCanMod)
+    {
+        setting->setFlag(LLSettingsBase::FLAG_NOMOD);
+    }
+    if (!mCanTrans)
+    {
+        setting->setFlag(LLSettingsBase::FLAG_NOTRANS);
+    }
+
     LLSD args;
     args["DESC"] = setting->getName();
     LLNotificationsUtil::add("SaveSettingAs", args, LLSD(), boost::bind(&LLFloaterEditExtDayCycle::onSaveFrameAsCommit, this, _1, _2, setting));
@@ -724,6 +767,26 @@ void LLFloaterEditExtDayCycle::onSaveFrameAsCommit(const LLSD& notification, con
         return;
     }
 
+    // Re-check immediately before the upload boundary. The notification can
+    // remain open while local texture state changes.
+    const std::string local_texture_field = getLocalTextureField(settings);
+    if (!local_texture_field.empty())
+    {
+        LLSD local_texture_args;
+        local_texture_args["FIELD"] = local_texture_field;
+        LLNotificationsUtil::add("WLLocalTextureFixedBlock", local_texture_args);
+        return;
+    }
+
+    if (!mCanMod)
+    {
+        settings->setFlag(LLSettingsBase::FLAG_NOMOD);
+    }
+    if (!mCanTrans)
+    {
+        settings->setFlag(LLSettingsBase::FLAG_NOTRANS);
+    }
+
     std::string settings_name = response["message"].asString();
     LLInventoryObject::correctInventoryName(settings_name);
     if (settings_name.empty())
@@ -732,12 +795,53 @@ void LLFloaterEditExtDayCycle::onSaveFrameAsCommit(const LLSD& notification, con
     }
 
     LLHandle<LLFloater> floater_handle = getHandle();
-    LLSettingsVOBase::inventory_result_fn callback = [floater_handle](LLUUID asset_id, LLUUID inventory_id, LLUUID, LLSD results)
+    const bool has_source_permissions = mInventoryItem != nullptr;
+    const LLPermissions source_permissions = has_source_permissions ? mInventoryItem->getPermissions() : LLPermissions();
+    const bool can_modify = mCanMod;
+    const bool can_transfer = mCanTrans;
+    LLSettingsVOBase::inventory_result_fn callback = [floater_handle, has_source_permissions, source_permissions, can_modify, can_transfer](LLUUID, LLUUID inventory_id, LLUUID, LLSD results)
     {
+        if (inventory_id.isNull() || !results["success"].asBoolean())
+        {
+            LLNotificationsUtil::add("CantCreateInventory");
+            return;
+        }
+
+        // Apply the restrictions even if the editor was closed while the
+        // asynchronous inventory operation was in flight.
+        LLViewerInventoryItem *created_item = gInventory.getItem(inventory_id);
+        if (created_item)
+        {
+            LLPermissions permissions = created_item->getPermissions();
+            if (has_source_permissions)
+            {
+                    restrictPermissionMasks(permissions, source_permissions);
+            }
+            if (!can_modify)
+            {
+                    clearPermissionBit(permissions, PERM_MODIFY);
+            }
+            if (!can_transfer)
+            {
+                    clearPermissionBit(permissions, PERM_TRANSFER);
+            }
+            permissions.fix();
+            created_item->setPermissions(permissions);
+            created_item->updateServer(false);
+        }
+        else
+        {
+            LL_WARNS("ENVDAYEDIT") << "Unable to find newly-created frame " << inventory_id << " in inventory." << LL_ENDL;
+        }
+
         if (!floater_handle.isDead())
         {
             LLFloaterEditExtDayCycle* floater = static_cast<LLFloaterEditExtDayCycle*>(floater_handle.get());
-            floater->LLFloaterEditEnvironmentBase::onInventoryCreated(asset_id, inventory_id, results);
+
+            // A newly-created frame must not be routed through the day-cycle
+            // completion handler: that handler reloads the item as a day
+            // cycle and clears the editor's dirty state.
+            floater->setFocus(true);
         }
     };
 

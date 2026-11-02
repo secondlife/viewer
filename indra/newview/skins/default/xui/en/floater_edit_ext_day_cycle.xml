@@ -91,16 +91,16 @@
                         bevel_style="in"
                         auto_resize="false"
                         user_resize="false"
-                        height="150"
-                        min_height="0"
+                        height="180"
+                        min_height="180"
                         visible="true">
                     <panel name="timeline_layers"
                             border="false"
                             follows="left|top"
-                            height="150"
+                            height="180"
                             width="110"
                             top_pad="0"
-                            min_height="0"
+                            min_height="180"
                             visible="true">
                         <button
                                 follows="left|top"
@@ -171,8 +171,8 @@
                     <panel name="timeline"
                             border="true"
                             follows="left|top"
-                            height="150"
-                            min_height="0"
+                            height="180"
+                            min_height="180"
                             width="595"
                             min_width="595"
                             left_pad="0"
@@ -272,7 +272,7 @@
                         <layout_stack
                                 name="track_options_ls"
                                 follows="all"
-                                height="200"
+                                height="180"
                                 animate="false"
                                 top_pad="0"
                                 left="0"
@@ -283,9 +283,9 @@
                                     bevel_style="in"
                                     auto_resize="false"
                                     user_resize="false"
-                                    height="150"
+                                    height="180"
                                     width="200"
-                                    min_height="0"
+                                    min_height="180"
                                     visible="true">
                                 <button
                                         follows="top|left"
@@ -466,8 +466,8 @@
                                     auto_resize="false"
                                     user_resize="false"
                                     width="190"
-                                    height="150"
-                                    min_height="0"
+                                    height="180"
+                                    min_height="180"
                                     visible="true">
                                 <button
 
