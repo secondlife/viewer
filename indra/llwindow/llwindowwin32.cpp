@@ -4977,10 +4977,10 @@ void LLWindowWin32::handleCompositionMessage(const LLImeCompositionSnapshot& sna
 // to by offset receives the offset in llwchars of the beginning of
 // the returned context string in the given wtext.
 
+static const S32 CONTEXT_EXCESS = 30;   // This value is by experiences.
+
 static LLWString find_context(const LLWString & wtext, S32 focus, S32 focus_length, S32 *offset)
 {
-    static const S32 CONTEXT_EXCESS = 30;   // This value is by experiences.
-
     const S32 e = llmin((S32) wtext.length(), focus + focus_length + CONTEXT_EXCESS);
     S32 end = focus + focus_length;
     while (end < e && '\n' != wtext[end])
@@ -4997,6 +4997,21 @@ static LLWString find_context(const LLWString & wtext, S32 focus, S32 focus_leng
 
     *offset = start;
     return wtext.substr(start, end - start);
+}
+
+// The part of the text find_context() reads, its result only changes when this part does
+static LLWString find_context_source(const LLWString & wtext, S32 focus, S32 focus_length)
+{
+    S32 s = llmax(0, focus - CONTEXT_EXCESS);
+    S32 e = llmin((S32) wtext.length(), focus + focus_length + CONTEXT_EXCESS);
+    return wtext.substr(s, e - s);
+}
+
+static bool same_context_source(const LLWString & wtext, S32 focus, S32 focus_length, const LLWString & source)
+{
+    S32 s = llmax(0, focus - CONTEXT_EXCESS);
+    S32 e = llmin((S32) wtext.length(), focus + focus_length + CONTEXT_EXCESS);
+    return wtext.compare(s, e - s, source) == 0;
 }
 
 // final stage of handling drop requests - both from WM_DROPFILES message
@@ -5038,8 +5053,12 @@ void LLWindowWin32::updateImeCache()
         return a.mValid == b.mValid && a.mCaret == b.mCaret && a.mBounds == b.mBounds && a.mControl == b.mControl;
     };
 
+    bool preedit_valid = preedit >= 0 && preedit_length >= 0 && preedit + preedit_length <= text_length;
+    bool select_valid = select >= 0 && select_length >= 0 && select + select_length <= text_length;
+
     // Locations only move with the caret (typing, scrolling, moving the control), so the rest
-    // is rebuilt only when the caret, the preedit, the selection or the text changes.
+    // is rebuilt only when the caret, the preedit, the selection or the text around them changes.
+    // The text read by find_context() includes the preedit, comparing it also covers mPreeditText.
     if (mImeCache.mValid
         && mImeCache.mPreeditor == mPreeditor
         && mImeCache.mTextLength == text_length
@@ -5048,8 +5067,9 @@ void LLWindowWin32::updateImeCache()
         && mImeCache.mSelect == select
         && mImeCache.mSelectLength == select_length
         && same_location(mImeCache.mCursor, cursor)
-        && preedit >= 0 && preedit + preedit_length <= text_length
-        && wtext.compare(preedit, preedit_length, mImeCache.mPreeditText) == 0)
+        && preedit_valid
+        && same_context_source(wtext, preedit, preedit_length, mImeCache.mFeedSource)
+        && (!select_valid || same_context_source(wtext, select, select_length, mImeCache.mSelectionSource)))
     {
         return;
     }
@@ -5063,9 +5083,11 @@ void LLWindowWin32::updateImeCache()
     cache.mSelect = select;
     cache.mSelectLength = select_length;
 
-    if (preedit >= 0 && preedit_length >= 0 && preedit + preedit_length <= text_length)
+    if (preedit_valid)
     {
         cache.mPreeditText = wtext.substr(preedit, preedit_length);
+        cache.mFeedSource = find_context_source(wtext, preedit, preedit_length);
+
         cache.mPreeditLocations.resize(preedit_length + 1);
         for (S32 i = 0; i <= preedit_length; ++i)
         {
@@ -5088,9 +5110,10 @@ void LLWindowWin32::updateImeCache()
         cache.mFeedPreedit = feed_preedit;
     }
 
-    if (select >= 0 && select_length >= 0 && select + select_length <= text_length)
+    if (select_valid)
     {
         cache.mSelectionContext = find_context(wtext, select, select_length, &cache.mSelectionContextOffset);
+        cache.mSelectionSource = find_context_source(wtext, select, select_length);
     }
 
     LLMutexLock lock(&mImeCacheMutex);
@@ -5183,6 +5206,7 @@ bool LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
                 S32 select = 0;
                 S32 select_length = 0;
                 S32 text_length = 0;
+                LLPreeditor* preeditor = nullptr;
                 {
                     LLMutexLock lock(&mImeCacheMutex);
                     // Not while composing, the selection then overlaps the preedit
@@ -5195,6 +5219,7 @@ bool LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
                     select = mImeCache.mSelect;
                     select_length = mImeCache.mSelectLength;
                     text_length = mImeCache.mTextLength;
+                    preeditor = mImeCache.mPreeditor;
                 }
 
                 RECONVERTSTRING * const reconvert_string = (RECONVERTSTRING *)param;
@@ -5220,12 +5245,18 @@ bool LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
                         }
                     }
 
-                    // The editor belongs to the main thread
-                    LLPreeditor* preeditor = mPreeditor;
-                    post([this, preeditor, select, select_length, text_length]()
+                    // The editor belongs to the main thread, only mark it if it is still
+                    // the one the context came from and the context hasn't changed since
+                    post([this, preeditor, context, context_offset, select, select_length, text_length]()
                     {
-                        if (mPreeditor && mPreeditor == preeditor
-                            && (S32)mPreeditor->getPreeditString().length() == text_length)
+                        if (!mPreeditor || mPreeditor != preeditor)
+                        {
+                            return;
+                        }
+                        const LLWString& wtext = mPreeditor->getPreeditString();
+                        if ((S32)wtext.length() == text_length
+                            && context_offset >= 0 && context_offset + (S32)context.length() <= text_length
+                            && wtext.compare(context_offset, context.length(), context) == 0)
                         {
                             mPreeditor->markAsPreedit(select, select_length);
                         }

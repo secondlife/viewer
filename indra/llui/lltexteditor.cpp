@@ -3015,7 +3015,7 @@ bool LLTextEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
         current_line++;
     }
 
-    const LLWString textString(getWText());
+    const LLWString& textString = getWText();
     const llwchar * const text = textString.c_str();
     const S32 line_height = mFont->getLineHeight();
 
