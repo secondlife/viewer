@@ -492,7 +492,7 @@ LLSettingsSky::ptr_t LLSettingsVOSky::buildFromLegacyPreset(const std::string &n
     {
         messages["REASONS"] = LLTrans::getString("SettingValidationError", LLSDMap("NAME", name));
         LL_WARNS("SETTINGS") << "Sky setting validation failed!\n" << results << LL_ENDL;
-        LLSettingsSky::ptr_t();
+        return LLSettingsSky::ptr_t();
     }
 
     LLSettingsSky::ptr_t skyp = std::make_shared<LLSettingsVOSky>(newsettings);

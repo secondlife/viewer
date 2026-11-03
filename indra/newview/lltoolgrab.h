@@ -113,6 +113,7 @@ private:
     LLTimer         mGrabTimer;                     // send simulator time between hover movements
 
     LLVector3       mGrabOffsetFromCenterInitial;   // meters from CG of object
+    LLVector3       mGrabLookAtOffset;              // look-at point on the grabbed object, object local
     LLVector3d      mGrabHiddenOffsetFromCamera;    // in cursor hidden drag, how far is grab offset from camera
 
     LLVector3d      mDragStartPointGlobal;              // projected into world
