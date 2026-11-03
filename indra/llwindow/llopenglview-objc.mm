@@ -260,6 +260,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 {
     [self registerForDraggedTypes:[NSArray arrayWithObjects:NSPasteboardTypeURL, NSPasteboardTypeFileURL, nil]];
     mLastDraggedFile = false;
+    mLastDraggedMultipleFiles = false;
     [self initWithFrame:frame];
 
     // Initialize with a default "safe" pixel format that will work with versions dating back to OS X 10.6.
@@ -599,6 +600,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
     mLastDraggedUrl.clear();
     mLastDraggedFile = false;
+    mLastDraggedMultipleFiles = false;
 
     sourceDragMask = [sender draggingSourceOperationMask];
 
@@ -652,6 +654,23 @@ attributedStringInfo getSegments(NSAttributedString *str)
             }
             return operation;
         }
+        else if ([urls count] > 1)
+        {
+            BOOL allFileURLs = YES;
+            for (NSURL *url in urls)
+            {
+                if (![url isFileURL])
+                {
+                    allFileURLs = NO;
+                    break;
+                }
+            }
+            if (allFileURLs && (sourceDragMask & NSDragOperationCopy))
+            {
+                mLastDraggedMultipleFiles = true;
+                return NSDragOperationCopy;
+            }
+        }
     }
     return NSDragOperationNone;
 }
@@ -660,6 +679,10 @@ attributedStringInfo getSegments(NSAttributedString *str)
 {
     callHandleDragUpdated(mLastDraggedUrl);
     NSDragOperation sourceMask = [sender draggingSourceOperationMask];
+    if (mLastDraggedMultipleFiles)
+    {
+        return (sourceMask & NSDragOperationCopy) ? NSDragOperationCopy : NSDragOperationNone;
+    }
     if (mLastDraggedFile && (sourceMask & NSDragOperationCopy))
     {
         return NSDragOperationCopy;
@@ -687,7 +710,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (BOOL) performDragOperation:(id<NSDraggingInfo>)sender
 {
-    callHandleDragDropped(mLastDraggedUrl);
+    callHandleDragDropped(mLastDraggedMultipleFiles ? std::string() : mLastDraggedUrl);
     return true;
 }
 

@@ -1289,6 +1289,13 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
         return LLWindowCallbacks::DND_NONE;
     }
 
+    const bool is_local_file_path =
+        (!file_path.empty() && file_path[0] == '/') ||
+        (file_path.size() >= 3 &&
+            ((file_path[0] >= 'A' && file_path[0] <= 'Z') || (file_path[0] >= 'a' && file_path[0] <= 'z')) &&
+            file_path[1] == ':' && (file_path[2] == '\\' || file_path[2] == '/')) ||
+        (file_path.size() >= 2 && file_path[0] == '\\' && file_path[1] == '\\');
+
     std::string extension = gDirUtilp->getExtension(file_path);
     LLStringUtil::toLower(extension);
     if (data.empty() && action == LLWindowCallbacks::DNDA_DROPPED)
@@ -1305,7 +1312,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
         upload_filter = LLFilePicker::FFLOAD_IMAGE;
         upload_kind = LLTrans::getString("DragDropUploadImage");
     }
-    else if (extension == "wav" || extension == "ogg")
+    else if (extension == "wav")
     {
         upload_filter = LLFilePicker::FFLOAD_WAV;
         upload_kind = LLTrans::getString("DragDropUploadSound");
@@ -1321,8 +1328,8 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
         upload_kind = LLTrans::getString("DragDropUploadModel");
     }
 
-    const bool has_file_path = !file_path.empty() && LLFile::isfile(file_path);
-    if (has_file_path || (file_path.empty() && action != LLWindowCallbacks::DNDA_DROPPED))
+    const bool has_file_path = is_local_file_path && LLFile::isfile(file_path);
+    if (is_local_file_path || (file_path.empty() && action != LLWindowCallbacks::DNDA_DROPPED))
     {
         if (action == LLWindowCallbacks::DNDA_START_TRACKING || action == LLWindowCallbacks::DNDA_TRACK)
         {
@@ -1344,6 +1351,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
             {
                 hint = LLTrans::getString("DragDropUploadHint");
             }
+            LLToolTipMgr::instance().unblockToolTips();
             LLToolTipMgr::instance().show(LLToolTip::Params()
                 .message(hint)
                 .sticky_rect(tip_rect)
@@ -1401,7 +1409,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
                     LLNotificationsUtil::add("DropUploadModelBusy");
                     return LLWindowCallbacks::DND_NONE;
                 }
-                preview->loadModel(LLModel::LOD_HIGH, file_path);
+                preview->loadHighLodModel(file_path);
             }
             else
             {

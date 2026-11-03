@@ -341,11 +341,6 @@ bool LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(const std::string& e
         asset_type = LLAssetType::AT_SOUND;
         succ = true;
     }
-    else if (exten_lc == "ogg")
-    {
-        asset_type = LLAssetType::AT_SOUND;
-        succ = true;
-    }
     else if (exten_lc == "anim")
     {
         asset_type = LLAssetType::AT_ANIMATION;
@@ -443,42 +438,22 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
     }
     else if (assetType == LLAssetType::AT_SOUND)
     {
-        if (exten == "ogg")
-        {
-            std::string ogg_error;
-            if (check_for_invalid_ogg_formats(getFileName(), ogg_error) != LLVORBISENC_NOERR)
-            {
-                errorMessage = ogg_error;
-                errorLabel = "ProblemWithFile";
-                error = true;
-            }
-            // Valid Ogg Vorbis is already in the format expected by the asset service.
-            else if (!LLFile::copy(getFileName(), filename))
-            {
-                errorMessage = llformat("Couldn't copy Ogg Vorbis sound file to temporary path: %s\n", filename.c_str());
-                errorLabel = "CannotOpenTemporarySoundFile";
-                error = true;
-            }
-        }
-        else
-        {
-            LL_INFOS() << "Attempting to encode wav as an ogg file" << LL_ENDL;
+        LL_INFOS() << "Attempting to encode wav as an ogg file" << LL_ENDL;
 
-            S32 encodeResult = encode_vorbis_file(getFileName(), filename);
-            if (LLVORBISENC_NOERR != encodeResult)
+        S32 encodeResult = encode_vorbis_file(getFileName(), filename);
+        if (LLVORBISENC_NOERR != encodeResult)
+        {
+            if (encodeResult == LLVORBISENC_DEST_OPEN_ERR)
             {
-                if (encodeResult == LLVORBISENC_DEST_OPEN_ERR)
-                {
-                    errorMessage = llformat("Couldn't open temporary compressed sound file for writing: %s\n", filename.c_str());
-                    errorLabel = "CannotOpenTemporarySoundFile";
-                }
-                else
-                {
-                    errorMessage = llformat("Unknown vorbis encode failure on: %s\n", getFileName().c_str());
-                    errorLabel = "UnknownVorbisEncodeFailure";
-                }
-                error = true;
+                errorMessage = llformat("Couldn't open temporary compressed sound file for writing: %s\n", filename.c_str());
+                errorLabel = "CannotOpenTemporarySoundFile";
             }
+            else
+            {
+                errorMessage = llformat("Unknown vorbis encode failure on: %s\n", getFileName().c_str());
+                errorLabel = "UnknownVorbisEncodeFailure";
+            }
+            error = true;
         }
     }
     else if (exten == "bvh")

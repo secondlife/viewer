@@ -37,6 +37,7 @@
 {
     std::string mLastDraggedUrl;
     bool mLastDraggedFile;
+    bool mLastDraggedMultipleFiles;
     unsigned int mModifiers;
     float mMousePos[2];
     bool mHasMarkedText;
