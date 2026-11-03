@@ -5749,6 +5749,313 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
     }
 }
 
+bool LLPipeline::localLightsEnabled() const
+{
+    static LLCachedControl<S32> local_light_count(gSavedSettings, "RenderLocalLightCount", 256);
+    static LLCachedControl<S32> probe_level(gSavedSettings, "RenderReflectionProbeLevel", 0);
+
+    return local_light_count > 0 && (!gCubeSnapshot || probe_level > 0);
+}
+
+bool LLPipeline::resolveLocalLight(LLDrawable* drawable, F32 light_scale, LocalLight& light) const
+{
+    LLVOVolume* volume = drawable ? drawable->getVOVolume() : nullptr;
+    if (!volume || (volume->isAttachment() && !sRenderAttachedLights))
+    {
+        return false;
+    }
+
+    light.color = volume->getLightLinearColor() * light_scale;
+    light.color.mV[3] = 0.f;
+    light.size = volume->getLightRadius() * 1.5f;
+    if (light.color.magVecSquared() < 0.001f || light.size <= 0.001f)
+    {
+        return false;
+    }
+
+    light.drawable = drawable;
+    light.pos = drawable->getPositionAgent();
+    light.falloff = volume->getLightFalloff(DEFERRED_LIGHT_FALLOFF);
+    // historic fixed-function attenuation, only read by the legacy sumLights
+    // shaders; deferred and forward-lit shaders use size and falloff
+    light.linear_atten = 3.f * (1.f + volume->getLightFalloff() * 2.f) / light.size;
+    light.spot = volume->isLightSpotlight();
+    light.ambiance = 0.f;
+    light.cone_cos_outer = -1.f;
+    light.cone_cos_inner = 1.f;
+
+    if (light.spot)
+    {
+        light.axis = LLVector3(0.f, 0.f, -1.f) * volume->getRenderRotation(); // deferred projector direction
+
+        // The deferred projector lights a rectangular frustum (vertical fov,
+        // prim x/y aspect, see setupSpotLight()). Forward shaders only know
+        // the beam axis, so approximate the frustum by a cone that is fully lit
+        // inside its inscribed cone and dark beyond its corners.
+        LLVector3 params = volume->getSpotLightParams(); // fov, focus, ambiance
+        LLVector3 scale = volume->getScale();
+        F32 tan_y = tanf(llclamp(params.mV[0] * 0.5f, 0.f, 1.56f));
+        F32 tan_x = scale.mV[VY] > 0.f ? tan_y * scale.mV[VX] / scale.mV[VY] : tan_y;
+        F32 tan_inner = llmin(tan_x, tan_y);
+        F32 tan_outer = sqrtf(tan_x * tan_x + tan_y * tan_y);
+
+        light.cone_cos_inner = 1.f / sqrtf(1.f + tan_inner * tan_inner);
+        light.cone_cos_outer = llmin(1.f / sqrtf(1.f + tan_outer * tan_outer), light.cone_cos_inner - 0.001f);
+        light.ambiance = params.mV[2];
+    }
+
+    return true;
+}
+
+void LLPipeline::setHWLightSlot(S32 slot, const LocalLight& light)
+{
+    mHWLightColors[slot] = light.color;
+    LLLightState* light_state = gGL.getLight(slot);
+
+    light_state->setPosition(LLVector4(light.pos, 1.f));
+    light_state->setDiffuse(light.color);
+    light_state->setAmbient(LLColor4::black);
+    light_state->setConstantAttenuation(0.f);
+    light_state->setLinearAttenuation(light.linear_atten);
+    light_state->setQuadraticAttenuation(light.falloff + 1.f);
+    light_state->setSize(light.size);
+    light_state->setFalloff(light.falloff);
+
+    if (light.spot)
+    {
+        light_state->setSpotDirection(light.axis);
+        light_state->setSpotCutoff(90.f);
+        light_state->setSpotExponent(2.f);
+        light_state->setSpotCone(light.cone_cos_outer, light.cone_cos_inner);
+        light_state->setSpecular(LLColor4(0.f, 0.f, 0.f, light.ambiance));
+    }
+    else
+    {
+        light_state->setSpotExponent(0.f);
+        light_state->setSpotCutoff(180.f);
+
+        // specular.z = 1.0 tells the shaders this is omnidirectional rather than a spotlight
+        light_state->setSpecular(LLColor4(0.f, 0.f, 1.f, 0.f));
+    }
+}
+
+void LLPipeline::clearHWLightSlot(S32 cur_light)
+{
+    mHWLightColors[cur_light] = LLColor4::black;
+    LLLightState* light = gGL.getLight(cur_light);
+    light->setSunPrimary(true);
+    light->setDiffuse(LLColor4::black);
+    light->setAmbient(LLColor4::black);
+    light->setSpecular(LLColor4::black);
+    light->setSize(0.f); // forward shaders skip zero-size slots
+}
+
+// Per-group local light selection for the alpha pass.
+//
+// Forward (alpha) shaders read local lights from HW light slots 2-7. While
+// the alpha pass walks its spatial groups, these refit the slots with the
+// strongest lights reaching each group, drawn from the same candidate list
+// the deferred light volumes consume (same count limit, attachment and
+// frustum culling). Candidates skip the camera-proximity fade and use the
+// deferred volumes' unfaded linear color so an alpha surface and the opaque
+// surface behind it agree on local lighting.
+bool LLPipeline::beginAlphaLocalLights()
+{
+    mAlphaLightCandidates.resize(0);
+    mAlphaLightSet.resize(0);
+    mAlphaLightSetValid = false;
+    mAlphaLightsActive = false;
+
+    static LLCachedControl<bool> per_group_lights(gSavedSettings, "RenderAlphaPerGroupLights", true);
+
+    // without local lights, setupHWLights() has already left every slot empty
+    if (!per_group_lights || LLPipeline::sRenderingHUDs || !localLightsEnabled())
+    {
+        return false;
+    }
+
+    static LLCachedControl<S32> local_light_count(gSavedSettings, "RenderLocalLightCount", 256);
+    F32 light_scale = gCubeSnapshot ? mReflectionMapManager.mLightScale : 1.f;
+    LLViewerCamera* camera = LLViewerCamera::getInstance();
+
+    S32 count = 0;
+    for (light_set_t::iterator iter = mNearbyLights.begin(); iter != mNearbyLights.end(); ++iter)
+    {
+        if (++count > local_light_count)
+        {
+            break;
+        }
+
+        AlphaLightCandidate candidate;
+        if (!resolveLocalLight(iter->drawable, light_scale, candidate.light))
+        {
+            continue;
+        }
+
+        // a light whose influence box misses the view frustum can't reach a
+        // visible fragment
+        LLVector4a center;
+        LLVector4a radius;
+        center.load3(candidate.light.pos.mV);
+        radius.splat(candidate.light.size);
+        if (camera->AABBInFrustumNoFarClip(center, radius) == 0)
+        {
+            continue;
+        }
+
+        const LLColor4& color = candidate.light.color;
+        candidate.luma = color.mV[0] * 0.2126f + color.mV[1] * 0.7152f + color.mV[2] * 0.0722f; // Rec. 709, color is linear
+        mAlphaLightCandidates.push_back(candidate);
+    }
+
+    mAlphaLightsActive = true;
+    return true;
+}
+
+void LLPipeline::selectAlphaLocalLights(const LLVector4a* extents)
+{
+    if (!mAlphaLightsActive)
+    {
+        return;
+    }
+
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+
+    // drop lights whose influence sphere misses the group's bounds; when over
+    // six remain, keep the strongest by estimated contribution
+    struct Pick
+    {
+        F32 weight;
+        const AlphaLightCandidate* candidate;
+    };
+    static std::vector<Pick> picks;
+    picks.resize(0);
+
+    const F32* lo = extents[0].getF32ptr();
+    const F32* hi = extents[1].getF32ptr();
+
+    // group bounding sphere, for the spotlight cone estimate below
+    LLVector3 center((lo[0] + hi[0]) * 0.5f, (lo[1] + hi[1]) * 0.5f, (lo[2] + hi[2]) * 0.5f);
+    F32 group_radius = LLVector3(hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]).length() * 0.5f;
+
+    for (const AlphaLightCandidate& c : mAlphaLightCandidates)
+    {
+        const LocalLight& l = c.light;
+        F32 dx = l.pos.mV[0] - llclamp(l.pos.mV[0], lo[0], hi[0]);
+        F32 dy = l.pos.mV[1] - llclamp(l.pos.mV[1], lo[1], hi[1]);
+        F32 dz = l.pos.mV[2] - llclamp(l.pos.mV[2], lo[2], hi[2]);
+        F32 nd2 = (dx * dx + dy * dy + dz * dz) / (l.size * l.size);
+        if (nd2 < 1.f)
+        {
+            // calcLegacyDistanceAttenuation() sans the rank-irrelevant *2.0
+            F32 atten = 1.f - llclamp((sqrtf(nd2) + l.falloff) / (1.f + l.falloff), 0.f, 1.f);
+            F32 weight = c.luma * atten * atten;
+            if (l.spot)
+            {
+                // the shader weights spotlights by cos^2 of the angle off the
+                // beam axis, masked to the projector cone (see
+                // calcForwardSpotAttenuation); estimate that at the angle
+                // between the axis and the group's bounding sphere's nearest
+                // silhouette point -- cos(theta - alpha) -- so a beam merely
+                // clipping the group's edge never drops the light, while one
+                // aimed away stops displacing lights that actually reach the
+                // group. A light inside the sphere, or a center within the
+                // angular widening, reaches part of the group head-on.
+                F32 spot = 1.f;
+                LLVector3 to_group = center - l.pos;
+                F32 dist = to_group.normVec();
+                if (dist > group_radius)
+                {
+                    F32 cos_theta = l.axis * to_group;
+                    F32 sin_alpha = group_radius / dist;
+                    F32 cos_alpha = sqrtf(1.f - sin_alpha * sin_alpha);
+                    if (cos_theta < cos_alpha) // center lies beyond the angular widening
+                    {
+                        F32 sin_theta = sqrtf(llmax(1.f - cos_theta * cos_theta, 0.f));
+                        spot = llmax(cos_theta * cos_alpha + sin_theta * sin_alpha, 0.f);
+                    }
+                }
+                F32 cone = llclamp((spot - l.cone_cos_outer) / (l.cone_cos_inner - l.cone_cos_outer), 0.f, 1.f);
+                weight *= spot * spot * cone * cone * (3.f - 2.f * cone); // GLSL smoothstep
+            }
+            picks.push_back({ weight, &c });
+        }
+    }
+
+    constexpr S32 NUM_SLOTS = 6; // HW light slots 2-7 (0 = sun/moon, 1 = avatar backlight)
+    S32 n = llmin((S32)picks.size(), NUM_SLOTS);
+    std::partial_sort(picks.begin(), picks.begin() + n, picks.end(),
+                      [](const Pick& a, const Pick& b) { return a.weight > b.weight; });
+
+    // skip the light state churn (and resulting uniform resyncs) when this
+    // group sees the same set as the previous one, in whatever rank order
+    bool changed = !mAlphaLightSetValid || (S32)mAlphaLightSet.size() != n;
+    for (S32 i = 0; !changed && i < n; ++i)
+    {
+        changed = std::find(mAlphaLightSet.begin(), mAlphaLightSet.end(), picks[i].candidate->light.drawable.get()) == mAlphaLightSet.end();
+    }
+    if (!changed)
+    {
+        return;
+    }
+
+    mAlphaLightSet.resize(0);
+
+    // light positions are transformed by the modelview current at set time;
+    // set them against the camera matrix without disturbing the model matrix
+    // the current draw already applied
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.pushMatrix();
+    gGL.loadMatrix(gGLModelView);
+
+    S32 cur_light = 2;
+    for (S32 i = 0; i < n; ++i, ++cur_light)
+    {
+        setHWLightSlot(cur_light, picks[i].candidate->light);
+        mAlphaLightSet.push_back(picks[i].candidate->light.drawable.get());
+    }
+    for (; cur_light < 8; ++cur_light)
+    {
+        clearHWLightSlot(cur_light);
+    }
+
+    gGL.popMatrix();
+
+    mAlphaLightSetValid = true;
+}
+
+void LLPipeline::endAlphaLocalLights()
+{
+    if (!mAlphaLightsActive)
+    {
+        return;
+    }
+
+    mAlphaLightsActive = false;
+    mAlphaLightSetValid = false;
+    mAlphaLightSet.resize(0);
+
+    // replay setupHWLights()' exact slot assignments (including proximity
+    // fade) for anything forward-lit later in the frame
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.pushMatrix();
+    gGL.loadMatrix(gGLModelView);
+
+    S32 cur_light = 2;
+    for (const LocalLight& pick : mHWLightPicks)
+    {
+        setHWLightSlot(cur_light++, pick);
+    }
+    for (; cur_light < 8; ++cur_light)
+    {
+        clearHWLightSlot(cur_light);
+    }
+
+    gGL.popMatrix();
+
+    mAlphaLightCandidates.resize(0);
+}
+
 void LLPipeline::setupHWLights()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
@@ -5839,10 +6146,9 @@ void LLPipeline::setupHWLights()
     // Nearby lights = LIGHT 2-7
 
     mLightMovingMask = 0;
+    mHWLightPicks.resize(0);
 
-    static LLCachedControl<S32> local_light_count(gSavedSettings, "RenderLocalLightCount", 256);
-
-    if (local_light_count >= 1)
+    if (localLightsEnabled())
     {
         for (light_set_t::iterator iter = mNearbyLights.begin();
              iter != mNearbyLights.end(); ++iter)
@@ -5867,10 +6173,6 @@ void LLPipeline::setupHWLights()
                 mLightMovingMask |= (1<<cur_light);
             }
 
-            //send linear light color to shader
-            LLColor4  light_color = light->getLightLinearColor() * light_scale;
-            light_color.mV[3] = 0.0f;
-
             F32 fade = iter->fade;
             if (fade < LIGHT_FADE_TIME)
             {
@@ -5886,73 +6188,28 @@ void LLPipeline::setupHWLights()
                     ((Light*) (&(*iter)))->fade -= gFrameIntervalSeconds.value();
                 }
                 fade = llclamp(fade,0.f,1.f);
-                light_color *= fade;
-            }
-
-            if (light_color.magVecSquared() < 0.001f)
-            {
-                continue;
-            }
-
-            LLVector3 light_pos(light->getRenderPosition());
-            LLVector4 light_pos_gl(light_pos, 1.0f);
-
-            F32 adjusted_radius = light->getLightRadius() * (sRenderDeferred ? 1.5f : 1.0f);
-            if (adjusted_radius <= 0.001f)
-            {
-                continue;
-            }
-
-            F32 x = (3.f * (1.f + (light->getLightFalloff() * 2.0f)));  // why this magic?  probably trying to match a historic behavior.
-            F32 linatten = x / adjusted_radius;                         // % of brightness at radius
-
-            mHWLightColors[cur_light] = light_color;
-            LLLightState* light_state = gGL.getLight(cur_light);
-
-            light_state->setPosition(light_pos_gl);
-            light_state->setDiffuse(light_color);
-            light_state->setAmbient(LLColor4::black);
-            light_state->setConstantAttenuation(0.f);
-            light_state->setSize(light->getLightRadius() * 1.5f);
-            light_state->setFalloff(light->getLightFalloff(DEFERRED_LIGHT_FALLOFF));
-
-            if (sRenderDeferred)
-            {
-                light_state->setLinearAttenuation(linatten);
-                light_state->setQuadraticAttenuation(light->getLightFalloff(DEFERRED_LIGHT_FALLOFF) + 1.f); // get falloff to match for forward deferred rendering lights
             }
             else
             {
-                light_state->setLinearAttenuation(linatten);
-                light_state->setQuadraticAttenuation(0.f);
+                fade = 1.f;
             }
 
-
-            if (light->isLightSpotlight() // directional (spot-)light
-                && (LLPipeline::sRenderDeferred || RenderSpotLightsInNondeferred)) // these are only rendered as GL spotlights if we're in deferred rendering mode *or* the setting forces them on
+            //send linear light color to shader
+            LocalLight local;
+            if (!resolveLocalLight(drawable, light_scale, local))
             {
-                LLQuaternion quat = light->getRenderRotation();
-                LLVector3 at_axis(0,0,-1); // this matches deferred rendering's object light direction
-                at_axis *= quat;
-
-                light_state->setSpotDirection(at_axis);
-                light_state->setSpotCutoff(90.f);
-                light_state->setSpotExponent(2.f);
-
-                LLVector3 spotParams = light->getSpotLightParams();
-
-                const LLColor4 specular(0.f, 0.f, 0.f, spotParams[2]);
-                light_state->setSpecular(specular);
+                continue;
             }
-            else // omnidirectional (point) light
+
+            local.color *= fade;
+            if (local.color.magVecSquared() < 0.001f)
             {
-                light_state->setSpotExponent(0.f);
-                light_state->setSpotCutoff(180.f);
-
-                // we use specular.z = 1.0 as a cheap hack for the shaders to know that this is omnidirectional rather than a spotlight
-                const LLColor4 specular(0.f, 0.f, 1.f, 0.f);
-                light_state->setSpecular(specular);
+                continue;
             }
+
+            setHWLightSlot(cur_light, local);
+            mHWLightPicks.push_back(local);
+
             cur_light++;
             if (cur_light >= 8)
             {
@@ -5962,12 +6219,7 @@ void LLPipeline::setupHWLights()
     }
     for ( ; cur_light < 8 ; cur_light++)
     {
-        mHWLightColors[cur_light] = LLColor4::black;
-        LLLightState* light = gGL.getLight(cur_light);
-        light->setSunPrimary(true);
-        light->setDiffuse(LLColor4::black);
-        light->setAmbient(LLColor4::black);
-        light->setSpecular(LLColor4::black);
+        clearHWLightSlot(cur_light);
     }
 
     // Bookmark comment to allow searching for mSpecialRenderMode == 3 (avatar edit mode),
@@ -8647,9 +8899,8 @@ void LLPipeline::renderDeferredLighting()
         }
 
         static LLCachedControl<S32> local_light_count(gSavedSettings, "RenderLocalLightCount", 256);
-        static LLCachedControl<S32> probe_level(gSavedSettings, "RenderReflectionProbeLevel", 0);
 
-        if (local_light_count > 0 && (!gCubeSnapshot || probe_level > 0))
+        if (localLightsEnabled())
         {
             gGL.setSceneBlendType(LLRender::BT_ADD);
             std::list<LLVector4>        fullscreen_lights;

@@ -259,6 +259,9 @@ public:
     void setSunPrimary(bool v);
     void setSize(F32 size);
     void setFalloff(F32 falloff);
+    // projector frustum approximated as a cone for forward-lit shaders:
+    // cosines of the half-angles where the beam is dark (outer) / full (inner)
+    void setSpotCone(F32 cos_outer, F32 cos_inner);
 
 protected:
     friend class LLRender;
@@ -281,6 +284,8 @@ protected:
     F32 mSpotCutoff;
     F32 mSize = 0.f;
     F32 mFalloff = 0.f;
+    F32 mSpotConeOuter = -1.f;
+    F32 mSpotConeInner = 1.f;
 };
 
 class LLRender

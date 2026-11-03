@@ -103,6 +103,35 @@ float calcLegacyDistanceAttenuation(float distance, float falloff)
     return dist_atten;
 }
 
+// Legacy (Blinn-Phong era) specular factor, shared by every legacy material
+// light so deferred and forward-lit surfaces stay in parity. Inputs come from
+// calcHalfVectors(); lightfunc = texture(lightFunc, vec2(nh, glossiness)).r
+float calcLegacySpecular(float nh, float nl, float nv, float vh, float lightfunc)
+{
+    float fres = pow(1.0 - vh, 5.0) * 0.4 + 0.5;
+    float gtdenom = 2.0 * nh;
+    float gt = max(0.0, min(gtdenom * nv / vh, gtdenom * nl / vh));
+    return fres * lightfunc * gt / (nh * nl);
+}
+
+// Spotlight weighting for forward-lit (alpha) surfaces. A deferred projector
+// lights only its frustum, with its projected texture; forward shaders keep
+// the legacy cos^2 beam falloff (GL_SPOT_EXPONENT=2) and mask it to the
+// frustum, approximated as a cone: cone.x / cone.y = cos of the half-angle
+// where the beam is dark / fully lit (see LLPipeline::resolveLocalLight).
+//   ld  spot direction, l  normalized surface to light vector
+float calcForwardSpotAttenuation(vec3 ld, vec3 l, float is_pointlight, vec2 cone)
+{
+    if (is_pointlight > 0.0)
+    {
+        return 1.0;
+    }
+
+    float cos_axis = dot(-ld, l);
+    float spot = max(cos_axis, 0.0);
+    return spot * spot * smoothstep(cone.x, cone.y, cos_axis);
+}
+
 // In:
 //   lv  unnormalized surface to light vector
 //   n   normal of the surface
@@ -527,27 +556,29 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     vec3 lp, // light position
                     vec3 ld, // light direction (for spotlights)
                     vec3 lightColor,
-                    float lightSize, float falloff, float is_pointlight, float ambiance)
+                    vec4 atten, // light size, falloff, spot cone (see calcForwardSpotAttenuation)
+                    float is_pointlight)
 {
     vec3 color = vec3(0,0,0);
+
+    if (atten.x <= 0.0)
+    { // empty light slot
+        return color;
+    }
 
     vec3 lv = lp.xyz - p;
 
     float lightDist = length(lv);
 
-    float dist = lightDist / lightSize;
-    if (dist <= 1.0)
+    float dist = lightDist / atten.x;
+    if (lightDist > 0.0 && dist <= 1.0)
     {
         lv /= lightDist;
 
-        float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
+        float dist_atten = calcLegacyDistanceAttenuation(dist, atten.y);
+        float spot_atten = calcForwardSpotAttenuation(ld, lv, is_pointlight, atten.zw);
 
-        // spotlight coefficient.
-        float spot = max(dot(-ld, lv), is_pointlight);
-        // spot*spot => GL_SPOT_EXPONENT=2
-        float spot_atten = spot*spot;
-
-        vec3 intensity = spot_atten * dist_atten * lightColor * 3.0; //magic number to balance with legacy materials
+        vec3 intensity = spot_atten * dist_atten * lightColor * 3.25; // Legacy attenuation, magic number to balance with legacy materials (as the deferred light volumes)
 
         float nl = 0;
         vec3 diffPunc = vec3(0);

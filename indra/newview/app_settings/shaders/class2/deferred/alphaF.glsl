@@ -57,10 +57,13 @@ uniform mat4 proj_mat;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 uniform int sun_up_factor;
+// Lights
+// See: LLRender::syncLightState()
 uniform vec4 light_position[8];
-uniform vec3 light_direction[8];
-uniform vec4 light_attenuation[8];
+uniform vec3 light_direction[8]; // spot direction
+uniform vec4 light_attenuation[8]; // linear, quadratic, is omni, ambiance, See: LLPipeline::setHWLightSlot() and syncLightState()
 uniform vec3 light_diffuse[8];
+uniform vec4 light_deferred_attenuation[8]; // light size, falloff, spot cone (cos outer, cos inner); size 0 = empty slot
 
 void waterClip(vec3 pos);
 
@@ -81,85 +84,41 @@ void mirrorClip(vec3 pos);
 void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent, vec3 amblit_linear);
 
-vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, float ambiance)
-{
-    // SL-14895 inverted attenuation work-around
-    // This routine is tweaked to match deferred lighting, but previously used an inverted la value. To reconstruct
-    // that previous value now that the inversion is corrected, we reverse the calculations in LLPipeline::setupHWLights()
-    // to recover the `adjusted_radius` value previously being sent as la.
-    float falloff_factor = (12.0 * fa) - 9.0;
-    float inverted_la = falloff_factor / la;
-    // Yes, it makes me want to cry as well. DJH
+float calcLegacyDistanceAttenuation(float distance, float falloff);
+float calcForwardSpotAttenuation(vec3 ld, vec3 l, float is_pointlight, vec2 cone);
 
+// Legacy local light, matching the deferred light volumes' diffuse response
+// (multiPointLightF); spotlights get the forward beam weighting on top.
+//   v  surface position, lp  light position, ld  spot direction
+//   atten  light size, falloff, spot cone (see light_deferred_attenuation)
+vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec3 lp, vec3 ld, vec4 atten, float is_pointlight)
+{
     vec3 col = vec3(0);
 
-    //get light vector
-    vec3 lv = lp.xyz-v;
-
-    //get distance
-    float dist = length(lv);
-    float da = 1.0;
-
-    /*if (dist > inverted_la)
-    {
+    if (atten.x <= 0.0)
+    { // empty light slot
         return col;
     }
 
-    clip to projector bounds
-     vec4 proj_tc = proj_mat * lp;
+    vec3 lv = lp - v;
+    float light_dist = length(lv);
+    float dist = light_dist / atten.x;
 
-    if (proj_tc.z < 0
-     || proj_tc.z > 1
-     || proj_tc.x < 0
-     || proj_tc.x > 1
-     || proj_tc.y < 0
-     || proj_tc.y > 1)
+    if (light_dist > 0.0 && dist < 1.0)
     {
-        return col;
-    }*/
+        lv /= light_dist;
 
-    if (dist > 0.0 && inverted_la > 0.0)
-    {
-        dist /= inverted_la;
-
-        //normalize light vector
-        lv = normalize(lv);
-
-        //distance attenuation
-        float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
-        dist_atten *= dist_atten;
-        dist_atten *= 2.0f;
-
-        if (dist_atten <= 0.0)
+        float nl = dot(n, lv);
+        if (nl > 0.0)
         {
-           return col;
+            float dist_atten = calcLegacyDistanceAttenuation(dist, atten.y);
+
+            // the spot weight scales the completed surface response; folding
+            // it into NdotL would diverge from the deferred path
+            float spot_atten = calcForwardSpotAttenuation(ld, lv, is_pointlight, atten.zw);
+
+            col = spot_atten * nl * dist_atten * light_col * diffuse;
         }
-
-        // spotlight coefficient.
-        float spot = max(dot(-ln, lv), is_pointlight);
-        da *= spot*spot; // GL_SPOT_EXPONENT=2
-
-        //angular attenuation
-        da *= dot(n, lv);
-        da = max(0.0, da);
-
-        float lit = 0.0f;
-
-        float amb_da = 0.0;//ambiance;
-        if (da > 0)
-        {
-            lit = clamp(da * dist_atten, 0.0, 1.0);
-            col = lit * light_col * diffuse;
-            amb_da += (da*0.5+0.5) * ambiance;
-        }
-        amb_da += (da*da*0.5 + 0.5) * ambiance;
-        amb_da *= dist_atten;
-        amb_da = min(amb_da, 1.0f - lit);
-
-        // SL-10969 ... need to work out why this blows out in many setups...
-        //col.rgb += amb_da * light_col * diffuse;
-
-        // no spec for alpha shader...
     }
     float final_scale = 1.0;
     if (classic_mode > 0)
@@ -289,9 +248,9 @@ void main()
 
     vec4 light = vec4(0,0,0,0);
 
-   #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diffuse_linear.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w);
+    // local lights (slots 2-7; 0 is the sun/moon, 1 the fixed-function avatar backlight)
+   #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diffuse_linear.rgb, pos.xyz, norm, light_position[i].xyz, light_direction[i].xyz, light_deferred_attenuation[i], light_attenuation[i].z);
 
-    LIGHT_LOOP(1)
     LIGHT_LOOP(2)
     LIGHT_LOOP(3)
     LIGHT_LOOP(4)

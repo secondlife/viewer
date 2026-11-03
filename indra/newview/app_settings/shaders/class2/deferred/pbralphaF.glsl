@@ -75,9 +75,9 @@ uniform float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlpha
 // See: LLRender::syncLightState()
 uniform vec4 light_position[8];
 uniform vec3 light_direction[8]; // spot direction
-uniform vec4 light_attenuation[8]; // linear, quadratic, is omni, unused, See: LLPipeline::setupHWLights() and syncLightState()
+uniform vec4 light_attenuation[8]; // linear, quadratic, is omni, ambiance, See: LLPipeline::setHWLightSlot() and syncLightState()
 uniform vec3 light_diffuse[8];
-uniform vec2 light_deferred_attenuation[8]; // light size and falloff
+uniform vec4 light_deferred_attenuation[8]; // light size, falloff, spot cone (cos outer, cos inner); size 0 = empty slot
 
 vec3 srgb_to_linear(vec3 c);
 vec3 linear_to_srgb(vec3 c);
@@ -121,7 +121,8 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     vec3 lp, // light position
                     vec3 ld, // light direction (for spotlights)
                     vec3 lightColor,
-                    float lightSize, float falloff, float is_pointlight, float ambiance);
+                    vec4 atten, // light size, falloff, spot cone
+                    float is_pointlight);
 
 void main()
 {
@@ -198,10 +199,9 @@ void main()
 
     vec3 light = vec3(0);
 
-    // Punctual lights
-#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w);
+    // Punctual lights (slots 2-7; 0 is the sun/moon, 1 the fixed-function avatar backlight)
+#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i], light_attenuation[i].z);
 
-    LIGHT_LOOP(1)
     LIGHT_LOOP(2)
     LIGHT_LOOP(3)
     LIGHT_LOOP(4)
