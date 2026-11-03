@@ -7179,17 +7179,6 @@
         <key>Value</key>
             <real>1.0</real>
         </map>
-    <key>WebContentWindowLimit</key>
-    <map>
-      <key>Comment</key>
-      <string>Maximum number of web browser windows that can be open at once in the Web content floater (0 for no limit)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>5</integer>
-    </map>
   <key>MediaRollOffRate</key>
   <map>
     <key>Comment</key>
@@ -13459,6 +13448,17 @@
       <string>U32</string>
       <key>Value</key>
       <integer>60</integer>
+    </map>
+    <key>EmbeddedBrowserMaxUIWindows</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of simultaneously open Web content floater windows (profile, search, marketplace, popup links, etc.); the least-recently-opened one is closed when a new one would exceed this (0 for no limit)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>5</integer>
     </map>
     <key>EmbeddedBrowserUseLibVLC</key>
     <map>

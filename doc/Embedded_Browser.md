@@ -654,18 +654,68 @@ real-time FPS/dropped-frames/GPU-raster readout directly on the page,
 useful for checking the distance/priority render-throttling tiers above
 are actually taking effect on a given tab.
 
-## Link clicks: no real popup windows
+## Link clicks: no real popup windows, but UI and prim media differ
 
-A `target="_blank"` link, an arbitrary unnamed/new target, or a
-`window.open()` call now navigates the same embedded-browser instance in
-place, rather than opening a second one (`llcefbrowser` 1.55.0, 2026-10-30).
-There is no real multi-window/multi-tab popup support here, so CEF's own
-`OnBeforePopup` loads the target URL directly into the browser's main frame
-and cancels the popup CEF would otherwise create. Before this fix, a popup
-click was instead forwarded up as a `click_href`-style event, which the
-Viewer's `LLWeb::loadURL()` turned into a brand new `web_content` floater
-every time (a fresh UUID per click meant a fresh floater instance) - the
-opposite of what a user clicking a same-page link generally expects.
+There is no real multi-window/multi-tab popup support here either way - CEF's
+`OnBeforePopup` always cancels the popup CEF would otherwise create for a
+`target="_blank"` link, an arbitrary named target, or a `window.open()` call.
+What happens to the click instead depends on whether the browser is UI media
+(a 2D floater) or prim media, since `llCefBrowser` (`llcefbrowser` 1.56.0,
+2026-11-03) now branches on the same `mIsUI`/`isUI` flag already threaded
+through for cookie-context selection (see "Cookies" above):
+
+- **Prim media** has no concept of a second "tab" to put a popup in, so the
+  target URL just loads directly into the browser's own main frame - the
+  same browser keeps navigating in place. This part is unaffected by the
+  preference below.
+- **UI media** (a 2D floater) does have somewhere sensible for it to go, so
+  the click is forwarded up to the Viewer (`mOnOpenPopup` ->
+  `kEventClickLinkHref` -> `MEDIA_EVENT_CLICK_LINK_HREF`) exactly as it
+  always was before the embedded browser existed, and handled by
+  `LLWeb::loadURL()` (`llweb.cpp`) - the same pre-existing, backend-agnostic
+  routing the retired CEF media plugin always used:
+  - `PreferredBrowserBehavior` set to "Use the built-in browser for all
+    links" (`BROWSER_INTERNAL_ONLY`, value 2) opens the link in a new
+    internal `web_content` floater (see "EmbeddedBrowserMaxUIWindows" below
+    for what happens if this keeps happening).
+  - Otherwise (the default, or a lindenlab.com/secondlife.com/secondlife.io
+    domain under the "internal for LL/SL domains only" option), it opens in
+    the resident's desktop browser instead.
+
+**History worth knowing if this ever regresses again**: `llcefbrowser`
+1.55.0 (2026-10-30) made every popup click navigate in place unconditionally,
+for every browser - a genuine behavioral regression, not an intentional
+scope decision, found during live testing the following week (prim media was
+the only case that was ever supposed to change). The `mIsUI` branch above is
+the fix - it was already available at the `OnBeforePopup` call site (passed
+in at `llCefBrowser` construction, previously used only to pick `mUIContext`
+vs. `mPrimContext`), so restoring the UI-media behavior needed no new
+plumbing, just using a flag that was already there.
+
+### EmbeddedBrowserMaxUIWindows: capping repeated `_blank` clicks
+
+A **named** popup target (`target="my_window"`, say) is naturally
+self-limiting: `LLFloaterWebContent::matchesKey()` (`llfloaterwebcontent.cpp`)
+keys the floater by that name, so repeated clicks against the same name reuse
+the same floater instead of piling up new ones. A `_blank` or unnamed target
+has no such name to key on, so it falls back to matching by a UUID that is
+freshly generated for every single click (`llviewermedia.cpp`'s
+`mEmbeddedClickUUID`) - meaning, with nothing else in place, a resident (or a
+malicious page) repeatedly triggering such a link while "Use the built-in
+browser for all links" is selected could spawn an unbounded number of
+`web_content` floater windows.
+
+**`EmbeddedBrowserMaxUIWindows`** (S32, debug setting, default `5`, `0` for no
+limit) caps this: `LLFloaterWebContent::preCreate()` checks how many
+`web_content`-class floaters are already open before creating a new one, and
+closes the least-recently-opened one first if the new one would exceed the
+limit. This is not new or embedded-browser-specific machinery - it is the
+same generic mechanism that already existed (previously named
+`WebContentWindowLimit`, renamed 2026-11-03 to sit alongside this document's
+other `EmbeddedBrowser*` settings, since the popup-click case above is what
+actually exercises it in practice - most other callers of `LLWeb::loadURL()`
+pass an empty target/UUID and so already share one single floater instance
+regardless of this cap).
 
 ## JS Bridge: page JS calling back into the Viewer
 

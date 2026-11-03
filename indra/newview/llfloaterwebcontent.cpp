@@ -214,7 +214,7 @@ void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
         p.target = p.id();
     }
 
-    S32 browser_window_limit = gSavedSettings.getS32("WebContentWindowLimit");
+    S32 browser_window_limit = gSavedSettings.getS32("EmbeddedBrowserMaxUIWindows");
     if(browser_window_limit != 0)
     {
         // showInstance will open a new window.  Figure out how many web browsers are already open,
