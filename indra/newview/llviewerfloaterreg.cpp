@@ -127,6 +127,7 @@
 #include "llfloaterpreviewtrash.h"
 #include "llfloaterprofile.h"
 #include "llfloaterregiondebugconsole.h"
+#include "llfloatercombatsettings.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterregionrestarting.h"
 #include "llfloaterreporter.h"
@@ -491,6 +492,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("reset_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterResetQueue>);
     LLFloaterReg::add("region_debug_console", "floater_region_debug_console.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRegionDebugConsole>);
     LLFloaterReg::add("region_info", "floater_region_info.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRegionInfo>);
+    LLFloaterReg::add("region_combat_settings", "floater_combat_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCombatSettings>);
     LLFloaterReg::add("region_restarting", "floater_region_restarting.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRegionRestarting>);
 
     LLFloaterReg::add("script_debug", "floater_script_debug.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterScriptDebug>);
