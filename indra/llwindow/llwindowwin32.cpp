@@ -4585,6 +4585,10 @@ void LLWindowWin32::allowLanguageTextInput(LLPreeditor *preeditor, bool b)
             interruptLanguageTextInput();
         }
         mPreeditor = (b ? preeditor : NULL);
+
+        // Requests must not be answered with the old editor's data
+        LLMutexLock lock(&mImeCacheMutex);
+        mImeCache = ImeCache();
     }
 
     sLanguageTextInputAllowed = b;
@@ -5060,6 +5064,7 @@ void LLWindowWin32::updateImeCache()
     // is rebuilt only when the caret, the preedit, the selection or the text around them changes.
     // The text read by find_context() includes the preedit, comparing it also covers mPreeditText.
     if (mImeCache.mValid
+        && cursor.mValid
         && mImeCache.mPreeditor == mPreeditor
         && mImeCache.mTextLength == text_length
         && mImeCache.mPreeditStart == preedit
@@ -5221,6 +5226,8 @@ bool LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
                     text_length = mImeCache.mTextLength;
                     preeditor = mImeCache.mPreeditor;
                 }
+                S32 cached_select = select;
+                S32 cached_select_length = select_length;
 
                 RECONVERTSTRING * const reconvert_string = (RECONVERTSTRING *)param;
                 const U32 size = fillReconvertString(context, select - context_offset, select_length, reconvert_string);
@@ -5245,16 +5252,22 @@ bool LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
                         }
                     }
 
-                    // The editor belongs to the main thread, only mark it if it is still
-                    // the one the context came from and the context hasn't changed since
-                    post([this, preeditor, context, context_offset, select, select_length, text_length]()
+                    // The editor belongs to the main thread, only mark it if it is still the one the
+                    // context came from, and neither the context, the caret, the selection nor the preedit changed since
+                    post([this, preeditor, context, context_offset, select, select_length, text_length, cached_select, cached_select_length]()
                     {
                         if (!mPreeditor || mPreeditor != preeditor)
                         {
                             return;
                         }
+                        S32 current_select, current_select_length;
+                        mPreeditor->getSelectionRange(&current_select, &current_select_length);
+                        S32 current_preedit, current_preedit_length;
+                        mPreeditor->getPreeditRange(&current_preedit, &current_preedit_length);
                         const LLWString& wtext = mPreeditor->getPreeditString();
-                        if ((S32)wtext.length() == text_length
+                        if (current_select == cached_select && current_select_length == cached_select_length
+                            && current_preedit_length == 0
+                            && (S32)wtext.length() == text_length
                             && context_offset >= 0 && context_offset + (S32)context.length() <= text_length
                             && wtext.compare(context_offset, context.length(), context) == 0)
                         {
