@@ -722,7 +722,7 @@ void LLFloaterEditExtDayCycle::onButtonLoadFrame()
 
 void LLFloaterEditExtDayCycle::onButtonSaveFrame()
 {
-    if (!mCurrentEdit || !mCanCopy || !mCanSave || !canUseInventory() || mIsPlaying)
+    if (!mEditDay || !mCurrentEdit || !mCanCopy || !mCanSave || !canUseInventory() || mIsPlaying)
     {
         return;
     }
@@ -841,7 +841,10 @@ void LLFloaterEditExtDayCycle::onSaveFrameAsCommit(const LLSD& notification, con
             // A newly-created frame must not be routed through the day-cycle
             // completion handler: that handler reloads the item as a day
             // cycle and clears the editor's dirty state.
-            floater->setFocus(true);
+            if (floater->isInVisibleChain())
+            {
+                floater->setFocus(true);
+            }
         }
     };
 
@@ -1382,7 +1385,7 @@ void LLFloaterEditExtDayCycle::updateButtons()
     mAddFrameButton->setEnabled(can_manipulate && isAddingFrameAllowed());
     mDeleteFrameButton->setEnabled(can_manipulate && isRemovingFrameAllowed());
     mLoadFrame->setEnabled(can_manipulate);
-    mSaveFrame->setEnabled(canUseInventory() && mCanCopy && mCanSave && mCurrentEdit && !mIsPlaying);
+    mSaveFrame->setEnabled(canUseInventory() && mCanCopy && mCanSave && mEditDay && mCurrentEdit && !mIsPlaying);
 
     bool enable_play = (bool)mEditDay;
     childSetEnabled(BTN_PLAY, enable_play);
