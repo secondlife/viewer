@@ -116,7 +116,7 @@ uniform vec2 screen_res;
 // See: LLRender::syncLightState()
 uniform vec4 light_position[8];
 uniform vec4 light_direction[8]; // spot direction, projector apex offset
-uniform vec4 light_attenuation[8]; // linear, quadratic, is omni, ambiance, See: LLPipeline::setHWLightSlot() and syncLightState()
+uniform vec4 light_attenuation[8]; // linear, quadratic, is omni, projector near clip, See: LLPipeline::setHWLightSlot() and syncLightState()
 uniform vec3 light_diffuse[8];
 uniform vec4 light_deferred_attenuation[8]; // light size, falloff, spot cone (cos outer, cos inner); size 0 = empty slot
 
@@ -158,7 +158,8 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     vec4 ld, // light direction, projector apex offset (for spotlights)
                     vec3 lightColor,
                     vec4 atten, // light size, falloff, spot cone
-                    float is_pointlight);
+                    float is_pointlight,
+                    float near_clip); // projector near clip (for spotlights)
 
 #endif
 // ==================================
@@ -304,7 +305,7 @@ void main()
     vec3 light = vec3(0);
 
     // Punctual lights (slots 2-7; 0 is the sun/moon, 1 the fixed-function avatar backlight)
-#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i], light_diffuse[i].rgb, light_deferred_attenuation[i], light_attenuation[i].z);
+#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i], light_diffuse[i].rgb, light_deferred_attenuation[i], light_attenuation[i].z, light_attenuation[i].w);
 
     LIGHT_LOOP(2)
     LIGHT_LOOP(3)

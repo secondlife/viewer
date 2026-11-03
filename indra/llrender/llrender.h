@@ -265,6 +265,9 @@ public:
     // distance from the light position to the projector frustum's apex along
     // the spot direction (negative = behind the light position)
     void setSpotApexOffset(F32 offset);
+    // distance from the light position to the projector's near clip plane
+    // along the spot direction; nothing before it is lit
+    void setSpotNearClip(F32 near_clip);
 
 protected:
     friend class LLRender;
@@ -290,6 +293,7 @@ protected:
     F32 mSpotConeOuter = -1.f;
     F32 mSpotConeInner = 1.f;
     F32 mSpotApexOffset = 0.f;
+    F32 mSpotNearClip = 0.f;
 };
 
 class LLRender

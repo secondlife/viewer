@@ -5792,6 +5792,7 @@ bool LLPipeline::resolveLocalLight(LLDrawable* drawable, F32 light_scale, LocalL
     light.cone_cos_outer = -1.f;
     light.cone_cos_inner = 1.f;
     light.apex_offset = 0.f;
+    light.near_clip = 0.f;
 
     if (light.spot)
     {
@@ -5812,10 +5813,12 @@ bool LLPipeline::resolveLocalLight(LLDrawable* drawable, F32 light_scale, LocalL
         light.cone_cos_outer = llmin(1.f / sqrtf(1.f + tan_outer * tan_outer), light.cone_cos_inner - 0.001f);
 
         // the frustum's apex is not the prim center: setupSpotLight() places
-        // it so the frustum passes through the prim's front face edges
+        // it so the frustum passes through the prim's front face edges, and
+        // clips everything before that face
+        light.near_clip = scale.mV[VZ] * 0.5f;
         if (tan_y > F_APPROXIMATELY_ZERO)
         {
-            light.apex_offset = scale.mV[VZ] * 0.5f - scale.mV[VY] * 0.5f / tan_y;
+            light.apex_offset = light.near_clip - scale.mV[VY] * 0.5f / tan_y;
         }
         light.ambiance = params.mV[2];
     }
@@ -5844,6 +5847,7 @@ void LLPipeline::setHWLightSlot(S32 slot, const LocalLight& light)
         light_state->setSpotExponent(2.f);
         light_state->setSpotCone(light.cone_cos_outer, light.cone_cos_inner);
         light_state->setSpotApexOffset(light.apex_offset);
+        light_state->setSpotNearClip(light.near_clip);
         light_state->setSpecular(LLColor4(0.f, 0.f, 0.f, light.ambiance));
     }
     else
@@ -5991,11 +5995,20 @@ void LLPipeline::selectAlphaLocalLights(const LLVector4a* extents)
                 // edge never drops the light, while one aimed away stops
                 // displacing lights that actually reach the group. An apex
                 // inside the sphere, or a center within the angular widening,
-                // reaches part of the group head-on.
+                // reaches part of the group head-on. A group wholly before
+                // the near clip plane gets nothing.
                 F32 spot = 1.f;
+                F32 reach = l.axis * (center - l.pos)
+                          + 0.5f * (fabsf(l.axis.mV[0]) * (hi[0] - lo[0])
+                                  + fabsf(l.axis.mV[1]) * (hi[1] - lo[1])
+                                  + fabsf(l.axis.mV[2]) * (hi[2] - lo[2]));
                 LLVector3 to_group = center - (l.pos + l.axis * l.apex_offset);
                 F32 dist = to_group.normVec();
-                if (dist > group_radius)
+                if (reach < l.near_clip)
+                {
+                    spot = 0.f;
+                }
+                else if (dist > group_radius)
                 {
                     F32 cos_theta = l.axis * to_group;
                     F32 sin_alpha = group_radius / dist;

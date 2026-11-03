@@ -651,6 +651,15 @@ void LLLightState::setSpotApexOffset(F32 offset)
     }
 }
 
+void LLLightState::setSpotNearClip(F32 near_clip)
+{
+    if (mSpotNearClip != near_clip)
+    {
+        ++gGL.mLightHash;
+        mSpotNearClip = near_clip;
+    }
+}
+
 void LLLightState::setAmbient(const LLColor4& ambient)
 {
     if (mAmbient != ambient)
@@ -898,7 +907,9 @@ void LLRender::syncLightState()
 
             position[i]  = light->mPosition;
             direction[i].set(light->mSpotDirection, light->mSpotApexOffset);
-            attenuation[i].set(light->mLinearAtten, light->mQuadraticAtten, light->mSpecular.mV[2], light->mSpecular.mV[3]);
+            // linear, quadratic, is omni, projector near clip (the projector
+            // ambiance in specular.w has no forward-lit use)
+            attenuation[i].set(light->mLinearAtten, light->mQuadraticAtten, light->mSpecular.mV[2], light->mSpotNearClip);
             diffuse[i].set(light->mDiffuse.mV);
             diffuse_b[i].set(light->mDiffuseB.mV);
             sun_primary[i] = light->mSunIsPrimary;

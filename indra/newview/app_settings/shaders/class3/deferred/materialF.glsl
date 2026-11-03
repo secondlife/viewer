@@ -44,7 +44,7 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, ou
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
 float calcLegacyDistanceAttenuation(float distance, float falloff);
 float calcLegacySpecular(float nh, float nl, float nv, float vh, float lightfunc);
-float calcForwardSpotAttenuation(vec4 ld, vec3 lv, float is_pointlight, vec2 cone);
+float calcForwardSpotAttenuation(vec4 ld, vec3 lv, float is_pointlight, vec2 cone, float near_clip);
 
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cs);
@@ -91,7 +91,7 @@ uniform vec2 screen_res;
 // See: LLRender::syncLightState()
 uniform vec4 light_position[8];
 uniform vec4 light_direction[8]; // spot direction, projector apex offset
-uniform vec4 light_attenuation[8]; // linear, quadratic, is omni, ambiance, See: LLPipeline::setHWLightSlot() and syncLightState()
+uniform vec4 light_attenuation[8]; // linear, quadratic, is omni, projector near clip, See: LLPipeline::setHWLightSlot() and syncLightState()
 uniform vec3 light_diffuse[8];
 uniform vec4 light_deferred_attenuation[8]; // light size, falloff, spot cone (cos outer, cos inner); size 0 = empty slot
 
@@ -104,7 +104,7 @@ void waterClip(vec3 pos);
 //   npos  normalized surface to camera vector, v  surface position
 //   lp  light position, ld  spot direction, apex offset
 //   atten  light size, falloff, spot cone (see light_deferred_attenuation)
-vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec3 lp, vec4 ld, vec4 atten, float is_pointlight, inout float glare)
+vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec3 lp, vec4 ld, vec4 atten, float is_pointlight, float near_clip, inout float glare)
 {
     vec3 col = vec3(0);
 
@@ -129,7 +129,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 
         // the spot weight scales the completed surface response; it must not
         // enter NdotL or the specular geometry denominator
-        float spot_atten = calcForwardSpotAttenuation(ld, lv, is_pointlight, atten.zw);
+        float spot_atten = calcForwardSpotAttenuation(ld, lv, is_pointlight, atten.zw, near_clip);
 
         col = spot_atten * nl * dist_atten * light_col * diffuse;
 
@@ -369,7 +369,7 @@ void main()
     vec3 light = vec3(0, 0, 0);
 
     // local lights (slots 2-7; 0 is the sun/moon, 1 the fixed-function avatar backlight)
-#define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, spec, pos.xyz, norm.xyz, light_position[i].xyz, light_direction[i], light_deferred_attenuation[i], light_attenuation[i].z, glare);
+#define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, spec, pos.xyz, norm.xyz, light_position[i].xyz, light_direction[i], light_deferred_attenuation[i], light_attenuation[i].z, light_attenuation[i].w, glare);
 
     LIGHT_LOOP(2)
     LIGHT_LOOP(3)

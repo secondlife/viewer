@@ -881,6 +881,7 @@ protected:
         F32 cone_cos_outer;  // projector frustum as a cone, see resolveLocalLight()
         F32 cone_cos_inner;
         F32 apex_offset;     // projector frustum apex, along axis from pos (see setupSpotLight())
+        F32 near_clip;       // projector near clip plane (the prim's front face), along axis from pos
         F32 ambiance;        // projector ambiance
         bool spot;           // projector: forward shaders weight it by beam direction
     };

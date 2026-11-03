@@ -120,13 +120,20 @@ float calcLegacySpecular(float nh, float nl, float nv, float vh, float lightfunc
 // frustum, approximated as a cone: cone.x / cone.y = cos of the half-angle
 // where the beam is dark / fully lit (see LLPipeline::resolveLocalLight).
 // Both are measured from the frustum's apex, which sits ld.w along the spot
-// direction from the light position (see LLPipeline::setupSpotLight).
+// direction from the light position (see LLPipeline::setupSpotLight); like
+// the projector, nothing closer than its near clip plane is lit.
 //   ld  spot direction, apex offset; lv  unnormalized surface to light vector
-float calcForwardSpotAttenuation(vec4 ld, vec3 lv, float is_pointlight, vec2 cone)
+//   near_clip  near clip plane distance along the spot direction
+float calcForwardSpotAttenuation(vec4 ld, vec3 lv, float is_pointlight, vec2 cone, float near_clip)
 {
     if (is_pointlight > 0.0)
     {
         return 1.0;
+    }
+
+    if (-dot(ld.xyz, lv) < near_clip)
+    {
+        return 0.0;
     }
 
     vec3 apex_lv = lv + ld.xyz * ld.w;
@@ -566,7 +573,8 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     vec4 ld, // light direction, projector apex offset (for spotlights)
                     vec3 lightColor,
                     vec4 atten, // light size, falloff, spot cone (see calcForwardSpotAttenuation)
-                    float is_pointlight)
+                    float is_pointlight,
+                    float near_clip) // projector near clip (for spotlights)
 {
     vec3 color = vec3(0,0,0);
 
@@ -582,7 +590,7 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
     float dist = lightDist / atten.x;
     if (lightDist > 0.0 && dist <= 1.0)
     {
-        float spot_atten = calcForwardSpotAttenuation(ld, lv, is_pointlight, atten.zw);
+        float spot_atten = calcForwardSpotAttenuation(ld, lv, is_pointlight, atten.zw, near_clip);
 
         lv /= lightDist;
 
