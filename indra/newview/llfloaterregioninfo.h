@@ -113,6 +113,8 @@ private:
     LLFloaterRegionInfo(const LLSD& seed);
     ~LLFloaterRegionInfo();
 
+    static void processCombatSettings(LLMessageSystem* msg, U64 region_flags);
+
 protected:
     void onTabSelected(const LLSD& param);
     void disableTabCtrls();

@@ -507,25 +507,6 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
             << " chat flags: " << chat_flags << LL_ENDL;
     }
 
-    LLRegionCombatSettings combat_settings;
-    combat_settings.mAllowDamage = is_flag_set(region_flags, REGION_FLAGS_ALLOW_DAMAGE);
-
-    if (msg->has(_PREHASH_CombatSettings))
-    {
-        combat_settings.mSupportsCombat2 = true;
-
-        msg->getU32Fast(_PREHASH_CombatSettings, _PREHASH_CombatFlags, combat_settings.mCombatFlags);
-        msg->getU8Fast(_PREHASH_CombatSettings, _PREHASH_OnDeath, combat_settings.mOnDeath);
-        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_DamageThrottle, combat_settings.mDamageThrottle);
-        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_RegenerationRate, combat_settings.mRegenerationRate);
-        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_InvulnerabilyTime, combat_settings.mInvulnerabilityTime);
-        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_DamageLimit, combat_settings.mDamageLimit);
-
-        LL_INFOS() << "Combat flags: " << std::hex << combat_settings.mCombatFlags << std::dec << " on death: " << (S32)combat_settings.mOnDeath
-                    << " damage throttle: " << combat_settings.mDamageThrottle << " regeneration rate: " << combat_settings.mRegenerationRate
-                    << " invulnerability time: " << combat_settings.mInvulnerabilityTime << " damage limit: " << combat_settings.mDamageLimit << LL_ENDL;
-    }
-
     // GENERAL PANEL
     panel = tab->getChild<LLPanel>("General");
     panel->getChild<LLUICtrl>("region_text")->setValue(LLSD(sim_name));
@@ -549,14 +530,9 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
     if (panel_general)
     {
         panel_general->setObjBonusFactor(object_bonus_factor);
-        panel_general->setCombatEnabled(combat_settings.mAllowDamage);
     }
 
-    LLFloaterCombatSettings* combat_floater = LLFloaterReg::getTypedInstance<LLFloaterCombatSettings>("region_combat_settings");
-    if (combat_floater)
-    {
-        combat_floater->setSettings(combat_settings);
-    }
+    processCombatSettings(msg, region_flags);
 
     // detect teen grid for maturity
 
@@ -604,6 +580,40 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
         // we need to know env version here and in update(msg) to know when to request and when not to, when to filter 'changed'
         floater->refreshFromRegion(gAgent.getRegion());
     } // else will rerequest on onOpen either way
+}
+
+void LLFloaterRegionInfo::processCombatSettings(LLMessageSystem* msg, U64 region_flags)
+{
+    LLRegionCombatSettings combat_settings;
+    combat_settings.mAllowDamage = is_flag_set(region_flags, REGION_FLAGS_ALLOW_DAMAGE);
+
+    if (msg->has(_PREHASH_CombatSettings))
+    {
+        combat_settings.mSupportsCombat2 = true;
+
+        msg->getU32Fast(_PREHASH_CombatSettings, _PREHASH_CombatFlags, combat_settings.mCombatFlags);
+        msg->getU8Fast(_PREHASH_CombatSettings, _PREHASH_OnDeath, combat_settings.mOnDeath);
+        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_DamageThrottle, combat_settings.mDamageThrottle);
+        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_RegenerationRate, combat_settings.mRegenerationRate);
+        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_InvulnerabilyTime, combat_settings.mInvulnerabilityTime);
+        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_DamageLimit, combat_settings.mDamageLimit);
+
+        LL_INFOS() << "Combat flags: " << std::hex << combat_settings.mCombatFlags << std::dec << " on death: " << (S32)combat_settings.mOnDeath
+                    << " damage throttle: " << combat_settings.mDamageThrottle << " regeneration rate: " << combat_settings.mRegenerationRate
+                    << " invulnerability time: " << combat_settings.mInvulnerabilityTime << " damage limit: " << combat_settings.mDamageLimit << LL_ENDL;
+    }
+
+    LLPanelRegionGeneralInfo* panel_general = LLFloaterRegionInfo::getPanelGeneral();
+    if (panel_general)
+    {
+        panel_general->setCombatEnabled(combat_settings.mAllowDamage);
+    }
+
+    LLFloaterCombatSettings* combat_floater = LLFloaterReg::getTypedInstance<LLFloaterCombatSettings>("region_combat_settings");
+    if (combat_floater)
+    {
+        combat_floater->setSettings(combat_settings);
+    }
 }
 
 // static
