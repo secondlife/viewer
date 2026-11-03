@@ -60,7 +60,7 @@ uniform int sun_up_factor;
 // Lights
 // See: LLRender::syncLightState()
 uniform vec4 light_position[8];
-uniform vec3 light_direction[8]; // spot direction
+uniform vec4 light_direction[8]; // spot direction, projector apex offset
 uniform vec4 light_attenuation[8]; // linear, quadratic, is omni, ambiance, See: LLPipeline::setHWLightSlot() and syncLightState()
 uniform vec3 light_diffuse[8];
 uniform vec4 light_deferred_attenuation[8]; // light size, falloff, spot cone (cos outer, cos inner); size 0 = empty slot
@@ -85,13 +85,13 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
         vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent, vec3 amblit_linear);
 
 float calcLegacyDistanceAttenuation(float distance, float falloff);
-float calcForwardSpotAttenuation(vec3 ld, vec3 l, float is_pointlight, vec2 cone);
+float calcForwardSpotAttenuation(vec4 ld, vec3 lv, float is_pointlight, vec2 cone);
 
 // Legacy local light, matching the deferred light volumes' diffuse response
 // (multiPointLightF); spotlights get the forward beam weighting on top.
-//   v  surface position, lp  light position, ld  spot direction
+//   v  surface position, lp  light position, ld  spot direction, apex offset
 //   atten  light size, falloff, spot cone (see light_deferred_attenuation)
-vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec3 lp, vec3 ld, vec4 atten, float is_pointlight)
+vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec3 lp, vec4 ld, vec4 atten, float is_pointlight)
 {
     vec3 col = vec3(0);
 
@@ -106,9 +106,9 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
 
     if (light_dist > 0.0 && dist < 1.0)
     {
-        lv /= light_dist;
+        vec3 l = lv / light_dist;
 
-        float nl = dot(n, lv);
+        float nl = dot(n, l);
         if (nl > 0.0)
         {
             float dist_atten = calcLegacyDistanceAttenuation(dist, atten.y);
@@ -249,7 +249,7 @@ void main()
     vec4 light = vec4(0,0,0,0);
 
     // local lights (slots 2-7; 0 is the sun/moon, 1 the fixed-function avatar backlight)
-   #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diffuse_linear.rgb, pos.xyz, norm, light_position[i].xyz, light_direction[i].xyz, light_deferred_attenuation[i], light_attenuation[i].z);
+   #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diffuse_linear.rgb, pos.xyz, norm, light_position[i].xyz, light_direction[i], light_deferred_attenuation[i], light_attenuation[i].z);
 
     LIGHT_LOOP(2)
     LIGHT_LOOP(3)

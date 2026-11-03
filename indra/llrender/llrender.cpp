@@ -642,6 +642,15 @@ void LLLightState::setSpotCone(F32 cos_outer, F32 cos_inner)
     }
 }
 
+void LLLightState::setSpotApexOffset(F32 offset)
+{
+    if (mSpotApexOffset != offset)
+    {
+        ++gGL.mLightHash;
+        mSpotApexOffset = offset;
+    }
+}
+
 void LLLightState::setAmbient(const LLColor4& ambient)
 {
     if (mAmbient != ambient)
@@ -876,7 +885,7 @@ void LLRender::syncLightState()
         shader->mLightHash = mLightHash;
 
         LLVector4 position[LL_NUM_LIGHT_UNITS];
-        LLVector3 direction[LL_NUM_LIGHT_UNITS];
+        LLVector4 direction[LL_NUM_LIGHT_UNITS];
         LLVector4 attenuation[LL_NUM_LIGHT_UNITS];
         LLVector3 diffuse[LL_NUM_LIGHT_UNITS];
         LLVector3 diffuse_b[LL_NUM_LIGHT_UNITS];
@@ -888,7 +897,7 @@ void LLRender::syncLightState()
             LLLightState *light = &mLightState[i];
 
             position[i]  = light->mPosition;
-            direction[i] = light->mSpotDirection;
+            direction[i].set(light->mSpotDirection, light->mSpotApexOffset);
             attenuation[i].set(light->mLinearAtten, light->mQuadraticAtten, light->mSpecular.mV[2], light->mSpecular.mV[3]);
             diffuse[i].set(light->mDiffuse.mV);
             diffuse_b[i].set(light->mDiffuseB.mV);
@@ -897,7 +906,7 @@ void LLRender::syncLightState()
         }
 
         shader->uniform4fv(LLShaderMgr::LIGHT_POSITION, LL_NUM_LIGHT_UNITS, position[0].mV);
-        shader->uniform3fv(LLShaderMgr::LIGHT_DIRECTION, LL_NUM_LIGHT_UNITS, direction[0].mV);
+        shader->uniform4fv(LLShaderMgr::LIGHT_DIRECTION, LL_NUM_LIGHT_UNITS, direction[0].mV);
         shader->uniform4fv(LLShaderMgr::LIGHT_ATTENUATION, LL_NUM_LIGHT_UNITS, attenuation[0].mV);
         shader->uniform4fv(LLShaderMgr::LIGHT_DEFERRED_ATTENUATION, LL_NUM_LIGHT_UNITS, deferred_atten[0].mV);
         shader->uniform3fv(LLShaderMgr::LIGHT_DIFFUSE, LL_NUM_LIGHT_UNITS, diffuse[0].mV);

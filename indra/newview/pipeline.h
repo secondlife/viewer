@@ -880,6 +880,7 @@ protected:
         F32 linear_atten;    // fixed-function linear attenuation (legacy sumLights shaders)
         F32 cone_cos_outer;  // projector frustum as a cone, see resolveLocalLight()
         F32 cone_cos_inner;
+        F32 apex_offset;     // projector frustum apex, along axis from pos (see setupSpotLight())
         F32 ambiance;        // projector ambiance
         bool spot;           // projector: forward shaders weight it by beam direction
     };

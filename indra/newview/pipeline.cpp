@@ -710,6 +710,8 @@ void LLPipeline::cleanup()
     mMovedList.clear();
     mMovedBridge.clear();
     mShiftList.clear();
+    mHWLightPicks.clear();
+    mAlphaLightCandidates.clear();
 
     mInitialized = false;
 
@@ -1899,6 +1901,12 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
             break;
         }
     }
+
+    // the recorded slot assignments must not hold the last reference: they are
+    // only released by setupHWLights(), mid-render
+    mHWLightPicks.erase(std::remove_if(mHWLightPicks.begin(), mHWLightPicks.end(),
+                                       [drawablep](const LocalLight& pick) { return pick.drawable == drawablep; }),
+                        mHWLightPicks.end());
 
     for (U32 i = 0; i < 2; ++i)
     {
@@ -5783,6 +5791,7 @@ bool LLPipeline::resolveLocalLight(LLDrawable* drawable, F32 light_scale, LocalL
     light.ambiance = 0.f;
     light.cone_cos_outer = -1.f;
     light.cone_cos_inner = 1.f;
+    light.apex_offset = 0.f;
 
     if (light.spot)
     {
@@ -5801,6 +5810,13 @@ bool LLPipeline::resolveLocalLight(LLDrawable* drawable, F32 light_scale, LocalL
 
         light.cone_cos_inner = 1.f / sqrtf(1.f + tan_inner * tan_inner);
         light.cone_cos_outer = llmin(1.f / sqrtf(1.f + tan_outer * tan_outer), light.cone_cos_inner - 0.001f);
+
+        // the frustum's apex is not the prim center: setupSpotLight() places
+        // it so the frustum passes through the prim's front face edges
+        if (tan_y > F_APPROXIMATELY_ZERO)
+        {
+            light.apex_offset = scale.mV[VZ] * 0.5f - scale.mV[VY] * 0.5f / tan_y;
+        }
         light.ambiance = params.mV[2];
     }
 
@@ -5827,6 +5843,7 @@ void LLPipeline::setHWLightSlot(S32 slot, const LocalLight& light)
         light_state->setSpotCutoff(90.f);
         light_state->setSpotExponent(2.f);
         light_state->setSpotCone(light.cone_cos_outer, light.cone_cos_inner);
+        light_state->setSpotApexOffset(light.apex_offset);
         light_state->setSpecular(LLColor4(0.f, 0.f, 0.f, light.ambiance));
     }
     else
@@ -5868,8 +5885,9 @@ bool LLPipeline::beginAlphaLocalLights()
 
     static LLCachedControl<bool> per_group_lights(gSavedSettings, "RenderAlphaPerGroupLights", true);
 
-    // without local lights, setupHWLights() has already left every slot empty
-    if (!per_group_lights || LLPipeline::sRenderingHUDs || !localLightsEnabled())
+    // without local lights, setupHWLights() has already left every slot empty;
+    // the impostor alpha depth pass re-renders alpha with color writes masked
+    if (!per_group_lights || LLPipeline::sRenderingHUDs || LLPipeline::sImpostorRenderAlphaDepthPass || !localLightsEnabled())
     {
         return false;
     }
@@ -5921,6 +5939,18 @@ void LLPipeline::selectAlphaLocalLights(const LLVector4a* extents)
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 
+    constexpr S32 NUM_SLOTS = 6; // HW light slots 2-7 (0 = sun/moon, 1 = avatar backlight)
+
+    // when every candidate fits, one fit with all of them serves the whole
+    // pass: forward shaders already skip a light that can't reach the
+    // fragment, so per-group ranking couldn't change the image, only add
+    // light uniform re-uploads
+    const bool fit_all = (S32)mAlphaLightCandidates.size() <= NUM_SLOTS;
+    if (fit_all && mAlphaLightSetValid)
+    {
+        return;
+    }
+
     // drop lights whose influence sphere misses the group's bounds; when over
     // six remain, keep the strongest by estimated contribution
     struct Pick
@@ -5954,15 +5984,16 @@ void LLPipeline::selectAlphaLocalLights(const LLVector4a* extents)
             {
                 // the shader weights spotlights by cos^2 of the angle off the
                 // beam axis, masked to the projector cone (see
-                // calcForwardSpotAttenuation); estimate that at the angle
-                // between the axis and the group's bounding sphere's nearest
-                // silhouette point -- cos(theta - alpha) -- so a beam merely
-                // clipping the group's edge never drops the light, while one
-                // aimed away stops displacing lights that actually reach the
-                // group. A light inside the sphere, or a center within the
-                // angular widening, reaches part of the group head-on.
+                // calcForwardSpotAttenuation), both measured from the frustum
+                // apex; estimate that at the angle between the axis and the
+                // group's bounding sphere's nearest silhouette point --
+                // cos(theta - alpha) -- so a beam merely clipping the group's
+                // edge never drops the light, while one aimed away stops
+                // displacing lights that actually reach the group. An apex
+                // inside the sphere, or a center within the angular widening,
+                // reaches part of the group head-on.
                 F32 spot = 1.f;
-                LLVector3 to_group = center - l.pos;
+                LLVector3 to_group = center - (l.pos + l.axis * l.apex_offset);
                 F32 dist = to_group.normVec();
                 if (dist > group_radius)
                 {
@@ -5980,12 +6011,25 @@ void LLPipeline::selectAlphaLocalLights(const LLVector4a* extents)
             }
             picks.push_back({ weight, &c });
         }
+        else if (fit_all)
+        { // out of this group's reach, but kept for the groups that follow
+            picks.push_back({ 0.f, &c });
+        }
     }
 
-    constexpr S32 NUM_SLOTS = 6; // HW light slots 2-7 (0 = sun/moon, 1 = avatar backlight)
     S32 n = llmin((S32)picks.size(), NUM_SLOTS);
+    // candidates arrive in camera distance order, so equal weights (e.g. copies
+    // of one light inside the group's bounds) need an order of their own or
+    // moving the camera alone could swap which of them get a slot
     std::partial_sort(picks.begin(), picks.begin() + n, picks.end(),
-                      [](const Pick& a, const Pick& b) { return a.weight > b.weight; });
+                      [](const Pick& a, const Pick& b)
+                      {
+                          if (a.weight != b.weight)
+                          {
+                              return a.weight > b.weight;
+                          }
+                          return std::less<const LLDrawable*>()(a.candidate->light.drawable.get(), b.candidate->light.drawable.get());
+                      });
 
     // skip the light state churn (and resulting uniform resyncs) when this
     // group sees the same set as the previous one, in whatever rank order

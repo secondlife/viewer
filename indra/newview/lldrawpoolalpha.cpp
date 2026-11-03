@@ -635,9 +635,17 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
             // objects (object bounds: a node's full extents include all of its
             // children), deferred to the group's first lit draw
             const LLVector4a* light_ext = nullptr;
+            LLVector4a bridge_light_ext[2];
             if (group_lights)
             {
-                light_ext = bridge ? ext : group->getObjectExtents();
+                light_ext = group->getObjectExtents();
+                if (bridge)
+                { // a bridged group's bounds are in the bridge's frame, not agent space
+                    LLMatrix4a bridge_to_agent;
+                    bridge_to_agent.loadu(bridge->mDrawable->getXform()->getWorldMatrix());
+                    matMulBoundBox(bridge_to_agent, light_ext, bridge_light_ext);
+                    light_ext = bridge_light_ext;
+                }
             }
 
             static std::vector<LLDrawInfo*> emissives;
