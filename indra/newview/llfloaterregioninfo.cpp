@@ -60,6 +60,7 @@
 #include "llfloatertopobjects.h" // added to fix SL-32336
 #include "llfloatergroups.h"
 #include "llfloaterreg.h"
+#include "llfloatercombatsettings.h"
 #include "llfloaterregiondebugconsole.h"
 #include "llfloaterregionrestartschedule.h"
 #include "llfloatertelehub.h"
@@ -338,6 +339,8 @@ void LLFloaterRegionInfo::onOpen(const LLSD& key)
 
 void LLFloaterRegionInfo::onClose(bool app_quitting)
 {
+    LLFloaterReg::hideInstance("region_combat_settings");
+
     if (mGodLevelChangeSlot.connected())
     {
         mGodLevelChangeSlot.disconnect();
@@ -504,28 +507,23 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
             << " chat flags: " << chat_flags << LL_ENDL;
     }
 
-    U32 combat_flags = (REGION_COMBAT_FLAG_DAMAGE_ADJUST | REGION_COMBAT_FLAG_RESTORE_HEALTH);
-    U8  on_death = 0;
-    F32 damage_throttle = 0.0f;
-    F32 regeneration_rate = 0.1666;
-    F32 invulnerability_time = 0.0f;
-    F32  damage_limit = 0.0f;
-    bool supports_combat2 = false;
+    LLRegionCombatSettings combat_settings;
+    combat_settings.mAllowDamage = is_flag_set(region_flags, REGION_FLAGS_ALLOW_DAMAGE);
 
     if (msg->has(_PREHASH_CombatSettings))
     {
-        supports_combat2 = true;
+        combat_settings.mSupportsCombat2 = true;
 
-        msg->getU32Fast(_PREHASH_CombatSettings, _PREHASH_CombatFlags, combat_flags);
-        msg->getU8Fast(_PREHASH_CombatSettings, _PREHASH_OnDeath, on_death);
-        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_DamageThrottle, damage_throttle);
-        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_RegenerationRate, regeneration_rate);
-        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_InvulnerabilyTime, invulnerability_time);
-        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_DamageLimit, damage_limit);
+        msg->getU32Fast(_PREHASH_CombatSettings, _PREHASH_CombatFlags, combat_settings.mCombatFlags);
+        msg->getU8Fast(_PREHASH_CombatSettings, _PREHASH_OnDeath, combat_settings.mOnDeath);
+        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_DamageThrottle, combat_settings.mDamageThrottle);
+        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_RegenerationRate, combat_settings.mRegenerationRate);
+        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_InvulnerabilyTime, combat_settings.mInvulnerabilityTime);
+        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_DamageLimit, combat_settings.mDamageLimit);
 
-        LL_INFOS() << "Combat flags: " << std::hex << combat_flags << std::dec << " on death: " << on_death
-                    << " damage throttle: " << damage_throttle << " regeneration rate: " << regeneration_rate
-                    << " invulnerability time: " << invulnerability_time << " damage limit: " << damage_limit << LL_ENDL;
+        LL_INFOS() << "Combat flags: " << std::hex << combat_settings.mCombatFlags << std::dec << " on death: " << (S32)combat_settings.mOnDeath
+                    << " damage throttle: " << combat_settings.mDamageThrottle << " regeneration rate: " << combat_settings.mRegenerationRate
+                    << " invulnerability time: " << combat_settings.mInvulnerabilityTime << " damage limit: " << combat_settings.mDamageLimit << LL_ENDL;
     }
 
     // GENERAL PANEL
@@ -548,32 +546,17 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
     panel->getChild<LLSpinCtrl>("agent_limit_spin")->setMaxValue((F32)hard_agent_limit);
 
     LLPanelRegionGeneralInfo* panel_general = LLFloaterRegionInfo::getPanelGeneral();
-    if (panel)
+    if (panel_general)
     {
         panel_general->setObjBonusFactor(object_bonus_factor);
-        panel_general->setCombatEnabled(supports_combat2);
+        panel_general->setCombatEnabled(combat_settings.mAllowDamage);
     }
 
-    panel->getChild<LLUICtrl>("allow_damage_check")->setValue(is_flag_set(region_flags, REGION_FLAGS_ALLOW_DAMAGE));
-    panel->getChild<LLUICtrl>("combat_restrict_log")->setValue(is_flag_set(combat_flags, REGION_COMBAT_FLAG_RESTRICT_LOG));
-    panel->getChild<LLUICtrl>("combat_allow_damage_adjust")->setValue(is_flag_set(combat_flags, REGION_COMBAT_FLAG_DAMAGE_ADJUST));
-    panel->getChild<LLUICtrl>("combat_restore_health")->setValue(is_flag_set(combat_flags, REGION_COMBAT_FLAG_RESTORE_HEALTH));
-    panel->getChild<LLUICtrl>("combat_on_death")->setValue(on_death);
-    panel->getChild<LLUICtrl>("combat_dps_spin")->setValue(damage_throttle);
-    panel->getChild<LLUICtrl>("combat_hps_spin")->setValue(regeneration_rate);
-    panel->getChild<LLUICtrl>("combat_invuln_spin")->setValue(invulnerability_time);
-    panel->getChild<LLUICtrl>("combat_damage_limit")->setValue(damage_limit);
-
-    bool combat2_enabled = is_flag_set(region_flags, REGION_FLAGS_ALLOW_DAMAGE) && supports_combat2;
-
-    panel->getChild<LLUICtrl>("combat_restrict_log")->setEnabled(combat2_enabled);
-    panel->getChild<LLUICtrl>("combat_allow_damage_adjust")->setEnabled(combat2_enabled);
-    panel->getChild<LLUICtrl>("combat_restore_health")->setEnabled(combat2_enabled);
-    panel->getChild<LLUICtrl>("combat_on_death")->setEnabled(combat2_enabled);
-    panel->getChild<LLUICtrl>("combat_dps_spin")->setEnabled(combat2_enabled);
-    panel->getChild<LLUICtrl>("combat_hps_spin")->setEnabled(combat2_enabled);
-    panel->getChild<LLUICtrl>("combat_invuln_spin")->setEnabled(combat2_enabled);
-    panel->getChild<LLUICtrl>("combat_damage_limit")->setEnabled(combat2_enabled);
+    LLFloaterCombatSettings* combat_floater = LLFloaterReg::getTypedInstance<LLFloaterCombatSettings>("region_combat_settings");
+    if (combat_floater)
+    {
+        combat_floater->setSettings(combat_settings);
+    }
 
     // detect teen grid for maturity
 
@@ -969,6 +952,20 @@ bool LLPanelRegionGeneralInfo::refreshFromRegion(LLViewerRegion* region)
     getChildView("manage_telehub_btn")->setEnabled(allow_modify);
     getChildView("manage_restart_btn")->setEnabled(allow_modify);
     getChildView("manage_restart_btn")->setVisible(LLFloaterRegionRestartSchedule::canUse());
+    getChildView("combat_settings_btn")->setEnabled(allow_modify);
+
+    LLFloaterCombatSettings* combat_floater = LLFloaterReg::findTypedInstance<LLFloaterCombatSettings>("region_combat_settings");
+    if (combat_floater)
+    {
+        if (allow_modify)
+        {
+            combat_floater->updateControlsEnabled();
+        }
+        else
+        {
+            combat_floater->closeFloater();
+        }
+    }
 
     // Data gets filled in by processRegionInfo
 
@@ -989,16 +986,7 @@ bool LLPanelRegionGeneralInfo::postBuild()
     initCtrl("restrict_pushobject");
     initCtrl("block_parcel_search_check");
 
-    initCombatCtrl("allow_damage_check");
-    initCtrl("combat_restrict_log");
-    initCtrl("combat_allow_damage_adjust");
-    initCtrl("combat_restore_health");
-    initCtrl("combat_on_death");
-    initCtrl("combat_dps_spin");
-    initCtrl("combat_hps_spin");
-    initCtrl("combat_invuln_spin");
-    initCtrl("combat_damage_limit");
-
+    childSetAction("combat_settings_btn", boost::bind(&LLPanelRegionGeneralInfo::onClickCombatSettings, this));
     childSetAction("kick_btn", boost::bind(&LLPanelRegionGeneralInfo::onClickKick, this));
     childSetAction("kick_all_btn", onClickKickAll, this);
     childSetAction("im_btn", onClickMessage, this);
@@ -1014,9 +1002,14 @@ bool LLPanelRegionGeneralInfo::postBuild()
     return true;
 }
 
-void LLPanelRegionGeneralInfo::initCombatCtrl(const std::string &name)
+void LLPanelRegionGeneralInfo::onClickCombatSettings()
 {
-    getChild<LLUICtrl>(name)->setCommitCallback(boost::bind(&LLPanelRegionGeneralInfo::onChangeCombatEnabled, this));
+    LLFloaterReg::showInstance("region_combat_settings");
+}
+
+void LLPanelRegionGeneralInfo::setCombatEnabled(bool enabled)
+{
+    getChild<LLUICtrl>("combat_status_text")->setValue(getString(enabled ? "combat_enabled_text" : "combat_disabled_text"));
 }
 
 void LLPanelRegionGeneralInfo::onBtnSet()
@@ -1045,22 +1038,6 @@ bool LLPanelRegionGeneralInfo::onChangeObjectBonus(const LLSD& notification, con
         }
     }
     return false;
-}
-
-void LLPanelRegionGeneralInfo::onChangeCombatEnabled()
-{
-    bool combat2_enabled = getChild<LLUICtrl>("allow_damage_check")->getValue().asBoolean() && mSupportsCombat2;
-
-    getChild<LLUICtrl>("combat_restrict_log")->setEnabled(combat2_enabled);
-    getChild<LLUICtrl>("combat_allow_damage_adjust")->setEnabled(combat2_enabled);
-    getChild<LLUICtrl>("combat_restore_health")->setEnabled(combat2_enabled);
-    getChild<LLUICtrl>("combat_on_death")->setEnabled(combat2_enabled);
-    getChild<LLUICtrl>("combat_dps_spin")->setEnabled(combat2_enabled);
-    getChild<LLUICtrl>("combat_hps_spin")->setEnabled(combat2_enabled);
-    getChild<LLUICtrl>("combat_invuln_spin")->setEnabled(combat2_enabled);
-    getChild<LLUICtrl>("combat_damage_limit")->setEnabled(combat2_enabled);
-
-    onChangeAnything();
 }
 
 void LLPanelRegionGeneralInfo::onClickKick()
@@ -1189,7 +1166,6 @@ bool LLPanelRegionGeneralInfo::sendUpdate()
         body["block_terraform"] = getChild<LLUICtrl>("block_terraform_check")->getValue();
         body["block_fly"] = getChild<LLUICtrl>("block_fly_check")->getValue();
         body["block_fly_over"] = getChild<LLUICtrl>("block_fly_over_check")->getValue();
-        body["allow_damage"] = getChild<LLUICtrl>("allow_damage_check")->getValue();
         body["allow_land_resell"] = getChild<LLUICtrl>("allow_land_resell_check")->getValue();
         body["agent_limit"] = getChild<LLUICtrl>("agent_limit_spin")->getValue();
         body["prim_bonus"] = getChild<LLUICtrl>("object_bonus_spin")->getValue();
@@ -1197,31 +1173,6 @@ bool LLPanelRegionGeneralInfo::sendUpdate()
         body["restrict_pushobject"] = getChild<LLUICtrl>("restrict_pushobject")->getValue();
         body["allow_parcel_changes"] = getChild<LLUICtrl>("allow_parcel_changes_check")->getValue();
         body["block_parcel_search"] = getChild<LLUICtrl>("block_parcel_search_check")->getValue();
-
-        if (mSupportsCombat2)
-        {
-            U32 combat_flags = 0;
-
-            if (getChild<LLUICtrl>("combat_restrict_log")->getValue().asBoolean())
-            {
-                combat_flags |= REGION_COMBAT_FLAG_RESTRICT_LOG;
-            }
-            if (getChild<LLUICtrl>("combat_allow_damage_adjust")->getValue().asBoolean())
-            {
-                combat_flags |= REGION_COMBAT_FLAG_DAMAGE_ADJUST;
-            }
-            if (getChild<LLUICtrl>("combat_restore_health")->getValue().asBoolean())
-            {
-                combat_flags |= REGION_COMBAT_FLAG_RESTORE_HEALTH;
-            }
-
-            body["combat_flags"] = LLSD::Integer(combat_flags);
-            body["combat_on_death"] = getChild<LLUICtrl>("combat_on_death")->getValue();
-            body["combat_dps_throttle"] = getChild<LLUICtrl>("combat_dps_spin")->getValue();
-            body["combat_hps_rate"] = getChild<LLUICtrl>("combat_hps_spin")->getValue();
-            body["combat_invuln_time"] = getChild<LLUICtrl>("combat_invuln_spin")->getValue();
-            body["combat_damage_limit"] = getChild<LLUICtrl>("combat_damage_limit")->getValue();
-        }
 
         LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, body,
             "Region info update posted.", "Region info update not posted.");
@@ -1237,7 +1188,9 @@ bool LLPanelRegionGeneralInfo::sendUpdate()
         buffer = llformat("%s", (getChild<LLUICtrl>("block_fly_check")->getValue().asBoolean() ? "Y" : "N"));
         strings.push_back(strings_t::value_type(buffer));
 
-        buffer = llformat("%s", (getChild<LLUICtrl>("allow_damage_check")->getValue().asBoolean() ? "Y" : "N"));
+        // Combat is edited in its own floater; keep the current value.
+        LLViewerRegion* cur_region = gAgent.getRegion();
+        buffer = llformat("%s", ((cur_region && cur_region->getAllowDamage()) ? "Y" : "N"));
         strings.push_back(strings_t::value_type(buffer));
 
         buffer = llformat("%s", (getChild<LLUICtrl>("allow_land_resell_check")->getValue().asBoolean() ? "Y" : "N"));

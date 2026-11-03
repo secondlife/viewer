@@ -197,10 +197,9 @@ public:
 
     void onBtnSet();
     void setObjBonusFactor(F32 object_bonus_factor) {mObjBonusFactor = object_bonus_factor;}
-    void setCombatEnabled(bool enabled) { mSupportsCombat2 = enabled; }
+    void setCombatEnabled(bool enabled);
 
 protected:
-    void initCombatCtrl(const std::string& name);
     bool sendUpdate() override;
     void onClickKick();
     void onKickCommit(const uuid_vec_t& ids);
@@ -209,10 +208,9 @@ protected:
     static void onClickMessage(void* userdata);
     bool onMessageCommit(const LLSD& notification, const LLSD& response);
     bool onChangeObjectBonus(const LLSD& notification, const LLSD& response);
-    void onChangeCombatEnabled();
+    void onClickCombatSettings();
 
     F32 mObjBonusFactor;
-    bool mSupportsCombat2 {false};
 };
 
 /////////////////////////////////////////////////////////////////////////////
