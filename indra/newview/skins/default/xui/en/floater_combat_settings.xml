@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ height="290"
+ layout="topleft"
+ name="floater_combat_settings"
+ single_instance="true"
+ save_rect="true"
+ title="COMBAT SETTINGS"
+ width="255">
+    <check_box
+     height="20"
+     label="Enable Combat"
+     layout="topleft"
+     left="10"
+     name="allow_damage_check"
+     top="10"
+     width="200" />
+    <check_box
+     height="20"
+     label="Restrict Combat Log"
+     layout="topleft"
+     left="10"
+     name="combat_restrict_log"
+     top_pad="10"
+     width="200" />
+    <check_box
+     height="20"
+     label="Allow Damage Adjustments"
+     layout="topleft"
+     left="10"
+     name="combat_allow_damage_adjust"
+     top_pad="0"
+     width="200" />
+    <check_box
+     height="20"
+     label="Restore Health on Death"
+     layout="topleft"
+     left="10"
+     name="combat_restore_health"
+     top_pad="0"
+     width="200" />
+    <text
+     follows="left|top"
+     height="20"
+     label="On Death"
+     layout="topleft"
+     left="10"
+     name="combat_on_death_text"
+     top_pad="10"
+     width="80">
+        On Death:
+    </text>
+    <combo_box
+     follows="left|top"
+     height="20"
+     layout="topleft"
+     left="90"
+     name="combat_on_death"
+     top_delta="-1"
+     width="150">
+        <combo_box.item
+         label="Teleport Home"
+         name="item0"
+         value="0" />
+        <combo_box.item
+         label="Parcel Landing Point"
+         name="item1"
+         value="1" />
+        <combo_box.item
+         label="Region Telehub"
+         name="item2"
+         value="2" />
+        <combo_box.item
+         label="No Action"
+         name="item3"
+         value="3" />
+    </combo_box>
+    <spinner
+     follows="left|top"
+     height="25"
+     increment="0.5"
+     label="Damage Throttle (DPS):"
+     label_width="165"
+     layout="topleft"
+     left="10"
+     max_val="1000"
+     min_val="0"
+     name="combat_dps_spin"
+     top_pad="10"
+     width="230" />
+    <spinner
+     follows="left|top"
+     height="25"
+     increment="0.5"
+     label="Damage Limit:"
+     label_width="165"
+     layout="topleft"
+     left="10"
+     max_val="10000"
+     min_val="0"
+     name="combat_damage_limit"
+     top_pad="0"
+     width="230" />
+    <spinner
+     follows="left|top"
+     height="25"
+     increment="0.5"
+     label="Health Regen (HPS):"
+     label_width="165"
+     layout="topleft"
+     left="10"
+     max_val="100"
+     min_val="0"
+     name="combat_hps_spin"
+     top_pad="0"
+     width="230" />
+    <spinner
+     follows="left|top"
+     height="25"
+     increment="0.5"
+     label="Invulnerability Time (sec):"
+     label_width="165"
+     layout="topleft"
+     left="10"
+     max_val="30"
+     min_val="0"
+     name="combat_invuln_spin"
+     top_pad="0"
+     width="230" />
+    <button
+     enabled="false"
+     follows="left|top"
+     height="23"
+     label="OK"
+     layout="topleft"
+     left="10"
+     name="ok_btn"
+     top_pad="15"
+     width="110" />
+    <button
+     follows="left|top"
+     height="23"
+     label="Cancel"
+     layout="topleft"
+     left_pad="10"
+     name="cancel_btn"
+     top_delta="0"
+     width="110" />
+</floater>
