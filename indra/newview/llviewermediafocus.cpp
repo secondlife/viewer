@@ -377,7 +377,13 @@ bool LLViewerMediaFocus::handleScrollWheel(const LLVector2& texture_coords, S32 
 {
     bool retval = false;
     LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
-    if (media_impl && media_impl->hasMedia())
+    // hasMedia() alone is always false for embedded-browser media (see its own
+    // comment) -- without the isUsingEmbeddedBrowser() check, scrolling over
+    // focused embedded-browser prim media never reached the media at all and
+    // fell through to camera zoom instead, same as the other forwarded-input
+    // call sites already fixed for this (setFocusFace() above, llmediactrl.cpp,
+    // llpanelnearbymedia.cpp, llviewerparcelmedia.cpp).
+    if (media_impl && (media_impl->hasMedia() || media_impl->isUsingEmbeddedBrowser()))
     {
         media_impl->scrollWheel(texture_coords, clicks_x, clicks_y, gKeyboard->currentMask(true));
         retval = true;
@@ -389,7 +395,7 @@ bool LLViewerMediaFocus::handleScrollWheel(S32 x, S32 y, S32 clicks_x, S32 click
 {
     bool retval = false;
     LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
-    if(media_impl && media_impl->hasMedia())
+    if(media_impl && (media_impl->hasMedia() || media_impl->isUsingEmbeddedBrowser()))
     {
         media_impl->scrollWheel(x, y, clicks_x, clicks_y, gKeyboard->currentMask(true));
         retval = true;
