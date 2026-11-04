@@ -56,7 +56,7 @@
 						<multi_slider initial_value="0" name="WLTimeSlider"/>
 						<multi_slider initial_value="0" name="WLDayCycleFrames"/>
 						<text name="current_time" value="[PRCNT]%[DSC]"/>
-						<layout_stack>
+						<layout_stack name="track_options_ls">
 							<layout_panel>
 								<button label="Clonar Rastreio de" name="copy_track"/>
 								<button label="Carregar rastreio de" name="load_track"/>
@@ -72,7 +72,7 @@
 									</layout_panel>
 								</layout_stack>
 							</layout_panel>
-							<layout_panel>
+							<layout_panel name="frames_lp">
 								<button label="Adicionar [FRAME]" name="add_frame"/>
 								<button label="Carregar [FRAME]" name="btn_load_frame"/>
 								<button label="Excluir [FRAME]" name="delete_frame"/>

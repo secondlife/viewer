@@ -1973,8 +1973,7 @@ void LLFloaterEditExtDayCycle::onAssetLoadedForInsertion(LLUUID item_id, LLUUID 
                 }
             }
         }
-        reblendSettings();
-        synchronizeTabs();
+        updateTabs();
     };
 
     if (!settings || status)
