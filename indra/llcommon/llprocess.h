@@ -323,6 +323,16 @@ private:
     void tick();
     void handleExit(Status exitStatus);
 
+#if LL_DARWIN
+    void launchPosixSpawn(const LLSDOrParams& params,
+                          const std::vector<std::string>& args,
+                          const boost::filesystem::path& executable_path);
+
+    pid_t mDarwinPid{ -1 };
+#endif
+
+    id childPid() const;
+
     // Boost.Process v2 components
     boost::asio::io_context mIOContext;
     std::unique_ptr<boost::process::v2::process> mChild;
