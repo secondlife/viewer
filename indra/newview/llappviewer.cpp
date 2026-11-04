@@ -64,6 +64,7 @@
 #include "llviewerjoystick.h"
 #include "llcalc.h"
 #include "llconversationlog.h"
+#include "llprocess.h"
 #if LL_WINDOWS
 #include "lldxhardware.h"
 #endif
@@ -2209,6 +2210,8 @@ bool LLAppViewer::cleanup()
     // This calls every remaining LLSingleton's cleanupSingleton() and
     // deleteSingleton() methods.
     LLSingletonBase::deleteAll();
+
+    LLProcess::shutdownReapers();
 
     LLUICtrlFactory::deleteSingleton();
 
