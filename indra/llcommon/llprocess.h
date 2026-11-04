@@ -199,6 +199,9 @@ public:
     static LLProcessPtr create(const LLSDOrParams& params);
     virtual ~LLProcess();
 
+    /// Wait for background child-process cleanup workers during application shutdown.
+    static void shutdownReapers();
+
     /// Is child process still running?
     bool isRunning() const;
     static bool isRunning(const LLProcessPtr&);

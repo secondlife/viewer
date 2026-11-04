@@ -47,10 +47,12 @@
 #include <limits>
 #include <algorithm>
 #include <chrono>
+#include <atomic>
 #include <cstring>
 #include <errno.h>
 #include <thread>
 #include <vector>
+#include <memory>
 #include <typeinfo>
 #include <signal.h>
 #include <utility>
@@ -148,6 +150,7 @@ namespace {
 #include <spawn.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <mutex>
 #include <boost/asio/posix/stream_descriptor.hpp>
 
 extern char** environ;
@@ -174,6 +177,111 @@ namespace
         r.fd = fds[0];
         w.fd = fds[1];
     }
+
+    void terminateAndReap(pid_t pid, bool sendTerm)
+    {
+        if (sendTerm)
+            (void)::kill(pid, SIGTERM);
+
+        for (int i = 0; i < 30; ++i)
+        {
+            int status = 0;
+            pid_t result = ::waitpid(pid, &status, WNOHANG);
+            if (result == pid || (result == -1 && errno == ECHILD))
+                return;
+            if (result == -1 && errno != EINTR)
+                break;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+
+        int status = 0;
+        pid_t result;
+        do
+        {
+            result = ::waitpid(pid, &status, WNOHANG);
+        } while (result == -1 && errno == EINTR);
+        if (result == 0)
+            (void)::kill(pid, SIGKILL);
+        if (result != pid && !(result == -1 && errno == ECHILD))
+        {
+            do
+            {
+                result = ::waitpid(pid, &status, 0);
+            } while (result == -1 && errno == EINTR);
+        }
+    }
+
+    class DarwinReaperRegistry
+    {
+        struct ReaperThread
+        {
+            std::thread                        thread;
+            std::shared_ptr<std::atomic<bool>> finished;
+        };
+
+    public:
+        ~DarwinReaperRegistry()
+        {
+            shutdown();
+        }
+
+        void add(pid_t pid, bool sendTerm)
+        {
+            bool shutDown;
+            {
+                std::lock_guard<std::mutex> lock(mMutex);
+                shutDown = mShuttingDown;
+                if (!shutDown)
+                {
+                    auto thread = mThreads.begin();
+                    while (thread != mThreads.end())
+                    {
+                        if (thread->finished->load())
+                        {
+                            thread->thread.join();
+                            thread = mThreads.erase(thread);
+                        }
+                        else
+                        {
+                            ++thread;
+                        }
+                    }
+
+                    auto         finished = std::make_shared<std::atomic<bool>>(false);
+                    ReaperThread reaper;
+                    reaper.finished = finished;
+                    reaper.thread   = std::thread(
+                        [pid, sendTerm, finished]()
+                        {
+                            terminateAndReap(pid, sendTerm);
+                            finished->store(true);
+                        });
+                    mThreads.emplace_back(std::move(reaper));
+                }
+            }
+            if (shutDown)
+                terminateAndReap(pid, sendTerm);
+        }
+
+        void shutdown()
+        {
+            std::vector<ReaperThread> threads;
+            {
+                std::lock_guard<std::mutex> lock(mMutex);
+                mShuttingDown = true;
+                threads.swap(mThreads);
+            }
+            for (ReaperThread& thread : threads)
+                thread.thread.join();
+        }
+
+    private:
+        std::mutex mMutex;
+        std::vector<ReaperThread> mThreads;
+        bool mShuttingDown{ false };
+    };
+
+    DarwinReaperRegistry gDarwinReapers;
 }
 #endif // LL_DARWIN
 
@@ -509,26 +617,17 @@ LLProcess::~LLProcess()
                 << mDesc << LL_ENDL;
             id pid = childPid();
 #if LL_DARWIN
-            boost::system::error_code ec;
-            if (!mKillCalled && mChild)
-            {
-                mChild->terminate(ec);
-            }
-            else if (!mKillCalled)
-            {
-                // posix_spawn path: no bp::process to call terminate() on;
-                // send SIGTERM directly.
-                if (::kill(pid, SIGTERM) != 0 && errno != ESRCH)
-                {
-                    ec = boost::system::error_code(errno, boost::system::system_category());
-                }
-            }
+            // The destructor may run on the viewer thread. Transfer termination,
+            // escalation, and reaping to a background owner.
+            if (mMainloopConnection.connected())
+                mMainloopConnection.disconnect();
+            gDarwinReapers.add(pid, !mKillCalled);
 #else
             boost::system::error_code ec;
             mChild->terminate(ec);
 #endif
 
-#if !LL_WINDOWS
+#if !LL_WINDOWS && !LL_DARWIN
             // On POSIX, terminate() sends SIGTERM which allows graceful shutdown.
             // Poll with waitpid(WNOHANG) rather than mChild->running() to avoid
             // competing with tick()'s own waitpid call.
@@ -558,22 +657,8 @@ LLProcess::~LLProcess()
                     LL_WARNS("LLProcess") << "Force killing " << mDesc << LL_ENDL;
                     (void)::kill(pid, SIGKILL);
                 }
-#if LL_DARWIN
-                if (result != pid && !(result == -1 && errno == ECHILD))
-                {
-                    do
-                    {
-                        result = ::waitpid(pid, &child_status, 0);
-                    } while (result == -1 && errno == EINTR);
-                    if (result == -1 && errno != ECHILD)
-                    {
-                        LL_WARNS("LLProcess") << "waitpid(" << pid << ") failed while reaping "
-                            << mDesc << ": " << strerror(errno) << LL_ENDL;
-                    }
-                }
-#endif
             }
-#else
+#elif LL_WINDOWS
             // On Windows, terminate() already does an immediate hard kill via TerminateProcess()
             // Only wait if terminate succeeded (process was running)
 
@@ -616,6 +701,13 @@ LLProcess::~LLProcess()
     {
         mMainloopConnection.disconnect();
     }
+}
+
+void LLProcess::shutdownReapers()
+{
+#if LL_DARWIN
+    gDarwinReapers.shutdown();
+#endif
 }
 
 //static
