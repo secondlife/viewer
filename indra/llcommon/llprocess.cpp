@@ -147,6 +147,7 @@ namespace {
 #if LL_DARWIN
 #include <spawn.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 #include <boost/asio/posix/stream_descriptor.hpp>
 
 extern char** environ;
@@ -160,6 +161,7 @@ namespace
         int fd = -1;
         ~ScopedFD() { if (fd >= 0) ::close(fd); }
         int release() { int f = fd; fd = -1; return f; }
+        void close() { if (fd >= 0) { ::close(fd); fd = -1; } }
     };
 
     void make_pipe(ScopedFD& r, ScopedFD& w)
@@ -497,17 +499,22 @@ LLProcess::~LLProcess()
 #endif
     if (haveChild && mStatus.mState == RUNNING)
     {
+#if LL_DARWIN
+        if ((mAttached && mAutokill && !mKillCalled) || mKillCalled)
+#else
         if (mAttached && mAutokill && !mKillCalled)
+#endif
         {
-            LL_INFOS("LLProcess") << "Terminating child process " << mDesc << LL_ENDL;
+            LL_INFOS("LLProcess") << (mKillCalled ? "Reaping child process " : "Terminating child process ")
+                << mDesc << LL_ENDL;
             id pid = childPid();
 #if LL_DARWIN
             boost::system::error_code ec;
-            if (mChild)
+            if (!mKillCalled && mChild)
             {
                 mChild->terminate(ec);
             }
-            else
+            else if (!mKillCalled)
             {
                 // posix_spawn path: no bp::process to call terminate() on;
                 // send SIGTERM directly.
@@ -545,11 +552,26 @@ LLProcess::~LLProcess()
             // Force kill if still running
             {
                 int child_status;
-                if (::waitpid(pid, &child_status, WNOHANG) == 0)
+                pid_t result = ::waitpid(pid, &child_status, WNOHANG);
+                if (result == 0)
                 {
                     LL_WARNS("LLProcess") << "Force killing " << mDesc << LL_ENDL;
                     (void)::kill(pid, SIGKILL);
                 }
+#if LL_DARWIN
+                if (result != pid && !(result == -1 && errno == ECHILD))
+                {
+                    do
+                    {
+                        result = ::waitpid(pid, &child_status, 0);
+                    } while (result == -1 && errno == EINTR);
+                    if (result == -1 && errno != ECHILD)
+                    {
+                        LL_WARNS("LLProcess") << "waitpid(" << pid << ") failed while reaping "
+                            << mDesc << ": " << strerror(errno) << LL_ENDL;
+                    }
+                }
+#endif
             }
 #else
             // On Windows, terminate() already does an immediate hard kill via TerminateProcess()
@@ -678,6 +700,12 @@ void LLProcess::launchPosixSpawn(const LLSDOrParams& params,
     ScopedFD stdoutRead, stdoutWrite;
     ScopedFD stderrRead, stderrWrite;
 
+    // Capture these before creating pipes, which may reuse a closed standard
+    // descriptor as one of their endpoints.
+    const bool inheritStdin = ::fcntl(STDIN_FILENO, F_GETFD) != -1;
+    const bool inheritStdout = ::fcntl(STDOUT_FILENO, F_GETFD) != -1;
+    const bool inheritStderr = ::fcntl(STDERR_FILENO, F_GETFD) != -1;
+
     if (mStdinPipe)   make_pipe(stdinRead, stdinWrite);   // child reads stdinRead
     if (mStdoutPipe)  make_pipe(stdoutRead, stdoutWrite); // child writes stdoutWrite
     if (mStderrPipe)  make_pipe(stderrRead, stderrWrite); // child writes stderrWrite
@@ -685,7 +713,8 @@ void LLProcess::launchPosixSpawn(const LLSDOrParams& params,
     if (mStdinPipe)
     {
         posix_spawn_file_actions_adddup2(&file_actions, stdinRead.fd, STDIN_FILENO);
-        posix_spawn_file_actions_addclose(&file_actions, stdinWrite.fd);
+        if (stdinWrite.fd != STDIN_FILENO)
+            posix_spawn_file_actions_addclose(&file_actions, stdinWrite.fd);
         if (stdinRead.fd != STDIN_FILENO)
             posix_spawn_file_actions_addclose(&file_actions, stdinRead.fd);
     }
@@ -693,30 +722,35 @@ void LLProcess::launchPosixSpawn(const LLSDOrParams& params,
     {
         // Inherit parent's stdin. Under POSIX_SPAWN_CLOEXEC_DEFAULT, fds not
         // named via file_actions are closed in the child, so explicitly
-        // preserve this one with a dup2-onto-self.
-        posix_spawn_file_actions_adddup2(&file_actions, STDIN_FILENO, STDIN_FILENO);
+        // preserve it with a dup2-onto-self if it was open in the parent.
+        if (inheritStdin)
+            posix_spawn_file_actions_adddup2(&file_actions, STDIN_FILENO, STDIN_FILENO);
     }
     if (mStdoutPipe)
     {
         posix_spawn_file_actions_adddup2(&file_actions, stdoutWrite.fd, STDOUT_FILENO);
-        posix_spawn_file_actions_addclose(&file_actions, stdoutRead.fd);
+        if (stdoutRead.fd != STDOUT_FILENO)
+            posix_spawn_file_actions_addclose(&file_actions, stdoutRead.fd);
         if (stdoutWrite.fd != STDOUT_FILENO)
             posix_spawn_file_actions_addclose(&file_actions, stdoutWrite.fd);
     }
     else
     {
-        posix_spawn_file_actions_adddup2(&file_actions, STDOUT_FILENO, STDOUT_FILENO);
+        if (inheritStdout)
+            posix_spawn_file_actions_adddup2(&file_actions, STDOUT_FILENO, STDOUT_FILENO);
     }
     if (mStderrPipe)
     {
         posix_spawn_file_actions_adddup2(&file_actions, stderrWrite.fd, STDERR_FILENO);
-        posix_spawn_file_actions_addclose(&file_actions, stderrRead.fd);
+        if (stderrRead.fd != STDERR_FILENO)
+            posix_spawn_file_actions_addclose(&file_actions, stderrRead.fd);
         if (stderrWrite.fd != STDERR_FILENO)
             posix_spawn_file_actions_addclose(&file_actions, stderrWrite.fd);
     }
     else
     {
-        posix_spawn_file_actions_adddup2(&file_actions, STDERR_FILENO, STDERR_FILENO);
+        if (inheritStderr)
+            posix_spawn_file_actions_adddup2(&file_actions, STDERR_FILENO, STDERR_FILENO);
     }
 
     if (params.cwd.isProvided())
@@ -749,6 +783,12 @@ void LLProcess::launchPosixSpawn(const LLSDOrParams& params,
     }
 
     mDarwinPid = pid;
+
+    // Close the parent copies of the child-side endpoints now that spawn has
+    // duplicated them into the child. Keep only the endpoints adopted below.
+    stdinRead.close();
+    stdoutWrite.close();
+    stderrWrite.close();
 
     // Adopt the parent-side fds into the pre-existing asio pipe objects so
     // the rest of LLProcess (WritePipeImpl/ReadPipeImpl/tick()) works
@@ -873,6 +913,7 @@ void LLProcess::launch(const LLSDOrParams& params)
 #endif
 
         // Create child process with appropriate redirections.
+#if !LL_DARWIN
         // v2 uses process_stdio for I/O redirection
         bp::process_stdio stdio;
 
@@ -890,6 +931,7 @@ void LLProcess::launch(const LLSDOrParams& params)
             stdio.err = *mStderrPipe;
         else
             stdio.err = nullptr; // inherit
+#endif
 
         // Build executable path.
         // Resolve bare executable names (i.e. "outleap-agent") through the
