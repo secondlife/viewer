@@ -1998,4 +1998,224 @@ template<> template<> void object_t::test<61>()
         ensure("the protected occurrence remains unchanged", llsd_equals(result.front(), third));
     }
 }
+
+template<> template<> void object_t::test<62>()
+{
+    // An exact send skips newer service rows that a later receipt can still
+    // consume. Local echoes use the occurrences left by both stronger sources.
+    const S32 base = 1789005900;
+    const LLSD first = outgoingRepeat(1, base);
+    const LLSD second = outgoingRepeat(2, base + 30);
+    const LLSD third = outgoingRepeat(3, base + 60);
+    for (const char* source : {"sent", ""})
+    {
+        LLSD sent = localEcho(first);
+        sent["chat_service_time_source"] = source;
+        LLSD receipt = localEcho(second, -5);
+        receipt["chat_service_time_source"] = "receipt";
+        receipt["message"] = "translated castle";
+        for (bool reversed : {false, true})
+        {
+            Messages history{first, second, third};
+            Messages live{localEcho(third), receipt, sent};
+            if (reversed)
+            {
+                history.reverse();
+                live.reverse();
+            }
+            ensure("receipts revisit rows skipped by exact sends before local matching",
+                   filterDirectHistoryDuplicates(history, live).empty());
+        }
+    }
+}
+
+template<> template<> void object_t::test<63>()
+{
+    // Indexed receipts and the name fallback admit the same service lead and
+    // delivery delay, including exact boundaries and translated display text.
+    const S32 base = 1789005900;
+    const LLSD service = outgoingRepeat(1, base);
+    for (bool named_only : {false, true})
+    {
+        for (S32 delay : {-6, -5, 0, 60, 61})
+        {
+            LLSD receipt = localEcho(service, delay);
+            receipt["chat_service_time_source"] = "receipt";
+            receipt["message"] = "translated castle";
+            if (named_only) receipt.erase("from_id");
+            ensure_equals("receipt window includes only the permitted clock difference",
+                          filterDirectHistoryDuplicates({service}, {receipt}).empty(),
+                          delay >= -5 && delay <= 60);
+        }
+    }
+
+    // Unrelated newer history keeps both receipts inside the broad clock filter.
+    // A row too old for the newest receipt must remain available to the next one.
+    LLSD unrelated = outgoingRepeat(2, base + 120);
+    unrelated["message"] = "another place";
+    LLSD newer = localEcho(service, 61);
+    newer["chat_service_time_source"] = "receipt";
+    LLSD older = localEcho(service, 60);
+    older["chat_service_time_source"] = "receipt";
+    const auto result = filterDirectHistoryDuplicates({service, unrelated}, {newer, older});
+    ensure_equals("the older receipt still consumes its occurrence", result.size(), size_t(1));
+    ensure("unrelated history retains its identity", llsd_equals(result.front(), unrelated));
+}
+
+template<> template<> void object_t::test<64>()
+{
+    // Name fallback and UUID lookup share the same occurrence reservations.
+    // Equal timestamps preserve input order across sends, receipts, and locals.
+    const S32 base = 1789005900;
+    for (bool missing_service_sender : {false, true})
+    {
+        Messages history;
+        for (U8 ordinal : {1, 2, 3, 4}) history.push_back(outgoingRepeat(ordinal, base));
+        LLSD named = localEcho(history.front());
+        named.erase("from_id");
+        named["chat_service_time_source"] = "sent";
+        LLSD receipt = localEcho(history.front());
+        receipt["chat_service_time_source"] = "receipt";
+        receipt["message"] = "translated castle";
+        const LLSD local = localEcho(history.front());
+        if (missing_service_sender) history.front().erase("from_id");
+
+        const auto result = filterDirectHistoryDuplicates(history, {named, receipt, local});
+        ensure_equals("three deliveries consume three distinct occurrences", result.size(), size_t(1));
+        ensure("the fourth tied service occurrence remains", llsd_equals(result.front(), history.back()));
+    }
+}
+
+template<> template<> void object_t::test<65>()
+{
+    // Repeated messages retain a chain beyond successive 200-row archive windows.
+    // Use distinct service IDs while keeping the body and sender identical.
+    const S32 base = 1789005900;
+    auto service = [&](U32 ordinal, S32 timestamp)
+    {
+        LLSD row = outgoingRepeat(1, timestamp);
+        LLUUID id(FIRST);
+        id.mData[0] = U8(ordinal >> 24);
+        id.mData[1] = U8(ordinal >> 16);
+        id.mData[2] = U8(ordinal >> 8);
+        id.mData[3] = U8(ordinal);
+        row["chat_service_msg_id"] = id.asString();
+        return row;
+    };
+    const LLSD earliest = service(1, base);
+    History history;
+    Messages archive{earliest}, live;
+    for (U32 index = 1; index <= 1000; ++index)
+    {
+        const LLSD row = service(index + 1, base + S32(index) * 59);
+        archive.push_back(row);
+        live.push_front(localEcho(row));
+        while (archive.size() > 200) archive.pop_front();
+        if (index % 199 == 0 || index == 1000)
+        {
+            history.setLoaded(archive);
+            const auto result = history.compose({}, live, 200, true);
+            ensure_equals("rolling windows preserve the old repeat", result.size(), size_t(1));
+            ensure("the old repeat retains its identity", llsd_equals(result.front(), earliest));
+        }
+    }
+
+    // These receipts fall inside the retained time range but have another body.
+    // They must not consume any repeat or disturb subsequent publications.
+    for (U32 index = 0; index < 5000; ++index)
+    {
+        LLSD row = service(index + 1002, base + S32(index) * 10);
+        row["message"] = "unrelated received traffic";
+        LLSD receipt = localEcho(row);
+        receipt["chat_service_time_source"] = "receipt";
+        live.push_front(receipt);
+    }
+    for (int publication = 0; publication < 2; ++publication)
+    {
+        const auto result = history.compose({}, live, 200, true);
+        ensure_equals("received traffic preserves the distinct historical repeat", result.size(), size_t(1));
+        ensure("refresh preserves the original occurrence", llsd_equals(result.front(), earliest));
+    }
+
+    // A new echo at the far end can still reassign the full chain. Optimizing
+    // receipt lookup must not truncate the context needed by local matching.
+    const LLSD next = localEcho(archive.back(), 59);
+    ensure("the retained far end triggers reconciliation", history.needsReconcile(next));
+    live.push_front(next);
+    ensure("the additional echo consumes the final historical repeat",
+           history.compose({}, live, 200, true).empty());
+}
+
+template<> template<> void object_t::test<66>()
+{
+    // Compare grouped lookup with a simple full scan for exact sends and
+    // receipts. This oracle has no group cursors or timestamp-window shortcuts.
+    std::mt19937 random(0x621a557u);
+    const S32 base = 1789005900;
+    const char* sources[] = {"sent", "receipt", ""};
+    for (int trial = 0; trial < 2000; ++trial)
+    {
+        std::vector<LLSD> service, deliveries;
+        std::vector<size_t> order;
+        for (U8 ordinal = 1; ordinal <= 8; ++ordinal)
+        {
+            LLSD row = outgoingRepeat(ordinal, base + S32(random() % 12) * 10);
+            row["from_id"] = ordinal % 2 ? AGENT : RESIDENT;
+            row["from"] = ordinal % 2 ? "Alpha Resident" : "Beta Resident";
+            row["message"] = "repeat " + std::to_string(random() % 3);
+            if (random() % 7 == 0) row.erase("from_id");
+            order.push_back(service.size());
+            service.push_back(row);
+        }
+        for (int arrival = 0; arrival < 12; ++arrival)
+        {
+            LLSD delivery = localEcho(service[random() % service.size()], S32(random() % 81) - 10);
+            delivery["chat_service_time_source"] = sources[random() % 3];
+            if (random() % 4 == 0) delivery.erase("from_id");
+            if (random() % 4 == 0) delivery["message"] = "translated text";
+            if (random() % 20 == 0) delivery["timestamp"] = 0;
+            deliveries.push_back(delivery);
+        }
+        const Messages input(service.begin(), service.end());
+        const Messages live(deliveries.begin(), deliveries.end());
+
+        // Reserve exact timestamps first, then newest receipts. Stable ordering
+        // determines which service ID survives when several timestamps tie.
+        std::stable_sort(order.begin(), order.end(), [&](size_t left, size_t right)
+        {
+            return service[left]["timestamp"].asInteger() > service[right]["timestamp"].asInteger();
+        });
+        std::stable_sort(deliveries.begin(), deliveries.end(), [](const LLSD& left, const LLSD& right)
+        {
+            const bool left_receipt = left["chat_service_time_source"].asString() == "receipt";
+            const bool right_receipt = right["chat_service_time_source"].asString() == "receipt";
+            return left_receipt != right_receipt ? !left_receipt
+                : left["timestamp"].asInteger() > right["timestamp"].asInteger();
+        });
+        std::vector<bool> consumed(service.size(), false);
+        for (const LLSD& delivery : deliveries)
+        {
+            for (size_t row : order)
+            {
+                if (!consumed[row] && sameDirectHistoryOccurrence(service[row], delivery))
+                {
+                    consumed[row] = true;
+                    break;
+                }
+            }
+        }
+
+        // Compare complete surviving rows in their original historical order.
+        Messages expected;
+        for (size_t row = 0; row < service.size(); ++row)
+        {
+            if (!consumed[row]) expected.push_back(service[row]);
+        }
+        const auto actual = filterDirectHistoryDuplicates(input, live);
+        ensure_equals("grouped matching preserves the reference occurrence count", actual.size(), expected.size());
+        ensure("grouped matching preserves reference identities and order",
+               std::equal(actual.begin(), actual.end(), expected.begin(),
+                   [](const LLSD& left, const LLSD& right) { return llsd_equals(left, right); }));
+    }
+}
 }

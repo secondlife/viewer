@@ -43,7 +43,11 @@ const char* const INDEX_HEADER = "filename,agent_id,agent_name,display_name\n";
 namespace
 {
     const U32 COLUMN_COUNT = 7;
+
+    // Occurrence checks and grouped lookup share the same clock tolerances.
     constexpr S64 MAX_LOCAL_CLOCK_SKEW = 59;
+    constexpr S64 MAX_DELIVERY_DELAY = 60;
+    constexpr S64 MAX_SERVICE_LEAD = 5;
 
     bool cleanText(const std::string& value, size_t limit)
     {
@@ -341,8 +345,6 @@ bool sameDirectHistoryOccurrence(const LLSD& history, const LLSD& timed)
         // either order. Admit bounded service lead as well as delivery delay.
         if (timed["chat_service_time_source"].asString() == "receipt")
         {
-            constexpr S64 MAX_DELIVERY_DELAY = 60;
-            constexpr S64 MAX_SERVICE_LEAD = 5;
             const S64 delay = static_cast<S64>(timestamp) - service_timestamp;
             return delay >= -MAX_SERVICE_LEAD && delay <= MAX_DELIVERY_DELAY;
         }
@@ -515,20 +517,23 @@ static void matchLocalOccurrences(std::span<const TimedOccurrence> local,
     }
 }
 
-// Cache times within independent sender/body groups before comparing clocks.
-static std::vector<std::pair<size_t, size_t>> localServiceMatches(
+// Group service candidates once for exact sends, receipts, and local echoes.
+static std::vector<std::pair<size_t, size_t>> serviceMatches(
     const std::vector<const LLSD*>& deliveries,
-    const std::vector<Messages::const_iterator>& service, Messages::const_iterator end)
+    const std::vector<Messages::const_iterator>& service)
 {
     struct Group
     {
         std::vector<TimedOccurrence> local, service;
+        size_t cursor = 0;
+        bool receipts = false;
     };
     std::map<std::pair<LLUUID, std::string>, Group> groups;
+    bool complete_ids = true;
     for (size_t pos = 0; pos < service.size(); ++pos)
     {
-        if (service[pos] == end) continue;
         const LLSD& row = *service[pos];
+        complete_ids = complete_ids && row["from_id"].isDefined();
         if (row["timestamp"].isInteger() && row["timestamp"].asInteger() > 0)
         {
             groups[{row["from_id"].asUUID(), row["message"].asString()}].service.push_back(
@@ -536,34 +541,76 @@ static std::vector<std::pair<size_t, size_t>> localServiceMatches(
         }
     }
 
-    // Ancient live messages without an eligible service row stay outside the DP.
-    // Both source lists already have newest-first order, preserved by each group.
+    // Reserve exact sends and receipts before local-clock matching; missing UUIDs
+    // retain the original name-based scan and stable service order.
+    std::vector<bool> used(service.size(), false);
+    std::vector<std::pair<size_t, size_t>> pairs;
     for (size_t pos = 0; pos < deliveries.size(); ++pos)
     {
-        const LLSD& echo = *deliveries[pos];
-        if (echo["chat_service_time_source"].asString() != "local" || !echo["from_id"].isDefined() ||
-            !echo["timestamp"].isInteger() || echo["timestamp"].asInteger() <= 0)
+        const LLSD& delivery = *deliveries[pos];
+        if (!delivery["timestamp"].isInteger() || delivery["timestamp"].asInteger() <= 0) continue;
+        const std::string source = delivery["chat_service_time_source"].asString();
+        const bool local = source == "local";
+        if (!delivery["from_id"].isDefined() || (!local && !complete_ids))
         {
+            for (size_t row = 0; row < service.size(); ++row)
+            {
+                if (!used[row] && sameDirectHistoryOccurrence(*service[row], delivery))
+                {
+                    pairs.emplace_back(pos, row);
+                    used[row] = true;
+                    break;
+                }
+            }
             continue;
         }
-        const LLSD& body = echo["chat_service_original_text"].isString()
-            ? echo["chat_service_original_text"] : echo["message"];
-        const auto group = groups.find({echo["from_id"].asUUID(), body.asString()});
-        if (group == groups.end()) continue;
-        group->second.local.push_back({echo["timestamp"].asInteger(), pos});
+        const LLSD& body = delivery["chat_service_original_text"].isString()
+            ? delivery["chat_service_original_text"] : delivery["message"];
+        const auto found = groups.find({delivery["from_id"].asUUID(), body.asString()});
+        if (found == groups.end()) continue;
+        auto& group = found->second;
+        const S64 timestamp = delivery["timestamp"].asInteger();
+        if (local)
+        {
+            group.local.push_back({timestamp, pos});
+            continue;
+        }
+
+        // Deliveries are newest-first within each policy. Each cursor advances
+        // past a candidate at most once per policy; receipts restart after exact sends.
+        const bool receipt = source == "receipt";
+        if (receipt && !group.receipts)
+        {
+            group.cursor = 0;
+            group.receipts = true;
+        }
+        const S64 latest = timestamp + (receipt ? MAX_SERVICE_LEAD : 0);
+        const S64 earliest = timestamp - (receipt ? MAX_DELIVERY_DELAY : 0);
+        while (group.cursor < group.service.size() &&
+               (group.service[group.cursor].timestamp > latest || used[group.service[group.cursor].index]))
+        {
+            ++group.cursor;
+        }
+        if (group.cursor < group.service.size() && group.service[group.cursor].timestamp >= earliest)
+        {
+            const size_t row = group.service[group.cursor++].index;
+            pairs.emplace_back(pos, row);
+            used[row] = true;
+        }
     }
 
-    // Remove unmatched candidates before sizing any alignment band.
+    // Remove reserved occurrences and unmatched candidates before sizing the
+    // local alignment band; each group retains its original newest-first order.
     auto hasCandidate = [](const TimedOccurrence& row, const std::vector<TimedOccurrence>& candidates)
     {
         const auto match = std::lower_bound(candidates.begin(), candidates.end(), row.timestamp + MAX_LOCAL_CLOCK_SKEW,
             [](const TimedOccurrence& candidate, S64 latest) { return candidate.timestamp > latest; });
         return match != candidates.end() && match->timestamp >= row.timestamp - MAX_LOCAL_CLOCK_SKEW;
     };
-    std::vector<std::pair<size_t, size_t>> pairs;
     for (auto& entry : groups)
     {
         auto& group = entry.second;
+        std::erase_if(group.service, [&](const TimedOccurrence& row) { return used[row.index]; });
         std::erase_if(group.local, [&](const TimedOccurrence& row) { return !hasCandidate(row, group.service); });
         if (group.local.empty()) continue;
         std::erase_if(group.service, [&](const TimedOccurrence& row) { return !hasCandidate(row, group.local); });
@@ -638,7 +685,8 @@ static std::list<LLSD> filterHistoryDuplicates(
         const S64 timestamp = message["timestamp"].asInteger();
         const S32 logged = message["chat_service_log_timestamp"].isInteger()
             ? message["chat_service_log_timestamp"].asInteger() : S32(timestamp);
-        if ((timestamp >= service_time.first - MAX_LOCAL_CLOCK_SKEW && timestamp <= service_time.second + 60) ||
+        if ((timestamp >= service_time.first - MAX_LOCAL_CLOCK_SKEW &&
+             timestamp <= service_time.second + MAX_DELIVERY_DELAY) ||
             (logged >= legacy_time.first + 7.0 * 3600.0 && logged < legacy_time.second + 8.0 * 3600.0 + 60.0))
         {
             deliveries.push_back(&message);
@@ -662,41 +710,14 @@ static std::list<LLSD> filterHistoryDuplicates(
         return (*a)["timestamp"].asInteger() > (*b)["timestamp"].asInteger();
     });
 
-    // Preserve each consumed service representation for plaintext reconciliation
-    // and for subsequent publications after the loaded archive window advances.
+    // Apply the plan once, saving consumed rows for plaintext reconciliation and
+    // retained history. No service occurrence can appear in more than one pair.
     std::vector<LLSD> matched(deliveries.size());
-    auto consume = [&](size_t delivery, size_t row)
+    for (const auto& pair : serviceMatches(deliveries, service))
     {
-        matched[delivery] = *service[row];
-        if (history_matches) history_matches->emplace_back(matched[delivery], *deliveries[delivery]);
-        result.erase(service[row]);
-        service[row] = result.cend();
-    };
-
-    // Keep exact sends and online receipts ahead of local-clock inference.
-    // Callers without a sender UUID retain the existing name-based fallback.
-    for (size_t pos = 0; pos < deliveries.size(); ++pos)
-    {
-        const LLSD& delivery = *deliveries[pos];
-        if (delivery["chat_service_time_source"].asString() == "local" &&
-            delivery["from_id"].isDefined())
-        {
-            continue;
-        }
-        const auto match = std::find_if(service.begin(), service.end(), [&](auto row)
-        {
-            return row != result.cend() && sameDirectHistoryOccurrence(*row, *deliveries[pos]);
-        });
-        if (match != service.end())
-        {
-            consume(pos, size_t(match - service.begin()));
-        }
-    }
-
-    // Pair local repeats together so one echo cannot steal another's only match.
-    for (const auto& pair : localServiceMatches(deliveries, service, result.cend()))
-    {
-        consume(pair.first, pair.second);
+        matched[pair.first] = *service[pair.second];
+        if (history_matches) history_matches->emplace_back(matched[pair.first], *deliveries[pair.first]);
+        result.erase(service[pair.second]);
     }
 
     // Service-only seams have no logged-body occurrences left to reconcile.
