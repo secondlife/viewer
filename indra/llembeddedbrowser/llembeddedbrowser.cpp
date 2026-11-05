@@ -1125,7 +1125,21 @@ void LLEmbeddedBrowser::init()
 {
     //std::cout << "Initializing LLEmbeddedBrowser" << std::endl;
 
-    if (!gSavedSettings.getBOOL("UseEmbeddedBrowser"))
+    // Cached here, on the main thread, before anything else -- see
+    // mUseEmbeddedBrowserCached's own comment for why maybeRelaunchProducer() and
+    // launchProducer() read these cached copies instead of calling gSavedSettings
+    // directly.
+    mUseEmbeddedBrowserCached    = gSavedSettings.getBOOL("UseEmbeddedBrowser");
+    mProducerConsoleCached       = gSavedSettings.getBOOL("EmbeddedBrowserProducerConsole");
+    mDebuggingCached             = gSavedSettings.getBOOL("EmbeddedBrowserDebugging");
+    mRemoteDebuggingPortCached   = gSavedSettings.getU32("EmbeddedBrowserRemoteDebuggingPort");
+    mJavascriptEnabledCached     = gSavedSettings.getBOOL("BrowserJavascriptEnabled");
+    mCookiesEnabledCached        = gSavedSettings.getBOOL("CookiesEnabled");
+    mProxyEnabledCached          = gSavedSettings.getBOOL("BrowserProxyEnabled");
+    mProxyAddressCached          = gSavedSettings.getString("BrowserProxyAddress");
+    mProxyPortCached             = gSavedSettings.getS32("BrowserProxyPort");
+
+    if (!mUseEmbeddedBrowserCached)
     {
         return; // nothing to launch -- the legacy plugin path handles all media instead
     }
@@ -1271,11 +1285,11 @@ bool LLEmbeddedBrowser::launchProducer(LLEmbeddedBrowserBackend backend)
     LLProcess::Params params;
     params.executable = exe_path;
     params.cwd        = gDirUtilp->getDirName(exe_path);
-    if (gSavedSettings.getBOOL("EmbeddedBrowserProducerConsole"))
+    if (mProducerConsoleCached)
     {
         params.args.add("--console");
     }
-    if (is_cef && gSavedSettings.getBOOL("EmbeddedBrowserDebugging"))
+    if (is_cef && mDebuggingCached)
     {
         // No in-process DevTools popup (CefBrowserHost::ShowDevTools) -- that opens a
         // real, GPU-composited native window, which reliably crashed/hung the renderer
@@ -1286,7 +1300,7 @@ bool LLEmbeddedBrowser::launchProducer(LLEmbeddedBrowserBackend backend)
         // browser. 0 (the setting's own default) means disabled, matching CEF's own
         // remote_debugging_port convention. CEF-only -- SLVlcProducer has no DevTools
         // (or any other remote-debugging) concept at all.
-        const unsigned int remote_debugging_port = gSavedSettings.getU32("EmbeddedBrowserRemoteDebuggingPort");
+        const unsigned int remote_debugging_port = mRemoteDebuggingPortCached;
         if (remote_debugging_port > 0)
         {
             params.args.add("--remote-debugging-port=" + std::to_string(remote_debugging_port));
@@ -1318,7 +1332,7 @@ bool LLEmbeddedBrowser::launchProducer(LLEmbeddedBrowserBackend backend)
         // producer launch (see llCefBrowserLibInitOptions.h's own comment on why),
         // so changing the preference takes effect on the next producer
         // launch/relaunch rather than live, same as --cache-dir above.
-        if (!gSavedSettings.getBOOL("BrowserJavascriptEnabled"))
+        if (!mJavascriptEnabledCached)
         {
             params.args.add("--disable-javascript");
         }
@@ -1328,7 +1342,7 @@ bool LLEmbeddedBrowser::launchProducer(LLEmbeddedBrowserBackend backend)
         // with an empty cookieable_schemes_list, which means no scheme is
         // cookieable at all (see llCefBrowserLibInitOptions.h's own comment on
         // these two fields).
-        if (!gSavedSettings.getBOOL("CookiesEnabled"))
+        if (!mCookiesEnabledCached)
         {
             params.args.add("--disable-cookies");
         }
@@ -1341,13 +1355,13 @@ bool LLEmbeddedBrowser::launchProducer(LLEmbeddedBrowserBackend backend)
         // real address -- when not enabled, the producer defaults to the OS/
         // system proxy configuration (see llcefproducer.cpp's own comment on
         // why that needs its own explicit fix too, not just this flag).
-        if (gSavedSettings.getBOOL("BrowserProxyEnabled"))
+        if (mProxyEnabledCached)
         {
-            const std::string proxy_address = gSavedSettings.getString("BrowserProxyAddress");
+            const std::string& proxy_address = mProxyAddressCached;
             if (!proxy_address.empty())
             {
                 params.args.add("--proxy-server=" + proxy_address + ":" +
-                                 std::to_string(gSavedSettings.getS32("BrowserProxyPort")));
+                                 std::to_string(mProxyPortCached));
             }
         }
     }
@@ -1513,7 +1527,10 @@ std::vector<std::string> LLEmbeddedBrowser::getProducerLogLines(LLEmbeddedBrowse
 
 void LLEmbeddedBrowser::maybeRelaunchProducer(LLEmbeddedBrowserBackend backend)
 {
-    if (!gSavedSettings.getBOOL("UseEmbeddedBrowser"))
+    // mUseEmbeddedBrowserCached, not gSavedSettings.getBOOL() -- see that member's own
+    // comment. This runs on each tab's own background update thread, and LLControlGroup
+    // isn't safe to read concurrently with the main thread.
+    if (!mUseEmbeddedBrowserCached)
     {
         return;
     }

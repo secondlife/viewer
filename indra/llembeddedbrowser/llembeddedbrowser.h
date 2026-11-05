@@ -659,6 +659,28 @@ class LLEmbeddedBrowser : public LLSingleton<LLEmbeddedBrowser> {
         static constexpr std::uint32_t kDeadCanary  = 0xdeadc0de;
         std::uint32_t mAliveCanary = kAliveCanary;
 
+        // Set once, from init() on the main thread, at Viewer startup -- every one of
+        // these is already documented at its launchProducer() use site as a launch-
+        // time-only setting (relaunch, not live, is how a changed value ever takes
+        // effect), so caching them costs nothing behaviorally. maybeRelaunchProducer()
+        // and launchProducer() read these cached copies instead of calling
+        // gSavedSettings directly, because both run on each tab's own background
+        // update thread (see mProducerMutex's own comment below): LLControlGroup isn't
+        // safe to read concurrently with whatever the main thread is doing to it at
+        // the same moment, and doing so corrupted memory badly enough to crash --
+        // confirmed via a real repro with a call stack rooted at exactly this kind of
+        // gSavedSettings.getBOOL() call, several frames removed from any symbol that
+        // actually accounts for it.
+        bool mUseEmbeddedBrowserCached = false;
+        bool mProducerConsoleCached = false;
+        bool mDebuggingCached = false;
+        unsigned int mRemoteDebuggingPortCached = 0;
+        bool mJavascriptEnabledCached = true;
+        bool mCookiesEnabledCached = true;
+        bool mProxyEnabledCached = false;
+        std::string mProxyAddressCached;
+        int mProxyPortCached = 0;
+
         mutable LLMutex mTabsMutex;
         std::map<unsigned int, std::shared_ptr<LLEmbeddedBrowserTab>> mTabs;
         unsigned int mNextTabId = 0;
