@@ -29,6 +29,8 @@
 
 #include "llapr.h"
 #include "llrefcount.h"
+#include <atomic>
+#include <condition_variable>
 #include <thread>
 
 extern void set_thread_name(const char* threadName);
@@ -58,7 +60,11 @@ public:
     virtual void shutdown(); // stops the thread
 
     bool isQuitting() const { return (QUITTING == mStatus); }
-    bool isStopped() const { return (STOPPED == mStatus) || (CRASHED == mStatus); }
+    bool isStopped() const
+    {
+        EThreadStatus status = mStatus;
+        return (STOPPED == status) || (CRASHED == status);
+    }
     bool isCrashed() const { return (CRASHED == mStatus); }
 
     static id_t currentID(); // Return ID of current thread
@@ -89,11 +95,16 @@ public:
 
 private:
     bool                mPaused;
-    std::thread::native_handle_type mNativeHandle; // for termination in case of issues
+    // Set when shutdown() gave up waiting and killed the thread. The thread
+    // may still be running, or may have died holding mDataLock, so
+    // mDataLock, mRunCondition and mRecorder are then leaked, not freed.
+    bool                mKilled = false;
 
     // static function passed to APR thread creation routine
     void threadRun();
     void tryRun();
+    // Join the thread once it has stored STOPPED, and free mThreadp.
+    void joinThread();
 
 #ifdef LL_WINDOWS
     void sehHandle();
@@ -101,11 +112,21 @@ private:
 
 protected:
     std::string         mName;
-    class LLCondition*  mRunCondition;
+    // checkPause() waits on this with mDataLock, which the wait releases only
+    // once the thread is waiting. Anyone who changes what shouldSleep() reads
+    // and then wakes the thread under mDataLock (wake(), setQuitting()) can't
+    // slip in between the thread's test and its wait, so no wake-up is lost.
+    std::condition_variable_any* mRunCondition;
     LLMutex*            mDataLock;
 
+    // Joinable, not detached, so its native handle stays valid until it's
+    // joined, even once the thread has exited: shutdown() may need it to
+    // kill the thread.
     std::thread        *mThreadp;
-    EThreadStatus       mStatus;
+    // Other threads poll this to learn that the thread has finished, and then
+    // read what it left behind (the thread is joined only by shutdown()), so
+    // it must be atomic: the final STOPPED store publishes the thread's writes.
+    std::atomic<EThreadStatus> mStatus;
     id_t                mID;
     LLTrace::ThreadRecorder* mRecorder;
 
@@ -131,11 +152,13 @@ protected:
     // data structures that are thread-unsafe.
     bool shouldSleep(void) { return (mStatus == RUNNING) && (isPaused() || (!runCondition())); }
 
-    // To avoid spurious signals (and the associated context switches) when the condition may or may not have changed, you can do the following:
+    // To avoid spurious notifications (and the associated context switches) when the condition may or may not have changed,
+    // wake() does the following (wakeLocked() does the same when mDataLock is already locked):
     // mDataLock->lock();
     // if(!shouldSleep())
-    //     mRunCondition->signal();
+    //     mRunCondition->notify_one();
     // mDataLock->unlock();
+    // Notify only while holding mDataLock, or the thread can miss the wake-up between its shouldSleep() test and its wait.
 };
 
 
