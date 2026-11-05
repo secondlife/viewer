@@ -4587,12 +4587,38 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
                 break;
 
             case LLEmbeddedBrowserEventType::AddressChanged:
+            {
                 // Cached so observers that need a real URL (rather than the LLPluginClassMedia*
                 // they'd normally read one from) have somewhere safe to get it -- see the
                 // handleMediaEvent patches in llmediactrl.cpp and elsewhere.
+                bool url_changed = (event.mText != mCurrentMediaURL);
                 mCurrentMediaURL = event.mText;
                 emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_LOCATION_CHANGED);
+
+                // The legacy plugin path reports a navigated-to URL back to the simulator
+                // (so every OTHER resident's own media impl learns a real, playable
+                // current_url instead of the permanently empty one home_url-only media
+                // starts with) via LLVOVolume::mediaEvent()'s mNavState state machine --
+                // but every mNavState transition lives inside handleMediaEvent(), the
+                // LLPluginClassMediaOwner callback the embedded-browser path never goes
+                // through (see its own "never invoked for embedded browser" comment
+                // elsewhere in this file). mNavState therefore never leaves its default
+                // for embedded-browser media, so that broadcast silently never fires --
+                // confirmed via a real cross-viewer repro where a bystander's legacy
+                // Viewer showed the media in Nearby Media but could never play it, since
+                // its own current_url from the sim stayed empty forever. Call
+                // mediaNavigated() directly instead of trying to route through that
+                // plugin-shaped state machine -- its body only ever uses impl/
+                // new_location, never the plugin pointer, so nullptr is safe here.
+                if (url_changed)
+                {
+                    for (LLVOVolume* obj : mObjectList)
+                    {
+                        obj->mediaNavigated(this, nullptr, mCurrentMediaURL);
+                    }
+                }
                 break;
+            }
 
             case LLEmbeddedBrowserEventType::CursorChanged:
                 mLastSetCursor = cursorTypeFromEmbeddedBrowserCursor(event.mValue);
