@@ -192,9 +192,8 @@ void LLThread::threadRun()
     mRecorder = NULL;
 
     // We're done with the run function, this thread is done executing now.
-    //NB: we are using this flag to sync across threads...we really need memory barriers here
-    // Todo: add LLMutex per thread instead of flag?
-    // We are using "while (mStatus != STOPPED) {ms_sleep();}" everywhere.
+    // Other threads poll for STOPPED and then use what this thread wrote;
+    // mStatus is atomic, so this store makes those writes visible to them.
     mStatus = STOPPED;
 }
 
@@ -445,10 +444,10 @@ void LLThread::checkPause()
 void LLThread::setQuitting()
 {
     mDataLock->lock();
-    if (mStatus == RUNNING)
-    {
-        mStatus = QUITTING;
-    }
+    // The thread sets STOPPED without taking mDataLock, so test and set in
+    // one step: a separate test could let QUITTING overwrite that STOPPED.
+    EThreadStatus expected = RUNNING;
+    mStatus.compare_exchange_strong(expected, QUITTING);
     // It's only safe to remove mRunCondition if all locked threads were notified
     mRunCondition->broadcast();
     mDataLock->unlock();

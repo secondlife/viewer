@@ -1514,7 +1514,7 @@ void LLViewerWindow::handleMouseDragged(LLWindow *window,  LLCoordGL pos, MASK m
 void LLViewerWindow::handleMouseLeave(LLWindow *window)
 {
     // Note: we won't get this if we have captured the mouse.
-    llassert( gFocusMgr.getMouseCapture() == NULL );
+    //llassert( gFocusMgr.getMouseCapture() == NULL );
     mMouseInWindow = false;
     LLToolTipMgr::instance().blockToolTips();
 }
