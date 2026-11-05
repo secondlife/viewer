@@ -46,6 +46,10 @@
 #include <pthread.h>
 #endif
 
+#if LL_LINUX
+#include <cxxabi.h>                 // abi::__forced_unwind
+#endif
+
 
 #ifdef LL_WINDOWS
 
@@ -225,6 +229,14 @@ void LLThread::tryRun()
             LL_ERRS("THREAD") << "Out of memory in a thread" << LL_ENDL;
         });
     }
+#if LL_LINUX
+    catch (abi::__forced_unwind&)
+    {
+        // pthread_cancel() from shutdown()'s timeout path unwinds the thread
+        // with this. It must be rethrown: swallowing it aborts the process.
+        throw;
+    }
+#endif
 #ifndef LL_WINDOWS
     catch (...)
     {
@@ -333,22 +345,38 @@ void LLThread::shutdown()
 
         if (!isStopped())
         {
-            // This thread just wouldn't stop, even though we gave it time
-            //LL_WARNS() << "LLThread::~LLThread() exiting thread before clean exit!" << LL_ENDL;
+            // This thread just wouldn't stop, even though we gave it time.
             // Put a stake in its heart. (A very hostile method to force a thread to quit)
+            // mThreadp hasn't been joined or detached, so its handle is valid
+            // even if the thread has exited since the test above.
+            LL_WARNS("THREAD") << "Killing thread '" << mName << "', which didn't stop" << LL_ENDL;
 #if     LL_WINDOWS
-            TerminateThread(mNativeHandle, 0);
+            TerminateThread(mThreadp->native_handle(), 0);
+            // TerminateThread() can return before the thread is gone
+            mThreadp->join();
 #else
-            pthread_cancel(mNativeHandle);
+            // This takes effect only when the thread reaches a cancellation
+            // point, which it may never do, so don't wait for it.
+            pthread_cancel(mThreadp->native_handle());
+            mThreadp->detach();
 #endif
+            delete mThreadp;
+            mThreadp = NULL;
 
-            delete mRecorder;
-            mRecorder = NULL;
+            // The thread may still be running, or may have died holding
+            // mDataLock or using mRecorder: leak them rather than free them
+            // under it (including when ~LLThread() calls shutdown() again).
+            mKilled = true;
             mStatus = STOPPED;
             return;
         }
-        delete mThreadp;
-        mThreadp = NULL;
+        joinThread();
+    }
+
+    if (mKilled)
+    {
+        // see the timeout path above
+        return;
     }
 
     delete mRunCondition;
@@ -367,9 +395,32 @@ void LLThread::shutdown()
 }
 
 
+void LLThread::joinThread()
+{
+    if (mThreadp->get_id() == currentID())
+    {
+        // shutdown() called from the thread itself, which can't join itself
+        mThreadp->detach();
+    }
+    else
+    {
+        // The thread has stored STOPPED, so all that's left is for it to
+        // return: this doesn't wait long.
+        mThreadp->join();
+    }
+    delete mThreadp;
+    mThreadp = NULL;
+}
+
 void LLThread::start()
 {
     llassert(isStopped());
+
+    if (mThreadp)
+    {
+        // An earlier run ended by itself, and nothing called shutdown()
+        joinThread();
+    }
 
     // Set thread state to running
     mStatus = RUNNING;
@@ -377,8 +428,6 @@ void LLThread::start()
     try
     {
         mThreadp = new std::thread(std::bind(&LLThread::threadRun, this));
-        mNativeHandle = mThreadp->native_handle();
-        mThreadp->detach();
     }
     catch (std::system_error& ex)
     {

@@ -95,11 +95,16 @@ public:
 
 private:
     bool                mPaused;
-    std::thread::native_handle_type mNativeHandle; // for termination in case of issues
+    // Set when shutdown() gave up waiting and killed the thread. The thread
+    // may still be running, or may have died holding mDataLock, so
+    // mDataLock, mRunCondition and mRecorder are then leaked, not freed.
+    bool                mKilled = false;
 
     // static function passed to APR thread creation routine
     void threadRun();
     void tryRun();
+    // Join the thread once it has stored STOPPED, and free mThreadp.
+    void joinThread();
 
 #ifdef LL_WINDOWS
     void sehHandle();
@@ -114,10 +119,13 @@ protected:
     std::condition_variable_any* mRunCondition;
     LLMutex*            mDataLock;
 
+    // Joinable, not detached, so its native handle stays valid until it's
+    // joined, even once the thread has exited: shutdown() may need it to
+    // kill the thread.
     std::thread        *mThreadp;
     // Other threads poll this to learn that the thread has finished, and then
-    // read what it left behind (the thread is detached, never joined), so it
-    // must be atomic: the final STOPPED store publishes the thread's writes.
+    // read what it left behind (the thread is joined only by shutdown()), so
+    // it must be atomic: the final STOPPED store publishes the thread's writes.
     std::atomic<EThreadStatus> mStatus;
     id_t                mID;
     LLTrace::ThreadRecorder* mRecorder;

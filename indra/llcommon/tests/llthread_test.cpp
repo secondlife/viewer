@@ -141,6 +141,41 @@ namespace
         std::atomic<bool>& mFinished;
     };
 
+    // run() ignores requests to quit. It reports through flags that the test
+    // owns, because shutdown() gives up on it and the object may be gone
+    // before the thread is.
+    class StubbornThread : public LLThread
+    {
+    public:
+        StubbornThread(std::atomic<bool>& started, std::atomic<bool>& unwound):
+            LLThread("StubbornThread"),
+            mStarted(started),
+            mUnwound(unwound)
+        {}
+
+    protected:
+        void run() override
+        {
+            // set as run() unwinds, e.g. when pthread_cancel() kills the thread
+            struct Unwinding
+            {
+                std::atomic<bool>& mFlag;
+                ~Unwinding() { mFlag = true; }
+            } unwinding{ mUnwound };
+
+            mStarted = true;
+            while (true)
+            {
+                // a cancellation point
+                std::this_thread::sleep_for(1ms);
+            }
+        }
+
+    private:
+        std::atomic<bool>& mStarted;
+        std::atomic<bool>& mUnwound;
+    };
+
     // run() just calls the function it was given
     class ThrowingThread : public LLThread
     {
@@ -467,5 +502,38 @@ namespace tut
             }
             ensure("not stopped", thread.isStopped());
         }
+    }
+
+    template<> template<>
+    void object::test<10>()
+    {
+        set_test_name("shutdown() kills a thread that won't stop");
+#if ! LL_LINUX
+        // Only Linux unwinds a cancelled thread, which is how this test sees
+        // that it died. Elsewhere, killing a thread in the test process could
+        // also leave a lock (in the allocator, say) held for good.
+        skip("needs pthread_cancel() to unwind the thread");
+#else
+        std::atomic<bool> started{ false };
+        std::atomic<bool> unwound{ false };
+        {
+            StubbornThread thread(started, unwound);
+            thread.start();
+            ensure("never started", wait_until([&started]() { return started.load(); }));
+
+            // shutdown() waits 6 s for the thread, then cancels it
+            auto elapsed = time_of([&thread]() { thread.shutdown(); });
+            ensure("shutdown() didn't wait for the thread", elapsed >= 5s);
+            ensure("shutdown() took too long", elapsed < 10s);
+            ensure("not stopped", thread.isStopped());
+
+            // The cancelled thread unwinds through tryRun(), whose catch (...)
+            // must let it go: swallowing the unwind would abort the process.
+            ensure("cancelled thread didn't unwind",
+                   wait_until([&unwound]() { return unwound.load(); }));
+            // ~LLThread() calls shutdown() again here, which must not free
+            // what the killed thread was using, or crash
+        }
+#endif
     }
 } // namespace tut
