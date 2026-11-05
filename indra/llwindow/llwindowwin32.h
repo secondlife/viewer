@@ -285,8 +285,6 @@ protected:
         LLPreeditor*                mPreeditor = nullptr;
         S32                         mPreeditStart = 0;
         S32                         mTextLength = 0;
-        LLWString                   mFeedSource;        // text find_context() read for the feed context
-        LLWString                   mSelectionSource;   // text find_context() read for the selection context
     };
     LLMutex         mImeCacheMutex;
     ImeCache        mImeCache;
