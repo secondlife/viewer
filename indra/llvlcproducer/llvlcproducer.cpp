@@ -795,6 +795,18 @@ int run_producer(int argc, char** argv)
             control->send(kSlotAssigned, payload, payload_len, cmd.id);
         }
 
+        // Unlike the per-view/per-audio publishers below, the control channel never
+        // commits a frame, so without this it only ever gets ONE heartbeat -- the one
+        // LLPublisher::create() stamps at creation (see llpublisher.cpp). Past
+        // stale_ns (500ms by default) past launch, LLSubscriber::producer_responsive()
+        // on this channel would then read as false forever, even while this producer
+        // is fully healthy and actively serving every other slot -- confirmed as the
+        // cause of a regression where connectToProducer()'s switch to
+        // producer_responsive() (see that function's own comment in
+        // llembeddedbrowser.cpp) made every tab's very first connection attempt fail
+        // permanently, well past any reasonable startup grace period.
+        control->heartbeat();
+
         for (std::size_t i = 0; i < slots.size(); ++i)
         {
             Slot& s = slots[i];
