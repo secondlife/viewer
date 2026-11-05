@@ -435,4 +435,37 @@ namespace tut
         }
 #endif
     }
+
+    template<> template<>
+    void object::test<9>()
+    {
+        set_test_name("shutdown() as a thread goes to sleep");
+        // Ask the thread to quit as it reaches checkPause(), delaying a little
+        // more each time, to try to land setQuitting() between the thread's
+        // shouldSleep() test and its wait. If checkPause() released mDataLock
+        // before waiting, that wake-up would be lost: the thread would sleep
+        // on, and shutdown() would wait 6 s and then cancel it. Whether that
+        // ever happens depends on timing, so passing doesn't prove the race
+        // is gone.
+        const int ITERATIONS = 200;
+        for (int i = 0; i < ITERATIONS; ++i)
+        {
+            WaitingThread thread;
+            thread.start();
+            while (!thread.mStarted)
+            {
+                // spin: sleep_for() is far too coarse
+            }
+            auto until = std::chrono::steady_clock::now() + std::chrono::microseconds(i);
+            while (std::chrono::steady_clock::now() < until)
+            {
+            }
+            auto elapsed = time_of([&thread]() { thread.shutdown(); });
+            if (elapsed >= 1s)
+            {
+                fail(stringize("shutdown() #", i, " took ", elapsed.count(), " ms"));
+            }
+            ensure("not stopped", thread.isStopped());
+        }
+    }
 } // namespace tut

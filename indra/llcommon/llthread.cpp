@@ -271,7 +271,7 @@ LLThread::LLThread(const std::string& name, apr_pool_t *poolp) :
     mStatus(STOPPED),
     mRecorder(NULL)
 {
-    mRunCondition = new LLCondition();
+    mRunCondition = new std::condition_variable_any();
     mDataLock = new LLMutex();
     mLocalAPRFilePoolp = NULL ;
 }
@@ -430,10 +430,11 @@ void LLThread::checkPause()
     // This is in a while loop because the pthread API allows for spurious wakeups.
     while(shouldSleep())
     {
-        mDataLock->unlock();
-        mRunCondition->wait(); // unlocks mRunCondition
-        mDataLock->lock();
-        // mRunCondition is locked when the thread wakes up
+        // Releases mDataLock only once this thread is waiting, and takes it
+        // again before returning. Unlocking first and then waiting would lose
+        // a wake-up sent in between, leaving the thread asleep (and shutdown()
+        // waiting 6 s and then cancelling it).
+        mRunCondition->wait(*mDataLock);
     }
 
     mDataLock->unlock();
@@ -449,7 +450,7 @@ void LLThread::setQuitting()
     EThreadStatus expected = RUNNING;
     mStatus.compare_exchange_strong(expected, QUITTING);
     // It's only safe to remove mRunCondition if all locked threads were notified
-    mRunCondition->broadcast();
+    mRunCondition->notify_all();
     mDataLock->unlock();
 }
 
@@ -473,7 +474,7 @@ void LLThread::wake()
     mDataLock->lock();
     if(!shouldSleep())
     {
-        mRunCondition->signal();
+        mRunCondition->notify_one();
     }
     mDataLock->unlock();
 }
@@ -483,7 +484,7 @@ void LLThread::wakeLocked()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     if(!shouldSleep())
     {
-        mRunCondition->signal();
+        mRunCondition->notify_one();
     }
 }
 

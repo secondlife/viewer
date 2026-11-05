@@ -30,6 +30,7 @@
 #include "llapr.h"
 #include "llrefcount.h"
 #include <atomic>
+#include <condition_variable>
 #include <thread>
 
 extern void set_thread_name(const char* threadName);
@@ -106,7 +107,11 @@ private:
 
 protected:
     std::string         mName;
-    class LLCondition*  mRunCondition;
+    // checkPause() waits on this with mDataLock, which the wait releases only
+    // once the thread is waiting. Anyone who changes what shouldSleep() reads
+    // and then wakes the thread under mDataLock (wake(), setQuitting()) can't
+    // slip in between the thread's test and its wait, so no wake-up is lost.
+    std::condition_variable_any* mRunCondition;
     LLMutex*            mDataLock;
 
     std::thread        *mThreadp;
@@ -139,11 +144,13 @@ protected:
     // data structures that are thread-unsafe.
     bool shouldSleep(void) { return (mStatus == RUNNING) && (isPaused() || (!runCondition())); }
 
-    // To avoid spurious signals (and the associated context switches) when the condition may or may not have changed, you can do the following:
+    // To avoid spurious notifications (and the associated context switches) when the condition may or may not have changed,
+    // wake() does the following (wakeLocked() does the same when mDataLock is already locked):
     // mDataLock->lock();
     // if(!shouldSleep())
-    //     mRunCondition->signal();
+    //     mRunCondition->notify_one();
     // mDataLock->unlock();
+    // Notify only while holding mDataLock, or the thread can miss the wake-up between its shouldSleep() test and its wait.
 };
 
 
