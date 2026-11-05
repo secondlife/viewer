@@ -4562,8 +4562,36 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
         switch (event.type)
         {
             case LLEmbeddedBrowserEventType::LoadStart:
+            {
                 emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_NAVIGATE_BEGIN);
+
+                // Report the destination URL to the simulator right away, before CEF's
+                // own page load even starts, rather than waiting for AddressChanged to
+                // confirm the fully-resolved address once the real page finishes
+                // loading (see that case below for the rest of this story). A resident
+                // already standing next to a face whose media is just now being
+                // created only gets notified of the eventual real current_url if it
+                // reaches the sim within a short window right after creation --
+                // confirmed via a real side-by-side comparison where the legacy
+                // plugin's own navigate-broadcast happened to land inside that window
+                // (its target page resolved quickly) while the embedded-browser one,
+                // in the same test with a slower-resolving page, missed it entirely --
+                // the bystander got no further updates at all afterward, confirmed
+                // over a minute of waiting. mMediaURL is already known synchronously
+                // here, set the moment navigateTo() was called, well before any real
+                // network round trip -- broadcasting it immediately removes the
+                // dependency on network timing for the common (no-redirect) case,
+                // rather than just hoping it resolves fast enough.
+                if (!mMediaURL.empty() && mMediaURL != mCurrentMediaURL)
+                {
+                    mCurrentMediaURL = mMediaURL;
+                    for (LLVOVolume* obj : mObjectList)
+                    {
+                        obj->mediaNavigated(this, nullptr, mCurrentMediaURL);
+                    }
+                }
                 break;
+            }
 
             case LLEmbeddedBrowserEventType::LoadEnd:
                 if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef)
