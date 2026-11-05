@@ -704,6 +704,24 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
         }
     });
 
+    // JS alert()/confirm()/prompt() and onbeforeunload dialogs are a griefing vector
+    // (a scripted page can pop these at will) and are never shown, matching the
+    // legacy media plugin's own unconditional suppression. Without a handler
+    // registered at all, llCefBrowser::OnJSDialog() falls through to CEF's own
+    // built-in default dialog, which behaves inconsistently for a windowless/OSR
+    // browser with no real top-level window to anchor a dialog to -- confirmed via
+    // a real cross-platform repro: silently dropped on Windows, but still rendered
+    // (anchored to some other window) on macOS. Explicitly suppressing here is the
+    // documented, platform-independent way to veto these dialogs, rather than
+    // relying on each platform's undefined no-handler fallback.
+    manager.SetOnJSDialogCallback(handle, [](const std::string& /*originUrl*/, llCefJSDialogType /*dialogType*/,
+                                              const std::string& /*messageText*/, const std::string& /*defaultPromptText*/) {
+        return true;
+    });
+    manager.SetOnBeforeUnloadCallback(handle, [](const std::string& /*messageText*/, bool /*isReload*/) {
+        return true;
+    });
+
     return true;
 }
 
