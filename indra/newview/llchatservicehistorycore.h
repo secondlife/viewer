@@ -104,7 +104,7 @@ namespace LLChatServiceHistoryCore
     // Compare service rows against original bodies and plaintext against logged bodies/times.
     bool sameDirectHistoryOccurrence(const LLSD& history, const LLSD& timed);
 
-    // Reserve known send times before receipt intervals and local-clock minute matches.
+    // Reserve known send times before receipt intervals and local-clock windows.
     std::list<LLSD> filterDirectHistoryDuplicates(const std::list<LLSD>& history,
                                                  const std::list<LLSD>& live);
 
@@ -113,7 +113,8 @@ namespace LLChatServiceHistoryCore
     // Union historical seams by service ID and plaintext occurrence, consuming overlaps one-for-one.
     Messages mergeDirectHistory(const Messages& loaded, const Messages& service);
 
-    // Preview publications start from the loaded value; visible context is retained separately.
+    // Preview publications start from the loaded value; retained context includes
+    // visible rows and the consumed occurrences needed to preserve their counts.
     class History
     {
     public:
@@ -125,7 +126,7 @@ namespace LLChatServiceHistoryCore
 
     private:
         Messages mLoaded;
-        Messages mVisible;
+        Messages mVisible; // Visible rows plus consumed anchors; anchors are filtered before display.
     };
 
     // Preserve live order and notification rows; replace history and reindex only on change.
