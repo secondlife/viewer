@@ -143,7 +143,7 @@ namespace LLChatServiceHistoryCore
 
     // Both inputs are newest-first; interleave timed history without reordering live rows.
     std::list<LLSD> interleaveDirectHistory(const std::list<LLSD>& history,
-                                          const std::list<LLSD>& live);
+                                          std::list<LLSD> live);
 
     // Legacy SLT wall times carry no UTC offset; UTC-7 is their earliest possible
     // interpretation at the durable service boundary.

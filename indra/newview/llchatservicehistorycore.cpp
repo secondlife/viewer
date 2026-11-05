@@ -593,10 +593,38 @@ static std::vector<std::pair<size_t, size_t>> localServiceMatches(
     return pairs;
 }
 
+// Broad clock ranges exclude old traffic cheaply; occurrence matching still
+// checks each row's source, sender, body, and precise timing rules.
+static std::pair<F64, F64> historyTimeRange(const Messages& history, const char* field)
+{
+    std::pair<F64, F64> range{std::numeric_limits<F64>::max(), 0};
+    for (const LLSD& row : history)
+    {
+        const LLSD& time = row[field];
+        if (time.isInteger() || time.isReal())
+        {
+            range.first = std::min(range.first, time.asReal());
+            range.second = std::max(range.second, time.asReal());
+        }
+    }
+    return range;
+}
+
 static std::list<LLSD> filterHistoryDuplicates(
     const std::list<LLSD>& history, const std::list<LLSD>& live,
     DirectHistoryMatches* history_matches)
 {
+    // Empty sources cannot contribute a duplicate or a retained anchor.
+    if (history.empty() || live.empty())
+    {
+        return history;
+    }
+
+    // Exclude old session traffic outside both historical clock windows before
+    // sorting. Plaintext uses logging time and admits either legacy SLT offset.
+    const auto service_time = historyTimeRange(history, "timestamp");
+    const auto legacy_time = historyTimeRange(history, "chat_service_legacy_wall_time");
+
     // Reserve known sends and online receipts in their established order;
     // local echoes are reconciled together after those candidates are reserved.
     auto priority = [](const LLSD& message)
@@ -605,7 +633,17 @@ static std::list<LLSD> filterHistoryDuplicates(
         return source == "receipt" ? 1 : source == "local" ? 2 : 0;
     };
     std::vector<const LLSD*> deliveries;
-    for (const LLSD& message : live) deliveries.push_back(&message);
+    for (const LLSD& message : live)
+    {
+        const S64 timestamp = message["timestamp"].asInteger();
+        const S32 logged = message["chat_service_log_timestamp"].isInteger()
+            ? message["chat_service_log_timestamp"].asInteger() : S32(timestamp);
+        if ((timestamp >= service_time.first - MAX_LOCAL_CLOCK_SKEW && timestamp <= service_time.second + 60) ||
+            (logged >= legacy_time.first + 7.0 * 3600.0 && logged < legacy_time.second + 8.0 * 3600.0 + 60.0))
+        {
+            deliveries.push_back(&message);
+        }
+    }
     std::stable_sort(deliveries.begin(), deliveries.end(), [&](const LLSD* a, const LLSD* b)
     {
         return priority(*a) != priority(*b) ? priority(*a) < priority(*b)
@@ -661,6 +699,12 @@ static std::list<LLSD> filterHistoryDuplicates(
         consume(pair.first, pair.second);
     }
 
+    // Service-only seams have no logged-body occurrences left to reconcile.
+    if (service.size() == history.size())
+    {
+        return result;
+    }
+
     // A live occurrence can also cover plaintext that the matched service row
     // could not consume: a decorated body or a different actual logging minute.
     // Plaintext already eligible for that service row remains an extra occurrence.
@@ -689,10 +733,10 @@ std::list<LLSD> filterDirectHistoryDuplicates(
 }
 
 std::list<LLSD> interleaveDirectHistory(const std::list<LLSD>& history,
-                                      const std::list<LLSD>& live)
+                                      std::list<LLSD> result)
 {
-    std::list<LLSD> result = live;
-    auto position = result.begin();
+    // Reuse live nodes when the caller moves the list; const reads preserve shared LLSD maps.
+    auto position = result.cbegin();
 
     // A service head may contain messages sent after live delivery began. Insert
     // them by UTC time while retaining both sources' order and untimed live anchors.
@@ -884,20 +928,26 @@ bool replaceHistory(Messages& current, const Messages& history, bool direct)
     }
     if (direct)
     {
-        live = interleaveDirectHistory(historical, live);
+        live = interleaveDirectHistory(historical, std::move(live));
     }
     else
     {
         live.insert(live.end(), historical.begin(), historical.end());
     }
 
-    // Index changes alone do not require replaying inline notification widgets.
+    // Live order is preserved, so equal history/live positions identify the same
+    // live rows. Compare only history values, ignoring presentation indices.
     if (current.size() == live.size() &&
-        std::equal(current.begin(), current.end(), live.begin(), [](LLSD left, LLSD right)
+        std::equal(current.begin(), current.end(), live.begin(), [](const LLSD& left, const LLSD& right)
         {
-            left.erase("index");
-            right.erase("index");
-            return llsd_equals(left, right);
+            const bool historical = left["is_history"].asBoolean();
+            if (historical != right["is_history"].asBoolean()) return false;
+            if (!historical) return true;
+            LLSD left_history = left;
+            LLSD right_history = right;
+            left_history.erase("index");
+            right_history.erase("index");
+            return llsd_equals(left_history, right_history);
         }))
     {
         return false;

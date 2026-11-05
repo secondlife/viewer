@@ -1642,6 +1642,51 @@ template<> template<> void object_t::test<52>()
 
 namespace tut
 {
+template<> template<> void object_t::test<53>()
+{
+    // Interleaving must preserve inline offers that have no timestamp field.
+    LLSD stored = contextRow(1);
+    stored["timestamp"] = 100;
+    LLSD delivery = liveCopy(contextRow(2));
+    delivery["timestamp"] = 90;
+    LLSD offer;
+    offer["notification_id"] = AGENT;
+    Messages current{offer, delivery};
+    ensure("initial interleaved history changes the model", replaceHistory(current, {stored}, true));
+    ensure("interleaving does not add a timestamp to an untimed offer", !current.front().has("timestamp"));
+
+    // Index-only differences never replay notification widgets or rewrite indices.
+    current.front()["index"] = 1234;
+    stored["index"] = -9;
+    const LLSD* offer_node = &current.front();
+    ensure("identical overlay leaves the model in place", !replaceHistory(current, {stored}, true));
+    ensure("notification keeps its existing list node", &current.front() == offer_node);
+    ensure_equals("notification index remains untouched", current.front()["index"].asInteger(), 1234);
+
+    // Editing a live timestamp can move unchanged history relative to live rows.
+    current.back()["timestamp"] = 110;
+    current.back()["notification_log_id"] = RESIDENT;
+    ensure("live timestamp edits recheck interleaving", replaceHistory(current, {stored}, true));
+    auto row = current.begin();
+    ensure_equals("untimed offer remains first", (*row++)["notification_id"].asUUID(), AGENT);
+    ensure_equals("edited live row precedes older history", (*row++)["notification_log_id"].asUUID(), RESIDENT);
+    ensure("historical row now follows the edited live row", (*row)["is_history"].asBoolean());
+
+    // Only the top-level presentation index is ignored; nested data and key
+    // presence remain meaningful even when a new value is undefined.
+    stored["details"]["index"] = 7;
+    ensure("nested history values are compared", replaceHistory(current, {stored}, true));
+    stored["details"]["index"] = 8;
+    ensure("nested index changes are not ignored", replaceHistory(current, {stored}, true));
+    stored["extra"] = LLSD();
+    ensure("an undefined-valued key is still a change", replaceHistory(current, {stored}, true));
+    stored.erase("extra");
+    ensure("removing an undefined-valued key is a change", replaceHistory(current, {stored}, true));
+    ensure("clearing history keeps live and notification rows", replaceHistory(current, {}, true));
+    ensure_equals("two live rows remain", current.size(), size_t(2));
+    ensure("empty overlay is stable", !replaceHistory(current, {}, true));
+}
+
 template<> template<> void object_t::test<54>()
 {
     // A visible service row covers a later plaintext load. Its delayed live
