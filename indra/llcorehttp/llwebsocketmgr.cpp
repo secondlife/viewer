@@ -194,22 +194,20 @@ struct Server_impl
         mServer.set_open_handler([this](websocketpp::connection_hdl hdl) { this->onOpen(hdl); });
         mServer.set_close_handler([this](websocketpp::connection_hdl hdl) { this->onClose(hdl); });
         mServer.set_message_handler([this](websocketpp::connection_hdl hdl, Server_t::message_ptr msg) { this->onMessage(hdl, msg); });
+        mServer.init_asio();
     }
 
     ~Server_impl() = default;
 
     /**
-     * @brief Initialize the websocketpp server and configure listening
+     * @brief Bind the initialized websocketpp endpoint and begin accepting
      *
-     * Performs the initial setup of the websocketpp server by calling init_asio()
-     * to initialize the ASIO networking layer, then configures the server to listen
-     * on the specified port. The binding behavior depends on the mLocalOnly flag:
+     * Called before the I/O worker starts. The binding behavior depends on mLocalOnly:
      * - If mLocalOnly is true: binds to "127.0.0.1" (localhost only)
      * - If mLocalOnly is false: binds to all available network interfaces
      */
-    void init()
+    bool listen()
     {
-        mServer.init_asio();
         try {
             if (mLocalOnly)
             {
@@ -221,6 +219,8 @@ struct Server_impl
             {
                 mServer.listen(mPort);
             }
+            mServer.start_accept();
+            return true;
         }
         catch (const websocketpp::exception& e)
         {
@@ -234,40 +234,27 @@ struct Server_impl
         {
             LL_WARNS("WebSocket") << "WebSocket server listen unknown exception" << LL_ENDL;
         }
+        stop();
+        return false;
     }
 
     /**
-     * @brief Start the websocket server and begin accepting connections
-     * @return true if server started successfully, false on error
+     * @brief Run the I/O loop until shutdown or an error
+     * @return true if the event loop exited normally, false on error
      */
-    bool start()
+    bool run()
     {
-        //if (!mServer.stopped())
-        //{
-        //    LL_WARNS("WebSocket") << "WebSocket server is already running" << LL_ENDL;
-        //    return false;
-        //}
-
         try
         {
             LL_INFOS("WebSocket") << "Starting WebSocket server on port " << mPort
                                   << (mLocalOnly ? " (localhost only)" : " (all interfaces)") << LL_ENDL;
-            mServer.start_accept();
-
             // Run controlled event loop with periodic stop flag checking
             while (!mOwner->mShouldStop && !mServer.stopped())
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_WEBSOCKET("ws server run_for");
                 // Process events for up to 100ms, then check the stop flag
                 std::chrono::milliseconds timeout(100);
-                std::size_t handlers_run = mServer.get_io_service().run_for(timeout);
-
-                // If no handlers were run and the server isn't stopped,
-                // reset the io_service for the next iteration
-                if (handlers_run == 0 && !mServer.stopped() && !mOwner->mShouldStop)
-                {
-                    mServer.get_io_service().restart();
-                }
+                mServer.get_io_service().run_for(timeout);
             }
 
             LL_INFOS("WebSocket") << "WebSocket server event loop exited cleanly" << LL_ENDL;
@@ -292,19 +279,18 @@ struct Server_impl
 
     void stop()
     {
-        if (mServer.stopped())
-        {
-            return;
-        }
         try
         {
-            mServer.stop_listening();
-            mServer.stop();
+            if (mServer.is_listening())
+            {
+                mServer.stop_listening();
+            }
         }
         catch (const std::exception&)
         {
             LL_WARNS("WebSocket") << "Error stopping WebSocket server" << LL_ENDL;
         }
+        mServer.stop();
     }
 
     /**
@@ -401,11 +387,8 @@ LLWebsocketMgr::WSServer::WSServer(std::string_view name, U16 port, bool local_o
     mServerName(name),
     mImpl(std::make_unique<Server_impl>(this, port, local_only))
 {
-    mImpl->init();
-
-    // Initialize the server with the given name and host
     LL_INFOS("WebSocket") << "Creating WebSocket server: " << name <<
-        " listening " << (mImpl->mLocalOnly ? "locally" : "ON ALL INTERFACES") <<
+        " configured " << (mImpl->mLocalOnly ? "locally" : "ON ALL INTERFACES") <<
         " on port " << mImpl->mPort << LL_ENDL;
 }
 
@@ -425,9 +408,6 @@ bool LLWebsocketMgr::WSServer::start()
 {
     LL_ERRS_IF(!mImpl, "WebSocket") << "WebSocket server " << mServerName << " implementation is null !" << LL_ENDL;
 
-    LLMutexLock lock(&mThreadMutex);
-
-    // Check if already running
     if (isRunning())
     {
         LL_WARNS("WebSocket") << "Server " << mServerName << " is already running" << LL_ENDL;
@@ -437,27 +417,47 @@ bool LLWebsocketMgr::WSServer::start()
     // A failed worker is no longer running, but still needs to be joined.
     stop();
 
-    // Reset the stop flag
-    mShouldStop = false;
-    mRunning = true;
-
-    // Start the server thread
-    mServerThread = std::thread([this]() {
-        LL_PROFILER_SET_THREAD_NAME(mServerName.c_str());
-        LL_INFOS("WebSocket") << "WebSocket server thread starting for: " << mServerName << LL_ENDL;
-
-        // Run the controlled server loop that checks the stop flag
-        // Server_impl accesses mShouldStop through the mOwner pointer
-        bool success = mImpl->start();
-
-        if (!success)
+    {
+        LLMutexLock lock(&mThreadMutex);
+        // A fresh endpoint discards canceled handlers and sockets from the previous run.
+        mImpl = std::make_unique<Server_impl>(this, mImpl->mPort, mImpl->mLocalOnly);
+        if (!mImpl->listen())
         {
-            LL_WARNS("WebSocket") << "WebSocket server thread failed to start for: " << mServerName << LL_ENDL;
+            return false;
         }
 
-        LL_INFOS("WebSocket") << "WebSocket server thread exiting for: " << mServerName << LL_ENDL;
-        mRunning = false;
-    });
+        mShouldStop = false;
+        mRunning = true;
+        try
+        {
+            mServerThread = std::thread([this]() {
+                LL_PROFILER_SET_THREAD_NAME(mServerName.c_str());
+                LL_INFOS("WebSocket") << "WebSocket server thread starting for: " << mServerName << LL_ENDL;
+
+                if (!mImpl->run())
+                {
+                    LL_WARNS("WebSocket") << "WebSocket server event loop failed for: " << mServerName << LL_ENDL;
+                }
+
+                // Acceptor shutdown must run on the same thread as its accept handlers.
+                closeAllConnections(1001, "Server shutting down");
+                mImpl->stop();
+                for (const auto& connection : getConnections())
+                {
+                    handleCloseConnection(connection->mConnectionHandle);
+                }
+                LL_INFOS("WebSocket") << "WebSocket server thread exiting for: " << mServerName << LL_ENDL;
+                mRunning = false;
+            });
+        }
+        catch (const std::exception& e)
+        {
+            mRunning = false;
+            mImpl->stop();
+            LL_WARNS("WebSocket") << "Failed to create server thread: " << e.what() << LL_ENDL;
+            return false;
+        }
+    }
 
     onStarted();
     LL_INFOS("WebSocket") << "Started WebSocket server thread: " << mServerName << LL_ENDL;
@@ -480,17 +480,11 @@ void LLWebsocketMgr::WSServer::stop()
         LL_INFOS("WebSocket") << "Stopping WebSocket server: " << mServerName << LL_ENDL;
 
         mShouldStop = true;
-
-        // Send close frames to all connected clients before stopping the ASIO loop
-        closeAllConnections(1001, "Server shutting down");
-
-        // Stop the websocket server (this will cause the controlled run loop to exit)
-        mImpl->stop();
     } // Release the lock here
 
     if (mServerThread.joinable())
     {
-        // The I/O thread should exit promptly once mImpl->stop() returns. If
+        // The I/O thread checks mShouldStop every 100ms. If
         // it doesn't, something on that thread is blocked -- most likely a
         // regression reintroducing a cross-thread wait. Warn instead of
         // hanging silently; still join (detaching would use-after-free mImpl).
@@ -524,18 +518,21 @@ bool LLWebsocketMgr::WSServer::isRunning() const
 void LLWebsocketMgr::WSServer::broadcastMessage(const std::string& message)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
-    LL_ERRS_IF(!mImpl, "WebSocket") << "WebSocket server " << mServerName << " implementation is null !" << LL_ENDL;
-    LLMutexLock lock(&mConnectionMutex);
-    for (const auto& [handle, conn] : mConnections)
+    for (const auto& connection : getConnections())
     {
-        sendMessageTo(handle, message);
+        sendMessageTo(connection->mConnectionHandle, message);
     }
 }
 
 bool LLWebsocketMgr::WSServer::sendMessageTo(const connection_h& handle, const std::string& message)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_WEBSOCKET;
+    LLMutexLock lock(&mThreadMutex);
     LL_ERRS_IF(!mImpl, "WebSocket") << "WebSocket server " << mServerName << " implementation is null !" << LL_ENDL;
+    if (!getConnection(handle))
+    {
+        return false;
+    }
     websocketpp::lib::error_code ec;
     mImpl->mServer.send(handle, message, websocketpp::frame::opcode::text, ec);
     if (ec)
@@ -548,7 +545,12 @@ bool LLWebsocketMgr::WSServer::sendMessageTo(const connection_h& handle, const s
 
 bool LLWebsocketMgr::WSServer::closeConnection(const connection_h& handle, U16 code, const std::string& reason)
 {
+    LLMutexLock lock(&mThreadMutex);
     LL_ERRS_IF(!mImpl, "WebSocket") << "WebSocket server " << mServerName << " implementation is null !" << LL_ENDL;
+    if (!getConnection(handle))
+    {
+        return false;
+    }
 
     try
     {
@@ -581,7 +583,7 @@ bool LLWebsocketMgr::WSServer::closeConnection(const connection_h& handle, U16 c
     }
 }
 
-LLWebsocketMgr::WSConnection::ptr_t LLWebsocketMgr::WSServer::getConnection(const connection_h& handle)
+LLWebsocketMgr::WSConnection::ptr_t LLWebsocketMgr::WSServer::getConnection(const connection_h& handle) const
 {
     LLMutexLock lock(&mConnectionMutex);
     auto        it = mConnections.find(handle);
@@ -606,12 +608,16 @@ std::vector<LLWebsocketMgr::WSConnection::ptr_t> LLWebsocketMgr::WSServer::getCo
 
 LLWebsocketMgr::connection_state_t LLWebsocketMgr::WSServer::getConnectionState(const connection_h& handle) const
 {
+    LLMutexLock lock(&mThreadMutex);
+    if (!getConnection(handle))
+    {
+        return connection_closed;
+    }
     websocketpp::lib::error_code ec;
     auto con = mImpl->mServer.get_con_from_hdl(handle, ec);
     if (ec)
     {
         LL_WARNS("WebSocket") << mServerName << " failed to get connection state: " << ec.message() << LL_ENDL;
-        websocketpp::session::state::value state = websocketpp::session::state::closed;
         return connection_closed;
     }
     return static_cast<connection_state_t>(con->get_state());
@@ -699,12 +705,13 @@ void LLWebsocketMgr::WSServer::handleMessage(const connection_h& handle, const s
 //------------------------------------------------------------------------
 bool LLWebsocketMgr::WSConnection::sendMessage(const std::string& message) const
 {
-    if (mOwningServer.expired())
+    auto server = mOwningServer.lock();
+    if (!server)
     {
         LL_WARNS("WebSocket") << "Attempted to send message on connection with null server reference" << LL_ENDL;
         return false;
     }
-    return mOwningServer.lock()->sendMessageTo(mConnectionHandle, message);
+    return server->sendMessageTo(mConnectionHandle, message);
 }
 
 bool LLWebsocketMgr::WSConnection::sendMessage(const boost::json::value& json) const
@@ -720,7 +727,8 @@ bool LLWebsocketMgr::WSConnection::sendMessage(const LLSD& data) const
 
 void LLWebsocketMgr::WSConnection::closeConnection(U16 code, const std::string& reason)
 {
-    if (mOwningServer.expired())
+    auto server = mOwningServer.lock();
+    if (!server)
     {
         LL_WARNS("WebSocket") << "Attempted to close connection with null server reference" << LL_ENDL;
         return;
@@ -729,7 +737,7 @@ void LLWebsocketMgr::WSConnection::closeConnection(U16 code, const std::string& 
     LL_INFOS("WebSocket") << "WSConnection closing connection with code " << code
                           << " and reason: " << (reason.empty() ? "(no reason)" : reason) << LL_ENDL;
 
-    if (!mOwningServer.lock()->closeConnection(mConnectionHandle, code, reason))
+    if (!server->closeConnection(mConnectionHandle, code, reason))
     {
         LL_WARNS("WebSocket") << "Failed to close connection through server" << LL_ENDL;
     }
@@ -737,11 +745,6 @@ void LLWebsocketMgr::WSConnection::closeConnection(U16 code, const std::string& 
 
 bool LLWebsocketMgr::WSConnection::isConnected() const
 {
-    if (mOwningServer.expired())
-    {
-        return false;
-    }
-
     LLWebsocketMgr::WSServer::ptr_t server = mOwningServer.lock();
     if (!server)
     {

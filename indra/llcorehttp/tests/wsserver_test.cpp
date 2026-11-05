@@ -42,6 +42,7 @@
 #include <chrono>
 #include <istream>
 #include <random>
+#include <stdexcept>
 #include <thread>
 
 namespace
@@ -179,7 +180,16 @@ namespace
 
         std::atomic<int> mOpenedCount{ 0 };
         std::atomic<int> mClosedCount{ 0 };
+        int mStartedCount{ 0 };
         int mStoppedCount{ 0 };
+        bool mFailValidation{ false };
+
+        using WSServer::getConnections;
+
+        void onStarted() override
+        {
+            ++mStartedCount;
+        }
 
         void onStopped() override
         {
@@ -202,6 +212,10 @@ namespace
 
         bool acceptOrigin(const std::string& origin) const override
         {
+            if (mFailValidation)
+            {
+                throw std::runtime_error("test worker failure");
+            }
             if (!mAllowedOrigin.empty() && origin == mAllowedOrigin)
             {
                 return true;
@@ -445,29 +459,83 @@ namespace tut
     template<> template<>
     void wsserver_object::test<10>()
     {
-        set_test_name("failed workers are joined on retry, stop, and removal");
+        set_test_name("listen failure is reported before startup and recovery accepts connections");
 
-        // Keep the port occupied so every start fails in the worker thread.
+        // A bind failure must not create a worker or announce a running server.
         boost::asio::io_context io;
         boost::asio::ip::tcp::acceptor occupied(io, boost::asio::ip::tcp::endpoint(boost::asio::ip::make_address("127.0.0.1"), 0));
+        const U16 port = occupied.local_endpoint().port();
         LLWebsocketMgr& manager = LLWebsocketMgr::instance();
-        auto server = std::make_shared<TestWSServer>(mName, occupied.local_endpoint().port(), true);
+        auto server = std::make_shared<TestWSServer>(mName, port, true);
         ensure("added", manager.addServer(server));
-        ensure("worker started", manager.startServer(mName));
-        ensure("worker exited after listen failure", waitUntil([&]() { return !server->isRunning(); }));
-
-        ensure("retry starts another worker without terminating", manager.startServer(mName));
-        ensure_equals("retry cleaned up the first worker", server->mStoppedCount, 1);
-        ensure("retry exited", waitUntil([&]() { return !server->isRunning(); }));
+        ensure("listen failure reaches caller", !manager.startServer(mName));
+        ensure("server is not running", !server->isRunning());
+        ensure_equals("no started callback", server->mStartedCount, 0);
         manager.stopServer(mName);
-        ensure_equals("stop cleaned up the failed retry", server->mStoppedCount, 2);
-        manager.stopServer(mName);
-        ensure_equals("repeated stop does not repeat cleanup", server->mStoppedCount, 2);
+        ensure_equals("no stopped callback without a worker", server->mStoppedCount, 0);
+        occupied.close();
 
-        ensure("worker started again", manager.startServer(mName));
-        ensure("worker exited again", waitUntil([&]() { return !server->isRunning(); }));
+        ensure("retry starts after freeing the port", manager.startServer(mName));
+        ensure_equals("retry accepts connections", upgradeFrom(port, std::string()), 101);
+        manager.stopServer(mName);
+        ensure_equals("stop cleans up the worker", server->mStoppedCount, 1);
+        manager.stopServer(mName);
+        ensure_equals("repeated stop does not repeat cleanup", server->mStoppedCount, 1);
         ensure("removed", manager.removeServer(mName));
-        ensure_equals("removal cleaned up the failed worker", server->mStoppedCount, 3);
+        ensure_equals("removal does not repeat cleanup", server->mStoppedCount, 1);
         server.reset();
+    }
+
+    template<> template<>
+    void wsserver_object::test<11>()
+    {
+        set_test_name("failed event loops are joined before retry and active connections are cleaned up on stop");
+        if (!mPort)
+        {
+            skip("no port free to listen on");
+        }
+
+        LLWebsocketMgr& manager = LLWebsocketMgr::instance();
+        auto server = std::make_shared<TestWSServer>(mName, mPort, true);
+        server->mFailValidation = true;
+        ensure("added", manager.addServer(server));
+        ensure("started", manager.startServer(mName));
+        {
+            TestWSClient client;
+            ensure("validation fails", !client.connect(mPort, std::string(), false, std::chrono::seconds(1)));
+        }
+        ensure("worker exited", waitUntil([&]() { return !server->isRunning(); }));
+        server->mFailValidation = false;
+        ensure("retry joins the failed worker", manager.startServer(mName));
+        ensure_equals("failed worker cleaned up once", server->mStoppedCount, 1);
+
+        TestWSClient client;
+        ensure("retry really accepts connections", client.connect(mPort, std::string()));
+        ensure("server registered connection", waitUntil([&]() { return server->getConnectionCount() == 1; }));
+        auto connection = server->getConnections().front();
+        manager.stopServer(mName);
+        ensure_equals("stop cleared active connections", server->getConnectionCount(), size_t(0));
+        ensure_equals("close callback delivered once", server->mClosedCount.load(), 1);
+        ensure_equals("stop callback delivered once per worker", server->mStoppedCount, 2);
+        ensure("stopped connection is disconnected", !connection->isConnected());
+        ensure("stopped connection cannot send", !connection->sendMessage(std::string("old connection")));
+
+        ensure("restart after active shutdown", manager.startServer(mName));
+        ensure("old connection stays disconnected", !connection->isConnected());
+        ensure("old connection cannot send after restart", !connection->sendMessage(std::string("old connection")));
+        ensure_equals("restarted server accepts a new handshake", upgradeFrom(mPort, std::string()), 101);
+        manager.removeServer(mName);
+    }
+
+    template<> template<>
+    void wsserver_object::test<12>()
+    {
+        set_test_name("connection operations safely reject an expired server");
+        auto server = std::make_shared<LLWebsocketMgr::WSServer>(mName, 0, true);
+        LLWebsocketMgr::WSConnection connection(server, LLWebsocketMgr::connection_h());
+        server.reset();
+        ensure("expired owner cannot send", !connection.sendMessage(std::string("message")));
+        connection.closeConnection();
+        ensure("expired owner is disconnected", !connection.isConnected());
     }
 }

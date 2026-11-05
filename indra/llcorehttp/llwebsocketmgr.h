@@ -211,9 +211,9 @@ public:
      *
      * ## Thread Safety
      *
-     * All public methods are thread-safe and can be called from any thread. The server
-     * runs its own background thread for handling WebSocket events, while connection
-     * callbacks are also executed on this background thread.
+     * Start, stop, and manager operations run on the main thread. The server runs its
+     * own background thread for handling WebSocket events and connection callbacks.
+     * Lifecycle callbacks onStarted() and onStopped() run on the main thread.
      */
     class WSServer: public std::enable_shared_from_this<WSServer>
     {
@@ -286,7 +286,7 @@ public:
     private:
         using connection_map_t = std::map<connection_h, WSConnection::ptr_t, std::owner_less<connection_h> >;
 
-        WSConnection::ptr_t getConnection(const connection_h& handle);
+        WSConnection::ptr_t getConnection(const connection_h& handle) const;
 
         void                handleOpenConnection(const connection_h& handle);
         void                handleCloseConnection(const connection_h& handle);
