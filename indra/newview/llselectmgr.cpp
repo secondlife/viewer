@@ -2561,6 +2561,12 @@ void LLSelectMgr::selectionSetMedia(U8 media_type, const LLSD &media_data)
                         // skip adding/updating media
                     }
                     else {
+                        // Capture this BEFORE setTEMediaFlags() below -- texture_entry points at
+                        // the object's live TE, and setTEMediaFlags() sets MF_HAS_MEDIA on that
+                        // same TE, so checking hasMedia() after that call always sees the flag
+                        // we just set, never the pre-Apply state.
+                        bool had_no_prior_media = !texture_entry->hasMedia();
+
                         // Add/update media
                         object->clearTEWaterExclusion(te);
                         object->setTEMediaFlags(te, mMediaFlags);
@@ -2568,7 +2574,7 @@ void LLSelectMgr::selectionSetMedia(U8 media_type, const LLSD &media_data)
                         llassert(NULL != vo);
                         if (NULL != vo)
                         {
-                            if (!texture_entry->hasMedia() &&
+                            if (had_no_prior_media &&
                                 mMediaData.has(LLMediaEntry::AUTO_PLAY_KEY) &&
                                 mMediaData[LLMediaEntry::AUTO_PLAY_KEY].asBoolean())
                             {
