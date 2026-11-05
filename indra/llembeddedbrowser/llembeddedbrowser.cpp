@@ -198,11 +198,27 @@ bool LLEmbeddedBrowserTab::connectToProducer()
     for (;;)
     {
         ctrl = LLSubscriber::open(control_channel_name);
-        if (!ctrl->connected())
+        if (!ctrl->producer_responsive())
         {
             // The one failure branch in this method that means "no producer
             // process at all," as opposed to one that's merely busy/racing
             // -- see LLEmbeddedBrowser::maybeRelaunchProducer().
+            //
+            // Deliberately producer_responsive() (heartbeat-fresh), not the
+            // weaker connected() (merely "a segment mapped") -- on a platform
+            // whose named shared memory isn't refcounted by live process
+            // handles (POSIX shm_open/shm_unlink, unlike Windows' named file
+            // mappings), a producer killed without a clean shutdown leaves its
+            // segment mapped and discoverable indefinitely. connected() would
+            // see that stale segment and call this tab "connected" forever,
+            // so maybeRelaunchProducer() below would never fire -- confirmed
+            // via a real repro: killing SLCefProducer never triggered a
+            // relaunch on macOS, though the same kill correctly did on
+            // Windows, where the OS destroys the mapping once the producer's
+            // own handle closes. producer_responsive() already exists
+            // specifically for this (see its own header comment and poll()'s
+            // use of it below for the already-connected case) -- this is the
+            // same staleness check, just also applied to the initial connect.
             LLEmbeddedBrowser::instance().maybeRelaunchProducer(mBackend);
             return false; // no producer reachable right now
         }
