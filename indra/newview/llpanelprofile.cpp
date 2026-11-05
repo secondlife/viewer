@@ -2490,4 +2490,3 @@ void LLPanelProfile::createClassified()
     mPanelClassifieds->createClassified();
     mTabContainer->selectTabPanel(mPanelClassifieds);
 }
-

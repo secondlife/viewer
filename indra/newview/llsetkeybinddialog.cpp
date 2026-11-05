@@ -36,14 +36,54 @@
 #include "llkeyconflict.h"
 #include "llviewercontrol.h"
 
+namespace
+{
+    bool is_single_click(EMouseClickType clicktype)
+    {
+        return clicktype == CLICK_LEFT
+            || clicktype == CLICK_RIGHT
+            || clicktype == CLICK_MIDDLE;
+    }
+
+    EMouseClickType to_double_click(EMouseClickType clicktype)
+    {
+        switch (clicktype)
+        {
+        case CLICK_LEFT: return CLICK_DOUBLELEFT;
+        case CLICK_RIGHT: return CLICK_DOUBLERIGHT;
+        case CLICK_MIDDLE: return CLICK_DOUBLEMIDDLE;
+        default: return CLICK_NONE;
+        }
+    }
+
+    EMouseClickType to_single_click(EMouseClickType clicktype)
+    {
+        switch (clicktype)
+        {
+        case CLICK_DOUBLELEFT: return CLICK_LEFT;
+        case CLICK_DOUBLERIGHT: return CLICK_RIGHT;
+        case CLICK_DOUBLEMIDDLE: return CLICK_MIDDLE;
+        default: return CLICK_NONE;
+        }
+    }
+
+    bool is_double_click(EMouseClickType clicktype)
+    {
+        return clicktype == CLICK_DOUBLELEFT
+            || clicktype == CLICK_DOUBLERIGHT
+            || clicktype == CLICK_DOUBLEMIDDLE;
+    }
+}
+
 class LLSetKeyBindDialog::Updater : public LLEventTimer
 {
 public:
 
-    typedef std::function<void(MASK)> callback_t;
+    typedef std::function<void(EMouseClickType, MASK)> callback_t;
 
-    Updater(callback_t cb, F32 period, MASK mask)
+    Updater(callback_t cb, F32 period, EMouseClickType click, MASK mask)
         :LLEventTimer(period),
+        mClick(click),
         mMask(mask),
         mCallback(cb)
     {
@@ -55,12 +95,13 @@ public:
 protected:
     bool tick()
     {
-        mCallback(mMask);
+        mCallback(mClick, mMask);
         // Deletes itseft after execution
         return true;
     }
 
 private:
+    EMouseClickType mClick;
     MASK mMask;
     callback_t mCallback;
 };
@@ -73,6 +114,7 @@ LLSetKeyBindDialog::LLSetKeyBindDialog(const LLSD& key)
     mKeyFilterMask(DEFAULT_KEY_FILTER),
     pUpdater(NULL),
     mLastMaskKey(0),
+    mPendingMouseClick(CLICK_NONE),
     mContextConeOpacity(0.f),
     mContextConeInAlpha(CONTEXT_CONE_IN_ALPHA),
     mContextConeOutAlpha(CONTEXT_CONE_OUT_ALPHA),
@@ -122,6 +164,7 @@ void LLSetKeyBindDialog::onClose(bool app_quiting)
         delete pUpdater;
         pUpdater = NULL;
     }
+    mPendingMouseClick = CLICK_NONE;
     LLModalDialog::onClose(app_quiting);
 }
 
@@ -278,6 +321,27 @@ bool LLSetKeyBindDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClic
         closeFloater();
         result = true;
     }
+
+    // Resolve explicit double click.
+    if (!result && down && is_double_click(clicktype))
+    {
+        if (pUpdater && mPendingMouseClick == to_single_click(clicktype))
+        {
+            delete pUpdater;
+            pUpdater = NULL;
+            mPendingMouseClick = CLICK_NONE;
+        }
+
+        if ((mKeyFilterMask & ALLOW_MOUSE) != 0
+            && (clicktype != CLICK_DOUBLERIGHT || mask != 0) // reassigning menu button is not supported
+            && ((mKeyFilterMask & ALLOW_MASK_MOUSE) != 0 || mask == 0))
+        {
+            setKeyBind(clicktype, KEY_NONE, mask, pCheckBox->getValue().asBoolean());
+            result = true;
+            closeFloater();
+        }
+    }
+
     if (!result && clicktype == CLICK_LEFT)
     {
         // try handling buttons first
@@ -294,17 +358,53 @@ bool LLSetKeyBindDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClic
             setFocus(true);
             gFocusMgr.setKeystrokesOnly(true);
         }
-        // ignore selection related combinations
-        else if (down && (mask & (MASK_SHIFT | MASK_CONTROL)) == 0)
+    }
+
+    // If another same-button down happens while waiting, treat it as a double click.
+    if (!result
+        && down
+        && is_single_click(clicktype)
+        && pUpdater
+        && mPendingMouseClick == clicktype)
+    {
+        EMouseClickType double_click = to_double_click(clicktype);
+        if (double_click != CLICK_NONE
+            && (mKeyFilterMask & ALLOW_MOUSE) != 0
+            && (double_click != CLICK_DOUBLERIGHT || mask != 0)
+            && ((mKeyFilterMask & ALLOW_MASK_MOUSE) != 0 || mask == 0))
         {
-            // this can be a double click, wait a bit;
-            if (!pUpdater)
-            {
-                // Note: default doubleclick time is 500ms, but can stretch up to 5s
-                pUpdater = new Updater(boost::bind(&onClickTimeout, this, _1), 0.7f, mask);
-                result = true;
-            }
+            delete pUpdater;
+            pUpdater = NULL;
+            mPendingMouseClick = CLICK_NONE;
+
+            setKeyBind(double_click, KEY_NONE, mask, pCheckBox->getValue().asBoolean());
+            result = true;
         }
+    }
+
+    // Start delayed single-click handling for left/right/middle.
+    if (!result
+        && down
+        && is_single_click(clicktype)
+        && ((mKeyFilterMask & ALLOW_MOUSE) != 0)
+        && (clicktype != CLICK_RIGHT || mask != 0) // reassigning menu button is not supported
+        && ((mKeyFilterMask & ALLOW_MASK_MOUSE) != 0 || mask == 0)
+        && ((clicktype != CLICK_LEFT) || (mask & (MASK_SHIFT | MASK_CONTROL)) == 0) // ignore selection related combinations for left
+        )
+    {
+        if (!pUpdater)
+        {
+            // Note: default doubleclick time is 500ms, but can stretch up to 5s
+            pUpdater = new Updater(boost::bind(&onClickTimeout, this, _1, _2), 0.7f, clicktype, mask);
+            mPendingMouseClick = clicktype;
+        }
+        result = true;
+    }
+
+    // Consume up while waiting for possible double click
+    if (!result && !down && pUpdater && mPendingMouseClick == clicktype)
+    {
+        result = true;
     }
 
     if (!result
@@ -355,14 +455,15 @@ void LLSetKeyBindDialog::onDefault(void* user_data)
 }
 
 //static
-void LLSetKeyBindDialog::onClickTimeout(void* user_data, MASK mask)
+void LLSetKeyBindDialog::onClickTimeout(void* user_data, EMouseClickType clicktype, MASK mask)
 {
     LLSetKeyBindDialog* self = (LLSetKeyBindDialog*)user_data;
 
     // timer will delete itself after timeout
     self->pUpdater = NULL;
+    self->mPendingMouseClick = CLICK_NONE;
 
-    self->setKeyBind(CLICK_LEFT, KEY_NONE, mask, self->pCheckBox->getValue().asBoolean());
+    self->setKeyBind(clicktype, KEY_NONE, mask, self->pCheckBox->getValue().asBoolean());
     self->closeFloater();
 }
 

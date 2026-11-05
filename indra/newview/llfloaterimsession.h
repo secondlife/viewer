@@ -172,6 +172,7 @@ private:
 
     static void confirmLeaveCallCallback(const LLSD& notification, const LLSD& response);
 
+    LLView* mChatServiceLoadingPanel = nullptr;
     S32 mLastMessageIndex;
 
     EInstantMessage mDialog;
@@ -189,6 +190,7 @@ private:
     LLFrameTimer mOtherTypingTimer;
 
     bool mSessionInitialized;
+
     LLSD mQueuedMsgsForInit;
 
     uuid_vec_t mInvitedParticipants;

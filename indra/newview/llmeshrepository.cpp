@@ -1169,7 +1169,17 @@ void LLMeshRepoThread::run()
                     }
                     else
                     {
-                        LL_DEBUGS() << "mHeaderReqQ failed: " << req.mMeshParams << LL_ENDL;
+                        // too many fails -- can't get the header so none of the LODs will
+                        // be available either.  Without this, objects waiting on this
+                        // header never learn it's gone and stay at their placeholder
+                        // shape forever (mirrors LLMeshHeaderHandler::processFailure).
+                        LL_WARNS() << "mHeaderReqQ failed too many times: " << req.mMeshParams << " , skip" << LL_ENDL;
+
+                        LLMutexLock lock(mLoadedMutex);
+                        for (int i = 0; i < LLVolumeLODGroup::NUM_LODS; ++i)
+                        {
+                            mUnavailableQ.push_back(LODRequest(req.mMeshParams, i));
+                        }
                     }
                 }
             }

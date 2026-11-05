@@ -318,6 +318,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
         [glContext setValues:&swapInterval forParameter:NSOpenGLContextParameterSwapInterval];
     }
 
+    [glContext release]; // setOpenGLContext: retains the context for the view.
     return self;
 }
 
@@ -377,11 +378,15 @@ attributedStringInfo getSegments(NSAttributedString *str)
     {
         callRightMouseDown(mMousePos, [theEvent modifierFlags]);
         mSimulatedRightClick = true;
-    } else {
+    }
+    else
+    {
         if ([theEvent clickCount] == 2)
         {
-            callDoubleClick(mMousePos, [theEvent modifierFlags]);
-        } else if ([theEvent clickCount] >= 1) {
+            callLeftDoubleClick(mMousePos, [theEvent modifierFlags]);
+        }
+        else if ([theEvent clickCount] >= 1)
+        {
             callLeftMouseDown(mMousePos, [theEvent modifierFlags]);
         }
     }
@@ -403,7 +408,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) rightMouseDown:(NSEvent *)theEvent
 {
-    callRightMouseDown(mMousePos, [theEvent modifierFlags]);
+    if ([theEvent clickCount] == 2)
+    {
+        callRightDoubleClick(mMousePos, [theEvent modifierFlags]);
+    }
+    else
+    {
+        callRightMouseDown(mMousePos, [theEvent modifierFlags]);
+    }
 }
 
 - (void) rightMouseUp:(NSEvent *)theEvent
@@ -454,7 +466,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) otherMouseDown:(NSEvent *)theEvent
 {
-    callOtherMouseDown(mMousePos, [theEvent modifierFlags], [theEvent buttonNumber]);
+    if ([theEvent buttonNumber] == 2 && [theEvent clickCount] == 2)
+    {
+        callMiddleDoubleClick(mMousePos, [theEvent modifierFlags]);
+    }
+    else
+    {
+        callOtherMouseDown(mMousePos, [theEvent modifierFlags], [theEvent buttonNumber]);
+    }
 }
 
 - (void) otherMouseUp:(NSEvent *)theEvent

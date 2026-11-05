@@ -1094,6 +1094,8 @@ public:
     typedef std::vector<LLNotificationPtr> history_list_t;
     history_list_t::iterator beginHistory() { sortHistory(); return mHistory.begin(); }
     history_list_t::iterator endHistory() { return mHistory.end(); }
+    history_list_t::reverse_iterator rBeginHistory() { sortHistory(); return mHistory.rbegin(); }
+    history_list_t::reverse_iterator rEndHistory() { return mHistory.rend(); }
 
 private:
     struct sortByTime
@@ -1134,4 +1136,3 @@ private:
 };
 
 #endif//LL_LLNOTIFICATIONS_H
-

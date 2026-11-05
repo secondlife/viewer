@@ -590,6 +590,13 @@ void LLViewerParcelMedia::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
         }
         break;
 
+        case MEDIA_EVENT_FILE_DOWNLOAD_PROGRESS:
+        {
+            LL_DEBUGS("Media") << "Media event:  MEDIA_EVENT_FILE_DOWNLOAD_PROGRESS, progress " << self->getFileDownloadProgressPercent()
+                               << "% is coplete: " << (self->getFileDownloadProgressComplete() ? "true" : "false") << LL_ENDL;
+        }
+        break;
+
         case MEDIA_EVENT_GEOMETRY_CHANGE:
         {
             LL_DEBUGS("Media") << "Media event:  MEDIA_EVENT_GEOMETRY_CHANGE, uuid is " << self->getClickUUID() << LL_ENDL;

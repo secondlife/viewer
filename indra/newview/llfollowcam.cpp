@@ -293,7 +293,7 @@ void LLFollowCam::update()
 
     LLVector3 simulated_pos_agent = gAgent.getPosAgentFromGlobal(mSimulatedPositionGlobal);
     LLVector3 vectorFromCameraToSubject = offsetSubjectPosition - simulated_pos_agent;
-    F32 distanceFromCameraToSubject = vectorFromCameraToSubject.magVec();
+    // F32 distanceFromCameraToSubject = vectorFromCameraToSubject.magVec();
 
     LLVector3 whereFocusWantsToBe = mFocus;
     LLVector3 focus_pt_agent = gAgent.getPosAgentFromGlobal(mSimulatedFocusGlobal);
@@ -412,13 +412,24 @@ void LLFollowCam::update()
             simulated_pos_agent = lerp( simulated_pos_agent, whereCameraPositionWantsToBe, positionPullLerp );
         }
 
-        //--------------------------------------------------------------------
-        // don't let the camera get farther than its official max distance
-        //--------------------------------------------------------------------
-        if ( distanceFromCameraToSubject > mMaxCameraDistantFromSubject )
+        // Keep the simulated camera within the viewer's maximum distance:
+        // - Position lag is expected to let the camera drag beyond the requested
+        // distance while the camera subject moves, so the requested distance is not a limit.
+        // - Zooming in shrinks the limit by the same ratio, so a long lag that holds the
+        // camera at the maximum still lets the user zoom in.
+        // - Rebuild its position from the subject-relative offset so a moving
+        // avatar follows the intended camera geometry rather than the prior
+        // camera position.
+        // - Applied after position lag, which can move the simulated camera beyond
+        //  its distance limit.
+        const F32 zoom_scale = llmin(mSimulatedDistance / mDistance, 1.f);
+        const F32 camera_distance_limit = mMaxCameraDistantFromSubject * zoom_scale;
+        const F32 distance_after_position_lag = (offsetSubjectPosition - simulated_pos_agent).magVec();
+        if ( distance_after_position_lag > camera_distance_limit )
         {
-            LLVector3 directionFromCameraToSubject = vectorFromCameraToSubject / distanceFromCameraToSubject;
-            simulated_pos_agent = offsetSubjectPosition - directionFromCameraToSubject * mMaxCameraDistantFromSubject;
+            const F32 camera_distance_scale = camera_distance_limit / mSimulatedDistance;
+            simulated_pos_agent = offsetSubjectPosition -
+                (positionOffsetFromSubject * camera_distance_scale);
         }
 
         ////-------------------------------------------------------------------------------------------------
@@ -845,6 +856,11 @@ void LLFollowCamMgr::removeFollowCamParams(const LLUUID& source)
     delete params;
 }
 
+void LLFollowCamMgr::clearActiveFollowCamParams()
+{
+    mParamStack.clear();
+}
+
 bool LLFollowCamMgr::isScriptedCameraSource(const LLUUID& source)
 {
     param_map_t::iterator found_it = mParamMap.find(source);
@@ -875,4 +891,3 @@ void LLFollowCamMgr::dump()
             " pos_thresh: " << (*param_it)->getPositionThreshold() << LL_ENDL;
     }
 }
-

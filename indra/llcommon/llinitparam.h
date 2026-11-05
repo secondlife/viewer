@@ -45,7 +45,6 @@ namespace LLTypeTags
     template <typename INNER_TYPE, int _SORT_ORDER>
     struct TypeTagBase
     {
-        typedef void        is_tag_t;
         typedef INNER_TYPE  inner_t;
         static const int    SORT_ORDER=_SORT_ORDER;
     };
@@ -68,16 +67,10 @@ namespace LLTypeTags
         typedef typename REST::template Cons<Swap<ITEM, typename REST::inner_t>::value_t>::value_t value_t;
     };
 
-    template<typename T, typename SORTABLE = void>
+    template<typename T>
     struct IsSortable
     {
         static const bool value = false;
-    };
-
-    template<typename T>
-    struct IsSortable<T, typename T::is_tag_t>
-    {
-        static const bool value = true;
     };
 
     template<typename ITEM, typename REST, bool IS_REST_SORTABLE = IsSortable<REST>::value>
@@ -1767,8 +1760,13 @@ namespace LLInitParam
 
         // implicit conversion
         operator const container_t&() const { return mValues; }
+        operator container_t&() { return mValues; }
         // explicit conversion
         const container_t& operator()() const { return mValues; }
+        container_t& operator()() { return mValues; }
+        // direct Nth item access
+        const typename NAME_VALUE_LOOKUP::type_value_t& operator()(size_t index) const { return mValues[index]; }
+        typename NAME_VALUE_LOOKUP::type_value_t& operator()(size_t index) { return mValues[index]; }
 
         iterator begin() { return mValues.begin(); }
         iterator end() { return mValues.end(); }
@@ -2098,13 +2096,13 @@ namespace LLInitParam
         class Multiple : public TypedParam<T, NAME_VALUE_LOOKUP, true>
         {
             typedef TypedParam<T, NAME_VALUE_LOOKUP, true>  super_t;
-            typedef Multiple<T, RANGE, NAME_VALUE_LOOKUP>                           self_t;
-            typedef typename super_t::container_t                                   container_t;
+            typedef Multiple<T, RANGE, NAME_VALUE_LOOKUP>   self_t;
+            typedef typename super_t::container_t           container_t;
             typedef typename super_t::value_t               value_t;
 
         public:
-            typedef typename super_t::iterator                                      iterator;
-            typedef typename super_t::const_iterator                                const_iterator;
+            typedef typename super_t::iterator              iterator;
+            typedef typename super_t::const_iterator        const_iterator;
 
             using super_t::operator();
             using super_t::operator const container_t&;
@@ -2830,5 +2828,27 @@ namespace LLInitParam
     };
 }
 
+namespace LLTypeTags
+{
+    // After BaseBlock so Sequential, Atomic, and Lazy are in scope.
+    template<typename T>
+    struct IsSortable<LLInitParam::BaseBlock::Sequential<T> >
+    {
+        static const bool value = true;
+    };
+
+    template<typename T>
+    struct IsSortable<LLInitParam::BaseBlock::Atomic<T> >
+    {
+        static const bool value = true;
+    };
+
+    template<typename T, typename BLOCK_T>
+    struct IsSortable<LLInitParam::BaseBlock::Lazy<T, BLOCK_T> >
+    {
+        static const bool value = true;
+    };
+}
 
 #endif // LL_LLPARAM_H
+

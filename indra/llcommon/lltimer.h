@@ -121,9 +121,6 @@ struct TimerInfo
 
     F64HertzImplicit        mClockFrequency;
     F64SecondsImplicit      mClockFrequencyInv;
-    F64MicrosecondsImplicit mClocksToMicroseconds;
-    U64                     mTotalTimeClockCount;
-    U64                     mLastTotalTimeClockCount;
 };
 
 TimerInfo& get_timer_info();

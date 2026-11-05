@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater
+ legacy_header_height="18"
+ height="600"
+ width="800"
+ layout="topleft"
+ name="floater_web_modal"
+ title=""
+ can_resize="true"
+ can_minimize="false"
+ can_close="true"
+ positioning="centered"
+ save_rect="false">
+  <web_browser
+   follows="all"
+   left="0"
+   top="20"
+   right="-1"
+   bottom="-1"
+   name="web_modal_browser"
+   trusted_content="false"
+   border_visible="false" />
+</floater>

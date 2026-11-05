@@ -89,6 +89,7 @@ class LLFloater360Capture:
         int mOutputImageWidth;
         int mOutputImageHeight;
         std::string mImageSaveDir;
+        bool mWaitingForDownloadCompletion = false;
 
         LLPointer<LLImageRaw> mRawImages[6];
 
