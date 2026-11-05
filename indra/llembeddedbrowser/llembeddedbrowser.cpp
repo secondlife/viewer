@@ -193,11 +193,22 @@ bool LLEmbeddedBrowserTab::connectToProducer()
     const char* control_channel_name = (mBackend == LLEmbeddedBrowserBackend::LibVlc)
         ? kVlcControlChannelName : kControlChannelName;
 
+    // @@@@@ temporary diagnostic, remove before shipping
+    LL_INFOS("EmbeddedBrowser") << "@@@@@ connectToProducer() ENTER backend="
+        << (mBackend == LLEmbeddedBrowserBackend::LibVlc ? "Vlc" : "Cef")
+        << " usedInUI=" << mIsUI << LL_ENDL;
+
     std::unique_ptr<LLSubscriber> ctrl;
     const auto claim_deadline = std::chrono::steady_clock::now() + kControlClaimTimeout;
+    int loop_iterations = 0;
     for (;;)
     {
+        ++loop_iterations;
         ctrl = LLSubscriber::open(control_channel_name);
+        // @@@@@ temporary diagnostic, remove before shipping
+        LL_INFOS("EmbeddedBrowser") << "@@@@@ connectToProducer() loop#" << loop_iterations
+            << " producer_responsive=" << ctrl->producer_responsive()
+            << " owns_command_channel=" << ctrl->owns_command_channel() << LL_ENDL;
         if (!ctrl->producer_responsive())
         {
             // The one failure branch in this method that means "no producer
@@ -226,11 +237,18 @@ bool LLEmbeddedBrowserTab::connectToProducer()
 
         if (std::chrono::steady_clock::now() >= claim_deadline)
         {
+            // @@@@@ temporary diagnostic, remove before shipping
+            LL_INFOS("EmbeddedBrowser") << "@@@@@ connectToProducer() GIVING UP: claim_deadline exceeded after "
+                << loop_iterations << " loop iterations" << LL_ENDL;
             return false;
         }
         ctrl.reset();
         std::this_thread::sleep_for(kControlClaimRetryInterval);
     }
+
+    // @@@@@ temporary diagnostic, remove before shipping
+    LL_INFOS("EmbeddedBrowser") << "@@@@@ connectToProducer() won control-channel claim after "
+        << loop_iterations << " loop iterations, requesting slot" << LL_ENDL;
 
     std::uint64_t req_id = 0;
     std::uint8_t request_payload[kRequestSlotBytes];
@@ -242,6 +260,8 @@ bool LLEmbeddedBrowserTab::connectToProducer()
                                                           mAudioCapture);
     if (!ctrl->send(kRequestSlot, request_payload, request_len, 0, &req_id))
     {
+        // @@@@@ temporary diagnostic, remove before shipping
+        LL_INFOS("EmbeddedBrowser") << "@@@@@ connectToProducer() FAIL: ctrl->send(kRequestSlot) failed" << LL_ENDL;
         return false;
     }
 
@@ -255,6 +275,9 @@ bool LLEmbeddedBrowserTab::connectToProducer()
     }
     if (!got_reply)
     {
+        // @@@@@ temporary diagnostic, remove before shipping
+        LL_INFOS("EmbeddedBrowser") << "@@@@@ connectToProducer() FAIL: no reply to kRequestSlot (req_id="
+            << req_id << ") within timeout" << LL_ENDL;
         return false;
     }
 
@@ -262,8 +285,15 @@ bool LLEmbeddedBrowserTab::connectToProducer()
     std::uint8_t slot_flags = 0;
     if (reply.type != kSlotAssigned || !unpack_slot_assigned(reply.data.data(), reply.data.size(), index, slot_flags))
     {
+        // @@@@@ temporary diagnostic, remove before shipping
+        LL_INFOS("EmbeddedBrowser") << "@@@@@ connectToProducer() FAIL: reply.type=" << (int)reply.type
+            << " (expected kSlotAssigned=" << (int)kSlotAssigned << ") -- producer declined/no free slot" << LL_ENDL;
         return false; // producer has no free slot right now
     }
+
+    // @@@@@ temporary diagnostic, remove before shipping
+    LL_INFOS("EmbeddedBrowser") << "@@@@@ connectToProducer() slot assigned: index=" << index
+        << " slot_flags=" << (int)slot_flags << LL_ENDL;
 
     ctrl.reset(); // release the control claim for the next requester
 
@@ -272,8 +302,14 @@ bool LLEmbeddedBrowserTab::connectToProducer()
     auto sub = LLSubscriber::open(channel_prefix + std::to_string(index));
     if (!sub->connected() || !sub->owns_command_channel())
     {
+        // @@@@@ temporary diagnostic, remove before shipping
+        LL_INFOS("EmbeddedBrowser") << "@@@@@ connectToProducer() FAIL: per-view channel open failed, connected="
+            << sub->connected() << " owns_command_channel=" << sub->owns_command_channel() << LL_ENDL;
         return false;
     }
+
+    // @@@@@ temporary diagnostic, remove before shipping
+    LL_INFOS("EmbeddedBrowser") << "@@@@@ connectToProducer() SUCCESS, slot index=" << index << LL_ENDL;
 
     // Only trust the grant, not our own request -- an older producer (or one that
     // declined) replies without the flag and keeps playing this tab's audio itself. The
