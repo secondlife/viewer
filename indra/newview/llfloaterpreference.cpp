@@ -883,6 +883,7 @@ void LLFloaterPreference::setRecommendedSettings()
 {
     resetAutotuneSettings();
     gSavedSettings.getControl("RenderVSyncEnable")->resetToDefault(true);
+    gSavedSettings.getControl("RenderDepthOfField")->resetToDefault(true);
 
     LLFeatureManager::getInstance()->applyRecommendedSettings();
 
