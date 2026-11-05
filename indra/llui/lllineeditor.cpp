@@ -2648,6 +2648,42 @@ bool LLLineEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
     return true;
 }
 
+void LLLineEditor::getPreeditLocations(locations_t& locations) const
+{
+    S32 preedit_left_column, preedit_length;
+    getPreeditRange(&preedit_left_column, &preedit_length);
+    const S32 preedit_right_column = preedit_left_column + preedit_length;
+    locations.assign(preedit_length + 1, Location());
+
+    // Bounds and control are the same for every position, only the caret moves.
+    // getPreeditLocation() accepts the positions from the first visible one on.
+    const S32 first_query = llmax(preedit_left_column, mScrollHPos);
+    if (first_query > preedit_right_column)
+    {
+        return;
+    }
+    Location first;
+    first.mValid = getPreeditLocation(first_query - preedit_left_column, &first.mCaret, &first.mBounds, &first.mControl);
+    if (!first.mValid)
+    {
+        return;
+    }
+
+    // widths[n] is what findPixelNearestPos() measures for the position mScrollHPos + n
+    std::vector<S32> widths;
+    mGLFont->getWidths(mText.getWString().c_str(), mScrollHPos, preedit_right_column - mScrollHPos, widths);
+
+    for (S32 query = first_query; query <= preedit_right_column; ++query)
+    {
+        Location& location = locations[query - preedit_left_column];
+        location = first;
+        const S32 query_local = widths[llmin(query - mScrollHPos, (S32)widths.size() - 1)] + mTextLeftEdge;
+        S32 query_screen_x, query_screen_y;
+        localPointToScreen(query_local, getRect().getHeight() / 2, &query_screen_x, &query_screen_y);
+        LLUI::getInstance()->screenPointToGL(query_screen_x, query_screen_y, &location.mCaret.mX, &location.mCaret.mY);
+    }
+}
+
 void LLLineEditor::getPreeditRange(S32 *position, S32 *length) const
 {
     if (hasPreeditString())

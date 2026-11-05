@@ -5030,6 +5030,7 @@ LLWindowCallbacks::DragNDropResult LLWindowWin32::completeDragNDropRequest( cons
 // Only mImeCache's writer, the main thread, may read it without locking.
 void LLWindowWin32::updateImeCache()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
     ASSERT_MAIN_THREAD();
 
     if (!mPreeditor)
@@ -5093,12 +5094,19 @@ void LLWindowWin32::updateImeCache()
         cache.mPreeditText = wtext.substr(preedit, preedit_length);
         cache.mFeedSource = find_context_source(wtext, preedit, preedit_length);
 
-        cache.mPreeditLocations.resize(preedit_length + 1);
-        for (S32 i = 0; i <= preedit_length; ++i)
+        // Same as wstring_wstring_length_from_utf16_length(mPreeditText, 0, n)
+        cache.mPreeditPositions.clear();
+        for (S32 i = 0; i < preedit_length; ++i)
         {
-            ImeLocation& location = cache.mPreeditLocations[i];
-            location.mValid = mPreeditor->getPreeditLocation(i, &location.mCaret, &location.mBounds, &location.mControl);
+            cache.mPreeditPositions.push_back(i);
+            if (cache.mPreeditText[i] >= 0x10000)
+            {
+                cache.mPreeditPositions.push_back(i);
+            }
         }
+        cache.mPreeditPositions.push_back(preedit_length);
+
+        mPreeditor->getPreeditLocations(cache.mPreeditLocations);
 
         // IMR_DOCUMENTFEED may be called when we have an active preedit.
         // We should pass the context string *excluding* the preedit string.
@@ -5172,11 +5180,13 @@ bool LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
                 {
                     LLMutexLock lock(&mImeCacheMutex);
                     // Positions past the preedit fail, the cache only holds the preedit
-                    const LLWString& preedit_text = mImeCache.mPreeditText;
-                    const S32 preedit_utf16_length = wstring_utf16_length(preedit_text, 0, (S32)preedit_text.length());
-                    const S32 position = wstring_wstring_length_from_utf16_length(preedit_text, 0, char_position->dwCharPos);
-                    if (!mImeCache.mValid || (S32)char_position->dwCharPos > preedit_utf16_length
-                        || position < 0 || position >= (S32)mImeCache.mPreeditLocations.size())
+                    const std::vector<S32>& positions = mImeCache.mPreeditPositions;
+                    if (!mImeCache.mValid || char_position->dwCharPos >= positions.size())
+                    {
+                        return false;
+                    }
+                    const S32 position = positions[char_position->dwCharPos];
+                    if (position < 0 || position >= (S32)mImeCache.mPreeditLocations.size())
                     {
                         return false;
                     }

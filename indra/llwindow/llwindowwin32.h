@@ -31,6 +31,7 @@
 #include "llwin32headers.h"
 
 #include "llwindow.h"
+#include "llpreeditor.h"
 #include "llwindowcallbacks.h"
 #include "lldragdropwin32.h"
 #include "llthread.h"
@@ -265,19 +266,14 @@ protected:
 
     // WM_IME_REQUEST is answered synchronously on the window thread, which has no GL context and races with the main thread.
     // The main thread keeps what the requests need here, see updateImeCache().
-    struct ImeLocation
-    {
-        bool        mValid = false;
-        LLCoordGL   mCaret;
-        LLRect      mBounds;
-        LLRect      mControl;
-    };
+    typedef LLPreeditor::Location ImeLocation;
     struct ImeCache
     {
         bool                        mValid = false;
         ImeLocation                 mCursor;            // IMR_CANDIDATEWINDOW
         LLWString                   mPreeditText;       // IMR_QUERYCHARPOSITION, preedit characters only
-        std::vector<ImeLocation>    mPreeditLocations;  // one per preedit character, plus one past the end
+        std::vector<S32>            mPreeditPositions;  // preedit character at each UTF-16 position, plus one past the end
+        LLPreeditor::locations_t    mPreeditLocations;  // one per preedit character, plus one past the end
         LLWString                   mFeedContext;       // IMR_DOCUMENTFEED, context without the preedit
         S32                         mFeedPreedit = 0;   // preedit position in mFeedContext
         LLWString                   mSelectionContext;  // IMR_RECONVERTSTRING, context around the selection

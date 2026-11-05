@@ -273,6 +273,7 @@ protected:
     virtual void    getPreeditRange(S32 *position, S32 *length) const;
     virtual void    getSelectionRange(S32 *position, S32 *length) const;
     virtual bool    getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect *bounds, LLRect *control) const;
+    virtual void    getPreeditLocations(locations_t& locations) const;
     virtual S32     getPreeditFontSize() const;
     virtual const LLWString& getPreeditString() const { return getWText(); }
 
