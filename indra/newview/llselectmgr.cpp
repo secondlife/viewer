@@ -2568,7 +2568,43 @@ void LLSelectMgr::selectionSetMedia(U8 media_type, const LLSD &media_data)
                         llassert(NULL != vo);
                         if (NULL != vo)
                         {
-                            vo->syncMediaData(te, mMediaData, true/*merge*/, true/*ignore_agent*/);
+                            if (!texture_entry->hasMedia() &&
+                                mMediaData.has(LLMediaEntry::AUTO_PLAY_KEY) &&
+                                mMediaData[LLMediaEntry::AUTO_PLAY_KEY].asBoolean())
+                            {
+                                // This face has no prior media at all (a brand-new "Set Media"
+                                // Apply, not an edit of existing media), and autoplay is on.
+                                // Seed current_url with home_url right here in the same UPDATE
+                                // request that creates the media, instead of leaving current_url
+                                // empty until a later, separate NAVIGATE round-trip reports it.
+                                //
+                                // Without this, a bystander who already has this object's data
+                                // can win an unavoidable race: its own one-shot GET of this
+                                // face's media data can land before our NAVIGATE does, seeing
+                                // current_url still empty. Some receivers (confirmed: current
+                                // stock/legacy viewer code) don't fall back to home_url in that
+                                // case and instead navigate to an empty URL, so the media never
+                                // auto-plays for them without manual interaction. Seeding it here
+                                // means the very first message the sim ever gets about this face
+                                // already has the resolved URL, so there's no race to lose -- a
+                                // bystander's GET can only run after this same UPDATE has already
+                                // been processed, since that's what creates the face's media data
+                                // in the first place.
+                                //
+                                // Scoped to brand-new media only (never touches a face that
+                                // already has media) so an edit of unrelated settings (e.g.
+                                // autoscale) on media someone's already actively browsing can
+                                // never clobber their current page -- see the "don't fill in
+                                // current URL" comment in LLPanelMediaSettingsGeneral::getValues().
+                                LLSD media_data_with_seeded_current_url = mMediaData;
+                                media_data_with_seeded_current_url[LLMediaEntry::CURRENT_URL_KEY] =
+                                    mMediaData[LLMediaEntry::HOME_URL_KEY];
+                                vo->syncMediaData(te, media_data_with_seeded_current_url, true/*merge*/, true/*ignore_agent*/);
+                            }
+                            else
+                            {
+                                vo->syncMediaData(te, mMediaData, true/*merge*/, true/*ignore_agent*/);
+                            }
                         }
                     }
                 }
