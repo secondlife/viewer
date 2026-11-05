@@ -96,6 +96,10 @@ namespace LLChatServiceHistory
                   const callback_t& callback, const LLUUID& session_id = LLUUID::null);
         void clear();
         void stop();
+
+        // Capture known service history before an outgoing message is dispatched.
+        LLSD outgoingContext(const LLUUID& resident_id) const;
+
         bool isLoading() const { return mLoading; }
 
     private:
@@ -111,6 +115,7 @@ namespace LLChatServiceHistory
         U32 mArchiveSerial = 0;
         bool mLoading = false;
         bool mServiceAllowed = false;
+
         LLChatServiceHistoryCore::History mHistory;
         callback_t mCallback;
         boost::signals2::scoped_connection mConnection;
