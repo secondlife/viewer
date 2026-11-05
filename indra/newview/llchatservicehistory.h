@@ -96,6 +96,9 @@ namespace LLChatServiceHistory
                   const callback_t& callback, const LLUUID& session_id = LLUUID::null);
         void clear();
         void stop();
+
+        // Recompose only when this live append can change the history overlay.
+        void reconcileLive(const LLSD& message);
         bool isLoading() const { return mLoading; }
 
     private:
@@ -111,6 +114,9 @@ namespace LLChatServiceHistory
         U32 mArchiveSerial = 0;
         bool mLoading = false;
         bool mServiceAllowed = false;
+
+        // Coalesce live appends until the queued cached publication runs.
+        bool mReconcilePending = false;
         LLChatServiceHistoryCore::History mHistory;
         callback_t mCallback;
         boost::signals2::scoped_connection mConnection;

@@ -123,10 +123,14 @@ namespace LLChatServiceHistoryCore
         void clearService();
         Messages compose(const Messages& preview, const Messages& live, U32 limit,
                          bool retain_context = false);
+        // Check the cached seam for duplicate or chronological placement changes.
+        bool needsReconcile(const LLSD& message) const;
 
     private:
         Messages mLoaded;
         Messages mVisible; // Visible rows plus consumed anchors; anchors are filtered before display.
+        Messages mCandidates; // Last source seam, including rows already represented by live messages.
+        S32 mNewestHistory = 0;
     };
 
     // Preserve live order and notification rows; replace history and reindex only on change.

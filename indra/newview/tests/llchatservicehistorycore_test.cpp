@@ -1503,6 +1503,141 @@ template<> template<> void object_t::test<48>()
     }
 }
 
+template<> template<> void object_t::test<49>()
+{
+    const S32 timestamp = 1789005900;
+    const LLSD service = outgoingRepeat(1, timestamp);
+    for (bool visible : {false, true})
+    {
+        History history;
+        ensure("an empty source needs no publication", !history.needsReconcile(localEcho(service)));
+        history.setLoaded({service});
+        history.compose({}, {}, 200, visible);
+
+        // New traffic checks the source window without walking the live session.
+        ensure("ordinary newer repeat leaves history unchanged",
+               !history.needsReconcile(localEcho(service, 60)));
+        ensure("minute-boundary duplicate triggers publication",
+               history.needsReconcile(localEcho(service, 59)));
+        LLSD different = localEcho(service);
+        different["message"] = "another message";
+        different["chat_service_original_text"] = different["message"];
+        ensure("same-time unrelated delivery keeps its position", !history.needsReconcile(different));
+        different["timestamp"] = timestamp - 1;
+        ensure("delayed unrelated delivery changes historical placement", history.needsReconcile(different));
+        different["timestamp"] = 0;
+        ensure("untimed notification stays at the front", !history.needsReconcile(different));
+
+        // Service matching must use the original wire body after translation.
+        LLSD translated = localEcho(service, 1);
+        translated["message"] = "translated text";
+        ensure("translated duplicate triggers publication", history.needsReconcile(translated));
+        history.clear();
+        ensure("clearing history clears the publication footprint", !history.needsReconcile(translated));
+
+        // Plaintext uses its logged minute and resident-name fallback instead.
+        const LLSD legacy = plaintextCopy(service);
+        history.setLoaded({legacy});
+        history.compose({}, {}, 200, visible);
+        ensure("plaintext duplicate triggers publication", history.needsReconcile(localEcho(service)));
+        history.setLoaded({});
+        history.compose({}, {}, 200, visible);
+        ensure("empty publication releases the prior footprint", !history.needsReconcile(localEcho(service)));
+    }
+}
+
+template<> template<> void object_t::test<50>()
+{
+    // The new echo can match only the consumed service occurrence. Reassigning
+    // the old echo then removes the earlier visible row, even in a hidden chat.
+    const S32 timestamp = 1789005900;
+    const LLSD earlier = outgoingRepeat(1, timestamp);
+    const LLSD later = outgoingRepeat(2, timestamp + 59);
+    const LLSD old_echo = localEcho(later);
+    const LLSD new_echo = localEcho(later, 59);
+    for (bool visible : {false, true})
+    {
+        History history;
+        history.setLoaded({earlier, later});
+        const auto initial = history.compose({}, {old_echo}, 200, visible);
+        ensure_equals("one earlier historical occurrence remains", initial.size(), size_t(1));
+        ensure("new echo cannot directly match that visible occurrence",
+               !sameDirectHistoryOccurrence(initial.front(), new_echo));
+        ensure("consumed source candidates still trigger reconciliation", history.needsReconcile(new_echo));
+        ensure("both occurrences become live after reassignment",
+               history.compose({}, {new_echo, old_echo}, 200, visible).empty());
+    }
+}
+
+template<> template<> void object_t::test<51>()
+{
+    // A late receipt reserves a service occurrence before local-clock matching.
+    // That can expose a distinct plaintext repeat from an initially empty view.
+    const S32 timestamp = 1789005900;
+    const LLSD first = outgoingRepeat(1, timestamp + 119);
+    const LLSD second = outgoingRepeat(2, timestamp + 178);
+    const LLSD legacy = plaintextCopy(second);
+    const LLSD old_echo = localEcho(second);
+    const LLSD later_echo = localEcho(second, 59);
+    LLSD receipt = localEcho(first);
+    receipt["chat_service_time_source"] = "receipt";
+    receipt["chat_service_log_timestamp"] = timestamp + 237;
+    for (bool visible : {false, true})
+    {
+        History history;
+        history.setLoaded({legacy, first, second});
+        ensure("initial live echoes represent the entire source seam",
+               history.compose({}, {later_echo, old_echo}, 200, visible).empty());
+        ensure("an empty view still checks consumed candidates", history.needsReconcile(receipt));
+        const auto result = history.compose({}, {receipt, later_echo, old_echo}, 200, visible);
+        ensure_equals("receipt reassignment exposes distinct plaintext", result.size(), size_t(1));
+        ensure("the remaining occurrence is the original plaintext", llsd_equals(result.front(), legacy));
+    }
+}
+
+template<> template<> void object_t::test<52>()
+{
+    // Each old echo can shift to the previous service occurrence. Protecting
+    // the oldest visible repeat therefore requires the entire chain of anchors.
+    const S32 timestamp = 1789005900;
+    for (U8 count : {2, 8})
+    {
+        const LLSD earlier = outgoingRepeat(1, timestamp);
+        Messages archive{earlier};
+        Messages live;
+        for (U8 ordinal = 1; ordinal <= count; ++ordinal)
+        {
+            const LLSD row = outgoingRepeat(ordinal + 1, timestamp + ordinal * 59);
+            archive.push_back(row);
+            live.push_front(localEcho(row));
+        }
+        History history;
+        history.setLoaded(archive);
+        ensure_equals("all but the oldest occurrence are live",
+                      history.compose({}, live, 2, true).size(), size_t(1));
+
+        // The archive advances past every repeat while the conversation stays
+        // open. Republishing must preserve the same historical service identity.
+        LLSD later = contextRow(100);
+        later["timestamp"] = timestamp + 3600;
+        history.setLoaded({later});
+        live.push_front(liveCopy(later));
+        for (int publication = 0; publication < 3; ++publication)
+        {
+            const auto result = history.compose({}, live, 2, true);
+            ensure_equals("rollover preserves the oldest repeat through the chain", result.size(), size_t(1));
+            ensure("the original occurrence remains", llsd_equals(result.front(), earlier));
+        }
+
+        // A genuinely new echo can now shift the entire assignment and consume
+        // that last historical occurrence through the retained far-end anchor.
+        const LLSD next = localEcho(archive.back(), 59);
+        ensure("far-end anchor still schedules reconciliation", history.needsReconcile(next));
+        live.push_front(next);
+        ensure("new echo consumes the final historical occurrence", history.compose({}, live, 2, true).empty());
+    }
+}
+
 }
 
 namespace tut
@@ -1535,6 +1670,88 @@ template<> template<> void object_t::test<54>()
 
 }
 
+namespace tut
+{
+template<> template<> void object_t::test<55>()
+{
+    // Compare the gate with an unconditional publication over deterministic
+    // mixed-source arrivals. Existing named regressions cover archive rollover;
+    // this oracle keeps the source seam fixed so repetition itself is stable.
+    std::mt19937 random(0x59A17F);
+    const S32 timestamp = 1789005900;
+    const char* sources[] = {"local", "receipt", "sent", ""};
+    for (bool visible : {false, true})
+    {
+        for (int trial = 0; trial < 250; ++trial)
+        {
+            Messages archive, legacy;
+            std::vector<LLSD> service;
+            for (U8 ordinal = 1; ordinal <= 6; ++ordinal)
+            {
+                LLSD row = outgoingRepeat(ordinal, timestamp + ordinal * 30);
+                row["from_id"] = ordinal % 2 ? AGENT : RESIDENT;
+                row["from"] = ordinal % 2 ? "Alpha Resident" : "Beta Resident";
+                row["message"] = "repeat" + std::to_string(random() % 3);
+                service.push_back(row);
+                archive.push_back(row);
+                if (random() % 2)
+                {
+                    LLSD logged = plaintextCopy(row);
+                    if (random() % 2)
+                    {
+                        logged["message"] = logged["message"].asString() + " translated";
+                        logged["chat_service_legacy_wall_time"] = F64(timestamp + 240) - 7.0 * 3600.0;
+                    }
+                    legacy.push_back(logged);
+                }
+            }
+            archive = mergeDirectHistory(legacy, archive);
+            History history;
+            history.setLoaded(archive);
+            Messages live, model;
+            replaceHistory(model, history.compose({}, live, 5, visible), true);
+
+            // Include delayed/translated bodies and missing identity fields.
+            // Unrelated later appends should normally require no publication.
+            for (int step = 0; step < 12; ++step)
+            {
+                LLSD arrival = localEcho(service[random() % service.size()], S32(random() % 151) - 75);
+                arrival["chat_service_time_source"] = sources[random() % 4];
+                arrival["chat_service_log_timestamp"] = timestamp + 240 + step;
+                if (random() % 4 == 0) arrival["message"] = arrival["message"].asString() + " translated";
+                if (random() % 5 == 0) arrival.erase("from_id");
+                if (random() % 10 == 0) arrival.erase("from");
+                if (random() % 4 == 0)
+                {
+                    arrival["timestamp"] = timestamp + 600 + step;
+                    arrival["message"] = "unrelated";
+                    arrival["chat_service_original_text"] = "unrelated";
+                }
+
+                // An identical publication before the append must be stable;
+                // the new row is then the only possible cause of a changed view.
+                History repeated = history;
+                Messages before = model;
+                ensure("fixed-source publication is stable", !replaceHistory(before,
+                    repeated.compose({}, live, 5, visible), true));
+                const bool needed = history.needsReconcile(arrival);
+                live.push_front(arrival);
+                model.push_front(arrival);
+                History unconditional = history;
+                const auto expected = unconditional.compose({}, live, 5, visible);
+                Messages replayed = model;
+                const bool changed = replaceHistory(replayed, expected, true);
+                ensure("gate covers every duplicate or placement change", needed || !changed);
+                if (needed)
+                {
+                    history = unconditional;
+                    model = replayed;
+                }
+            }
+        }
+    }
+}
+}
 
 namespace tut
 {

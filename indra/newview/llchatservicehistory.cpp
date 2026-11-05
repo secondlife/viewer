@@ -2708,6 +2708,7 @@ void LLChatServiceHistory::History::clear()
     // Deletion invalidates pending reads before owners clear their displayed history.
     ++mToken;
     mLoading = false;
+    mReconcilePending = false;
     mArchiveSerial = 0;
     mServiceAllowed = false;
     mHistory.clear();
@@ -2722,6 +2723,32 @@ void LLChatServiceHistory::History::stop()
 void LLChatServiceHistory::History::publish(const Snapshot& snapshot)
 {
     mCallback(composeHistory(mHistory, snapshot, mLimit, mSessionID));
+}
+
+void LLChatServiceHistory::History::reconcileLive(const LLSD& message)
+{
+    // Most appends leave history unchanged. Recompose only possible duplicates
+    // or ordering changes, after the live delivery and its notifications finish.
+    if (!mConnection.connected() || mReconcilePending || historySuppressed() ||
+        !mHistory.needsReconcile(message))
+    {
+        return;
+    }
+
+    // Publish current state; reload and deletion may have changed the cache.
+    // The handle and idle dispatcher protect owner and account lifetime.
+    mReconcilePending = true;
+    postPresentation([handle = getHandle()]()
+    {
+        if (History* self = handle.get())
+        {
+            self->mReconcilePending = false;
+            if (self->mConnection.connected() && !historySuppressed())
+            {
+                self->publish(getSnapshot(self->mResidentID));
+            }
+        }
+    });
 }
 
 void LLChatServiceHistory::History::reload()

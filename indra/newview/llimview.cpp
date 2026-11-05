@@ -1892,6 +1892,13 @@ LLIMModel::LLIMSession* LLIMModel::addMessageSilently(const LLUUID& session_id, 
         ++(session->mParticipantUnreadMessageCount);
     }
 
+    // A delayed translation can arrive after history has settled. Refresh the
+    // cached overlay on the main loop after this live append has been announced.
+    if (session->isP2P())
+    {
+        session->mChatServiceHistory.reconcileLive(session->mMsgs.front());
+    }
+
     return session;
 }
 

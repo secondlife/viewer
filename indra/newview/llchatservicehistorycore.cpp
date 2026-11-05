@@ -798,6 +798,8 @@ void History::clear()
 {
     mLoaded.clear();
     mVisible.clear();
+    mCandidates.clear();
+    mNewestHistory = 0;
 }
 
 void History::clearService()
@@ -805,6 +807,24 @@ void History::clearService()
     auto service = [](const LLSD& row) { return row["chat_service_msg_id"].isString(); };
     mLoaded.remove_if(service);
     mVisible.remove_if(service);
+    mCandidates.remove_if(service);
+}
+
+bool History::needsReconcile(const LLSD& message) const
+{
+    // Delayed deliveries can move history ahead of the newly prepended live row.
+    const S32 timestamp = message["timestamp"].asInteger();
+    if (timestamp > 0 && timestamp < mNewestHistory)
+    {
+        return true;
+    }
+
+    // A new repeat can reassign an already consumed service occurrence. Check
+    // the whole source seam, even when no historical rows remain on screen.
+    return std::any_of(mCandidates.begin(), mCandidates.end(), [&](const LLSD& row)
+    {
+        return sameDirectHistoryOccurrence(row, message);
+    });
 }
 
 Messages History::compose(const Messages& preview, const Messages& live, U32 limit,
@@ -817,11 +837,20 @@ Messages History::compose(const Messages& preview, const Messages& live, U32 lim
     {
         result = mergeDirectHistory(result, mVisible);
     }
+    mCandidates = result;
     DirectHistoryMatches matches;
     result = filterHistoryDuplicates(result, live, retain_context ? &matches : nullptr);
     while (limit && result.size() > limit)
     {
         result.pop_front();
+    }
+
+    // Ordinary arrivals need only this timestamp and the cached source seam to
+    // determine whether the full conversation needs another publication.
+    mNewestHistory = 0;
+    for (const LLSD& row : result)
+    {
+        mNewestHistory = std::max(mNewestHistory, row["timestamp"].asInteger());
     }
 
     // Keep consumed occurrences that protect retained repeats after archive
