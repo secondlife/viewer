@@ -815,14 +815,6 @@ static bool wouldUnloadEmbeddedBrowserMedia(LLPluginClassMedia::EPriority priori
 // for why this needs to be debounced rather than instant.
 static const F32 EMBEDDED_BROWSER_UNLOAD_GRACE_PERIOD = 3.0f;
 
-// How long updateEmbeddedBrowserEvents()'s LoadStart case waits before actually
-// broadcasting a navigated-to URL to the simulator -- see its own comment for the
-// race (against the Build floater's own synchronous UPDATE request) this avoids.
-// Short enough to still land well inside the sim's post-creation bystander-
-// notification window, long enough to reliably let that non-network-bound,
-// already-synchronous UPDATE call reach its own request queue first.
-static const F32 EMBEDDED_BROWSER_NAVIGATE_BROADCAST_DELAY = 1.0f;
-
 // Producer-side render throttle for non-UI, non-parcel embedded-browser media
 // (see setPriority()'s own is_debounced_embedded_browser split) -- maps the
 // same priority tier the legacy plugin used to throttle its own render rate/
@@ -4005,26 +3997,6 @@ void LLViewerMediaImpl::update()
         // suspend flags either -- those only guard the texture-copy step below.
         updateEmbeddedBrowserEvents();
 
-        // See the LoadStart case's own comment in updateEmbeddedBrowserEvents() --
-        // deferred rather than fired instantly there, to avoid racing the Build
-        // floater's own synchronous UPDATE request for a freshly-created media entry.
-        // Unconditional (not gated on mSuspendUpdates/mVisible below), same reasoning
-        // as the audio/volume calls just below: this is about telling the simulator
-        // something, not about the texture-copy work those checks actually guard.
-        if (!mPendingNavigateBroadcastUrl.empty() &&
-            mPendingNavigateBroadcastTimer.getElapsedTimeF32() >= EMBEDDED_BROWSER_NAVIGATE_BROADCAST_DELAY)
-        {
-            if (mPendingNavigateBroadcastUrl != mCurrentMediaURL)
-            {
-                mCurrentMediaURL = mPendingNavigateBroadcastUrl;
-                for (LLVOVolume* obj : mObjectList)
-                {
-                    obj->mediaNavigated(this, nullptr, mCurrentMediaURL);
-                }
-            }
-            mPendingNavigateBroadcastUrl.clear();
-        }
-
         // Before updateVolume(), so a stream created this frame gets its gain and position
         // straight away.
         updateEmbeddedBrowserAudioSource();
@@ -4590,38 +4562,8 @@ void LLViewerMediaImpl::updateEmbeddedBrowserEvents()
         switch (event.type)
         {
             case LLEmbeddedBrowserEventType::LoadStart:
-            {
                 emitEvent(nullptr, LLViewerMediaObserver::MEDIA_EVENT_NAVIGATE_BEGIN);
-
-                // Report the destination URL to the simulator soon after CEF's own page
-                // load starts, rather than waiting for AddressChanged to confirm the
-                // fully-resolved address once the real page finishes loading (see that
-                // case below for the rest of this story) -- a resident already standing
-                // next to a face whose media is just now being created only gets
-                // notified of the eventual real current_url if it reaches the sim
-                // within a short window right after creation, confirmed via a real
-                // side-by-side comparison against the legacy plugin.
-                //
-                // This can't fire immediately, though: on the very first navigation of
-                // a freshly-created media entry, this races the still-pending UPDATE
-                // request (home_url/autoplay) that the Build floater's own "Apply"
-                // button already queued moments earlier via sObjectMediaClient -- and
-                // confirmed via a real repro, an immediate broadcast sometimes wins
-                // that race, sending its NAVIGATE request (the only one of the two that
-                // carries current_url) *before* UPDATE, which then arrives second and
-                // wipes current_url back out (UPDATE's own payload never includes it --
-                // see llpanelmediasettingsgeneral.cpp's own "only supposed to get
-                // changed via navigate" comment -- so it isn't a merge in that case).
-                // Legacy never hits this: its own NAVIGATE can't fire until the plugin's
-                // real page load completes, seconds after Apply, by which time UPDATE
-                // has always long since gone out. EMBEDDED_BROWSER_NAVIGATE_BROADCAST_DELAY
-                // gives that same synchronous, non-network-bound UPDATE call a moment to
-                // reach its own queue first, without reintroducing the original
-                // multi-second network-timing dependency this is replacing.
-                mPendingNavigateBroadcastUrl = mMediaURL;
-                mPendingNavigateBroadcastTimer.reset();
                 break;
-            }
 
             case LLEmbeddedBrowserEventType::LoadEnd:
                 if (mEmbeddedBrowserBackend == LLEmbeddedBrowserBackend::Cef)

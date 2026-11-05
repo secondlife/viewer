@@ -640,12 +640,6 @@ private:
     // or destroyed before the worker thread gets around to running it.
     std::shared_ptr<std::vector<U8>> mEmbeddedBrowserFrameSnapshot;
     std::string mEmbeddedBrowserTitle;
-    // Set by updateEmbeddedBrowserEvents()'s LoadStart case, consumed by update() once
-    // mPendingNavigateBroadcastTimer reaches EMBEDDED_BROWSER_NAVIGATE_BROADCAST_DELAY --
-    // see that case's own comment for why this needs to be deferred rather than instant.
-    // Empty means nothing is pending.
-    std::string mPendingNavigateBroadcastUrl;
-    LLTimer mPendingNavigateBroadcastTimer;
     // See getClickURL()/getClickTarget()/getClickUUID()/getClickNavType() above.
     std::string mEmbeddedClickURL;
     std::string mEmbeddedClickTarget;
