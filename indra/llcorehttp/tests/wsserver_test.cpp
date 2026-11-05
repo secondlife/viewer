@@ -179,6 +179,12 @@ namespace
 
         std::atomic<int> mOpenedCount{ 0 };
         std::atomic<int> mClosedCount{ 0 };
+        int mStoppedCount{ 0 };
+
+        void onStopped() override
+        {
+            ++mStoppedCount;
+        }
 
         // Empty where the base policy (reject any Origin) should apply;
         // otherwise the one origin this test server lets in.
@@ -434,5 +440,34 @@ namespace tut
         client_b.close();
         client_c.close();
         manager.removeServer(mName);
+    }
+
+    template<> template<>
+    void wsserver_object::test<10>()
+    {
+        set_test_name("failed workers are joined on retry, stop, and removal");
+
+        // Keep the port occupied so every start fails in the worker thread.
+        boost::asio::io_context io;
+        boost::asio::ip::tcp::acceptor occupied(io, boost::asio::ip::tcp::endpoint(boost::asio::ip::make_address("127.0.0.1"), 0));
+        LLWebsocketMgr& manager = LLWebsocketMgr::instance();
+        auto server = std::make_shared<TestWSServer>(mName, occupied.local_endpoint().port(), true);
+        ensure("added", manager.addServer(server));
+        ensure("worker started", manager.startServer(mName));
+        ensure("worker exited after listen failure", waitUntil([&]() { return !server->isRunning(); }));
+
+        ensure("retry starts another worker without terminating", manager.startServer(mName));
+        ensure_equals("retry cleaned up the first worker", server->mStoppedCount, 1);
+        ensure("retry exited", waitUntil([&]() { return !server->isRunning(); }));
+        manager.stopServer(mName);
+        ensure_equals("stop cleaned up the failed retry", server->mStoppedCount, 2);
+        manager.stopServer(mName);
+        ensure_equals("repeated stop does not repeat cleanup", server->mStoppedCount, 2);
+
+        ensure("worker started again", manager.startServer(mName));
+        ensure("worker exited again", waitUntil([&]() { return !server->isRunning(); }));
+        ensure("removed", manager.removeServer(mName));
+        ensure_equals("removal cleaned up the failed worker", server->mStoppedCount, 3);
+        server.reset();
     }
 }
