@@ -1286,9 +1286,12 @@ SDL_AppResult LLWindowSDL::handleEvent(const SDL_Event& event)
 
         case SDL_EVENT_DROP_COMPLETE:
         {
-            const std::string file_path = mMultipleDropFiles ? std::string() : mDropFile;
-            mCallbacks->handleDragNDrop(this, mDropPosition, gKeyboard->currentMask(true),
-                LLWindowCallbacks::DNDA_DROPPED, file_path);
+            if (!mDropFile.empty())
+            {
+                const std::string file_path = mMultipleDropFiles ? std::string() : mDropFile;
+                mCallbacks->handleDragNDrop(this, mDropPosition, gKeyboard->currentMask(true),
+                    LLWindowCallbacks::DNDA_DROPPED, file_path);
+            }
             mCallbacks->handleDragNDrop(this, mDropPosition, gKeyboard->currentMask(true),
                 LLWindowCallbacks::DNDA_STOP_TRACKING, std::string());
             mDropFile.clear();

@@ -711,6 +711,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (BOOL) performDragOperation:(id<NSDraggingInfo>)sender
 {
     callHandleDragDropped(mLastDraggedMultipleFiles ? std::string() : mLastDraggedUrl);
+    callHandleDragExited(mLastDraggedUrl);
     return true;
 }
 

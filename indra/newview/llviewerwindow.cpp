@@ -1409,6 +1409,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
                     LLNotificationsUtil::add("DropUploadModelBusy");
                     return LLWindowCallbacks::DND_NONE;
                 }
+                preview->setUploadDestination(LLUUID::null);
                 preview->loadHighLodModel(file_path);
             }
             else
