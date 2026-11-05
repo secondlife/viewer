@@ -97,8 +97,9 @@ namespace LLChatServiceHistory
         void clear();
         void stop();
 
-        // Recompose only when this live append can change the history overlay.
-        void reconcileLive(const LLSD& message);
+        // Capture known service history before an outgoing message is dispatched.
+        LLSD outgoingContext(const LLUUID& resident_id) const;
+
         bool isLoading() const { return mLoading; }
 
     private:
@@ -115,8 +116,6 @@ namespace LLChatServiceHistory
         bool mLoading = false;
         bool mServiceAllowed = false;
 
-        // Coalesce live appends until the queued cached publication runs.
-        bool mReconcilePending = false;
         LLChatServiceHistoryCore::History mHistory;
         callback_t mCallback;
         boost::signals2::scoped_connection mConnection;

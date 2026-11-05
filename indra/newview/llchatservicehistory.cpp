@@ -2708,7 +2708,6 @@ void LLChatServiceHistory::History::clear()
     // Deletion invalidates pending reads before owners clear their displayed history.
     ++mToken;
     mLoading = false;
-    mReconcilePending = false;
     mArchiveSerial = 0;
     mServiceAllowed = false;
     mHistory.clear();
@@ -2725,30 +2724,37 @@ void LLChatServiceHistory::History::publish(const Snapshot& snapshot)
     mCallback(composeHistory(mHistory, snapshot, mLimit, mSessionID));
 }
 
-void LLChatServiceHistory::History::reconcileLive(const LLSD& message)
+LLSD LLChatServiceHistory::History::outgoingContext(const LLUUID& resident_id) const
 {
-    // Most appends leave history unchanged. Recompose only possible duplicates
-    // or ordering changes, after the live delivery and its notifications finish.
-    if (!mConnection.connected() || mReconcilePending || historySuppressed() ||
-        !mHistory.needsReconcile(message))
-    {
-        return;
-    }
+    // Include consumed session rows so a new echo cannot reassign their older matches.
+    TimeUuidKey latest = mHistory.latestServiceKey();
 
-    // Publish current state; reload and deletion may have changed the cache.
-    // The handle and idle dispatcher protect owner and account lifetime.
-    mReconcilePending = true;
-    postPresentation([handle = getHandle()]()
+    // Account history survives a stopped view, and a validated preview may be newer
+    // than the session's last publication or its pending archive read.
+    const auto found = sRuntime.residents.find(resident_id);
+    if (found != sRuntime.residents.end())
     {
-        if (History* self = handle.get())
+        const Resident& resident = found->second;
+        if (resident.summary.has_oldest)
         {
-            self->mReconcilePending = false;
-            if (self->mConnection.connected() && !historySuppressed())
+            if (latest == TimeUuidKey() || latest < resident.summary.newest)
             {
-                self->publish(getSnapshot(self->mResidentID));
+                latest = resident.summary.newest;
             }
         }
-    });
+        for (const Row& row : resident.snapshot.head_preview)
+        {
+            if (latest == TimeUuidKey() || latest < row.key)
+            {
+                latest = row.key;
+            }
+        }
+    }
+
+    // An empty string still records that capture happened before this send.
+    LLSD context;
+    context["chat_service_after_msg_id"] = formatTimeUuid(latest);
+    return context;
 }
 
 void LLChatServiceHistory::History::reload()

@@ -276,6 +276,30 @@ bool parseTimeUuid(const std::string& text, TimeUuidKey& key)
     return true;
 }
 
+std::string formatTimeUuid(const TimeUuidKey& key)
+{
+    if (key == TimeUuidKey())
+    {
+        return {};
+    }
+
+    // Reverse the UUIDv1 field layout without losing equal-timestamp tail ordering.
+    LLUUID id;
+    for (U32 pos = 0; pos < 4; ++pos)
+    {
+        id.mData[pos] = U8(key.ticks >> (24 - pos * 8));
+    }
+    id.mData[4] = U8(key.ticks >> 40);
+    id.mData[5] = U8(key.ticks >> 32);
+    id.mData[6] = U8((key.ticks >> 56) & 0x0f) | 0x10;
+    id.mData[7] = U8(key.ticks >> 48);
+    for (U32 pos = 0; pos < key.tail.size(); ++pos)
+    {
+        id.mData[pos + 8] = U8(key.tail[pos]);
+    }
+    return id.asString();
+}
+
 bool persistedDirectDialog(S32 dialog)
 {
     switch (dialog)
@@ -353,6 +377,13 @@ bool sameDirectHistoryOccurrence(const LLSD& history, const LLSD& timed)
         // direction, including across minute, hour, and day boundaries.
         if (timed["chat_service_time_source"].asString() == "local")
         {
+            // History already known before this send cannot be its service copy.
+            TimeUuidKey after, key;
+            if (parseTimeUuid(timed["chat_service_after_msg_id"].asString(), after) &&
+                (!parseTimeUuid(history["chat_service_msg_id"].asString(), key) || key <= after))
+            {
+                return false;
+            }
             const S64 skew = static_cast<S64>(timestamp) - service_timestamp;
             return skew >= -MAX_LOCAL_CLOCK_SKEW && skew <= MAX_LOCAL_CLOCK_SKEW;
         }
@@ -450,6 +481,7 @@ struct TimedOccurrence
 {
     S64 timestamp;
     size_t index;
+    TimeUuidKey key;
 };
 
 // Pair one sender/body/time component, maximizing count before minimizing skew.
@@ -522,9 +554,18 @@ static std::vector<std::pair<size_t, size_t>> serviceMatches(
     const std::vector<const LLSD*>& deliveries,
     const std::vector<Messages::const_iterator>& service)
 {
+    // Newer captures exclude more history. Give them first claim on eligible
+    // service rows, then let earlier captures match the remaining occurrences.
+    // This priority can leave an extra duplicate when clock windows compete;
+    // assignments are not optimized across different capture boundaries.
+    auto newer_capture = [](const TimeUuidKey& left, const TimeUuidKey& right)
+    {
+        return !(left == TimeUuidKey()) && (right == TimeUuidKey() || right < left);
+    };
     struct Group
     {
-        std::vector<TimedOccurrence> local, service;
+        std::map<TimeUuidKey, std::vector<TimedOccurrence>, decltype(newer_capture)> captures;
+        std::vector<TimedOccurrence> service;
         size_t cursor = 0;
         bool receipts = false;
     };
@@ -536,8 +577,10 @@ static std::vector<std::pair<size_t, size_t>> serviceMatches(
         complete_ids = complete_ids && row["from_id"].isDefined();
         if (row["timestamp"].isInteger() && row["timestamp"].asInteger() > 0)
         {
+            TimeUuidKey key;
+            parseTimeUuid(row["chat_service_msg_id"].asString(), key);
             groups[{row["from_id"].asUUID(), row["message"].asString()}].service.push_back(
-                {row["timestamp"].asInteger(), pos});
+                {row["timestamp"].asInteger(), pos, key});
         }
     }
 
@@ -572,7 +615,9 @@ static std::vector<std::pair<size_t, size_t>> serviceMatches(
         const S64 timestamp = delivery["timestamp"].asInteger();
         if (local)
         {
-            group.local.push_back({timestamp, pos});
+            TimeUuidKey after;
+            parseTimeUuid(delivery["chat_service_after_msg_id"].asString(), after);
+            group.captures[after].push_back({timestamp, pos});
             continue;
         }
 
@@ -610,32 +655,54 @@ static std::vector<std::pair<size_t, size_t>> serviceMatches(
     for (auto& entry : groups)
     {
         auto& group = entry.second;
-        std::erase_if(group.service, [&](const TimedOccurrence& row) { return used[row.index]; });
-        std::erase_if(group.local, [&](const TimedOccurrence& row) { return !hasCandidate(row, group.service); });
-        if (group.local.empty()) continue;
-        std::erase_if(group.service, [&](const TimedOccurrence& row) { return !hasCandidate(row, group.local); });
-        const auto local = std::span(group.local);
-        const auto rows = std::span(group.service);
-
-        // Separate time regions cannot share candidates or influence tied choices.
-        size_t i = 0, j = 0, local_start = 0, service_start = 0;
-        S64 previous = std::max(local.front().timestamp, rows.front().timestamp);
-        while (i < local.size() || j < rows.size())
+        for (auto& capture : group.captures)
         {
-            const S64 timestamp = std::max(i < local.size() ? local[i].timestamp : 0,
-                                           j < rows.size() ? rows[j].timestamp : 0);
-            if (previous - timestamp > MAX_LOCAL_CLOCK_SKEW)
+            // Restrict the copy to this capture's possible timestamps. Long
+            // retained chains then visit only nearby service records.
+            auto& local_rows = capture.second;
+            const auto first = std::lower_bound(group.service.begin(), group.service.end(),
+                local_rows.front().timestamp + MAX_LOCAL_CLOCK_SKEW,
+                [](const TimedOccurrence& row, S64 latest) { return row.timestamp > latest; });
+            const auto last = std::upper_bound(first, group.service.end(),
+                local_rows.back().timestamp - MAX_LOCAL_CLOCK_SKEW,
+                [](S64 earliest, const TimedOccurrence& row) { return earliest > row.timestamp; });
+            std::vector<TimedOccurrence> service_rows(first, last);
+
+            // Only unclaimed records newer than the pre-send boundary are eligible.
+            std::erase_if(service_rows, [&](const TimedOccurrence& row)
             {
-                matchLocalOccurrences(local.subspan(local_start, i - local_start),
-                                      rows.subspan(service_start, j - service_start), pairs);
-                local_start = i;
-                service_start = j;
+                return used[row.index] || (!(capture.first == TimeUuidKey()) && row.key <= capture.first);
+            });
+            const size_t saved = pairs.size();
+            std::erase_if(local_rows, [&](const TimedOccurrence& row) { return !hasCandidate(row, service_rows); });
+            if (local_rows.empty()) continue;
+            std::erase_if(service_rows, [&](const TimedOccurrence& row) { return !hasCandidate(row, local_rows); });
+            const auto local = std::span(local_rows);
+            const auto rows = std::span(service_rows);
+
+            // Separate time regions cannot share candidates or influence tied choices.
+            size_t i = 0, j = 0, local_start = 0, service_start = 0;
+            S64 previous = std::max(local.front().timestamp, rows.front().timestamp);
+            while (i < local.size() || j < rows.size())
+            {
+                const S64 timestamp = std::max(i < local.size() ? local[i].timestamp : 0,
+                                               j < rows.size() ? rows[j].timestamp : 0);
+                if (previous - timestamp > MAX_LOCAL_CLOCK_SKEW)
+                {
+                    matchLocalOccurrences(local.subspan(local_start, i - local_start),
+                                          rows.subspan(service_start, j - service_start), pairs);
+                    local_start = i;
+                    service_start = j;
+                }
+                if (i < local.size() && local[i].timestamp == timestamp) ++i;
+                else ++j;
+                previous = timestamp;
             }
-            if (i < local.size() && local[i].timestamp == timestamp) ++i;
-            else ++j;
-            previous = timestamp;
+            matchLocalOccurrences(local.subspan(local_start), rows.subspan(service_start), pairs);
+
+            // Reserving each selected record prevents another capture from reusing it.
+            for (size_t match = saved; match < pairs.size(); ++match) used[pairs[match].second] = true;
         }
-        matchLocalOccurrences(local.subspan(local_start), rows.subspan(service_start), pairs);
     }
     return pairs;
 }
@@ -864,7 +931,6 @@ void History::clear()
     mLoaded.clear();
     mVisible.clear();
     mCandidates.clear();
-    mNewestHistory = 0;
 }
 
 void History::clearService()
@@ -875,21 +941,24 @@ void History::clearService()
     mCandidates.remove_if(service);
 }
 
-bool History::needsReconcile(const LLSD& message) const
+TimeUuidKey History::latestServiceKey() const
 {
-    // Delayed deliveries can move history ahead of the newly prepended live row.
-    const S32 timestamp = message["timestamp"].asInteger();
-    if (timestamp > 0 && timestamp < mNewestHistory)
+    // Loaded rows can precede the first publication; retained and consumed rows
+    // can outlive the current archive window. All were known before the next send.
+    TimeUuidKey latest;
+    for (const Messages* source : {&mLoaded, &mVisible, &mCandidates})
     {
-        return true;
+        for (const LLSD& row : *source)
+        {
+            TimeUuidKey key;
+            if (parseTimeUuid(row["chat_service_msg_id"].asString(), key) &&
+                (latest == TimeUuidKey() || latest < key))
+            {
+                latest = key;
+            }
+        }
     }
-
-    // A new repeat can reassign an already consumed service occurrence. Check
-    // the whole source seam, even when no historical rows remain on screen.
-    return std::any_of(mCandidates.begin(), mCandidates.end(), [&](const LLSD& row)
-    {
-        return sameDirectHistoryOccurrence(row, message);
-    });
+    return latest;
 }
 
 Messages History::compose(const Messages& preview, const Messages& live, U32 limit,
@@ -908,14 +977,6 @@ Messages History::compose(const Messages& preview, const Messages& live, U32 lim
     while (limit && result.size() > limit)
     {
         result.pop_front();
-    }
-
-    // Ordinary arrivals need only this timestamp and the cached source seam to
-    // determine whether the full conversation needs another publication.
-    mNewestHistory = 0;
-    for (const LLSD& row : result)
-    {
-        mNewestHistory = std::max(mNewestHistory, row["timestamp"].asInteger());
     }
 
     // Keep consumed occurrences that protect retained repeats after archive
@@ -1014,6 +1075,12 @@ void recordLiveMessage(LLSD& message, const LLSD& context, U32 logged_at)
     message["chat_service_original_text"] = context["chat_service_original_text"];
     message["chat_service_time_source"] = context["chat_service_time_source"];
     message["chat_service_log_timestamp"] = static_cast<S32>(logged_at);
+
+    // Keep the original pre-send boundary through translation and later reloads.
+    if (context["chat_service_after_msg_id"].isString())
+    {
+        message["chat_service_after_msg_id"] = context["chat_service_after_msg_id"];
+    }
 }
 
 bool legacyWallMayPrecedeService(F64 wall_epoch, F64 service_epoch)

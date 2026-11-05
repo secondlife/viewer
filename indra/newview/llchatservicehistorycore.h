@@ -97,6 +97,8 @@ namespace LLChatServiceHistoryCore
     std::string directConversationId(const LLUUID& agent_id, const LLUUID& resident_id);
     bool parseCanonicalUuid(const std::string& text, LLUUID& id);
     bool parseTimeUuid(const std::string& text, TimeUuidKey& key);
+    // Preserve an archive boundary in live-message context; an absent key stays empty.
+    std::string formatTimeUuid(const TimeUuidKey& key);
     bool persistedDirectDialog(S32 dialog);
     bool parseCreatedAt(const std::string& text, std::string& normalized);
     bool sameDirectSenderName(const std::string& left, const std::string& right);
@@ -123,14 +125,13 @@ namespace LLChatServiceHistoryCore
         void clearService();
         Messages compose(const Messages& preview, const Messages& live, U32 limit,
                          bool retain_context = false);
-        // Check the cached seam for duplicate or chronological placement changes.
-        bool needsReconcile(const LLSD& message) const;
+        // Include consumed candidates so a new send cannot displace an older match.
+        TimeUuidKey latestServiceKey() const;
 
     private:
         Messages mLoaded;
         Messages mVisible; // Visible rows plus consumed anchors; anchors are filtered before display.
         Messages mCandidates; // Last source seam, including rows already represented by live messages.
-        S32 mNewestHistory = 0;
     };
 
     // Preserve live order and notification rows; replace history and reindex only on change.
