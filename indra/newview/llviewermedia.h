@@ -244,6 +244,9 @@ public:
     void scrollWheel(const LLVector2& texture_coords, S32 scroll_x, S32 scroll_y, MASK mask);
     void scrollWheel(S32 x, S32 y, S32 scroll_x, S32 scroll_y, MASK mask);
     void mouseCapture();
+    // True if the media pixel at the given texture coordinates is fully
+    // transparent, so mouse events can pass through to the world.
+    bool isTransparentAt(const LLVector2& texture_coords);
 
     void navigateBack();
     void navigateForward();
@@ -309,7 +312,7 @@ public:
     void setTarget(const std::string& target) { mTarget = target; }
 
     // utility function to create a ready-to-use media instance from a desired media type.
-    static LLPluginClassMedia* newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, F64 zoom_factor, const std::string target = LLStringUtil::null, bool clean_browser = false);
+    static LLPluginClassMedia* newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, F64 zoom_factor, const std::string target = LLStringUtil::null, bool clean_browser = false, bool transparent_background = false);
 
     // Internally set our desired browser user agent string, including
     // the Second Life version and skin name.  Used because we can
@@ -502,6 +505,7 @@ private:
     std::string mTarget;
     LLNotificationPtr mNotification;
     bool mCleanBrowser;     // force the creation of a clean browsing target with full options enabled
+    bool mTransparentBackground;
     static std::vector<std::string> sMimeTypesFailed;
     LLPointer<LLImageRaw> mRawImage; //backing buffer for texture updates
 private:

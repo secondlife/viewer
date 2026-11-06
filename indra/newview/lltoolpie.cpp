@@ -103,6 +103,25 @@ bool LLToolPie::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType cli
     return result;
 }
 
+// True if the pick landed on a media face at a fully transparent media
+// pixel, so the pick should defer to whatever is visible behind it.
+static bool is_transparent_media_pick(const LLPickInfo& pick)
+{
+    LLViewerObject* objectp = pick.getObject();
+    if (!objectp || pick.mObjectFace < 0 || pick.mObjectFace >= objectp->getNumTEs())
+    {
+        return false;
+    }
+    const LLTextureEntry* tep = objectp->getTE(pick.mObjectFace);
+    LLMediaEntry* mep = (tep && tep->hasMedia()) ? tep->getMediaData() : NULL;
+    if (!mep)
+    {
+        return false;
+    }
+    viewer_media_t media_impl = LLViewerMedia::getInstance()->getMediaImplFromTextureID(mep->getMediaID());
+    return media_impl.notNull() && media_impl->isTransparentAt(pick.mUVCoords);
+}
+
 bool LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     if (mDoubleClickTimer.getStarted())
@@ -129,7 +148,13 @@ bool LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
     // left mouse down always picks transparent (but see handleMouseUp).
     // Also see LLToolPie::handleHover() - priorities are a bit different there.
     // Todo: we need a more consistent set of rules to work with
-    if (transp_object == visible_object || !visible_object ||
+    if (transp_object != visible_object && is_transparent_media_pick(transparent_pick))
+    {
+        // The transparent pick went through a fully transparent media pixel,
+        // act on whatever is visible behind it (object, land, or nothing).
+        mPick = visible_pick;
+    }
+    else if (transp_object == visible_object || !visible_object ||
         !transp_object) // avoid potential for null dereference below, don't make assumptions about behavior of pickImmediate
     {
         mPick = transparent_pick;
@@ -1666,6 +1691,14 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
 
     viewer_media_t media_impl = LLViewerMedia::getInstance()->getMediaImplFromTextureID(mep->getMediaID());
 
+    if (media_impl.notNull() && media_impl->isTransparentAt(pick.mUVCoords))
+    {
+        // The click landed on a fully transparent part of the media, let it
+        // pass through to the world.
+        LLViewerMediaFocus::getInstance()->clearFocus();
+        return false;
+    }
+
     if (gSavedSettings.getBOOL("MediaOnAPrimUI"))
     {
         if (!LLViewerMediaFocus::getInstance()->isFocusedOnFace(pick.getObject(), pick.mObjectFace) || media_impl.isNull())
@@ -1730,6 +1763,14 @@ bool LLToolPie::handleMediaDblClick(const LLPickInfo& pick)
 
     viewer_media_t media_impl = LLViewerMedia::getInstance()->getMediaImplFromTextureID(mep->getMediaID());
 
+    if (media_impl.notNull() && media_impl->isTransparentAt(pick.mUVCoords))
+    {
+        // The click landed on a fully transparent part of the media, let it
+        // pass through to the world.
+        LLViewerMediaFocus::getInstance()->clearFocus();
+        return false;
+    }
+
     if (gSavedSettings.getBOOL("MediaOnAPrimUI"))
     {
         if (!LLViewerMediaFocus::getInstance()->isFocusedOnFace(pick.getObject(), pick.mObjectFace) || media_impl.isNull())
@@ -1784,6 +1825,14 @@ bool LLToolPie::handleMediaHover(const LLPickInfo& pick)
         && gSavedSettings.getBOOL("MediaOnAPrimUI"))
     {
         viewer_media_t media_impl = LLViewerMedia::getInstance()->getMediaImplFromTextureID(mep->getMediaID());
+
+        if (media_impl.notNull() && media_impl->isTransparentAt(pick.mUVCoords))
+        {
+            // Hovering over a fully transparent part of the media, treat it
+            // as normal in-world hover.
+            LLViewerMediaFocus::getInstance()->clearHover();
+            return false;
+        }
 
         if(media_impl.notNull())
         {
