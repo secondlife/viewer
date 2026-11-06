@@ -27,51 +27,67 @@
 
 
 #include "llviewerprecompiledheaders.h"
-#include "llsecapi.h"
+
 #include "llsechandler_basic.h"
+#include "llsecapi.h"
 #include "llsdserialize.h"
 #include "llviewernetwork.h"
 #include "llxorcipher.h"
 #include "llfile.h"
-#include "lldir.h"
 #include "llviewercontrol.h"
 #include "llexception.h"
 #include "stringize.h"
 #include <vector>
 #include <ios>
+
 #include <openssl/ossl_typ.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 #include <openssl/pem.h>
 #include <openssl/asn1.h>
 #include <openssl/rand.h>
-#include <openssl/err.h>
 #include <iostream>
-#include <iomanip>
-#include <time.h>
 #include "llmachineid.h"
 
+#if LL_WINDOWS
+// This define renames X509_NAME to WINCRYPT_X509_NAME to avoid clashes with the openssl type
+#define WINCRYPT_USE_SYMBOL_PREFIX
+#include <wincrypt.h>
+#elif LL_DARWIN
+#include <CoreServices/CoreServices.h>
+#include <Security/Security.h>
+#elif LL_LINUX
+#include <boost/algorithm/string/find_iterator.hpp>
+#include <boost/algorithm/string/finder.hpp>
+#endif
 
 static const std::string DEFAULT_CREDENTIAL_STORAGE = "credential";
 
 // 128 bits of salt data...
 #define STORE_SALT_SIZE 16
 #define BUFFER_READ_SIZE 256
-std::string cert_string_from_asn1_string(ASN1_STRING* value);
-std::string cert_string_from_octet_string(ASN1_OCTET_STRING* value);
 
-LLSD _basic_constraints_ext(X509* cert);
-LLSD _key_usage_ext(X509* cert);
-LLSD _ext_key_usage_ext(X509* cert);
-std::string _subject_key_identifier(X509 *cert);
-LLSD _authority_key_identifier(X509* cert);
-void _validateCert(int validation_policy,
-                   LLPointer<LLCertificate> cert,
-                   const LLSD& validation_params,
-                   int depth);
+// X509 helper functions
+static LLSD cert_name_from_X509_NAME(X509_NAME* name);
+static std::string cert_string_name_from_X509_NAME(X509_NAME* name);
+static std::string cert_string_from_asn1_integer(ASN1_INTEGER* value);
+static LLDate cert_date_from_asn1_time(ASN1_TIME* asn1_time);
+static std::string cert_string_from_octet_string(unsigned char* data, int length);
+static bool cert_hash_from_public_key(X509* cert, std::string& hash);
 
-LLBasicCertificate::LLBasicCertificate(const std::string& pem_cert,
-                                       const LLSD* validation_params)
+static LLSD _basic_constraints_ext(X509* cert);
+static LLSD _key_usage_ext(X509* cert);
+static LLSD _ext_key_usage_ext(X509* cert);
+static std::string _subject_key_identifier(X509 *cert);
+static LLSD _authority_key_identifier(X509* cert);
+static void _validateCert(int validation_policy,
+                          LLPointer<LLCertificate> cert,
+                          const LLSD& validation_params,
+                          int depth,
+                          bool suppress_expire_warning = false);
+
+LLBasicCertificate::LLBasicCertificate(const std::string& pem_cert, bool isSystem,
+                                       const LLSD* validation_params) : mSystem(isSystem)
 {
     // BIO_new_mem_buf returns a read only bio, but takes a void* which isn't const
     // so we need to cast it.
@@ -91,9 +107,8 @@ LLBasicCertificate::LLBasicCertificate(const std::string& pem_cert,
     }
 }
 
-
-LLBasicCertificate::LLBasicCertificate(X509* pCert,
-                                       const LLSD* validation_params)
+LLBasicCertificate::LLBasicCertificate(X509* pCert, bool isSystem,
+                                       const LLSD* validation_params) : mSystem(isSystem)
 {
     if (!pCert)
     {
@@ -155,8 +170,12 @@ std::vector<U8> LLBasicCertificate::getBinary() const
     return result;
 }
 
+bool LLBasicCertificate::isSystem() const
+{
+    return mSystem;
+}
 
-void LLBasicCertificate::getLLSD(LLSD &llsd)
+void LLBasicCertificate::getLLSD(LLSD& llsd)
 {
     if (mLLSDInfo.isUndefined())
     {
@@ -168,16 +187,40 @@ void LLBasicCertificate::getLLSD(LLSD &llsd)
 // Initialize the LLSD info for the certificate
 LLSD& LLBasicCertificate::_initLLSD()
 {
-
     // call the various helpers to build the LLSD
-    mLLSDInfo[CERT_SUBJECT_NAME] = cert_name_from_X509_NAME(X509_get_subject_name(mCert));
-    mLLSDInfo[CERT_ISSUER_NAME] = cert_name_from_X509_NAME(X509_get_issuer_name(mCert));
-    mLLSDInfo[CERT_SUBJECT_NAME_STRING] = cert_string_name_from_X509_NAME(X509_get_subject_name(mCert));
-    mLLSDInfo[CERT_ISSUER_NAME_STRING] = cert_string_name_from_X509_NAME(X509_get_issuer_name(mCert));
+    X509_NAME* name = X509_get_subject_name(mCert);
+    if (name)
+    {
+        mLLSDInfo[CERT_SUBJECT_NAME]        = cert_name_from_X509_NAME(name);
+        mLLSDInfo[CERT_SUBJECT_NAME_STRING] = cert_string_name_from_X509_NAME(name);
+    }
+
+    name = X509_get_issuer_name(mCert);
+    if (name)
+    {
+        mLLSDInfo[CERT_ISSUER_NAME]        = cert_name_from_X509_NAME(name);
+        mLLSDInfo[CERT_ISSUER_NAME_STRING] = cert_string_name_from_X509_NAME(name);
+    }
+
     ASN1_INTEGER *sn = X509_get_serialNumber(mCert);
     if (sn != NULL)
     {
         mLLSDInfo[CERT_SERIAL_NUMBER] = cert_string_from_asn1_integer(sn);
+    }
+
+    ASN1_OCTET_STRING* skeyid = (ASN1_OCTET_STRING*)X509_get_ext_d2i(mCert, NID_subject_key_identifier, nullptr, nullptr);
+    if (skeyid != NULL)
+    {
+        mLLSDInfo[CERT_SUBJECT_KEY_IDENTIFIER] = cert_string_from_octet_string(skeyid->data, skeyid->length);
+        ASN1_OCTET_STRING_free(skeyid);
+    }
+    else
+    {
+        std::string hash;
+        if (cert_hash_from_public_key(mCert, hash))
+        {
+            mLLSDInfo[CERT_SUBJECT_KEY_IDENTIFIER] = hash;
+        }
     }
 
     mLLSDInfo[CERT_VALID_TO] = cert_date_from_asn1_time(X509_get_notAfter(mCert));
@@ -186,7 +229,6 @@ LLSD& LLBasicCertificate::_initLLSD()
     mLLSDInfo[CERT_BASIC_CONSTRAINTS] = _basic_constraints_ext(mCert);
     mLLSDInfo[CERT_KEY_USAGE] = _key_usage_ext(mCert);
     mLLSDInfo[CERT_EXTENDED_KEY_USAGE] = _ext_key_usage_ext(mCert);
-    mLLSDInfo[CERT_SUBJECT_KEY_IDENTFIER] = _subject_key_identifier(mCert);
     mLLSDInfo[CERT_AUTHORITY_KEY_IDENTIFIER] = _authority_key_identifier(mCert);
     return mLLSDInfo;
 }
@@ -290,10 +332,10 @@ std::string _subject_key_identifier(X509 *cert)
 {
     std::string result;
     ASN1_OCTET_STRING *skeyid = (ASN1_OCTET_STRING *)X509_get_ext_d2i(cert, NID_subject_key_identifier, NULL, NULL);
-    if(skeyid)
+    if (skeyid)
     {
-        result = cert_string_from_octet_string(skeyid);
-        ASN1_OCTET_STRING_free( skeyid );
+        result = cert_string_from_octet_string(skeyid->data, skeyid->length);
+        ASN1_OCTET_STRING_free(skeyid);
     }
     return result;
 }
@@ -303,22 +345,22 @@ LLSD _authority_key_identifier(X509* cert)
 {
     LLSD result;
     AUTHORITY_KEYID *akeyid = (AUTHORITY_KEYID *)X509_get_ext_d2i(cert, NID_authority_key_identifier, NULL, NULL);
-    if(akeyid)
+    if (akeyid)
     {
         result = LLSD::emptyMap();
-        if(akeyid->keyid)
+        if (akeyid->keyid)
         {
-            result[CERT_AUTHORITY_KEY_IDENTIFIER_ID] = cert_string_from_octet_string(akeyid->keyid);
+            result[CERT_AUTHORITY_KEY_IDENTIFIER_ID] = cert_string_from_octet_string(akeyid->keyid->data, akeyid->keyid->length);
         }
-        if(akeyid->serial)
+        if (akeyid->serial)
         {
             result[CERT_AUTHORITY_KEY_IDENTIFIER_SERIAL] = cert_string_from_asn1_integer(akeyid->serial);
         }
 
-        AUTHORITY_KEYID_free( akeyid );
+        AUTHORITY_KEYID_free(akeyid);
     }
-    // we ignore the issuer name in the authority key identifier, we check the issue name via
-    // the the issuer name entry in the cert.
+    // we ignore the issuer name in the authority key identifier, we check the issuer name via
+    // the issuer name entry in the cert.
     return result;
 }
 
@@ -391,56 +433,26 @@ std::string cert_string_from_asn1_integer(ASN1_INTEGER* value)
 }
 
 // Generate a string from an OCTET string.
-// we retrieve as a
-
-std::string cert_string_from_octet_string(ASN1_OCTET_STRING* value)
+// we retrieve as a binary string and format it into a hex string with colon separater
+std::string cert_string_from_octet_string(unsigned char* data, int length)
 {
-
     std::stringstream result;
     result << std::hex << std::setprecision(2);
-    for (int i=0; i < value->length; i++)
+    for (int i = 0; i < length; i++)
     {
         if (i != 0)
         {
             result << ":";
         }
-        result  << std::setfill('0') << std::setw(2) << (int)value->data[i];
+        result << std::setfill('0') << std::setw(2) << (int)data[i];
     }
     return result.str();
-}
-
-// Generate a string from an ASN1 integer.  ASN1 Integers are
-// bignums, so they can be 'infinitely' long, therefore we
-// cannot simply use a conversion to U64 or something.
-// We retrieve as a readable string for UI
-
-std::string cert_string_from_asn1_string(ASN1_STRING* value)
-{
-    char * string_bio_chars = NULL;
-    std::string result;
-    // get a memory bio
-    BIO *string_bio = BIO_new(BIO_s_mem());
-    if(!string_bio)
-    {
-        // stream the name into the bio.  The name will be in the 'short name' format
-        ASN1_STRING_print_ex(string_bio, value, ASN1_STRFLGS_RFC2253);
-        int length = BIO_get_mem_data(string_bio, &string_bio_chars);
-        result = std::string(string_bio_chars, length);
-        BIO_free(string_bio);
-    }
-    else
-    {
-        LL_WARNS("SECAPI") << "Could not allocate an openssl memory BIO." << LL_ENDL;
-    }
-
-    return result;
 }
 
 // retrieve a date structure from an ASN1 time, for
 // validity checking.
 LLDate cert_date_from_asn1_time(ASN1_TIME* asn1_time)
 {
-
     struct tm timestruct = {0};
     int i = asn1_time->length;
 
@@ -469,12 +481,61 @@ LLDate cert_date_from_asn1_time(ASN1_TIME* asn1_time)
 #endif // LL_WINDOWS
 }
 
+bool cert_hash_from_public_key(X509* cert, std::string &hash)
+{
+    if (!cert)
+        return false;
+
+    // Extract the SubjectPublicKeyInfo structure
+    X509_PUBKEY* pubkey = X509_get_X509_PUBKEY(cert);
+    if (!pubkey)
+    {
+        LL_WARNS("SECAPI") << "Error extracting public key info" << LL_ENDL;
+        return false;
+    }
+
+    // Extract the internal raw bit string data of the public key
+    ASN1_OBJECT*         pk_alg  = nullptr;
+    const unsigned char* pk_data = nullptr;
+    int                  pk_len  = 0;
+
+    if (!X509_PUBKEY_get0_param(&pk_alg, &pk_data, &pk_len, nullptr, pubkey))
+    {
+        LL_WARNS("SECAPI") << "Error getting public key parameters" << LL_ENDL;
+        return false;
+    }
+
+    // Compute SHA-1 hash of the public key data (RFC 5280 method 1)
+    unsigned char md[EVP_MAX_MD_SIZE];
+    unsigned int  length = 0;
+    if (!EVP_Digest(pk_data, pk_len, md, &length, EVP_sha1(), nullptr))
+    {
+        LL_WARNS("SECAPI") << "Hash calculation failed" << LL_ENDL;
+        return false;
+    }
+
+    // Print the result in standard hex format
+    hash = cert_string_from_octet_string(md, (int)length);
+    return true;
+}
+
 // class LLBasicCertificateVector
+//
 // This class represents a list of certificates, implemented by a vector of certificate pointers.
 // it contains implementations of the virtual functions for iterators, search, add, remove, etc.
-//
+// and also a function to load certificates from files
+LLBasicCertificateVector::LLBasicCertificateVector(const std::string& filename, bool isSystem, bool suppress_expire_warning) :
+    mLoaded(0),
+    mRejected(0)
+{
+    if (load_from(filename, isSystem, suppress_expire_warning))
+    {
+        LL_INFOS("SECAPI") << "Loaded " << size() << " unique certificates successfully (good: "
+                           << mLoaded << ", rejected: " << mRejected << ") from " << filename << LL_ENDL;
+    }
+}
 
-//  Find a certificate in the list.
+// Find a certificate in the list.
 // It will find a cert that has minimally the params listed, with the values being the same
 LLBasicCertificateVector::iterator LLBasicCertificateVector::find(const LLSD& params)
 {
@@ -507,50 +568,47 @@ LLBasicCertificateVector::iterator LLBasicCertificateVector::find(const LLSD& pa
     return cert;
 }
 
-// Insert a certificate into the store.  If the certificate already
+// Insert a certificate into the store. If the certificate already
 // exists in the store, nothing is done.
-void  LLBasicCertificateVector::insert(iterator _iter,
+bool LLBasicCertificateVector::insert(iterator _iter,
                        LLPointer<LLCertificate> cert)
 {
     LLSD cert_info;
     cert->getLLSD(cert_info);
-    if (cert_info.isMap() && cert_info.has(CERT_SUBJECT_KEY_IDENTFIER))
+    if (cert_info.isMap() && cert_info.has(CERT_SUBJECT_KEY_IDENTIFIER))
     {
         LLSD existing_cert_info = LLSD::emptyMap();
-        existing_cert_info[CERT_SUBJECT_KEY_IDENTFIER] = cert_info[CERT_SUBJECT_KEY_IDENTFIER];
+        existing_cert_info[CERT_SUBJECT_KEY_IDENTIFIER] = cert_info[CERT_SUBJECT_KEY_IDENTIFIER];
         if(find(existing_cert_info) == end())
         {
             BasicIteratorImpl *basic_iter = dynamic_cast<BasicIteratorImpl*>(_iter.mImpl.get());
             if (basic_iter)
             {
                 mCerts.insert(basic_iter->mIter, cert);
+                return true;
             }
             else
             {
-                LL_WARNS("SECAPI") << "Invalid certificate postion vector"
-                                   << LL_ENDL;
+                LL_WARNS("SECAPI") << "Invalid certificate position vector" << LL_ENDL;
             }
         }
         else
         {
             LL_DEBUGS("SECAPI") << "Certificate already in vector: "
-                                << "'" << cert_info << "'"
-                                << LL_ENDL;
+                                << "'" << cert_info << "'" << LL_ENDL;
         }
-
     }
     else
     {
         LL_WARNS("SECAPI") << "Certificate does not have Subject Key Identifier; not inserted: "
-                           << "'" << cert_info << "'"
-                           << LL_ENDL;
+                           << "'" << cert_info << "'" << LL_ENDL;
     }
+    return false;
 }
 
 // remove a certificate from the store
 LLPointer<LLCertificate> LLBasicCertificateVector::erase(iterator _iter)
 {
-
     if (_iter != end())
     {
         BasicIteratorImpl *basic_iter = dynamic_cast<BasicIteratorImpl*>(_iter.mImpl.get());
@@ -561,105 +619,408 @@ LLPointer<LLCertificate> LLBasicCertificateVector::erase(iterator _iter)
     return NULL;
 }
 
-
-//
-// LLBasicCertificateStore
-// This class represents a store of CA certificates.  The basic implementation
-// uses a crt file such as the ca-bundle.crt in the existing SL implementation.
-LLBasicCertificateStore::LLBasicCertificateStore(const std::string& filename)
-{
-    mFilename = filename;
-    load_from_file(filename);
-}
-
-void LLBasicCertificateStore::load_from_file(const std::string& filename)
+// load a certificate from a file or directory and add all found certificates to the store if valid
+int LLBasicCertificateVector::load_from(const std::filesystem::path& file_path, bool system, bool suppress_expire_warning)
 {
     int loaded = 0;
-    int rejected = 0;
 
     // scan the PEM file extracting each certificate
-    if (LLFile::isfile(filename))
+    if (LLFile::isfile(file_path))
     {
-        BIO* file_bio = BIO_new(BIO_s_file());
-        if(file_bio)
+        BIO* file_bio = BIO_new_file(file_path.string().c_str(), "rt");
+        if (file_bio)
         {
-            if (BIO_read_filename(file_bio, filename.c_str()) > 0)
+            X509* cert_x509 = nullptr;
+            while ((PEM_read_bio_X509(file_bio, &cert_x509, 0, nullptr)) && (cert_x509 != nullptr))
             {
-                X509 *cert_x509 = NULL;
-                while((PEM_read_bio_X509(file_bio, &cert_x509, 0, NULL)) &&
-                      (cert_x509 != NULL))
-                {
-                    try
-                    {
-                        LLPointer<LLBasicCertificate> new_cert(new LLBasicCertificate(cert_x509));
-                        LLSD validation_params;
-                        _validateCert(VALIDATION_POLICY_TIME,
-                                      new_cert,
-                                      validation_params,
-                                      0);
-                        add(new_cert);
-                        LL_DEBUGS("SECAPI") << "Loaded valid cert for "
-                                            << "Name '" << cert_string_name_from_X509_NAME(X509_get_subject_name(cert_x509)) << "'";
-                        std::string skeyid(_subject_key_identifier(cert_x509));
-                        LL_CONT << " Id '" << skeyid << "'"
-                                << LL_ENDL;
-                        loaded++;
-                    }
-                    catch (LLCertException& cert_exception)
-                    {
-                        LLSD cert_info(cert_exception.getCertData());
-                        LL_DEBUGS("SECAPI_BADCERT","SECAPI") << "invalid certificate (" << cert_exception.what() << "): " << cert_info << LL_ENDL;
-                        rejected++;
-                    }
-                    catch (...)
-                    {
-                        LOG_UNHANDLED_EXCEPTION("creating certificate from the certificate store file");
-                        rejected++;
-                    }
-                    X509_free(cert_x509);
-                    cert_x509 = NULL;
-                }
-                BIO_free(file_bio);
+                loaded += verify_and_add(cert_x509, system, suppress_expire_warning);
+                X509_free(cert_x509);
+                cert_x509 = nullptr;
             }
-            else
-            {
-                LL_WARNS("SECAPI") << "BIO read failed for " << filename << LL_ENDL;
-            }
-
-            LL_INFOS("SECAPI") << "loaded " << loaded << " good certificates (rejected " << rejected << ") from " << filename << LL_ENDL;
+            BIO_free(file_bio);
         }
         else
         {
-            LL_WARNS("SECAPI") << "Could not allocate a file BIO" << LL_ENDL;
+            LL_WARNS("SECAPI") << "Could not open certificate file '" << file_path
+                               << "' with BIO_new_file()" << LL_ENDL;
+        }
+    }
+    else if (LLFile::isdir(file_path))
+    {
+        // Some systems store the certificates elsewhere and populate the system certificate directory
+        // with symlinks to them, so include symlinks unless they point to an entry in the same directory
+        std::vector<std::string> vec_files = gDirUtilp->getFilesInDir(file_path);
+        for (const std::string& filename : vec_files)
+        {
+            loaded += load_from(file_path / filename, system, suppress_expire_warning);
         }
     }
     else
     {
         // since the user certificate store may not be there, this is not a warning
-        LL_INFOS("SECAPI") << "Certificate store not found at " << filename << LL_ENDL;
+        LL_INFOS("SECAPI") << "Certificate store not found at " << file_path << LL_ENDL;
+    }
+    return loaded;
+}
+
+// verify the certificate to be valid and not expired and add it to the store. If the certificate
+// already exists in the store (based on CERT_SUBJECT_KEY_IDENTIFIER), it will be ignored
+int LLBasicCertificateVector::verify_and_add(const unsigned char* cert_bytes, long length, bool system, bool suppress_expire_warning)
+{
+    int loaded  = 0;
+    X509* cert_x509 = d2i_X509(nullptr, &cert_bytes, length);
+    if (cert_x509)
+    {
+        loaded = verify_and_add(cert_x509, system, suppress_expire_warning);
+        X509_free(cert_x509);
+    }
+    return loaded;
+}
+
+// verify the certificate to be valid and not expired and add it to the store. If the certificate
+// already exists in the store (based on CERT_SUBJECT_KEY_IDENTIFIER), it will be ignored
+int LLBasicCertificateVector::verify_and_add(X509* cert_x509, bool isSystem, bool suppress_expire_warning)
+{
+    try
+    {
+        LLPointer<LLBasicCertificate> new_cert(new LLBasicCertificate(cert_x509, isSystem));
+        LLSD                          validation_params, llsd;
+        _validateCert(VALIDATION_POLICY_TIME, new_cert, validation_params, 0, suppress_expire_warning);
+        if (add(new_cert))
+        {
+            new_cert->getLLSD(llsd);
+            LL_DEBUGS("SECAPI") << "Loaded valid cert for Name '" << llsd[CERT_SUBJECT_NAME_STRING] << "'"
+                                << " Id '" << llsd[CERT_SUBJECT_KEY_IDENTIFIER] << "'" << LL_ENDL;
+            mLoaded++;
+            return 1;
+        }
+    }
+    catch (LLCertValidationExpirationException& cert_exception)
+    {
+        LLSD cert_info(cert_exception.getCertData());
+        LL_DEBUGS("SECAPI_BADCERT", "SECAPI") << "invalid certificate (" << cert_exception.what() << "): " << cert_info << LL_ENDL;
+    }
+    catch (LLCertException& cert_exception)
+    {
+        LLSD cert_info(cert_exception.getCertData());
+        LL_DEBUGS("SECAPI_BADCERT", "SECAPI") << "invalid certificate (" << cert_exception.what() << "): " << cert_info << LL_ENDL;
+    }
+    catch (...)
+    {
+        LOG_UNHANDLED_EXCEPTION("creating certificate from the certificate store");
+    }
+    mRejected++;
+    return 0;
+}
+
+// constructor for the system certification store, which enumerates the certificates for the current
+// operating system
+LLSystemCertificateVector::LLSystemCertificateVector(bool suppress_expire_warning)
+{
+    // Try to load the system store through the platform API
+    if (load_from_system(suppress_expire_warning))
+    {
+        LL_INFOS("SECAPI") << "Loaded " << size() << " unique certificates successfully (good: "
+                           << mLoaded << ", rejected: " << mRejected << ") from system store" << LL_ENDL;
     }
 }
 
-
-LLBasicCertificateStore::~LLBasicCertificateStore()
+#if LL_DARWIN
+static CFDataRef validate_certificate(SecPolicyRef policy, SecCertificateRef certRef)
 {
+    SecTrustRef trustRef = nullptr;
+    OSStatus status = SecTrustCreateWithCertificates(certRef, policy, &trustRef);
+    if (status)
+    {
+        LL_WARNS("SECAPI") << "Failed to create trust evaluation context." << LL_ENDL;
+        return nullptr;
+    }
+
+    status = SecTrustSetNetworkFetchAllowed(trustRef, false);
+    if (status)
+    {
+        CFRelease(trustRef);
+        return nullptr;
+    }
+
+    SecTrustResultType resultType;
+    CFErrorRef errorRef = nullptr;
+    CFDataRef derRef = nullptr;
+
+    (void)SecTrustEvaluateWithError(trustRef, &errorRef);
+    status = SecTrustGetTrustResult(trustRef, &resultType);
+    if (status == errSecSuccess)
+    {
+        switch (resultType)
+        {
+            case kSecTrustResultUnspecified:
+                /* cert chain valid, no special UserTrust assignments */
+            case kSecTrustResultProceed:
+                /* cert chain valid AND user explicitly trusts this */
+                derRef = SecCertificateCopyData(certRef);
+                break;
+            case kSecTrustResultDeny:
+                /* The user specified that the certificate should not be trusted. */
+            default:
+                /* Some other error when evaluating the trust */
+                break;
+        }
+    }
+    if (errorRef)
+    {
+        CFRelease(errorRef);
+    }
+    CFRelease(trustRef);
+    return derRef;
 }
 
+static std::string stringFromCFString(CFStringRef stringRef)
+{
+    std::string nameStr;
+    CFIndex usedBufferLength;
+    CFStringEncoding enc = CFStringGetSystemEncoding();
+    CFRange rangeToProcess = CFRangeMake(0, CFStringGetLength(stringRef));
+    CFIndex numChars = CFStringGetBytes(stringRef, rangeToProcess, enc, 0, FALSE, nullptr, 0, &usedBufferLength);
+    if (numChars > 0)
+    {
+        nameStr.resize(usedBufferLength);
+        numChars = CFStringGetBytes(stringRef, rangeToProcess, enc, 0, FALSE, (UInt8*)nameStr.data(), usedBufferLength, &usedBufferLength);
+    }
+    return nameStr;
+}
+#endif
+
+// Enumerate the certificates in the system store
+int LLSystemCertificateVector::load_from_system(bool suppress_expire_warning)
+{
+    int loaded = 0;
+#if LL_WINDOWS
+    // There is also the "MY" and "CA" store which can contain end-entity/user certs. Pulling in
+    // these, broadens trust unnecessarily and could allow trusting a leaf cert if it matches a
+    // chain cert.
+    const static LPCSTR domains[] = {
+        "ROOT",
+    };
+
+    for (LPCSTR domain : domains)
+    {
+        HCERTSTORE cert_store = CertOpenSystemStoreA(0, domain);
+        if (cert_store == nullptr)
+        {
+            LL_WARNS("SECAPI") << "System Certificate store '" << domain << "' could not be opened. error = " << GetLastError() << LL_ENDL;
+            continue;
+        }
+        int certificates = 0;
+        PCCERT_CONTEXT cert_ctxt = CertEnumCertificatesInStore(cert_store, nullptr);
+        for (; cert_ctxt; cert_ctxt = CertEnumCertificatesInStore(cert_store, cert_ctxt))
+        {
+            const unsigned char* cert = reinterpret_cast<const unsigned char*>(cert_ctxt->pbCertEncoded);
+            certificates += verify_and_add(cert, cert_ctxt->cbCertEncoded, true, suppress_expire_warning);
+        }
+        CertCloseStore(cert_store, 0);
+        LL_INFOS("SECAPI") << "System Certificate store '" << domain << "': loaded " << certificates << " certificates" << LL_ENDL;
+        loaded += certificates;
+    }
+#elif LL_DARWIN
+    // FM: Quite some googling led eventually to some old MacOS Open Source repository that showed the
+    // implementation for SecTrustSettingsCopyCertificates() and that eventually led to this code.
+    const static SecTrustSettingsDomain domains[] = {
+//      kSecTrustSettingsDomainUser,   see above comment about not adding the "MY" user store on Windows
+        kSecTrustSettingsDomainAdmin,
+        kSecTrustSettingsDomainSystem,
+    };
+
+    const static char* domainNames[] =
+    {
+        "User",
+        "Admin",
+        "System",
+    };
+
+    SecPolicyRef policyRef = SecPolicyCreateBasicX509();
+    if (policyRef)
+    {
+        for (SecTrustSettingsDomain domain : domains)
+        {
+            CFArrayRef certArrayRef = nullptr;
+            OSStatus status = SecTrustSettingsCopyCertificates(domain, &certArrayRef);
+            if (status == noErr)
+            {
+                CFIndex idx, count = CFArrayGetCount(certArrayRef);
+                int certificates = 0;
+                for (idx = 0; idx < count; idx++)
+                {
+                    SecCertificateRef certRef = (SecCertificateRef)CFArrayGetValueAtIndex(certArrayRef, idx);
+                    CFDataRef derRef = validate_certificate(policyRef, certRef);
+                    if (derRef)
+                    {
+                        const unsigned char* cert = reinterpret_cast<const unsigned char*>(CFDataGetBytePtr(derRef));
+                        certificates += verify_and_add(cert, CFDataGetLength(derRef), true, suppress_expire_warning);
+                        CFRelease(derRef);
+                    }
+                    else
+                    {
+                        CFStringRef nameRef = nullptr;
+                        if (!SecCertificateCopyCommonName(certRef, &nameRef))
+                        {
+                            if (suppress_expire_warning)
+                            {
+                                LL_DEBUGS("SECAPI") << "Certificate '" << stringFromCFString(nameRef) << "' rejected. Ignore it." << LL_ENDL;
+                            }
+                            else
+                            {
+                                LL_WARNS("SECAPI") << "Certificate '" << stringFromCFString(nameRef) << "' rejected. Ignore it." << LL_ENDL;
+                            }
+                        }
+                        else
+                        {
+                            if (suppress_expire_warning)
+                            {
+                                LL_DEBUGS("SECAPI") << "Unnamed certificate rejected. Ignore it." << LL_ENDL;
+                            }
+                            else
+                            {
+                                LL_WARNS("SECAPI") << "Unnamed certificate rejected. Ignore it." << LL_ENDL;
+                            }
+                        }
+
+                        if (nameRef != nullptr)
+                        {
+                            CFRelease(nameRef);
+                        }
+                        mRejected++;
+                    }
+                    // we don't own the certRef reference, as CFArrayGetValueAtIndex() only returns the
+                    // pointer in the array
+                }
+                CFRelease(certArrayRef);
+                LL_INFOS("SECAPI") << "System Certificate store '" << domainNames[domain] << "': loaded "
+                                   << certificates << " certificates" << LL_ENDL;
+                loaded += certificates;
+            }
+            else if (status != errSecNoTrustSettings)
+            {
+                LL_WARNS("SECAPI") << "Could not open certificate trust settings for '" << domainNames[domain]
+                                   << "' error = " << status << LL_ENDL;
+            }
+        }
+        CFRelease(policyRef);
+    }
+#elif LL_LINUX
+    // FM: These are from the Go certificate store implementation: https://go.dev/src/crypto/x509/root_linux.go
+    // Possible certificate store files; stop after finding one with valid certificates.
+    const static std::string certFiles[] =
+    {
+        "/etc/ssl/certs/ca-certificates.crt",                // Debian/Ubuntu/Gentoo etc.
+        "/etc/pki/tls/certs/ca-bundle.crt",                  // Fedora/RHEL 6
+        "/etc/ssl/ca-bundle.pem",                            // OpenSUSE
+        "/etc/pki/tls/cacert.pem",                           // OpenELEC
+        "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem", // CentOS/RHEL 7
+        "/etc/ssl/cert.pem",                                 // Alpine Linux
+    };
+
+    // Possible directories with certificate files; all certificates in a directory will be read
+    // but it will stop after the first directory entry that produces valid certificates.
+    const static std::string certDirs[] =
+    {
+        "/etc/ssl/certs",     ///SLES11
+        "/etc/pki/tls/certs", // Fedora/RHEL
+    };
+
+    // first check for the SSL environment variable for a cert bundle
+    const char* env_val = getenv("SSL_CERT_FILE");
+    if (env_val && LLFile::exists(env_val))
+    {
+        loaded += load_from(fsyspath(env_val), true, suppress_expire_warning);
+        LL_INFOS("SECAPI") << "System Certificate store '" << env_val << "': loaded "
+                           << loaded << " certificates " << LL_ENDL;
+    }
+
+    if (!loaded)
+    {
+        // if we didn't have an existing cert bundle defined from the environment variable, try
+        // to look through above list of cert bundle paths. Only try until we found at least one
+        // valid cert bundle
+        for (const std::string& certFile : certFiles)
+        {
+            loaded += load_from(certFile, true, suppress_expire_warning);
+            if (loaded)
+            {
+                LL_INFOS("SECAPI") << "System Certificate store '" << certFile << "': loaded "
+                                   << loaded << " certificates " << LL_ENDL;
+                break;
+            }
+        }
+    }
+
+    // Only try to load from directories if we did not have a valid cert bundle to read
+    if (!loaded)
+    {
+        // first check for the SSL environment variable for a list of cert directories
+        env_val = getenv("SSL_CERT_DIR");
+        if (env_val && *env_val)
+        {
+            const std::string dir_list(env_val);
+
+            // OpenSSL and BoringSSL both use ":" as the SSL_CERT_DIR separator.
+            // See: https://www.openssl.org/docs/man1.0.2/man1/c_rehash.html
+            for (boost::split_iterator<std::string::const_iterator>
+                     ti(dir_list, boost::first_finder(":")), tend;
+                 ti != tend && !loaded; ++ti)
+            {
+                const std::string certDir = std::string(ti->begin(), ti->end());
+                loaded += load_from(certDir, true, suppress_expire_warning);
+                if (loaded)
+                {
+                    LL_INFOS("SECAPI") << "System Certificate store '" << certDir << "': loaded "
+                                       << loaded << " certificates " << LL_ENDL;
+                }
+            }
+        }
+
+        if (!loaded)
+        {
+            // If we had no valid environment variable entry, we try above predefined directories until
+            // we found one that contains any valid certificates
+            for (const std::string& certDir : certDirs)
+            {
+                loaded += load_from(certDir, true, suppress_expire_warning);
+                if (loaded)
+                {
+                    LL_INFOS("SECAPI") << "System Certificate store '" << certDir << "': loaded "
+                                       << loaded << " certificates " << LL_ENDL;
+                    break;
+                }
+            }
+        }
+    }
+#endif
+    return loaded;
+}
+
+//
+// LLBasicCertificateStore
+// This class represents a store of CA certificates.
 
 // persist the store
 void LLBasicCertificateStore::save()
 {
-    llofstream file_store(mFilename.c_str(), std::ios_base::binary);
-    if(!file_store.fail())
+    llofstream file_store(mFilename, std::ios_base::binary);
+    if (!file_store.fail())
     {
-        for(iterator cert = begin();
+        for (iterator cert = begin();
             cert != end();
             cert++)
         {
-            std::string pem = (*cert)->getPem();
-            if(!pem.empty())
+            // Only save certificates that did not originate from the system store,
+            // otherwise OS updates to the system store could be ignored.
+            if (!(*cert)->isSystem())
             {
-                file_store << (*cert)->getPem() << std::endl;
+                std::string pem = (*cert)->getPem();
+                if (!pem.empty())
+                {
+                    file_store << (*cert)->getPem() << std::endl;
+                }
             }
         }
         file_store.close();
@@ -677,7 +1038,6 @@ std::string LLBasicCertificateStore::storeId() const
     // so we ignore this.
     return std::string("");
 }
-
 
 //
 // LLBasicCertificateChain
@@ -874,7 +1234,8 @@ bool _LLSDArrayIncludesValue(const LLSD& llsd_set, LLSD llsd_value)
 void _validateCert(int validation_policy,
                   LLPointer<LLCertificate> cert,
                   const LLSD& validation_params,
-                  int depth)
+                  int depth,
+                  bool suppress_expire_warning)
 {
     LLSD current_cert_info;
     cert->getLLSD(current_cert_info);
@@ -884,35 +1245,40 @@ void _validateCert(int validation_policy,
         LLTHROW(LLCertException(current_cert_info, "Cert doesn't have a Subject Name"));
     }
 
-    if(!current_cert_info.has(CERT_ISSUER_NAME_STRING))
+    std::string cert_name = current_cert_info[CERT_SUBJECT_NAME_STRING].asString();
+    if (!current_cert_info.has(CERT_ISSUER_NAME_STRING))
     {
-        LLTHROW(LLCertException(current_cert_info, "Cert doesn't have an Issuer Name"));
+        LLTHROW(LLCertException(current_cert_info, "Cert '" + cert_name + "' doesn't have an Issuer Name"));
     }
 
-    // check basic properties exist in the cert
+    // These two never really can happen as these entries are always generated. For the dates a
+    // start_of_epoch value is used and for the subject key identifier we calculate our own
+    // public key hash if the certificate doesn't contain it.
     if(!current_cert_info.has(CERT_VALID_FROM) || !current_cert_info.has(CERT_VALID_TO))
     {
-        LLTHROW(LLCertException(current_cert_info, "Cert doesn't have an expiration period"));
+        LLTHROW(LLCertException(current_cert_info, "Cert '" + cert_name + "' doesn't have an expiration period"));
     }
-    if (!current_cert_info.has(CERT_SUBJECT_KEY_IDENTFIER))
+
+    if (!current_cert_info.has(CERT_SUBJECT_KEY_IDENTIFIER))
     {
-        LLTHROW(LLCertException(current_cert_info, "Cert doesn't have a Subject Key Id"));
+        LLTHROW(LLCertException(current_cert_info, "Cert '" + cert_name + "' doesn't have a Subject Key Id"));
     }
 
     if (validation_policy & VALIDATION_POLICY_TIME)
     {
         LLDate validation_date((double)time(NULL));
-        if(validation_params.has(CERT_VALIDATION_DATE))
+        if (validation_params.has(CERT_VALIDATION_DATE))
         {
             validation_date = validation_params[CERT_VALIDATION_DATE];
         }
 
-        if((validation_date < current_cert_info[CERT_VALID_FROM].asDate()) ||
+        if ((validation_date < current_cert_info[CERT_VALID_FROM].asDate()) ||
            (validation_date > current_cert_info[CERT_VALID_TO].asDate()))
         {
-            LLTHROW(LLCertValidationExpirationException(current_cert_info, validation_date));
+            LLTHROW(LLCertValidationExpirationException(current_cert_info, validation_date, suppress_expire_warning));
         }
     }
+
     if (validation_policy & VALIDATION_POLICY_SSL_KU)
     {
         // This stanza of code was changed 2021-06-09 as per details in SL-15370.
@@ -932,7 +1298,7 @@ void _validateCert(int validation_policy,
             LLTHROW(LLCertKeyUsageValidationException(current_cert_info));
         }
         // only validate EKU if the cert has it
-        if(current_cert_info.has(CERT_EXTENDED_KEY_USAGE)
+        if (current_cert_info.has(CERT_EXTENDED_KEY_USAGE)
            && current_cert_info[CERT_EXTENDED_KEY_USAGE].isArray()
            && (!_LLSDArrayIncludesValue(current_cert_info[CERT_EXTENDED_KEY_USAGE],
                                          LLSD((std::string)CERT_EKU_TLS_SERVER_AUTH)))
@@ -1039,7 +1405,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
         return;
     }
 
-    if(cert_chain->size() < 1)
+    if (cert_chain->size() < 1)
     {
         LLTHROW(LLCertException(LLSD::emptyMap(), "No certs in chain"));
     }
@@ -1051,23 +1417,23 @@ void LLBasicCertificateStore::validate(int validation_policy,
     }
 
     // get LLSD info from the cert to throw in any exception
-    LLSD    current_cert_info;
+    LLSD current_cert_info;
     (*current_cert)->getLLSD(current_cert_info);
 
     if (validation_policy & VALIDATION_POLICY_HOSTNAME)
     {
-        if(!validation_params.has(CERT_HOSTNAME))
+        if (!validation_params.has(CERT_HOSTNAME))
         {
             LLTHROW(LLCertException(current_cert_info, "No hostname passed in for validation"));
         }
-        if(!current_cert_info.has(CERT_SUBJECT_NAME) || !current_cert_info[CERT_SUBJECT_NAME].has(CERT_NAME_CN))
+        if (!current_cert_info.has(CERT_SUBJECT_NAME) || !current_cert_info[CERT_SUBJECT_NAME].has(CERT_NAME_CN))
         {
             LLTHROW(LLInvalidCertificate(current_cert_info));
         }
 
         LL_DEBUGS("SECAPI") << "Validating the hostname " << validation_params[CERT_HOSTNAME].asString() <<
              "against the cert CN " << current_cert_info[CERT_SUBJECT_NAME][CERT_NAME_CN].asString() << LL_ENDL;
-        if(!_cert_hostname_wildcard_match(validation_params[CERT_HOSTNAME].asString(),
+        if (!_cert_hostname_wildcard_match(validation_params[CERT_HOSTNAME].asString(),
                                           current_cert_info[CERT_SUBJECT_NAME][CERT_NAME_CN].asString()))
         {
             throw LLCertValidationHostnameException(validation_params[CERT_HOSTNAME].asString(),
@@ -1077,7 +1443,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
 
     // check the cache of already validated certs
     X509* cert_x509 = (*current_cert)->getOpenSSLX509();
-    if(!cert_x509)
+    if (!cert_x509)
     {
         LLTHROW(LLInvalidCertificate(current_cert_info));
     }
@@ -1091,7 +1457,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
                         << " subject key id '" << skeyid << "'"
                         << LL_ENDL;
 
-    X509_free( cert_x509 );
+    X509_free(cert_x509);
     cert_x509 = NULL;
     if (skeyid.empty())
     {
@@ -1099,13 +1465,13 @@ void LLBasicCertificateStore::validate(int validation_policy,
     }
 
     t_cert_cache::iterator cache_entry = mTrustedCertCache.find(skeyid);
-    if(cache_entry != mTrustedCertCache.end())
+    if (cache_entry != mTrustedCertCache.end())
     {
         // this cert is in the cache, so validate the time.
         if (validation_policy & VALIDATION_POLICY_TIME)
         {
             LLDate validation_date;
-            if(validation_params.has(CERT_VALIDATION_DATE))
+            if (validation_params.has(CERT_VALIDATION_DATE))
             {
                 validation_date = validation_params[CERT_VALIDATION_DATE];
             }
@@ -1114,8 +1480,8 @@ void LLBasicCertificateStore::validate(int validation_policy,
                 validation_date = LLDate((double)time(NULL)); // current time
             }
 
-            if((validation_date < cache_entry->second.first) ||
-               (validation_date > cache_entry->second.second))
+            if ((validation_date < cache_entry->second.first) ||
+                (validation_date > cache_entry->second.second))
             {
                 LLTHROW(LLCertValidationExpirationException(current_cert_info, validation_date));
             }
@@ -1127,19 +1493,16 @@ void LLBasicCertificateStore::validate(int validation_policy,
                             << LL_ENDL;
         return;
     }
-    if(current_cert_info.isUndefined())
-    {
-        (*current_cert)->getLLSD(current_cert_info);
-    }
+
     LLDate from_time = current_cert_info[CERT_VALID_FROM].asDate();
     LLDate to_time = current_cert_info[CERT_VALID_TO].asDate();
     int depth = 0;
     LLPointer<LLCertificate> previous_cert;
     // loop through the cert chain, validating the current cert against the next one.
-    while(current_cert != cert_chain->end())
+    while (current_cert != cert_chain->end())
     {
         int local_validation_policy = validation_policy;
-        if(current_cert == cert_chain->begin())
+        if (current_cert == cert_chain->begin())
         {
             // for the child cert, we don't validate CA stuff
             local_validation_policy &= ~(VALIDATION_POLICY_CA_KU |
@@ -1149,7 +1512,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
         {
             // for non-child certs, we don't validate SSL Key usage
             local_validation_policy &= ~VALIDATION_POLICY_SSL_KU;
-            if(!_verify_signature((*current_cert),
+            if (!_verify_signature((*current_cert),
                                   previous_cert))
             {
                 LLSD previous_cert_info;
@@ -1165,9 +1528,16 @@ void LLBasicCertificateStore::validate(int validation_policy,
         // look for a CA in the CA store that may belong to this chain.
         LLSD cert_search_params = LLSD::emptyMap();
         // is the cert itself in the store?
-        cert_search_params[CERT_SUBJECT_KEY_IDENTFIER] = current_cert_info[CERT_SUBJECT_KEY_IDENTFIER];
+        if (current_cert_info.has(CERT_SUBJECT_KEY_IDENTIFIER))
+        {
+            cert_search_params[CERT_SUBJECT_KEY_IDENTIFIER] = current_cert_info[CERT_SUBJECT_KEY_IDENTIFIER];
+        }
+        else
+        {
+            cert_search_params[CERT_SUBJECT_NAME_STRING] = current_cert_info[CERT_SUBJECT_NAME_STRING];
+        }
         LLCertificateStore::iterator found_store_cert = find(cert_search_params);
-        if(found_store_cert != end())
+        if (found_store_cert != end())
         {
             mTrustedCertCache[skeyid] = std::pair<LLDate, LLDate>(from_time, to_time);
             LL_DEBUGS("SECAPI") << "Valid cert "
@@ -1176,31 +1546,30 @@ void LLBasicCertificateStore::validate(int validation_policy,
             std::string found_cert_subject_name(cert_string_name_from_X509_NAME(X509_get_subject_name(cert_x509)));
             X509_free(cert_x509);
             LL_CONT << " as '" << found_cert_subject_name << "'"
-                    << " skeyid '" << current_cert_info[CERT_SUBJECT_KEY_IDENTFIER].asString() << "'"
+                    << " skeyid '" << current_cert_info[CERT_SUBJECT_KEY_IDENTIFIER].asString() << "'"
                     << " found in cert store"
                     << LL_ENDL;
             return;
         }
 
         // is the parent in the cert store?
-
         cert_search_params = LLSD::emptyMap();
         cert_search_params[CERT_SUBJECT_NAME_STRING] = current_cert_info[CERT_ISSUER_NAME_STRING];
         if (current_cert_info.has(CERT_AUTHORITY_KEY_IDENTIFIER))
         {
             LLSD cert_aki = current_cert_info[CERT_AUTHORITY_KEY_IDENTIFIER];
-            if(cert_aki.has(CERT_AUTHORITY_KEY_IDENTIFIER_ID))
+            if (cert_aki.has(CERT_AUTHORITY_KEY_IDENTIFIER_ID))
             {
-                cert_search_params[CERT_SUBJECT_KEY_IDENTFIER] = cert_aki[CERT_AUTHORITY_KEY_IDENTIFIER_ID];
+                cert_search_params[CERT_SUBJECT_KEY_IDENTIFIER] = cert_aki[CERT_AUTHORITY_KEY_IDENTIFIER_ID];
             }
-            if(cert_aki.has(CERT_AUTHORITY_KEY_IDENTIFIER_SERIAL))
+            if (cert_aki.has(CERT_AUTHORITY_KEY_IDENTIFIER_SERIAL))
             {
                 cert_search_params[CERT_SERIAL_NUMBER] = cert_aki[CERT_AUTHORITY_KEY_IDENTIFIER_SERIAL];
             }
         }
         found_store_cert = find(cert_search_params);
 
-        if(found_store_cert != end())
+        if (found_store_cert != end())
         {
             // validate the store cert against the depth
             _validateCert(validation_policy & VALIDATION_POLICY_CA_BASIC_CONSTRAINTS,
@@ -1209,7 +1578,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
                           depth);
 
             // verify the signature of the CA
-            if(!_verify_signature((*found_store_cert),
+            if (!_verify_signature((*found_store_cert),
                                   (*current_cert)))
             {
                 LLTHROW(LLCertValidationInvalidSignatureException(current_cert_info));
@@ -1220,14 +1589,14 @@ void LLBasicCertificateStore::validate(int validation_policy,
                                 << " as '" << subject_name << "'"
                                 << " id '" << skeyid << "'"
                                 << " using CA '" << cert_search_params[CERT_SUBJECT_NAME_STRING] << "'"
-                                << " with id '" <<  cert_search_params[CERT_SUBJECT_KEY_IDENTFIER].asString() << "' found in cert store"
+                                << " with id '" <<  cert_search_params[CERT_SUBJECT_KEY_IDENTIFIER].asString() << "' found in cert store"
                                 << LL_ENDL;
             return;
         }
         previous_cert = (*current_cert);
         current_cert++;
         depth++;
-        if(current_cert != cert_chain->end())
+        if (current_cert != cert_chain->end())
         {
             (*current_cert)->getLLSD(current_cert_info);
         }
@@ -1267,40 +1636,47 @@ LLSecAPIBasicHandler::LLSecAPIBasicHandler()
 {
 }
 
-
 void LLSecAPIBasicHandler::init()
 {
     mProtectedDataMap = LLSD::emptyMap();
     if (mProtectedDataFilename.length() == 0)
     {
-        mProtectedDataFilename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
-                                                            "bin_conf.dat");
+        mProtectedDataFilename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "bin_conf.dat");
         mLegacyPasswordPath = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "password.dat");
 
-        mProtectedDataFilename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
-                                                            "bin_conf.dat");
-        std::string store_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
-                                                        "CA.pem");
-
+        std::string store_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "CA.pem");
 
         LL_INFOS("SECAPI") << "Loading user certificate store from " << store_file << LL_ENDL;
         mStore = new LLBasicCertificateStore(store_file);
 
-        // grab the application ca-bundle.crt file that contains the well-known certs shipped
-        // with the product
-        std::string ca_file_path = gDirUtilp->getCAFile();
-        LL_INFOS("SECAPI") << "Loading application certificate store from " << ca_file_path << LL_ENDL;
-        LLPointer<LLBasicCertificateStore> app_ca_store = new LLBasicCertificateStore(ca_file_path);
-
-        // push the applicate CA files into the store, therefore adding any new CA certs that
-        // updated
-        for(LLCertificateVector::iterator i = app_ca_store->begin();
-            i != app_ca_store->end();
-            i++)
+        // load the system certificate store
+        bool suppress_expire_warning = true;
+        LLPointer<LLBasicCertificateVector> system_store = new LLSystemCertificateVector(suppress_expire_warning);
+        if (system_store->size() == 0)
         {
-            mStore->add(*i);
+            // fall back grabbing instead the application ca-bundle.crt file shipped with the product
+            // that contains the well-known certs, so we have at least something
+            std::string filename = gDirUtilp->getCAFile();
+            LL_INFOS("SECAPI") << "Loading application certificate store from " << filename << LL_ENDL;
+            system_store = new LLBasicCertificateVector(filename, true, suppress_expire_warning);
         }
 
+        if (system_store->size() > 0)
+        {
+            // push the new system certificate files into our store, therefore adding any new certs
+            // if the user CA.pem store already had a certificate with the same
+            // CERT_SUBJECT_KEY_IDENTIFIER, the one from the system store is ignored.
+            for (LLCertificateVector::iterator i = system_store->begin(); i != system_store->end(); i++)
+            {
+                mStore->add(*i);
+            }
+        }
+        else
+        {
+            LL_WARNS("SECAPI") << "Failed to initialize the certificate store with valid CA certificates"
+                                  " from the system CA store. It's probably not possible to connect to"
+                                  " any internet service!" << LL_ENDL;
+        }
     }
     _readProtectedData(); // initialize mProtectedDataMap
                           // may throw LLProtectedDataException if saved datamap is not decryptable
@@ -1314,8 +1690,7 @@ void LLSecAPIBasicHandler::_readProtectedData(unsigned char *unique_id, U32 id_l
 {
     // attempt to load the file into our map
     LLPointer<LLSDParser> parser = new LLSDXMLParser();
-    llifstream protected_data_stream(mProtectedDataFilename.c_str(),
-                                    llifstream::binary);
+    llifstream protected_data_stream(mProtectedDataFilename, llifstream::binary);
 
     if (!protected_data_stream.fail()) {
         U8 salt[STORE_SALT_SIZE];
@@ -1422,8 +1797,7 @@ void LLSecAPIBasicHandler::_writeProtectedData()
     // an error.
     std::string tmp_filename = mProtectedDataFilename + ".tmp";
 
-    llofstream protected_data_stream(tmp_filename.c_str(),
-                                     std::ios_base::binary);
+    llofstream protected_data_stream(tmp_filename, std::ios_base::binary);
     EVP_CIPHER_CTX *ctx = NULL;
     try
     {
@@ -1477,9 +1851,9 @@ void LLSecAPIBasicHandler::_writeProtectedData()
     try
     {
         // move the temporary file to the specified file location.
-        if(((   (LLFile::isfile(mProtectedDataFilename) != 0)
-             && (LLFile::remove(mProtectedDataFilename) != 0)))
-           || (LLFile::rename(tmp_filename, mProtectedDataFilename)))
+        // LLFile::remove() does not return an error when the file did not exist
+        if ((LLFile::remove(mProtectedDataFilename) != 0) ||
+            (LLFile::rename(tmp_filename, mProtectedDataFilename) != 0))
         {
             LL_WARNS() << "LLProtectedDataException(Could not overwrite protected data store)" << LL_ENDL;
             LLFile::remove(tmp_filename);
@@ -1511,9 +1885,7 @@ LLPointer<LLCertificate> LLSecAPIBasicHandler::getCertificate(const std::string&
     return result;
 }
 
-
-
-// instiate a certificate from an openssl X509 structure
+// instantiate a certificate from an openssl X509 structure
 LLPointer<LLCertificate> LLSecAPIBasicHandler::getCertificate(X509* openssl_cert)
 {
     LLPointer<LLCertificate> result = new LLBasicCertificate(openssl_cert);
@@ -1539,7 +1911,6 @@ LLPointer<LLCertificateStore> LLSecAPIBasicHandler::getCertificateStore(const st
 LLSD LLSecAPIBasicHandler::getProtectedData(const std::string& data_type,
                                             const std::string& data_id)
 {
-
     if (mProtectedDataMap.has(data_type) &&
         mProtectedDataMap[data_type].isMap() &&
         mProtectedDataMap[data_type].has(data_id))
@@ -1843,7 +2214,7 @@ std::string LLSecAPIBasicHandler::_legacyLoadPassword()
 {
     const S32 HASHED_LENGTH = 32;
     std::vector<U8> buffer(HASHED_LENGTH);
-    llifstream password_file(mLegacyPasswordPath.c_str(), llifstream::binary);
+    llifstream password_file(mLegacyPasswordPath, llifstream::binary);
 
     if(password_file.fail())
     {
