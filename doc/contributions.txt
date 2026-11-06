@@ -439,6 +439,8 @@ Cron Stardust
 	STORM-2017
 Cypren Christenson
 	STORM-417
+Dal Ghost
+	secondlife/viewer#6458
 Dante Tucker
 Dale Glass
 	VWR-120
