@@ -58,7 +58,57 @@ extern "C" {
 #include <stdio.h>
 
 #if LL_X11
+#include <X11/extensions/XInput2.h>
+
 LLWindowSDL::X11_DATA LLWindowSDL::sX11Data = {};
+
+// Returns the XInput2 master pointer to grab, or -1 if SDL isn't reading pointer
+// motion for this window through XInput2.
+//
+// This matters for LLWindowSDL::updatePointerGrab(): the X server reports events in
+// the form of the active grab. Under a core XGrabPointer() it sends core MotionNotify,
+// which SDL discards when it uses XInput2 (it only accepts core motion while its own
+// grab is active), so the viewer gets clicks but no drags. Grabbing with
+// XIGrabDevice() keeps the events coming as XI_Motion, which SDL handles.
+//
+// SDL has already negotiated the XInput2 version on this Display, so we don't call
+// XIQueryVersion() again; we just look at what SDL selected on the window.
+static int findXInput2Pointer(Display* display, Window window)
+{
+    int opcode = 0, event = 0, error = 0;
+    if (!XQueryExtension(display, "XInputExtension", &opcode, &event, &error))
+    {
+        return -1;
+    }
+
+    bool sdl_uses_xi2_motion = false;
+    int num_masks = 0;
+    XIEventMask* masks = XIGetSelectedEvents(display, window, &num_masks);
+    if (masks)
+    {
+        for (int i = 0; i < num_masks; ++i)
+        {
+            if (masks[i].mask_len >= XIMaskLen(XI_Motion) && XIMaskIsSet(masks[i].mask, XI_Motion))
+            {
+                sdl_uses_xi2_motion = true;
+                break;
+            }
+        }
+        XFree(masks);
+    }
+    if (!sdl_uses_xi2_motion)
+    {
+        return -1;
+    }
+
+    int device = -1;
+    if (!XIGetClientPointer(display, None, &device))
+    {
+        return -1;
+    }
+    LL_INFOS("Window") << "Using XInput2 pointer grabs on device " << device << LL_ENDL;
+    return device;
+}
 #endif
 #if LL_WAYLAND
 LLWindowSDL::WAYLAND_DATA LLWindowSDL::sWaylandData = {};
@@ -341,7 +391,7 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
         sX11Data.xscreen = (int)SDL_GetNumberProperty(SDL_GetWindowProperties(mWindow), SDL_PROP_WINDOW_X11_SCREEN_NUMBER, -1);
         if (sX11Data.xdisplay && sX11Data.xwindow)
         {
-
+            sX11Data.xi_pointer = findXInput2Pointer(sX11Data.xdisplay, sX11Data.xwindow);
         }
 #endif
 
@@ -807,10 +857,8 @@ bool LLWindowSDL::isCursorHidden()
 // Constrains the mouse to the window.
 void LLWindowSDL::setMouseClipping(bool b)
 {
-    if (mWindow)
-    {
-        SDL_SetWindowMouseGrab(mWindow, b);
-    }
+    mMouseClipped = b;
+    updatePointerGrab();
 }
 
 // virtual
@@ -1120,50 +1168,107 @@ bool LLWindowSDL::SDLReallyCaptureInput(bool capture)
 {
     // note: this used to be safe to call nestedly, but in the
     // end that's not really a wise usage pattern, so don't.
+    mReallyCapturedCount = capture ? 1 : 0;
 
-    if (capture)
-        mReallyCapturedCount = 1;
-    else
-        mReallyCapturedCount = 0;
-
-    bool wantGrab;
-    if (mReallyCapturedCount <= 0) // uncapture
+    if (mFullscreen)
     {
-        wantGrab = false;
-    } else // capture
-    {
-        wantGrab = true;
+        // Only bother if we're windowed. Pretend we got what we wanted,
+        // when really we don't care.
+        return true;
     }
 
-    if (mReallyCapturedCount < 0) // yuck, imbalance.
-    {
-        mReallyCapturedCount = 0;
-        LL_WARNS() << "ReallyCapture count was < 0" << LL_ENDL;
-    }
+    // return boolean success for whether we ended up in the desired state
+    return updatePointerGrab();
+}
 
-    bool newGrab = wantGrab;
-    if (!mFullscreen) /* only bother if we're windowed anyway */
+// Holds a pointer grab while ALT/CTRL is down (see SDLCheckGrabbyKeys())
+// or while mouse clipping is on. The grab is what keeps the window manager's
+// passive ALT+button grab (window move) from firing.
+//
+// On X11 we grab directly, with XIGrabDevice() when SDL reads the mouse through
+// XInput2 (see findXInput2Pointer()) and XGrabPointer() otherwise, because neither
+// SDL call does what we need:
+// - SDL_SetWindowMouseGrab() calls XRaiseWindow() on every grab, so the viewer
+//   jumps to the front on each ALT press or click, which breaks focus-follows-mouse
+//   setups where raise-on-click is off.
+// - SDL_CaptureMouse() skips XGrabPointer() entirely when XInput2 is active, so
+//   the window manager still gets ALT+drag.
+//
+// SDL doesn't know about this grab. It calls XUngrabPointer() when its mouse
+// auto-capture ends (button release) and on focus changes, so the grab is
+// re-asserted after SDL_EVENT_MOUSE_BUTTON_UP.
+//
+// Returns true when the pointer ended up in the desired grab state.
+bool LLWindowSDL::updatePointerGrab()
+{
+    const bool want_grab = mWindow && (mMouseClipped || (mReallyCapturedCount > 0 && !mFullscreen));
+
+#if LL_X11
+    if (mServerProtocol == X11)
     {
-        int result;
-        if (wantGrab)
+        Display* display = sX11Data.xdisplay;
+        const Window window = sX11Data.xwindow;
+        if (!display || !window)
         {
-            // LL_INFOS() << "X11 POINTER GRABBY" << LL_ENDL;
-            result = SDL_SetWindowMouseGrab(mWindow, true);
-            if (0 == result)
-                newGrab = true;
+            return !want_grab;
+        }
+
+        const int xi_pointer = sX11Data.xi_pointer;
+        if (!want_grab)
+        {
+            if (xi_pointer >= 0)
+            {
+                XIUngrabDevice(display, xi_pointer, CurrentTime);
+            }
             else
-                newGrab = false;
+            {
+                XUngrabPointer(display, CurrentTime);
+            }
+            XSync(display, False);
+            return true;
+        }
+
+        int result;
+        if (xi_pointer >= 0)
+        {
+            // XInput2 grabs can't confine the pointer, so clipping only keeps the
+            // events coming to us here.
+            unsigned char mask_bits[XIMaskLen(XI_LASTEVENT)] = {};
+            XISetMask(mask_bits, XI_ButtonPress);
+            XISetMask(mask_bits, XI_ButtonRelease);
+            XISetMask(mask_bits, XI_Motion);
+            XISetMask(mask_bits, XI_Enter);
+            XISetMask(mask_bits, XI_Leave);
+            XIEventMask mask;
+            mask.deviceid = xi_pointer;
+            mask.mask_len = sizeof(mask_bits);
+            mask.mask = mask_bits;
+            result = XIGrabDevice(display, xi_pointer, window, CurrentTime, None,
+                                  XIGrabModeAsync, XIGrabModeAsync, False, &mask);
         }
         else
         {
-            newGrab = false;
-            result = SDL_SetWindowMouseGrab(mWindow, false);
+            const unsigned int mask = ButtonPressMask | ButtonReleaseMask | PointerMotionMask | FocusChangeMask;
+            const Window confine_to = mMouseClipped ? window : None;
+            result = XGrabPointer(display, window, False, mask, GrabModeAsync, GrabModeAsync,
+                                  confine_to, None, CurrentTime);
         }
+        XSync(display, False);
+        if (result != GrabSuccess)
+        {
+            LL_DEBUGS("Window") << "Pointer grab failed with " << result << LL_ENDL;
+            return false;
+        }
+        return true;
     }
-        // pretend we got what we wanted, when really we don't care.
+#endif
 
-    // return boolean success for whether we ended up in the desired state
-    return capture == newGrab;
+    // Elsewhere (Wayland) SDL's grab only confines the pointer and doesn't raise the window.
+    if (!mWindow)
+    {
+        return !want_grab;
+    }
+    return SDL_SetWindowMouseGrab(mWindow, want_grab);
 }
 
 U32 LLWindowSDL::SDLCheckGrabbyKeys(U32 keysym, bool gain)
@@ -1345,6 +1450,12 @@ SDL_AppResult LLWindowSDL::handleEvent(const SDL_Event& event, bool app_has_focu
                 mCallbacks->handleOtherMouseUp(this, openGlCoord, mask, event.button.button);
             }
 
+            // SDL dropped our pointer grab when its auto-capture ended on this release;
+            // take it back if ALT/CTRL is still held (SL-13243) or clipping is still on.
+            if (mMouseClipped || mReallyCapturedCount > 0)
+            {
+                updatePointerGrab();
+            }
             break;
         }
 
@@ -1427,6 +1538,10 @@ SDL_AppResult LLWindowSDL::handleEvent(const SDL_Event& event, bool app_has_focu
             mCallbacks->handleFocus(this);
             break;
         case SDL_EVENT_WINDOW_FOCUS_LOST:
+            // The ALT/CTRL key-up will go to whichever window has focus now, so forget
+            // the held grabby keys rather than keep grabbing the pointer.
+            mGrabbyKeyFlags = 0;
+            SDLReallyCaptureInput(false);
             mCallbacks->handleFocusLost(this);
             //SDL_SetWindowKeyboardGrab(mWindow, false);
             break;

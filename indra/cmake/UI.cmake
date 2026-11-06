@@ -24,6 +24,9 @@ if (LINUX)
   find_package(X11)
   if(X11_FOUND)
       target_compile_definitions(ll::uilibraries INTERFACE LL_X11=1)
+      # llwindowsdl calls Xlib/XInput2 directly for pointer grab
+      # because SDL3 doesn't supply what we need
+      target_link_libraries(ll::uilibraries INTERFACE X11::X11 X11::Xi)
   else()
       message("Could not find X11, compiling without full X11 support")
   endif()
