@@ -3246,13 +3246,18 @@ void LLSelectMgr::adjustTexturesByScale(bool send_to_sim, bool stretch)
 
                             LLVector2 scales = selectNode->mGLTFScales[te_num][i];
                             LLVector2 offsets = selectNode->mGLTFOffsets[te_num][i];
+                            F32 scale_delta_x = (scales[VX] - scale_x) * 0.5f;
+                            F32 scale_delta_y = (scales[VY] - scale_y) * 0.5f;
+                            F32 rotation = material->mTextureTransform[i].mRotation;
+                            F32 cos_rotation = cosf(rotation);
+                            F32 sin_rotation = sinf(rotation);
                             F64 int_part = 0;
-                            offset_x = (F32)modf((offsets[VX] + (scales[VX] - scale_x)) / 2, &int_part);
+                            offset_x = (F32)modf(offsets[VX] + cos_rotation * scale_delta_x + sin_rotation * scale_delta_y, &int_part);
                             if (offset_x < 0)
                             {
                                 offset_x++;
                             }
-                            offset_y = (F32)modf((offsets[VY] + (scales[VY] - scale_y)) / 2, &int_part);
+                            offset_y = (F32)modf(offsets[VY] - sin_rotation * scale_delta_x + cos_rotation * scale_delta_y, &int_part);
                             if (offset_y < 0)
                             {
                                 offset_y++;
@@ -6533,6 +6538,7 @@ void LLSelectMgr::updateSelectionSilhouette(LLObjectSelectionHandle object_handl
         }
     }
 }
+
 void LLSelectMgr::renderSilhouettes(bool for_hud)
 {
     if (!mRenderSilhouettes || !mRenderHighlightSelections)
@@ -6575,6 +6581,37 @@ void LLSelectMgr::renderSilhouettes(bool for_hud)
     sParentColor.mV[VALPHA] = LLSelectMgr::sHighlightAlpha;
     LLColor4 sChildColor = sSilhouetteChildColor;
     sChildColor.mV[VALPHA] = LLSelectMgr::sHighlightAlpha;
+
+    // A selected media face (MOAP) selects only that face, see LLViewerMediaFocus::setFocusFace()
+    auto isMediaSelectionOutsideBuildMode_f = [](LLSelectNode* node, LLViewerObject* objectp)
+    {
+        if (gFloaterTools && gFloaterTools->getVisible())
+        {
+            return false;
+        }
+
+        LLViewerMediaFocus* media_focus = LLViewerMediaFocus::getInstance();
+        if (!media_focus->getFocusedMediaImpl() || objectp->getID() != media_focus->getFocusedObjectID())
+        {
+            return false;
+        }
+
+        S32 media_face = media_focus->getFocusedFace();
+        const LLTextureEntry* tep = objectp->getTE(media_face);
+        if (!tep || !tep->hasMedia())
+        {
+            return false;
+        }
+
+        for (S32 te = 0; te < objectp->getNumTEs(); ++te)
+        {
+            if (node->isTESelected(te) != (te == media_face))
+            {
+                return false;
+            }
+        }
+        return true;
+    };
 
     auto renderMeshSelection_f = [fogCfx, wireframe_selection](LLSelectNode* node, LLViewerObject* objectp, LLColor4 hlColor)
     {
@@ -6681,6 +6718,12 @@ void LLSelectMgr::renderSilhouettes(bool for_hud)
                     && objectp->mDrawable->getVOVolume()
                     && objectp->mDrawable->getVOVolume()->isMesh())
                 {
+                    if (isMediaSelectionOutsideBuildMode_f(node, objectp))
+                    {
+                        // While only a MOAP face is selected outside build mode:
+                        // do not draw an unnecessary wireframe
+                        continue;
+                    }
                     LLColor4 hlColor = objectp->isRootEdit() ? sParentColor : sChildColor;
                     if (objectp->getID() == inspect_item_id)
                     {

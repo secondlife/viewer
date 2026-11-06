@@ -43,6 +43,7 @@
 #include <WERAPI.H>     // for WerAddExcludedApplication()
 #include <process.h>    // _spawnl()
 #include <tchar.h>      // For TCHAR support
+#include <locale.h>
 
 #include "llviewercontrol.h"
 #include "lldxhardware.h"
@@ -182,6 +183,13 @@ namespace
             sBugSplatSender->setAttribute(WCSTR(L"GLRenderer"), WCSTR(gGLManager.mGLRenderer));
             sBugSplatSender->setAttribute(WCSTR(L"VRAM"), WCSTR(STRINGIZE(gGLManager.mVRAM)));
             sBugSplatSender->setAttribute(WCSTR(L"RAM"), WCSTR(STRINGIZE(gSysMemory.getPhysicalMemoryKB().value())));
+
+            {
+                // Current CRT/C locale
+                // Relevant in case parser runs into locale-dependent formatting issues.
+                const char* cur_locale = setlocale(LC_ALL, nullptr);
+                sBugSplatSender->setAttribute(WCSTR(L"CRTLocale"), WCSTR(std::string(cur_locale ? cur_locale : "unknown")));
+            }
 
             const U32 avail_kb = LLMemory::getAvailableMemKB().value();
             if (avail_kb != U32_MAX) // filter out initial values, if one is not set, all are not set

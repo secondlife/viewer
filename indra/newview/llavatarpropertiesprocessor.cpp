@@ -352,6 +352,7 @@ void LLAvatarPropertiesProcessor::requestAvatarPropertiesCoro(std::string cap_ur
         const LLSD& group_info = *it;
         LLAvatarData::LLGroupData group_data;
         group_data.group_powers = 0; // Not in use?
+        group_data.accept_notices = false; // Not in use?
         group_data.group_title = group_info["name"].asString(); // Missing data, not in use?
         group_data.group_id = group_info["id"].asUUID();
         group_data.group_name = group_info["name"].asString();

@@ -1107,8 +1107,7 @@ void LLOutfitListBase::onIdleRefreshList()
     }
 
     const F64 MAX_TIME = 0.005f;
-    F64 curent_time = LLTimer::getTotalSeconds();
-    const F64 end_time = curent_time + MAX_TIME;
+    const F64 end_time = gIdleCallbacks.getStartTime() + MAX_TIME;
 
     // Handle added tabs.
     while (mRefreshListState.AddedIterator < mRefreshListState.Added.end())
@@ -1116,8 +1115,7 @@ void LLOutfitListBase::onIdleRefreshList()
         const LLUUID cat_id = (*mRefreshListState.AddedIterator++);
         updateAddedCategory(cat_id);
 
-        curent_time = LLTimer::getTotalSeconds();
-        if (curent_time >= end_time)
+        if (LLTimer::getTotalSeconds() >= end_time)
             return;
     }
     mRefreshListState.Added.clear();
@@ -1129,8 +1127,7 @@ void LLOutfitListBase::onIdleRefreshList()
         const LLUUID cat_id = (*mRefreshListState.RemovedIterator++);
         updateRemovedCategory(cat_id);
 
-        curent_time = LLTimer::getTotalSeconds();
-        if (curent_time >= end_time)
+        if (LLTimer::getTotalSeconds() >= end_time)
             return;
     }
     mRefreshListState.Removed.clear();
@@ -1151,16 +1148,14 @@ void LLOutfitListBase::onIdleRefreshList()
             updateChangedCategoryName(cat, name);
         }
 
-        curent_time = LLTimer::getTotalSeconds();
-        if (curent_time >= end_time)
+        if (LLTimer::getTotalSeconds() >= end_time)
             return;
     }
 
     // Let derived classes process their own updates.
     while (updateOneOutfit())
     {
-        curent_time = LLTimer::getTotalSeconds();
-        if (curent_time >= end_time)
+        if (LLTimer::getTotalSeconds() >= end_time)
             return;
     }
 

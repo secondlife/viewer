@@ -728,7 +728,7 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
                 LL_WARNS() << "Received online notification for unknown buddy: "
                     << agent_id << " is " << (online ? "ONLINE" : "OFFLINE") << LL_ENDL;
                 LL_WARNS() << "Adding buddy to buddy queue." << LL_ENDL;
-                mBuddyStatusQueue.push(std::make_pair(agent_id, true));
+                mBuddyStatusQueue.push(std::make_pair(agent_id, online));
             }
 
             if(tracking_id == agent_id)

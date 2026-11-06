@@ -984,7 +984,7 @@
      parameter="remove_from_favorites" />
   </menu_item_call>
   <menu
-   label="Upload to folder"
+   label="Upload to this folder"
    layout="topleft"
    name="upload_options">
     <menu_item_call
@@ -1048,16 +1048,26 @@
        <menu_item_call.on_enable
         function="File.EnableUploadMaterial" />
     </menu_item_call>
+    <menu_item_separator
+     layout="topleft" />
     <menu_item_call
-     label="Bulk..."
+     label="Multiple files..."
      layout="topleft"
-     name="Bulk Upload">
+     name="Bulk Upload Files">
        <menu_item_call.on_click
         function="Inventory.FileUploadLocation"
         parameter="upload_bulk" />
        <menu_item_call.on_visible
         function="Upload.CalculateCosts"
         parameter="Bulk Upload,texture" />
+    </menu_item_call>
+    <menu_item_call
+     label="Folder..."
+     layout="topleft"
+     name="Bulk Upload Folder">
+       <menu_item_call.on_click
+        function="Inventory.FileUploadLocation"
+        parameter="upload_bulk_folder" />
     </menu_item_call>
   </menu>
   <menu

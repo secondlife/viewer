@@ -62,6 +62,7 @@ LLSDXMLFormatter::~LLSDXMLFormatter()
 S32 LLSDXMLFormatter::format(const LLSD& data, std::ostream& ostr,
                              EFormatterOptions options) const
 {
+    LLSDParser::LLSDClassicLocaleGuard locale_guard(ostr);
     std::streamsize old_precision = ostr.precision(25);
     std::ios_base::iostate old_exceptions = ostr.exceptions();
     // Merged exception mask: preserve the caller's bits and add failbit|badbit
@@ -815,7 +816,6 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
                     // std::istringstream::operator>>(int&), which would not consume the
                     // ".23" portion.
 
-                    // Utilizes implementation used internally by LLSD::ImplString::asInteger
                     value = (int)llsd::string_to_real(mCurrentContent);
                 }
             }
@@ -823,8 +823,7 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
 
         case ELEMENT_REAL:
             {
-                // Utilizes implementation used internally by LLSD::ImplString::asReal
-                value = llsd::string_to_real(mCurrentContent);
+                value = llsd::string_to_real_classic(mCurrentContent);
 
                 // removed since this breaks when locale has decimal separator that isn't '.'
                 // investigated changing local to something compatible each time but deemed higher

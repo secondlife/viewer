@@ -212,6 +212,7 @@ set(viewer_SOURCE_FILES
     llfloaterbuycurrencyhtml.cpp
     llfloaterbuyland.cpp
     llfloatercamera.cpp
+    llfloatercombatsettings.cpp
     llfloatercamerapresets.cpp
     llfloaterchangeitemthumbnail.cpp
     llfloaterchatmentionpicker.cpp
@@ -905,6 +906,7 @@ set(viewer_HEADER_FILES
     llfloaterchangeitemthumbnail.h
     llfloaterchatmentionpicker.h
     llfloatercamera.h
+    llfloatercombatsettings.h
     llfloaterchatvoicevolume.h
     llfloaterclassified.h
     llfloatercolorpicker.h
@@ -1074,6 +1076,7 @@ set(viewer_HEADER_FILES
     llinventoryitemslist.h
     llinventorylistener.h
     llinventorylistitem.h
+    llinventorycache.h
     llinventorymodel.h
     llinventorymodelbackgroundfetch.h
     llinventoryobserver.h

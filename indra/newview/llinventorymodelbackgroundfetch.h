@@ -34,6 +34,7 @@
 #include "httpoptions.h"
 #include "httpheaders.h"
 #include "httphandler.h"
+#include "llinventorycache.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLInventoryModelBackgroundFetch
@@ -85,8 +86,25 @@ public:
     void addRequestAtFront(const LLUUID& id, bool recursive, bool is_category);
     void addRequestAtBack(const LLUUID& id, bool recursive, bool is_category);
 
+    // Hand off the still-unmerged portion of an on-disk inventory cache load.
+    // Background fetch takes shared ownership and will use it for recursive
+    // fetch where applicable instead of hitting the network.
+    void setDeferredCache(const LLUUID& owner_id, std::shared_ptr<LLCacheLoadResult> cache_result);
+
 protected:
     bool isFolderFetchProcessingComplete() const;
+
+    // If cat_id has valid cached content in a deferred cache, applies the
+    // cached items to gInventory and updates the category's version/
+    // descendant count exactly as a completed network fetch would, then
+    // returns true so the caller can skip the network request for cat_id.
+    bool applyDeferredCache(const LLUUID& cat_id);
+
+    // Drop any "this folder's cache is still good" bookkeeping, so
+    // a subsequent fetch isn't later second-guessed by a stale cache entry.
+    void invalidateDeferredCache(const LLUUID& cat_id);
+    void invalidateDeferredCache(const LLUUID& owner_id, const LLUUID& cat_id);
+    void invalidateDeferredCache(const LLUUID& owner_id, const uuid_vec_t& cat_ids);
 
     typedef enum {
         FT_DEFAULT = 0,
@@ -109,10 +127,10 @@ protected:
     };
     typedef std::deque<FetchQueueInfo> fetch_queue_t;
 
-    void onAISContentCalback(const LLUUID& request_id, const uuid_vec_t& content_ids, const LLUUID& response_id, EFetchType fetch_type);
-    void onAISFolderCalback(const LLUUID& request_id, const LLUUID& response_id, EFetchType fetch_type);
+    void onAISContentCalback(const LLUUID& request_id, const uuid_vec_t& content_ids, const LLUUID& owner_id, const LLUUID& response_id, EFetchType fetch_type);
+    void onAISFolderCalback(const LLUUID& request_id, const LLUUID& owner_id, const LLUUID& response_id, EFetchType fetch_type);
     void bulkFetchViaAis();
-    void bulkFetchViaAis(const FetchQueueInfo& fetch_info);
+    void bulkFetchViaAis(const FetchQueueInfo& fetch_info, S32& loaded_from_cache_count);
     void bulkFetch();
 
     void backgroundFetch();
@@ -145,6 +163,9 @@ private:
     fetch_queue_t mFetchItemQueue;
     uuid_set_t mForceFetchSet;
     std::list<LLUUID> mExpectedFolderIds; // for debug, should this track time?
+
+    // Deferred on-disk cache.
+    std::map<LLUUID, std::shared_ptr<LLCacheLoadResult>> mDeferredCaches;
 };
 
 #endif // LL_LLINVENTORYMODELBACKGROUNDFETCH_H

@@ -40,8 +40,8 @@ if (WINDOWS)
                                        msdmo
                                        strmiids
                                        iphlpapi
-                                       libcmt
-                                       crypt32)
+                                       crypt32
+                                       libcmt)
     # as the webrtc libraries are release, build this binary as release as well.
     target_compile_options(llwebrtc PRIVATE "/MT" "/Zc:wchar_t")
     if (USE_BUGSPLAT)

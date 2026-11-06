@@ -111,28 +111,28 @@
          height="22"
          label="OK"
          layout="topleft"
-         left="6"
+         left="4"
          name="Keep"
          top_pad="0"
-         width="110" />
+         width="118" />
         <button
          follows="right|bottom"
          height="22"
          label="Discard"
          layout="topleft"
-         left_pad="5"
+         left_pad="3"
          name="Discard"
          top_delta="0"
-         width="110" />
+         width="118" />
         <button
          follows="right|bottom"
          height="22"
          label="Save As"
          layout="topleft"
-         left_pad="5"
+         left_pad="3"
          name="save_tex_btn"
          top_delta="0"
-         width="110" />
+         width="118" />
       </layout_panel>
     </layout_stack>
 </floater>

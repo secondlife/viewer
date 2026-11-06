@@ -249,6 +249,7 @@
                             width="185"
                             can_edit_text="true"/>
                   <text follows="left|top"
+                          name="probe_ambiance_label"
                           height="10"
                           layout="topleft"
                           left_delta="-5"

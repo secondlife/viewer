@@ -189,6 +189,10 @@ void LLMessageSystem::init()
 
     mActualBytesIn          = 0;
     mActualBytesOut         = 0;
+    mStatsBytesIn           = 0;
+    mStatsBytesOut          = 0;
+    mDumpBytesIn            = 0;
+    mDumpBytesOut           = 0;
     mDropPercentage         = 0.0f;
     mPacketsToDrop          = 0;
     mNumDroppedPackets      = 0;
@@ -569,7 +573,9 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
 
             // process the message as normal
             mIncomingCompressedSize = zeroCodeExpand(&buffer, &receive_size);
-            mCurrentRecvPacketID = ntohl(*((U32*)(&buffer[1])));
+            U32 packet_id;
+            memcpy(&packet_id, &buffer[1], sizeof(packet_id));
+            mCurrentRecvPacketID = ntohl(packet_id);
             LLHost host = getSender();
 
             const bool resetPacketId = true;
@@ -1033,7 +1039,9 @@ S32 LLMessageSystem::bufferInboundPacket()
     {
         const char* data = pkt.getData();
         LLCircuitData* cdp = mCircuitInfo.findCircuit(pkt.getHost());
-        TPACKETID recv_packet_id = ntohl(*((U32*)(&data[1])));
+        U32 packet_id;
+        memcpy(&packet_id, &data[1], sizeof(packet_id));
+        TPACKETID recv_packet_id = ntohl(packet_id);
 
         // Harvest piggybacked ACKs for outbound messages from the packet tail of this inbound message
         if (cdp && (data[0] & LL_ACK_FLAG))
@@ -1121,13 +1129,17 @@ void LLMessageSystem::dumpPacketRingStats()
 {
     mNumDroppedPacketsTotal += mNumDroppedPackets;
     LL_INFOS("Messaging") << "buffered_packets=" << getNumBufferedPackets()
-                          << "buffered_bytes=" << (mHighPriorityInbound.getNumBufferedBytes() + mLowPriorityInbound.getNumBufferedBytes())
-                          << "recently_dropped=" << mNumDroppedPackets
-                          << "total_dropped=" << mNumDroppedPacketsTotal
-                          << "dropped_percentage=" << mDropPercentage << "%"
-                          << "bytes_IN=" << mActualBytesIn
-                          << "bytes_OUT=" << mActualBytesOut << LL_ENDL;
+                          << " buffered_bytes=" << (mHighPriorityInbound.getNumBufferedBytes() + mLowPriorityInbound.getNumBufferedBytes())
+                          << " recently_dropped=" << mNumDroppedPackets
+                          << " total_dropped=" << mNumDroppedPacketsTotal
+                          << " dropped_percentage=" << mDropPercentage << "%"
+                          << " bytes_IN=" << (mActualBytesIn - mDumpBytesIn)
+                          << " bytes_OUT=" << (mActualBytesOut - mDumpBytesOut)
+                          << " total_bytes_IN=" << mActualBytesIn
+                          << " total_bytes_OUT=" << mActualBytesOut << LL_ENDL;
     mNumDroppedPackets = 0;
+    mDumpBytesIn = mActualBytesIn;
+    mDumpBytesOut = mActualBytesOut;
 }
 
 void LLMessageSystem::copyMessageReceivedToSend()
@@ -1267,13 +1279,6 @@ bool LLMessageSystem::isSendFullFast(const char* blockname)
     return mMessageBuilder->isMessageFull(blockname);
 }
 
-
-// blow away the last block of a message, return false if that leaves no blocks or there wasn't a block to remove
-// TODO: Babbage: Remove this horror.
-bool LLMessageSystem::removeLastBlock()
-{
-    return mMessageBuilder->removeLastBlock();
-}
 
 S32 LLMessageSystem::sendReliable(const LLHost &host)
 {
@@ -1491,7 +1496,8 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
     cdp->nextPacketOutID();
 
     // Packet ID size is always 4
-    *((S32*)&mSendBuffer[PHL_PACKET_ID]) = htonl(cdp->getPacketOutID());
+    U32 packet_id = htonl(cdp->getPacketOutID());
+    memcpy(&mSendBuffer[PHL_PACKET_ID], &packet_id, sizeof(packet_id));
 
     // Compress the message, which will usually reduce its size.
     U8 * buf_ptr = (U8 *)mSendBuffer;
@@ -3519,7 +3525,7 @@ void LLMessageSystem::dumpPacketToLog()
     LL_WARNS("Messaging") << "Packet Size:" << mTrueReceiveSize << LL_ENDL;
     char line_buffer[256];      /* Flawfinder: ignore */
     S32 i;
-    S32 cur_line_pos = 0;
+    U32 cur_line_pos = 0;
     S32 cur_line = 0;
 
     for (i = 0; i < mTrueReceiveSize; i++)

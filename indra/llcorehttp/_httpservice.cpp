@@ -164,6 +164,22 @@ void HttpService::term()
             {
                 ms_sleep(100);
             }
+
+            if (RUNNING == sState)
+            {
+                // Thread did not stop cooperatively in time.  Since callers
+                // (e.g. HttpRequest::destroyService()) are about to tear down
+                // objects (HTTPStats, HttpPolicy, HttpLibcurl, ...) that the
+                // worker thread may still be touching, we must not proceed
+                // with a still-running thread.  Force-terminate it before
+                // deleting anything it could reference to avoid use-after-free.
+                LL_WARNS(LOG_CORE) << "HttpService worker thread failed to stop cooperatively.  "
+                    << "Forcing hard cancel."
+                    << LL_NEWLINE << "Last policy: " << U32(sInstance->mLastPolicy) << LL_ENDL;
+
+                sInstance->mThread->cancel();
+                ms_sleep(10);
+            }
         }
 
         delete sInstance;

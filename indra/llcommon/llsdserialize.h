@@ -29,7 +29,9 @@
 #ifndef LL_LLSDSERIALIZE_H
 #define LL_LLSDSERIALIZE_H
 
+#include <charconv>
 #include <iosfwd>
+#include <locale>
 #include "llpointer.h"
 #include "llrefcount.h"
 #include "llsd.h"
@@ -90,6 +92,23 @@ public:
      */
     void reset()    { doReset();    };
 
+    /**
+     * @brief RAII guard that forces the classic("C") locale for the duration of its scope
+     */
+    class LL_COMMON_API LLSDClassicLocaleGuard
+    {
+    public:
+        LLSDClassicLocaleGuard();
+        explicit LLSDClassicLocaleGuard(std::ios_base& stream);
+        ~LLSDClassicLocaleGuard();
+
+        LLSDClassicLocaleGuard(const LLSDClassicLocaleGuard&) = delete;
+        LLSDClassicLocaleGuard& operator=(const LLSDClassicLocaleGuard&) = delete;
+
+    private:
+        std::ios_base* mStream = nullptr;
+        std::locale    mPrevStreamLocale;
+    };
 
 protected:
     /**

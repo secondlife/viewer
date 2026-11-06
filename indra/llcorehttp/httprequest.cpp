@@ -503,8 +503,8 @@ HttpStatus HttpRequest::destroyService()
 
     if (has_inited)
     {
+        HttpService::term(); // depends on HTTPStats
         HTTPStats::deleteSingleton();
-        HttpService::term();
         HttpRequestQueue::term();
         has_inited = false;
     }
