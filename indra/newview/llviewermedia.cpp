@@ -186,7 +186,20 @@ static const F32 LLVIEWERMEDIA_CREATE_DELAY = 1.0f;
 // concluding this tab's own background thread had crashed under heavy system
 // load, when it was merely starved for a moment) is treated as if it never
 // happened, matching what actually occurred from the user's point of view.
-static const F32 EMBEDDED_BROWSER_DISCONNECT_GRACE_PERIOD = 2.0f;
+//
+// Must comfortably exceed how long LLEmbeddedBrowser::maybeRelaunchProducer()
+// can actually take to bring a killed producer back: confirmed live (macOS,
+// 2026-11-06) that a producer's first post-kill relaunch attempt routinely
+// dies within the same second it's spawned, so the real recovery is its
+// *second* attempt -- kRelaunchBackoff (5s) later, plus however long CEF
+// itself takes to come back up. The old 2s value was tuned only for the
+// "briefly starved, never actually died" case this comment describes above,
+// and was far too short for an actual relaunch: this tab would get marked
+// mMediaSourceFailed (see isForcedUnloaded()) and permanently given up on
+// several seconds before the producer it was waiting for had even finished
+// its second attempt, while a brand-new tab created later would connect to
+// that same now-healthy producer just fine -- exactly the asymmetry observed.
+static const F32 EMBEDDED_BROWSER_DISCONNECT_GRACE_PERIOD = 20.0f;
 static F32 sGlobalVolume = 1.0f;
 static F32 sGlobalVolumeExcludingMaster = 1.0f;
 static bool sForceUpdate = false;

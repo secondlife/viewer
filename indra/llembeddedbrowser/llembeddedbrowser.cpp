@@ -1510,7 +1510,23 @@ void LLEmbeddedBrowser::drainProducerLogPipe(LLEmbeddedBrowserBackend backend, c
     auto& lines = mProducers[static_cast<std::size_t>(backend)].logLines;
     while (pipe.contains('\n'))
     {
-        lines.push_back(line_prefix + pipe.getline());
+        std::string line = pipe.getline();
+
+        // stderr only, not stdout -- a producer's stdout is routine/verbose (CEF's own
+        // INFO-level chatter, slot/frame bookkeeping), but anything on stderr is worth
+        // having in the real Viewer log, not just LLFloaterMediaMonitor's own panel
+        // (mProducers[...].logLines above), which is easy to not have open at the one
+        // moment it would have mattered -- confirmed live (macOS, 2026-11-06): a
+        // producer that dies seconds after a relaunch, immediately after being spawned,
+        // left absolutely no trace of why in SecondLife.log, only (if the floater had
+        // happened to be open) here.
+        if (slot == static_cast<int>(LLProcess::STDERR))
+        {
+            const char* producer_name = (backend == LLEmbeddedBrowserBackend::LibVlc) ? "SLVlcProducer" : "SLCefProducer";
+            LL_WARNS() << producer_name << ": " << line << LL_ENDL;
+        }
+
+        lines.push_back(line_prefix + line);
     }
     while (lines.size() > kMaxLogLines)
     {
