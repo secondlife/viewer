@@ -2574,15 +2574,13 @@ void LLSelectMgr::selectionSetMedia(U8 media_type, const LLSD &media_data)
                         llassert(NULL != vo);
                         if (NULL != vo)
                         {
-                            if (had_no_prior_media &&
-                                mMediaData.has(LLMediaEntry::AUTO_PLAY_KEY) &&
-                                mMediaData[LLMediaEntry::AUTO_PLAY_KEY].asBoolean())
+                            if (had_no_prior_media)
                             {
                                 // This face has no prior media at all (a brand-new "Set Media"
-                                // Apply, not an edit of existing media), and autoplay is on.
-                                // Seed current_url with home_url right here in the same UPDATE
-                                // request that creates the media, instead of leaving current_url
-                                // empty until a later, separate NAVIGATE round-trip reports it.
+                                // Apply, not an edit of existing media). Seed current_url with
+                                // home_url right here in the same UPDATE request that creates
+                                // the media, instead of leaving current_url empty until a later,
+                                // separate NAVIGATE round-trip reports it.
                                 //
                                 // Without this, a bystander who already has this object's data
                                 // can win an unavoidable race: its own one-shot GET of this
@@ -2596,6 +2594,19 @@ void LLSelectMgr::selectionSetMedia(U8 media_type, const LLSD &media_data)
                                 // bystander's GET can only run after this same UPDATE has already
                                 // been processed, since that's what creates the face's media data
                                 // in the first place.
+                                //
+                                // Deliberately NOT gated on AUTO_PLAY_KEY (an earlier version of
+                                // this fix was): seeding current_url is harmless regardless of
+                                // autoplay -- it only records the resolved destination, autoplay
+                                // is a separate client-side concern -- and gating on it was
+                                // actively wrong in practice. LLPanelMediaSettingsGeneral::
+                                // getValues() only includes AUTO_PLAY_KEY in the Apply payload
+                                // when that checkbox isn't "tentative", and initValues() never
+                                // clears that flag for a face with no existing media settings to
+                                // read -- so on a brand-new face it's left at whatever it was
+                                // from the floater's last, unrelated use. Confirmed live
+                                // (2026-11-06): this made the original AUTO_PLAY_KEY-gated seed
+                                // intermittently no-op on an otherwise identical repro.
                                 //
                                 // Scoped to brand-new media only (never touches a face that
                                 // already has media) so an edit of unrelated settings (e.g.
