@@ -2746,7 +2746,7 @@ void LLWindowMacOSX::handleDragNDrop(std::string url, LLWindowCallbacks::DragNDr
     LLCoordGL gl_pos;
     convertCoords(window_coords, &gl_pos);
 
-    if(!url.empty())
+    if(!url.empty() || action == LLWindowCallbacks::DNDA_DROPPED)
     {
         LLWindowCallbacks::DragNDropResult res =
         mCallbacks->handleDragNDrop(this, gl_pos, mask, action, url);

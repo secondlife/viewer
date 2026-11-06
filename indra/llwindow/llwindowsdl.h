@@ -36,6 +36,7 @@
 
 #include "SDL3/SDL.h"
 #include "SDL3/SDL_endian.h"
+#include <vector>
 
 #ifdef LL_WAYLAND
 #include <wayland-client-protocol.h>
@@ -210,6 +211,9 @@ protected:
     //
     U32 mGrabbyKeyFlags = 0;
     S32 mReallyCapturedCount = 0;
+    std::string mDropFile;
+    bool mMultipleDropFiles = false;
+    LLCoordGL mDropPosition;
     SDL_Window *mWindow = nullptr;
     SDL_GLContext mContext = nullptr;
     SDL_Cursor *mSDLCursors[UI_CURSOR_COUNT];

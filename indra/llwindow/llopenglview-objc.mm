@@ -258,7 +258,9 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (id) initWithFrame:(NSRect)frame withSamples:(NSUInteger)samples andVsync:(BOOL)vsync
 {
-    [self registerForDraggedTypes:[NSArray arrayWithObject:NSPasteboardTypeURL]];
+    [self registerForDraggedTypes:[NSArray arrayWithObjects:NSPasteboardTypeURL, NSPasteboardTypeFileURL, nil]];
+    mLastDraggedFile = false;
+    mLastDraggedMultipleFiles = false;
     [self initWithFrame:frame];
 
     // Initialize with a default "safe" pixel format that will work with versions dating back to OS X 10.6.
@@ -597,16 +599,78 @@ attributedStringInfo getSegments(NSAttributedString *str)
     NSPasteboard *pboard;
     NSDragOperation sourceDragMask;
 
+    mLastDraggedUrl.clear();
+    mLastDraggedFile = false;
+    mLastDraggedMultipleFiles = false;
+
     sourceDragMask = [sender draggingSourceOperationMask];
 
     pboard = [sender draggingPasteboard];
 
-    if ([[pboard types] containsObject:NSPasteboardTypeURL])
+    if ([[pboard types] containsObject:NSPasteboardTypeURL] ||
+        [[pboard types] containsObject:NSPasteboardTypeFileURL])
     {
-        if (sourceDragMask & NSDragOperationLink) {
-            NSURL *fileUrl = [[pboard readObjectsForClasses:[NSArray arrayWithObject:[NSURL class]] options:[NSDictionary dictionary]] objectAtIndex:0];
-            mLastDraggedUrl = [[fileUrl absoluteString] UTF8String];
-            return NSDragOperationLink;
+        NSArray *urls = [pboard readObjectsForClasses:[NSArray arrayWithObject:[NSURL class]] options:[NSDictionary dictionary]];
+        if ([urls count] == 1) {
+            NSURL *fileUrl = [urls objectAtIndex:0];
+            NSDragOperation operation = NSDragOperationNone;
+            if ([fileUrl isFileURL])
+            {
+                if (sourceDragMask & NSDragOperationCopy)
+                {
+                    operation = NSDragOperationCopy;
+                }
+                else if (sourceDragMask & NSDragOperationLink)
+                {
+                    operation = NSDragOperationLink;
+                }
+            }
+            else if (sourceDragMask & NSDragOperationLink)
+            {
+                operation = NSDragOperationLink;
+            }
+            else if (sourceDragMask & NSDragOperationCopy)
+            {
+                operation = NSDragOperationCopy;
+            }
+            if (operation == NSDragOperationNone)
+            {
+                return NSDragOperationNone;
+            }
+            mLastDraggedFile = [fileUrl isFileURL];
+            if (mLastDraggedFile)
+            {
+                NSString *filePath = [fileUrl path];
+                const char *utf8Path = [filePath UTF8String];
+                if (!utf8Path || !*utf8Path)
+                {
+                    mLastDraggedFile = false;
+                    return NSDragOperationNone;
+                }
+                mLastDraggedUrl.assign(utf8Path);
+            }
+            else
+            {
+                mLastDraggedUrl = [[fileUrl absoluteString] UTF8String];
+            }
+            return operation;
+        }
+        else if ([urls count] > 1)
+        {
+            BOOL allFileURLs = YES;
+            for (NSURL *url in urls)
+            {
+                if (![url isFileURL])
+                {
+                    allFileURLs = NO;
+                    break;
+                }
+            }
+            if (allFileURLs && (sourceDragMask & NSDragOperationCopy))
+            {
+                mLastDraggedMultipleFiles = true;
+                return NSDragOperationCopy;
+            }
         }
     }
     return NSDragOperationNone;
@@ -615,8 +679,24 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (NSDragOperation)draggingUpdated:(id <NSDraggingInfo>)sender
 {
     callHandleDragUpdated(mLastDraggedUrl);
-
-    return NSDragOperationLink;
+    NSDragOperation sourceMask = [sender draggingSourceOperationMask];
+    if (mLastDraggedMultipleFiles)
+    {
+        return (sourceMask & NSDragOperationCopy) ? NSDragOperationCopy : NSDragOperationNone;
+    }
+    if (mLastDraggedFile && (sourceMask & NSDragOperationCopy))
+    {
+        return NSDragOperationCopy;
+    }
+    if (sourceMask & NSDragOperationLink)
+    {
+        return NSDragOperationLink;
+    }
+    if (sourceMask & NSDragOperationCopy)
+    {
+        return NSDragOperationCopy;
+    }
+    return NSDragOperationNone;
 }
 
 - (void) draggingExited:(id<NSDraggingInfo>)sender
@@ -631,7 +711,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (BOOL) performDragOperation:(id<NSDraggingInfo>)sender
 {
-    callHandleDragDropped(mLastDraggedUrl);
+    callHandleDragDropped(mLastDraggedMultipleFiles ? std::string() : mLastDraggedUrl);
+    callHandleDragExited(mLastDraggedUrl);
     return true;
 }
 
