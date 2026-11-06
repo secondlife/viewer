@@ -265,6 +265,16 @@ namespace LL
          */
         bool tryPost(const Work&) override;
 
+        /**
+         * @brief Post work to the well-known main-loop queue without blocking
+         * @return true if posted, false if the main loop is gone or its
+         *         queue is closed/full
+         *
+         * For callers on a secondary thread that must not block waiting for
+         * the main thread (e.g. a websocket I/O thread).
+         */
+        static bool postToMainLoop(const Work& work);
+
     private:
         using Queue = LLThreadSafeQueue<Work>;
         Queue mQueue;

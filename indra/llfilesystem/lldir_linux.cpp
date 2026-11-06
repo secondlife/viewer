@@ -35,6 +35,7 @@
 #include <unistd.h>
 #include <glob.h>
 #include <pwd.h>
+#include <filesystem>
 
 
 static std::string getCurrentUserHome(char* fallback)
@@ -61,6 +62,43 @@ static std::string getCurrentUserHome(char* fallback)
     }
 }
 
+static std::string getLinuxRunContextDescription(const std::string& executable_path_and_name)
+{
+    // AppImage: the AppImage runtime sets $APPIMAGE to the path of the
+    // mounted/squashfs-exposed .AppImage file, and $APPDIR to the
+    // squashfs-fuse mountpoint the executable is actually launched from.
+    auto appimage_env = LLStringUtil::getoptenv("APPIMAGE");
+    if (appimage_env && !appimage_env->empty())
+    {
+        return "AppImage (" + *appimage_env + ")";
+    }
+
+    // Snap: the snapd runtime always sets $SNAP_NAME (and $SNAP) for
+    // anything launched inside a snap's confinement.
+    auto snap_env = LLStringUtil::getoptenv("SNAP_NAME");
+    if (snap_env && !snap_env->empty())
+    {
+        return "Snap package (" + *snap_env + ")";
+    }
+
+    // Flatpak: the sandbox always sets $FLATPAK_ID, and also drops a
+    // /.flatpak-info marker file inside the sandbox's root filesystem.
+    auto flatpak_env = LLStringUtil::getoptenv("FLATPAK_ID");
+    if (flatpak_env && !flatpak_env->empty())
+    {
+        return "Flatpak (" + *flatpak_env + ")";
+    }
+    std::error_code ec;
+    if (std::filesystem::exists("/.flatpak-info", ec))
+    {
+        return "Flatpak sandbox";
+    }
+
+    // No recognized sandboxing/packaging runtime detected: treat this as a
+    // conventional install, i.e. extracted from a tarball/zip or installed
+    // via a package manager, and running directly off the filesystem.
+    return "Standard install or archive extraction";
+}
 
 LLDir_Linux::LLDir_Linux()
 {
@@ -137,6 +175,8 @@ LLDir_Linux::LLDir_Linux()
 
     // *TODO: don't use /tmp, use $HOME/.secondlife/tmp or something.
     mTempDir = "/tmp";
+
+    mRunContextDescription = getLinuxRunContextDescription(mExecutablePathAndName);
 }
 
 LLDir_Linux::~LLDir_Linux()

@@ -318,6 +318,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
         [glContext setValues:&swapInterval forParameter:NSOpenGLContextParameterSwapInterval];
     }
 
+    [glContext release]; // setOpenGLContext: retains the context for the view.
     return self;
 }
 
