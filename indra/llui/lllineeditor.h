@@ -325,8 +325,9 @@ public:
     /*virtual*/ void    markAsPreedit(S32 position, S32 length) override;
     /*virtual*/ void    getPreeditRange(S32 *position, S32 *length) const override;
     /*virtual*/ bool    getPreeditLocation(S32 query_position, LLCoordGL *coord, LLRect *bounds, LLRect *control) const override;
+    /*virtual*/ void    getPreeditLocations(locations_t& locations) const override;
     /*virtual*/ S32     getPreeditFontSize() const override;
-    /*virtual*/ LLWString getPreeditString() const override { return getWText(); }
+    /*virtual*/ const LLWString& getPreeditString() const override { return getWText(); }
 
     void            setText(const LLStringExplicit &new_text, bool use_size_limit);
 

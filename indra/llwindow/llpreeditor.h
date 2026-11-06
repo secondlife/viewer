@@ -29,12 +29,27 @@
 #ifndef LL_PREEDITOR
 #define LL_PREEDITOR
 
+#include "llcoord.h"
+#include "llrect.h"
+
+#include <deque>
+
 class LLPreeditor
 {
 public:
 
     typedef std::vector<S32> segment_lengths_t;
     typedef std::deque<bool> standouts_t;
+
+    // Used as return value for getPreeditLocation()
+    struct Location
+    {
+        bool        mValid = false;
+        LLCoordGL   mCaret;
+        LLRect      mBounds;
+        LLRect      mControl;
+    };
+    typedef std::vector<Location> locations_t;
 
     // We don't delete against LLPreeditor, but compilers complain without this...
 
@@ -81,6 +96,11 @@ public:
 
     virtual bool getPreeditLocation(S32 query_position, LLCoordGL *coord, LLRect *bounds, LLRect *control) const = 0;
 
+    // Get getPreeditLocation() for every preedit position, from 0 to the preedit length inclusive.
+    // Implementations measure the text once for all positions instead of once per position.
+
+    virtual void getPreeditLocations(locations_t& locations) const = 0;
+
     // Get the size (height) of the current font used in this preeditor.
 
     virtual S32 getPreeditFontSize() const = 0;
@@ -88,7 +108,7 @@ public:
     // Get the contents of this preeditor as a LLWString.  If there is an active preedit,
     // the returned LLWString contains it.
 
-    virtual LLWString getPreeditString() const = 0;
+    virtual const LLWString& getPreeditString() const = 0;
 
     // Handle a UTF-32 char on this preeditor, i.e., add the character
     // to the contents.

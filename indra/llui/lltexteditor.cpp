@@ -3015,7 +3015,7 @@ bool LLTextEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
         current_line++;
     }
 
-    const LLWString textString(getWText());
+    const LLWString& textString = getWText();
     const llwchar * const text = textString.c_str();
     const S32 line_height = mFont->getLineHeight();
 
@@ -3056,6 +3056,101 @@ bool LLTextEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
     }
 
     return true;
+}
+
+void LLTextEditor::getPreeditLocations(locations_t& locations) const
+{
+    S32 preedit_left_position, preedit_length;
+    getPreeditRange(&preedit_left_position, &preedit_length);
+    const S32 preedit_right_position = preedit_left_position + preedit_length;
+    locations.assign(preedit_length + 1, Location());
+
+    LLRect control;
+    {
+        LLRect control_rect_screen;
+        localRectToScreen(mVisibleTextRect, &control_rect_screen);
+        LLUI::getInstance()->screenRectToGL(control_rect_screen, &control);
+    }
+
+    const S32 first_visible_line = getFirstVisibleLine();
+    const LLWString& textString = getWText();
+    const llwchar * const text = textString.c_str();
+    const S32 line_height = mFont->getLineHeight();
+
+    S32 current_line = first_visible_line;
+    S32 current_line_start = 0;
+    S32 current_line_end = 0;
+    S32 measured_line = -1;
+    std::vector<S32> widths;
+    LLRect bounds;
+    auto width = [&widths](S32 chars) { return widths[llclamp(chars, 0, (S32)widths.size() - 1)]; };
+
+    for (S32 query = llmax(preedit_left_position, getLineStart(first_visible_line)); query <= preedit_right_position; ++query)
+    {
+        for (;;)
+        {
+            current_line_start = getLineStart(current_line);
+            current_line_end = getLineStart(current_line + 1);
+            if (query >= current_line_start && query < current_line_end)
+            {
+                break;
+            }
+            if (current_line_start == current_line_end)
+            {
+                // We have reached on the last line.  The query position must be here.
+                break;
+            }
+            current_line++;
+        }
+
+        if (current_line != measured_line)
+        {
+            measured_line = current_line;
+
+            // Far enough for the carets on this line and for both ends of the bounds
+            S32 measure = llmin(preedit_right_position, current_line_end) - current_line_start;
+            if (current_line_start == current_line_end)
+            {
+                measure = preedit_right_position - current_line_start;
+            }
+            mFont->getWidths(text, current_line_start, llmax(measure, 0), widths);
+
+            S32 preedit_left = mVisibleTextRect.mLeft;
+            if (preedit_left_position > current_line_start)
+            {
+                preedit_left += width(preedit_left_position - current_line_start);
+            }
+
+            S32 preedit_right = mVisibleTextRect.mLeft;
+            if (preedit_right_position < current_line_end)
+            {
+                preedit_right += width(preedit_right_position - current_line_start);
+            }
+            else
+            {
+                preedit_right += width(current_line_end - current_line_start);
+            }
+
+            const S32 preedit_top = mVisibleTextRect.mTop - (current_line - first_visible_line) * line_height;
+            const S32 preedit_bottom = preedit_top - line_height;
+
+            const LLRect preedit_rect_local(preedit_left, preedit_top, preedit_right, preedit_bottom);
+            LLRect preedit_rect_screen;
+            localRectToScreen(preedit_rect_local, &preedit_rect_screen);
+            LLUI::getInstance()->screenRectToGL(preedit_rect_screen, &bounds);
+        }
+
+        Location& location = locations[query - preedit_left_position];
+        location.mValid = true;
+        location.mBounds = bounds;
+        location.mControl = control;
+
+        const S32 query_x = mVisibleTextRect.mLeft + width(query - current_line_start);
+        const S32 query_y = mVisibleTextRect.mTop - (current_line - first_visible_line) * line_height - line_height / 2;
+        S32 query_screen_x, query_screen_y;
+        localPointToScreen(query_x, query_y, &query_screen_x, &query_screen_y);
+        LLUI::getInstance()->screenPointToGL(query_screen_x, query_screen_y, &location.mCaret.mX, &location.mCaret.mY);
+    }
 }
 
 void LLTextEditor::getSelectionRange(S32 *position, S32 *length) const

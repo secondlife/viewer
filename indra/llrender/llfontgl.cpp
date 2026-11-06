@@ -589,6 +589,53 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars
     return cur_x / sScaleX;
 }
 
+void LLFontGL::getWidths(const llwchar* wchars, S32 begin_offset, S32 max_chars, std::vector<S32>& widths) const
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
+    const S32 LAST_CHARACTER = LLFontFreetype::LAST_CHAR_FULL;
+
+    widths.clear();
+    widths.push_back(0);
+
+    F32 cur_x = 0;
+    const S32 max_index = begin_offset + max_chars;
+
+    const LLFontGlyphInfo* next_glyph = NULL;
+
+    // Same steps as getWidthF32(), which ends each measurement on a character
+    F32 width_padding = 0.f;
+    for (S32 i = begin_offset; i < max_index && wchars[i] != 0; i++)
+    {
+        llwchar wch = wchars[i];
+
+        const LLFontGlyphInfo* fgi = next_glyph;
+        next_glyph = NULL;
+        if(!fgi)
+        {
+            fgi = mFontFreetype->getGlyphInfo(wch, EFontGlyphType::Unspecified);
+        }
+
+        F32 advance = mFontFreetype->getXAdvance(fgi);
+
+        width_padding = llmax(0.f, width_padding - advance, (F32)(fgi->mWidth + fgi->mXBearing) - advance);
+
+        cur_x += advance;
+
+        widths.push_back(ll_round(((F32)ll_round(cur_x) + width_padding) / sScaleX));
+
+        llwchar next_char = wchars[i+1];
+
+        if (((i + 1) < max_index)
+            && next_char
+            && (next_char < LAST_CHARACTER))
+        {
+            next_glyph = mFontFreetype->getGlyphInfo(next_char, EFontGlyphType::Unspecified);
+            cur_x += mFontFreetype->getXKerning(fgi, next_glyph);
+        }
+        cur_x = (F32)ll_round(cur_x);
+    }
+}
+
 void LLFontGL::generateASCIIglyphs()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
