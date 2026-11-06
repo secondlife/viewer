@@ -1001,7 +1001,27 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 
             LLPluginClassMedia::EPriority new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
 
-            if(pimpl->isForcedUnloaded() || (impl_count_total >= mMaxInstances))
+            // Prim media's owning object can keep rendering indefinitely across an
+            // adjacent region's border (that's ordinary, correct behavior for the
+            // object itself) -- but its media should stop the moment the agent
+            // leaves that object's own region, not fade out slowly via the normal
+            // distance/interest heuristics below, which may never actually reach
+            // zero if the object stays on screen. A teleport to a *non-adjacent*
+            // region already tears the object down outright (its region's own
+            // destructor kills every object in it), so this only ever matters for
+            // the adjacent case -- confirmed via a real QA repro: a prim's RTMP
+            // stream stayed listed and playing indefinitely after teleporting to
+            // a neighboring region, while teleporting somewhere non-adjacent
+            // correctly cleared it within moments. Parcel media doesn't need the
+            // same check -- LLViewerParcelMedia::update() is already tied to the
+            // agent's own current parcel and stops on any parcel/region change.
+            LLVOVolume* prim_media_object = (!pimpl->getUsedInUI() && !pimpl->isParcelMedia())
+                ? pimpl->getSomeObject() : nullptr;
+            if (prim_media_object && prim_media_object->getRegion() != gAgent.getRegion())
+            {
+                new_priority = LLPluginClassMedia::PRIORITY_UNLOADED;
+            }
+            else if(pimpl->isForcedUnloaded() || (impl_count_total >= mMaxInstances))
             {
                 // Never load muted or failed impls.
                 // Hard limit on the number of instances that will be loaded at one time
