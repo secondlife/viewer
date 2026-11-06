@@ -810,7 +810,7 @@ void LLWindowSDL::setMouseClipping(bool b)
 {
     if (mWindow)
     {
-        SDL_CaptureMouse(b);
+        SDL_SetWindowMouseGrab(mWindow, b);
     }
 }
 
@@ -1148,7 +1148,7 @@ bool LLWindowSDL::SDLReallyCaptureInput(bool capture)
         if (wantGrab)
         {
             // LL_INFOS() << "X11 POINTER GRABBY" << LL_ENDL;
-            result = SDL_CaptureMouse(true);
+            result = SDL_SetWindowMouseGrab(mWindow, true);
             if (0 == result)
                 newGrab = true;
             else
@@ -1157,7 +1157,7 @@ bool LLWindowSDL::SDLReallyCaptureInput(bool capture)
         else
         {
             newGrab = false;
-            result = SDL_CaptureMouse(false);
+            result = SDL_SetWindowMouseGrab(mWindow, false);
         }
     }
         // pretend we got what we wanted, when really we don't care.
