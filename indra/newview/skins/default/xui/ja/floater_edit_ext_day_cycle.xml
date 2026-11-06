@@ -77,6 +77,7 @@
 								<button label="[FRAME]を追加" name="add_frame"/>
 								<button label="[FRAME]を読み込む" name="btn_load_frame"/>
 								<button label="[FRAME]を削除" name="delete_frame"/>
+								<button label="[FRAME]として保存..." name="btn_save_frame"/>
 							</layout_panel>
 						</layout_stack>
 					</panel>
