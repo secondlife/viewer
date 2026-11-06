@@ -39,6 +39,8 @@
 #include "llmutex.h"
 #include "workqueue.h"
 
+#include <atomic>
+
 // Hack for async host by name
 #define LL_WM_HOST_RESOLVED      (WM_APP + 1)
 // For requesting shutdown on uninstall,
@@ -275,6 +277,7 @@ protected:
         std::vector<S32>            mPreeditPositions;  // preedit character at each UTF-16 position, plus one past the end
         LLPreeditor::locations_t    mPreeditLocations;  // one per preedit character, plus one past the end
         LLWString                   mFeedContext;       // IMR_DOCUMENTFEED, context without the preedit
+        S32                         mFeedContextOffset = 0; // position of mFeedContext in the text
         S32                         mFeedPreedit = 0;   // preedit position in mFeedContext
         LLWString                   mSelectionContext;  // IMR_RECONVERTSTRING, context around the selection
         S32                         mSelectionContextOffset = 0; // position of mSelectionContext in the text
@@ -288,6 +291,8 @@ protected:
     };
     LLMutex         mImeCacheMutex;
     ImeCache        mImeCache;
+    // Set by the window thread when an IME is open or sends composition or requests (the emoji panel does so with the IME closed)
+    std::atomic<bool> mImeActive{ false };
 
     LLDragDropWin32* mDragDrop;
 

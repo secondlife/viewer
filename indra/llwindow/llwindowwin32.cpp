@@ -3137,6 +3137,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_IME_STARTCOMPOSITION:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_STARTCOMPOSITION");
+            window_imp->mImeActive = true;
             if (LLWinImm::isAvailable() && window_imp->mPreeditor)
             {
                 WINDOW_IMP_POST(window_imp->handleStartCompositionMessage());
@@ -3168,9 +3169,22 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             }
             break;
         }
+        case WM_IME_NOTIFY:
+        {
+            if (w_param == IMN_SETOPENSTATUS && LLWinImm::isAvailable())
+            {
+                LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_NOTIFY");
+                HIMC himc = LLWinImm::getContext(h_wnd);
+                window_imp->mImeActive = himc && LLWinImm::getOpenStatus(himc);
+                LLWinImm::releaseContext(h_wnd, himc);
+            }
+            break;
+        }
         case WM_IME_REQUEST:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_REQUEST");
+            // Answered from an empty cache until the next frame
+            window_imp->mImeActive = true;
             if (LLWinImm::isAvailable() && window_imp->mPreeditor)
             {
                 // Unhandled requests go to DefWindowProc, result is only set when handled
@@ -4616,6 +4630,7 @@ void LLWindowWin32::allowLanguageTextInput(LLPreeditor *preeditor, bool b)
             // Disallowing: Turn off the IME so that succeeding key events bypass IME and come to us directly.
             // However, do it after saving the current IME  status.  We need to restore the status when
             //   allowing language text input again.
+            mImeActive = false;
             sWinInputLocale = GetKeyboardLayout(0);
             sWinIMEOpened = LLWinImm::isIME(sWinInputLocale);
             if (sWinIMEOpened)
@@ -5018,7 +5033,8 @@ void LLWindowWin32::updateImeCache()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
     ASSERT_MAIN_THREAD();
 
-    if (!mPreeditor)
+    // Without IME activity nothing asks, and a cache kept then would be stale when something does
+    if (!mPreeditor || !mImeActive.load(std::memory_order_relaxed))
     {
         if (mImeCache.mValid)
         {
@@ -5046,8 +5062,15 @@ void LLWindowWin32::updateImeCache()
     bool preedit_valid = preedit >= 0 && preedit_length >= 0 && preedit + preedit_length <= text_length;
     bool select_valid = select >= 0 && select_length >= 0 && select + select_length <= text_length;
 
-    // Rebuilt every frame while composing. Otherwise text edits move the caret or change the length,
-    // and scrolling or moving the control moves the caret location, so those are enough to compare.
+    // Only the context strings hold text, the rest follows from positions and the caret location.
+    // Without a preedit, mFeedContext is the text at its offset as is.
+    auto same_text = [&wtext, text_length](S32 offset, const LLWString& cached)
+    {
+        return offset >= 0 && offset + (S32)cached.length() <= text_length
+            && wtext.compare(offset, cached.length(), cached) == 0;
+    };
+
+    // Rebuilt every frame while composing
     if (mImeCache.mValid
         && preedit_length == 0
         && mImeCache.mPreeditText.empty()
@@ -5056,7 +5079,9 @@ void LLWindowWin32::updateImeCache()
         && mImeCache.mPreeditStart == preedit
         && mImeCache.mSelect == select
         && mImeCache.mSelectLength == select_length
-        && same_location(mImeCache.mCursor, cursor))
+        && same_location(mImeCache.mCursor, cursor)
+        && same_text(mImeCache.mFeedContextOffset, mImeCache.mFeedContext)
+        && same_text(mImeCache.mSelectionContextOffset, mImeCache.mSelectionContext))
     {
         return;
     }
@@ -5100,6 +5125,7 @@ void LLWindowWin32::updateImeCache()
             context.erase(feed_preedit, feed_length);
         }
         cache.mFeedContext = context;
+        cache.mFeedContextOffset = context_offset;
         cache.mFeedPreedit = feed_preedit;
     }
 
