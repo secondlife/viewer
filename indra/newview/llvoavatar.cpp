@@ -2357,6 +2357,114 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
     LL_DEBUGS("Avatar") << avString() << " reset ends" << LL_ENDL;
 }
 
+namespace
+{
+    // Restart the fetch of a texture that isn't fully loaded yet.
+    void restart_texture_fetch(LLViewerTexture* texp)
+    {
+        LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(texp);
+        if (!tex)
+        {
+            return;
+        }
+
+        const LLUUID& id = tex->getID();
+        if (id.isNull() || id == IMG_DEFAULT || id == IMG_DEFAULT_AVATAR || id == IMG_INVISIBLE)
+        {
+            return;
+        }
+
+        if (tex->getDiscardLevel() == 0 && !tex->isFetching() && !tex->isMissingAsset())
+        {
+            return;
+        }
+
+        if (tex->isMissingAsset())
+        {
+            tex->setIsMissingAsset(false);
+        }
+        tex->forceToDeleteRequest();
+    }
+
+    // Same for an object and its child prims, then rebuild its geometry.
+    void restart_object_textures(LLViewerObject* objp)
+    {
+        if (!objp || objp->isDead())
+        {
+            return;
+        }
+
+        for (U8 te = 0; te < objp->getNumTEs(); ++te)
+        {
+            restart_texture_fetch(objp->getTEImage(te));
+            restart_texture_fetch(objp->getTENormalMap(te));
+            restart_texture_fetch(objp->getTESpecularMap(te));
+        }
+
+        if (objp->mDrawable.notNull())
+        {
+            gPipeline.markRebuild(objp->mDrawable, LLDrawable::REBUILD_ALL);
+        }
+
+        const LLViewerObject::child_list_t& children = objp->getChildren();
+        for (LLViewerObject::child_list_t::const_iterator iter = children.begin();
+             iter != children.end(); ++iter)
+        {
+            restart_object_textures(iter->get());
+        }
+    }
+}
+
+//-----------------------------------------------------------------------------
+// reloadAvatar()
+//-----------------------------------------------------------------------------
+// Reloads another avatar on this viewer only (clouds, missing parts, attachments).
+void LLVOAvatar::reloadAvatar()
+{
+    if (isSelf() || isControlAvatar() || isUIAvatar() || isDead())
+    {
+        return;
+    }
+
+    LL_INFOS("Avatar") << avString() << "reload requested" << LL_ENDL;
+
+    // Baked textures
+    for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
+    {
+        restart_texture_fetch(getImage(mBakedTextureDatas[i].mTextureIndex, 0));
+    }
+
+    // Attachments
+    for (attachment_map_t::iterator iter = mAttachmentPoints.begin();
+         iter != mAttachmentPoints.end();
+         ++iter)
+    {
+        LLViewerJointAttachment* attachment = iter->second;
+        if (!attachment)
+        {
+            continue;
+        }
+        for (LLViewerJointAttachment::attachedobjs_vec_t::iterator at_it = attachment->mAttachedObjects.begin();
+             at_it != attachment->mAttachedObjects.end(); ++at_it)
+        {
+            restart_object_textures(at_it->get());
+        }
+    }
+
+    // Re-apply the last known appearance (needs a first appearance message)
+    if (mLastProcessedAppearance)
+    {
+        resetSkeleton(false);
+    }
+
+    updateMeshTextures();
+    dirtyMesh();
+
+    // Ask the sim to resend the appearance, in case the message was lost
+    LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(getID());
+    mRuthTimer.reset();
+}
+
 //-----------------------------------------------------------------------------
 // releaseMeshData()
 //-----------------------------------------------------------------------------
