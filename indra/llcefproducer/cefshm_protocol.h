@@ -62,6 +62,28 @@ namespace cefshm_demo
     inline constexpr std::uint32_t kMaxWidth      = 4096;
     inline constexpr std::uint32_t kMaxHeight     = 4096;
 
+    // LLConfig::stale_producer_ms for every segment this process itself creates (control,
+    // per-view, per-audio) -- cut down hard from llshmframe's generic 2000ms default.
+    // That default assumes LLPublisher::create() can't otherwise tell a merely-slow-to-
+    // heartbeat live peer from a dead one, so it waits out a generous margin before
+    // reclaiming a same-named segment. That assumption doesn't hold here: a relaunch only
+    // ever happens after LLProcess has already confirmed the previous instance of THIS
+    // SAME producer exited (see maybeRelaunchProducer()), so there is no live peer left to
+    // protect against -- the old segment is only still sitting there because its process
+    // died without a chance to run its own LLPublisher destructor (the clean-shutdown
+    // path, see LLPublisher::~LLPublisher()'s shutdown marker). Confirmed live (macOS,
+    // 2026-11-06) that the 2000ms default actively broke things once the control channel
+    // started being heartbeated every tick (see this file's own kControlChannelName and
+    // llcefproducer.cpp's main loop): its last heartbeat is only ever milliseconds old at
+    // the moment of a kill, so a relaunch landing within that 2000ms window found a
+    // heartbeat that looked perfectly fresh and refused to reclaim the name at all --
+    // exiting immediately, with the very next relaunch attempt (kRelaunchBackoff later)
+    // the first one with any real chance of succeeding. A small but nonzero value here
+    // keeps the original "don't steal a name out from under a genuinely live peer"
+    // protection for any scenario this reasoning doesn't cover, without reintroducing that
+    // multi-second stall on the (expected, common) case.
+    inline constexpr std::uint32_t kProducerSegmentStaleMs = 50;
+
     // Always-on, cheap (1x1 frame geometry -- it never publishes a frame,
     // only exchanges commands) channel a consumer uses to ask the producer
     // for one of the real per-view channels above, which the producer only

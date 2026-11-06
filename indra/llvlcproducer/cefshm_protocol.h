@@ -94,6 +94,12 @@ namespace cefshm_demo
     inline constexpr std::uint32_t kMaxWidth      = 4096;
     inline constexpr std::uint32_t kMaxHeight     = 4096;
 
+    // LLConfig::stale_producer_ms for every segment this process itself creates (control,
+    // per-view, per-audio) -- see indra/llcefproducer/cefshm_protocol.h's own copy of this
+    // constant for the full reasoning (identical producer-relaunch architecture, same
+    // llembeddedbrowser.cpp maybeRelaunchProducer() driving both).
+    inline constexpr std::uint32_t kProducerSegmentStaleMs = 50;
+
     enum Opcode : std::uint32_t
     {
         // consumer -> producer, per-view channel

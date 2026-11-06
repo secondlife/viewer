@@ -246,6 +246,9 @@ std::unique_ptr<LLPublisher> create_audio_publisher(int index)
     cfg.max_height        = 1;
     cfg.command_slots     = kAudioCommandSlots;
     cfg.max_command_bytes = kAudioMaxCommandBytes;
+    // See kProducerSegmentStaleMs's own comment (cefshm_protocol.h) for why this is cut
+    // down from LLConfig's 2000ms default.
+    cfg.stale_producer_ms = kProducerSegmentStaleMs;
 
     LLStatus st{};
     auto pub = LLPublisher::create(cfg, &st);
@@ -668,6 +671,9 @@ int run_producer(int argc, char** argv)
     LLConfig view_cfg; // template for whichever index gets allocated on demand
     view_cfg.max_width  = kMaxWidth;
     view_cfg.max_height = kMaxHeight;
+    // See kProducerSegmentStaleMs's own comment (cefshm_protocol.h) for why this is cut
+    // down from LLConfig's 2000ms default.
+    view_cfg.stale_producer_ms = kProducerSegmentStaleMs;
     const std::uint64_t worst_case_bytes = segment_bytes(view_cfg) * std::uint64_t(slot_count);
 
     std::vector<Slot> slots(static_cast<std::size_t>(slot_count)); // all start unallocated (pub == nullptr)
@@ -676,6 +682,12 @@ int run_producer(int argc, char** argv)
     control_cfg.name       = kControlChannelName;
     control_cfg.max_width  = 1; // never publishes a frame, only exchanges commands
     control_cfg.max_height = 1;
+    // See kProducerSegmentStaleMs's own comment (cefshm_protocol.h) -- without this, a
+    // relaunch landing within LLConfig's 2000ms default of this process being killed
+    // finds this segment's last heartbeat looking too fresh to reclaim and refuses to
+    // start at all, confirmed live (on SLCefProducer, same architecture) as the reason a
+    // producer's first relaunch attempt after a kill routinely exits immediately.
+    control_cfg.stale_producer_ms = kProducerSegmentStaleMs;
 
     LLStatus st{};
     auto control = LLPublisher::create(control_cfg, &st);
