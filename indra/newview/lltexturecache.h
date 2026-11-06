@@ -149,6 +149,13 @@ public:
     bool isInCache(const LLUUID& id) ;
     bool isInLocal(const LLUUID& id) ; //not thread safe at the moment
     LLMutex* getFastCacheMutex() { return &mFastCacheMutex; }
+
+    // Write the index of cached textures now, for an exit that won't run the
+    // destructor. Safe while the cache thread is still running: entries are
+    // written under the header lock. A texture whose data write is then cut
+    // short is read back as far as it got, and the rest is fetched again.
+    void writeIndex() { writeUpdatedEntries(); }
+
 protected:
     // Accessed by LLTextureCacheWorker
     std::string getLocalFileName(const LLUUID& id);

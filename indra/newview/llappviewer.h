@@ -349,6 +349,14 @@ private:
     void sendLogoutRequest();
     void disconnectViewer();
 
+    // Save settings and other per-user files for the next session.
+    void saveSessionData();
+
+    // The end of a fast shutdown, once cleanup() has saved what the next
+    // session needs: finish the cache writes, then end the process at once,
+    // abandoning the side threads. Doesn't return.
+    void fastExit();
+
     // *FIX: the app viewer class should be some sort of singleton, no?
     // Perhaps its child class is the singleton and this should be an abstract base.
     static LLAppViewer* sInstance;
