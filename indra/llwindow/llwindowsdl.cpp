@@ -73,6 +73,11 @@ LLWindowSDL::X11_DATA LLWindowSDL::sX11Data = {};
 //
 // SDL has already negotiated the XInput2 version on this Display, so we don't call
 // XIQueryVersion() again; we just look at what SDL selected on the window.
+//
+// We only check that the XInput extension exists, and assume it's at least XInput 2.0
+// (X.Org server 1.7, 2009). We assume the X server is newer than that and isn't a
+// remote-desktop X server (e.g. the NX server used by X2Go), where XI2 may be missing.
+// On a server with XInput 1 but no XI2, the XI2 requests below may raise an X error.
 static int findXInput2Pointer(Display* display, Window window)
 {
     int opcode = 0, event = 0, error = 0;
@@ -1231,8 +1236,19 @@ bool LLWindowSDL::updatePointerGrab()
         int result;
         if (xi_pointer >= 0)
         {
-            // XInput2 grabs can't confine the pointer, so clipping only keeps the
-            // events coming to us here.
+            // XInput2 grabs can't confine the pointer, so on this path setMouseClipping(true)
+            // only keeps mouse events coming to us after the cursor leaves the window; it
+            // doesn't keep the cursor inside.
+            // - Drag clipping (LLViewerWindow::handleAnyMouseClick()) is unaffected in practice:
+            //   SDL_SetWindowMouseGrab() never confined during a drag either, because SDL
+            //   postpones the grab while a button is held and applies it on release, right
+            //   before the viewer un-clips. A core grab with confine_to would fail with
+            //   AlreadyGrabbed during the button's implicit XInput2 grab anyway.
+            // - Mouselook (LLToolGun::handleSelect()) does lose confinement, but the cursor
+            //   is hidden and re-centered there, and this grab still delivers its events.
+            // If real confinement is ever needed, XFixes pointer barriers
+            // (XFixesCreatePointerBarrier() along the window edges) would provide it alongside
+            // this grab without raising the window.
             unsigned char mask_bits[XIMaskLen(XI_LASTEVENT)] = {};
             XISetMask(mask_bits, XI_ButtonPress);
             XISetMask(mask_bits, XI_ButtonRelease);
@@ -1248,7 +1264,8 @@ bool LLWindowSDL::updatePointerGrab()
         }
         else
         {
-            const unsigned int mask = ButtonPressMask | ButtonReleaseMask | PointerMotionMask | FocusChangeMask;
+            // Pointer-event bits only: the protocol defines GrabPointer's mask as SETofPOINTEREVENT.
+            const unsigned int mask = ButtonPressMask | ButtonReleaseMask | PointerMotionMask;
             const Window confine_to = mMouseClipped ? window : None;
             result = XGrabPointer(display, window, False, mask, GrabModeAsync, GrabModeAsync,
                                   confine_to, None, CurrentTime);
