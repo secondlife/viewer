@@ -7402,6 +7402,17 @@
     </array>
   </map>
 
+    <key>RenderAlphaPerGroupLights</key>
+    <map>
+      <key>Comment</key>
+      <string>Select the local lights nearest each alpha spatial group during the alpha pass instead of using the six lights nearest the camera for everything, so alpha-blended content is lit by the same lights as the opaque scene around it. Disable to restore the camera-nearest light set.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>RenderAnisotropic</key>
     <map>
       <key>Comment</key>
