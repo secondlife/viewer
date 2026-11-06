@@ -1322,7 +1322,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
         upload_filter = LLFilePicker::FFLOAD_ANIM;
         upload_kind = LLTrans::getString("DragDropUploadAnimation");
     }
-    else if (extension == "dae")
+    else if (extension == "dae" || extension == "gltf" || extension == "glb")
     {
         is_model = true;
         upload_kind = LLTrans::getString("DragDropUploadModel");
