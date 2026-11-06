@@ -26,6 +26,9 @@ if (LINUX)
       target_compile_definitions(ll::uilibraries INTERFACE LL_X11=1)
       # llwindowsdl calls Xlib/XInput2 directly for pointer grab
       # because SDL3 doesn't supply what we need
+      if(NOT X11_Xi_FOUND)
+          message(FATAL_ERROR "XInput2 (libXi) development files not found; install libxi-dev (Debian/Ubuntu) or libXi-devel (Fedora)")
+      endif()
       target_link_libraries(ll::uilibraries INTERFACE X11::X11 X11::Xi)
   else()
       message("Could not find X11, compiling without full X11 support")
