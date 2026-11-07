@@ -280,6 +280,17 @@
       <key>Value</key>
       <real>0.5</real>
     </map>
+    <key>AudioLevelDoppler</key>
+    <map>
+      <key>Comment</key>
+      <string>Scale of the Doppler effect on moving sounds (1.0 = normal, 0 = off, higher = stronger)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
     <key>AudioLevelMaster</key>
     <map>
       <key>Comment</key>
@@ -324,6 +335,17 @@
       <key>Value</key>
       <real>0.3</real>
     </map>
+    <key>AudioLevelRolloff</key>
+    <map>
+      <key>Comment</key>
+      <string>Scale of the distance fall-off of sounds (1.0 = normal, 0 = none, higher = faster)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
     <key>AudioLevelSFX</key>
     <map>
       <key>Comment</key>
@@ -345,6 +367,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.5</real>
+    </map>
+    <key>AudioLevelUnderwaterRolloff</key>
+    <map>
+      <key>Comment</key>
+      <string>Same as AudioLevelRolloff, while the camera is underwater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>5.0</real>
     </map>
     <key>AudioLevelVoice</key>
     <map>

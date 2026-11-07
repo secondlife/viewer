@@ -399,6 +399,9 @@ void init_audio()
 void audio_update_volume(bool force_update)
 {
     static LLCachedControl<F32> master_volume(gSavedSettings, "AudioLevelMaster");
+    static LLCachedControl<F32> doppler_level(gSavedSettings, "AudioLevelDoppler");
+    static LLCachedControl<F32> rolloff_level(gSavedSettings, "AudioLevelRolloff");
+    static LLCachedControl<F32> underwater_rolloff_level(gSavedSettings, "AudioLevelUnderwaterRolloff");
     static LLCachedControl<bool> mute_audio_setting(gSavedSettings, "MuteAudio");
     static LLCachedControl<bool> mute_when_minimized(gSavedSettings, "MuteWhenMinimized");
     bool mute_audio = mute_audio_setting();
@@ -415,18 +418,18 @@ void audio_update_volume(bool force_update)
 
         gAudiop->setMasterGain (master_volume());
 
-        const F32 AUDIO_LEVEL_DOPPLER = 1.f;
-        gAudiop->setDopplerFactor(AUDIO_LEVEL_DOPPLER);
+        // User adjustable, clamped to what the audio backends accept
+        const F32 MAX_AUDIO_LEVEL_DOPPLER = 10.f;
+        const F32 MAX_AUDIO_LEVEL_ROLLOFF = 10.f;
+        gAudiop->setDopplerFactor(llclamp(doppler_level(), 0.f, MAX_AUDIO_LEVEL_DOPPLER));
 
         if(!LLViewerCamera::getInstance()->cameraUnderWater())
         {
-            const F32 AUDIO_LEVEL_ROLLOFF = 1.f;
-            gAudiop->setRolloffFactor(AUDIO_LEVEL_ROLLOFF);
+            gAudiop->setRolloffFactor(llclamp(rolloff_level(), 0.f, MAX_AUDIO_LEVEL_ROLLOFF));
         }
         else
         {
-            const F32 AUDIO_LEVEL_UNDERWATER_ROLLOFF = 5.f;
-            gAudiop->setRolloffFactor(AUDIO_LEVEL_UNDERWATER_ROLLOFF);
+            gAudiop->setRolloffFactor(llclamp(underwater_rolloff_level(), 0.f, MAX_AUDIO_LEVEL_ROLLOFF));
         }
 
         bool progress_view_visible = gViewerWindow->getShowProgress();
