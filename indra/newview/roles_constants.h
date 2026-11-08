@@ -52,7 +52,7 @@ enum LLRoleChangeType
 //
 
 // KNOWN HOLES: use these for any single bit powers you need
-// bit 0x1 << 52 and above
+// bit 0x1 << 53 and above
 
 // These powers were removed to make group roles simpler
 // bit 0x1 << 41 (GP_ACCOUNTING_VIEW)
@@ -144,6 +144,7 @@ const U64 GP_PROPOSAL_VOTE              = 0x1LL << 45;  // Vote on Proposal
 const U64 GP_SESSION_JOIN               = 0x1LL << 16;  //can join session
 const U64 GP_SESSION_VOICE              = 0x1LL << 27;  //can hear/talk
 const U64 GP_SESSION_MODERATOR          = 0x1LL << 37;  //can mute people's session
+const U64 GP_SESSION_POST_LINKS         = 0x1LL << 52;  //can post links in group chat
 
 const U64 GP_EXPERIENCE_ADMIN           = 0x1LL << 49;  // has admin rights to any experiences owned by this group
 const U64 GP_EXPERIENCE_CREATOR         = 0x1LL << 50;  // can sign scripts for experiences owned by this group
@@ -194,5 +195,6 @@ const U64 GP_DEFAULT_OFFICER = GP_DEFAULT_MEMBER // Superset of GP_DEFAULT_MEMBE
                                 | GP_ROLE_ASSIGN_MEMBER_LIMITED
                                 | GP_ROLE_PROPERTIES
                                 | GP_SESSION_MODERATOR
+                                | GP_SESSION_POST_LINKS
                                 ;
 #endif

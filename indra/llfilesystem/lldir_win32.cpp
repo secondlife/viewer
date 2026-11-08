@@ -315,12 +315,14 @@ void LLDir_Win32::initAppDirs(const std::string &app_name,
     if (isPortableInstall(install_root))
     {
         mOSUserAppDir = add(install_root, PORTABLE_USER_DATA_DIRNAME);
+        mRunContextDescription = "Portable (Velopack)";
         LL_INFOS() << "Portable install detected, using app user dir " << mOSUserAppDir << LL_ENDL;
     }
     else
 #endif // LL_VELOPACK
     {
         mOSUserAppDir = add(mOSUserDir, app_name);
+        mRunContextDescription = "Standard install";
     }
 
     int res = LLFile::mkdir(mOSUserAppDir);

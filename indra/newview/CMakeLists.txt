@@ -10,6 +10,9 @@ include(Linking)
 include(Boost)
 include(bugsplat)
 include(BuildPackagesInfo)
+# Luau isn't an autobuild package, so stage its license separately.
+file(MAKE_DIRECTORY "${AUTOBUILD_INSTALL_DIR}/LICENSES")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/luau.txt" "${AUTOBUILD_INSTALL_DIR}/LICENSES/luau.txt" COPYONLY)
 include(BuildVersion)
 include(CMakeCopyIfDifferent)
 include(CubemapToEquirectangularJS)
@@ -192,7 +195,6 @@ set(viewer_SOURCE_FILES
     llfloaterabout.cpp
     llfloateravatarwelcomepack.cpp
     llfloaterbvhpreview.cpp
-    llfloateraddpaymentmethod.cpp
     llfloaterauction.cpp
     llfloaterautoreplacesettings.cpp
     llfloateravatarpicker.cpp
@@ -331,6 +333,7 @@ set(viewer_SOURCE_FILES
     llfollowcam.cpp
     llfriendcard.cpp
     llflyoutcombobtn.cpp
+    llflycam.cpp
     llgesturelistener.cpp
     llgesturemgr.cpp
     llgiveinventory.cpp
@@ -504,6 +507,7 @@ set(viewer_SOURCE_FILES
     llpanelplaceprofile.cpp
     llpanelplaces.cpp
     llpanelplacestab.cpp
+    llpanelpreferencegamecontrol.cpp
     llpanelpresetscamerapulldown.cpp
     llpanelpresetspulldown.cpp
     llpanelprimmediacontrols.cpp
@@ -882,7 +886,6 @@ set(viewer_HEADER_FILES
     llfloaterabout.h
     llfloateravatarwelcomepack.h
     llfloaterbvhpreview.h
-    llfloateraddpaymentmethod.h
     llfloaterauction.h
     llfloaterautoreplacesettings.h
     llfloateravatarpicker.h
@@ -1025,6 +1028,7 @@ set(viewer_HEADER_FILES
     llfollowcam.h
     llfriendcard.h
     llflyoutcombobtn.h
+    llflycam.h
     llgesturelistener.h
     llgesturemgr.h
     llgiveinventory.h
@@ -1188,6 +1192,7 @@ set(viewer_HEADER_FILES
     llpanelplaceprofile.h
     llpanelplaces.h
     llpanelplacestab.h
+    llpanelpreferencegamecontrol.h
     llpanelpresetscamerapulldown.h
     llpanelpresetspulldown.h
     llpanelprimmediacontrols.h
@@ -1767,6 +1772,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/toolbars.xml
     app_settings/trees.xml
     app_settings/viewerart.xml
+    app_settings/gamecontrollerdb.txt
     app_settings/message.xml
     ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
     packages-info.txt
@@ -2464,7 +2470,7 @@ if (LL_TESTS)
   set_property(SOURCE
     ${viewer_TEST_SOURCE_FILES}
     PROPERTY
-    LL_TEST_ADDITIONAL_LIBRARIES 
+    LL_TEST_ADDITIONAL_LIBRARIES
     ${test_libs}
   )
 

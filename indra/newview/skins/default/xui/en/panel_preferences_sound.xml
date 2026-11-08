@@ -456,4 +456,45 @@
     top_delta="25"
     width="15"
     height="15"/>
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   layout="topleft"
+   left="15"
+   top_delta="30"
+   font.style="BOLD"
+   name="bluetooth_lbl"
+   height="15"
+   width="110">
+      Bluetooth only
+  </text>
+  <radio_group
+   control_name="StopMicCaptureWhenMuted"
+   follows="left|top"
+   height="60"
+   layout="topleft"
+   left="25"
+   name="bluetooth_behavior"
+   top_pad="8"
+   width="480">
+    <radio_item
+      height="20"
+      label="Better voice"
+      layout="topleft"
+      left="0"
+      name="better_voice"
+      value="0"
+      top="0"
+      width="480" />
+    <radio_item
+      height="20"
+      label="Better in-world audio"
+      layout="topleft"
+      left_delta="0"
+      name="better_audio"
+      value="1"
+      top_delta="24"
+      width="480" />
+  </radio_group>
     </panel>

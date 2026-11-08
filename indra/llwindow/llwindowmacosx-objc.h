@@ -108,7 +108,7 @@ NSWindowRef createNSWindow(int x, int y, int width, int height);
 #include <OpenGL/OpenGL.h>
 
 GLViewRef createOpenGLView(NSWindowRef window, unsigned int samples, bool vsync);
-void glSwapBuffers(void* context);
+void glSwapBuffers(GLViewRef view);
 CGLContextObj getCGLContextObj(GLViewRef view);
 unsigned long getVramSize(GLViewRef view);
 float getDeviceUnitSize(GLViewRef view);
