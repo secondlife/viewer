@@ -1,10 +1,10 @@
 /**
- * @file llfloateraddpaymentmethod.h
- * @brief LLFloaterAddPaymentMethod class definition
+ * @file llgltexture_test.cpp
+ * @brief Tests for textures without a GL image.
  *
- * $LicenseInfo:firstyear=2020&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2020, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,29 +24,22 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FLOATER_ADDPAYMENTMETHOD_H
-#define LL_FLOATER_ADDPAYMENTMETHOD_H
+#include "linden_common.h"
+#include "llgltexture.h"
+#include "../test/lltut.h"
 
-#include "llfloater.h"
-
-class LLFloaterAddPaymentMethod:
-    public LLFloater
+namespace tut
 {
-    friend class LLFloaterReg;
-public:
-    bool postBuild() override;
-    void onOpen(const LLSD& key) override;
+    struct gltexture_test {};
+    typedef test_group<gltexture_test> gltexture_group_t;
+    typedef gltexture_group_t::object gltexture_object_t;
+    gltexture_group_t gltexture_instance("LLGLTexture");
 
-private:
-    LLFloaterAddPaymentMethod(const LLSD& key);
-
-    void centerOnScreen();
-
-    void onCloseBtn();
-    void onContinueBtn();
-
-    /*virtual*/ ~LLFloaterAddPaymentMethod();
-
-};
-
-#endif
+    template<> template<>
+    void gltexture_object_t::test<1>()
+    {
+        LLPointer<LLGLTexture> texture = new LLGLTexture();
+        ensure("An uninitialized texture has no GL image", texture->getGLTexture() == nullptr);
+        ensure("An uninitialized texture has no GPU storage", !texture->hasGLTexture());
+    }
+}
