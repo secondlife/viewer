@@ -6,7 +6,7 @@
  min_width="295"
  min_height="260"
  width="340"
- height="480"
+ height="540"
  layout="topleft"
  name="floater_buy_currency_html"
  save_rect="true"
@@ -19,6 +19,6 @@
     left="0"
     top="0"
     width="340"
-    height="480"
+    height="540"
     name="browser"/>
 </floater>

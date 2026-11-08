@@ -66,7 +66,9 @@ LLReliablePacket::LLReliablePacket(
     }
 
     mExpirationTime = (F64Seconds)totalTime() + mTimeout;
-    mPacketID = ntohl(*((U32*)(&buf_ptr[PHL_PACKET_ID])));
+    U32 packet_id;
+    memcpy(&packet_id, &buf_ptr[PHL_PACKET_ID], sizeof(packet_id));
+    mPacketID = ntohl(packet_id);
 
     mSocket = socket;
     if (mRetries)

@@ -905,14 +905,32 @@ void LLMotionController::updateMotions(bool force_update)
 void LLMotionController::updateMotionsMinimal()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
-    // Always update mPrevTimerElapsed
-    mPrevTimerElapsed = mTimer.getElapsedTimeF32();
+    // Keep the animation clock moving while the pose work is skipped, otherwise
+    // the avatar resumes from its old animation state once it is updated again.
+    F32 cur_time = mTimer.getElapsedTimeF32();
+    F32 delta_time = cur_time - mPrevTimerElapsed;
+    mPrevTimerElapsed = cur_time;
+    mLastTime = mAnimTime;
+    if (!mPaused)
+    {
+        mAnimTime += delta_time * mTimeFactor;
+    }
 
     purgeExcessMotions();
     updateLoadingMotions();
     resetJointSignatures();
 
-    deactivateStoppedMotions();
+    if (mPaused)
+    {
+        // The clock is stopped, so stopped motions would never finish easing out
+        deactivateStoppedMotions();
+    }
+    else
+    {
+        // Catch non-looping anims that stop in this frame, stopped motions are
+        // deactivated once their ease out is over
+        updateIdleActiveMotions();
+    }
 
     mHasRunOnce = true;
 }
