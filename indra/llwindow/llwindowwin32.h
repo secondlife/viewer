@@ -272,6 +272,7 @@ protected:
     struct ImeCache
     {
         bool                        mValid = false;
+        bool                        mLocated = false;   // mCursor and mPreeditLocations were measured
         ImeLocation                 mCursor;            // IMR_CANDIDATEWINDOW
         LLWString                   mPreeditText;       // IMR_QUERYCHARPOSITION, preedit characters only
         std::vector<S32>            mPreeditPositions;  // preedit character at each UTF-16 position, plus one past the end
@@ -291,7 +292,7 @@ protected:
     };
     LLMutex         mImeCacheMutex;
     ImeCache        mImeCache;
-    // Set by the window thread when an IME is open or sends composition or requests (the emoji panel does so with the IME closed)
+    // Set by the window thread when an IME is open or sends composition or requests (the emoji panel does so with the IME closed).
     std::atomic<bool> mImeActive{ false };
 
     LLDragDropWin32* mDragDrop;

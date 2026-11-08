@@ -3183,7 +3183,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_IME_REQUEST:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_REQUEST");
-            // Answered from an empty cache until the next frame
+            // Location requests fail until the next frame measures them
             window_imp->mImeActive = true;
             if (LLWinImm::isAvailable() && window_imp->mPreeditor)
             {
@@ -5033,8 +5033,7 @@ void LLWindowWin32::updateImeCache()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
     ASSERT_MAIN_THREAD();
 
-    // Without IME activity nothing asks, and a cache kept then would be stale when something does
-    if (!mPreeditor || !mImeActive.load(std::memory_order_relaxed))
+    if (!mPreeditor)
     {
         if (mImeCache.mValid)
         {
@@ -5044,8 +5043,13 @@ void LLWindowWin32::updateImeCache()
         return;
     }
 
+    const bool locate = mImeActive.load(std::memory_order_relaxed);
+
     ImeLocation cursor;
-    cursor.mValid = mPreeditor->getPreeditLocation(-1, &cursor.mCaret, &cursor.mBounds, &cursor.mControl);
+    if (locate)
+    {
+        cursor.mValid = mPreeditor->getPreeditLocation(-1, &cursor.mCaret, &cursor.mBounds, &cursor.mControl);
+    }
 
     const LLWString& wtext = mPreeditor->getPreeditString();
     const S32 text_length = (S32)wtext.length();
@@ -5075,6 +5079,7 @@ void LLWindowWin32::updateImeCache()
         && preedit_length == 0
         && mImeCache.mPreeditText.empty()
         && mImeCache.mPreeditor == mPreeditor
+        && mImeCache.mLocated == locate
         && mImeCache.mTextLength == text_length
         && mImeCache.mPreeditStart == preedit
         && mImeCache.mSelect == select
@@ -5088,6 +5093,7 @@ void LLWindowWin32::updateImeCache()
 
     ImeCache cache;
     cache.mValid = true;
+    cache.mLocated = locate;
     cache.mPreeditor = mPreeditor;
     cache.mTextLength = text_length;
     cache.mPreeditStart = preedit;
@@ -5111,7 +5117,10 @@ void LLWindowWin32::updateImeCache()
         }
         cache.mPreeditPositions.push_back(preedit_length);
 
-        mPreeditor->getPreeditLocations(cache.mPreeditLocations);
+        if (locate)
+        {
+            mPreeditor->getPreeditLocations(cache.mPreeditLocations);
+        }
 
         // IMR_DOCUMENTFEED may be called when we have an active preedit.
         // We should pass the context string *excluding* the preedit string.
@@ -5155,7 +5164,7 @@ bool LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
                 ImeLocation cursor;
                 {
                     LLMutexLock lock(&mImeCacheMutex);
-                    if (!mImeCache.mValid)
+                    if (!mImeCache.mValid || !mImeCache.mLocated)
                     {
                         return false;
                     }
@@ -5186,7 +5195,7 @@ bool LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
                     LLMutexLock lock(&mImeCacheMutex);
                     // Positions past the preedit fail, the cache only holds the preedit
                     const std::vector<S32>& positions = mImeCache.mPreeditPositions;
-                    if (!mImeCache.mValid || char_position->dwCharPos >= positions.size())
+                    if (!mImeCache.mValid || !mImeCache.mLocated || char_position->dwCharPos >= positions.size())
                     {
                         return false;
                     }
