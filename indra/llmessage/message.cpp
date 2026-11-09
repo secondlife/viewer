@@ -895,7 +895,9 @@ bool LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
 
             // process the message as normal
             sIncomingCompressedSize = zeroCodeExpand(&buffer, &receive_size);
-            sCurrentRecvPacketID = ntohl(*((U32*)(&buffer[1])));
+            U32 packet_id;
+            memcpy(&packet_id, &buffer[1], sizeof(packet_id));
+            sCurrentRecvPacketID = ntohl(packet_id);
             LLHost host = getSender();
 
             const bool resetPacketId = true;
@@ -1341,15 +1343,49 @@ S32 LLMessageSystem::processBufferPacket(LLPacketBuffer& pkt)
 
     if (packet_size >= (S32)LL_MINIMUM_VALID_PACKET_SIZE && !computeDrop())
     {
-        if (!pkt.getPacketIDChecked())
+        const char* data = pkt.getData();
+        LLCircuitData* cdp = mCircuitInfo.findCircuit(pkt.getHost());
+        U32 packet_id;
+        memcpy(&packet_id, &data[1], sizeof(packet_id));
+        TPACKETID recv_packet_id = ntohl(packet_id);
+
+        // Harvest piggybacked ACKs for outbound messages from the packet tail of this inbound message
+        if (cdp && (data[0] & LL_ACK_FLAG))
         {
-            const U8* buffer = (const U8*)pkt.getData();
-            TPACKETID packet_id;
-            memcpy(&packet_id, &buffer[1], sizeof(packet_id));
-            if (LLCircuitData* cdp = mCircuitInfo.findCircuit(pkt.getHost()))
+            U8 num_acks = (U8)data[packet_size - 1];
+            S32 true_rcv_size = packet_size - 1;
+            if (true_rcv_size >= (S32)(num_acks * sizeof(TPACKETID) + LL_MINIMUM_VALID_PACKET_SIZE))
             {
-                cdp->checkPacketInID(ntohl(packet_id),
-                                     (buffer[0] & LL_RESENT_FLAG) != 0);
+                TPACKETID ack_id;
+                U32 mem_id = 0;
+                for (S32 i = 0; i < num_acks; ++i)
+                {
+                    true_rcv_size -= sizeof(TPACKETID);
+                    memcpy(&mem_id, &data[true_rcv_size], sizeof(TPACKETID));
+                    ack_id = ntohl(mem_id);
+                    cdp->ackReliablePacket(ack_id);
+                }
+                if (!cdp->getUnackedPacketCount())
+                {
+                    mCircuitInfo.mUnackedCircuitMap.erase(cdp->mHost);
+                }
+            }
+        }
+
+        if (cdp && !pkt.getPacketIDChecked())
+        {
+            // ACK inbound reliable packet ASAP
+            if ((data[0] & LL_RELIABLE_FLAG))
+            {
+                cdp->collectRAck(recv_packet_id);
+            }
+
+            // Check packet sequencing here, in true socket-arrival order, before
+            // this packet is sorted into the high/low priority inbound queue.
+            bool recv_resent = (data[0] & LL_RESENT_FLAG) != 0;
+            if (!recv_resent || !cdp->isDuplicateResend(recv_packet_id))
+            {
+                cdp->checkPacketInID(recv_packet_id, recv_resent);
                 pkt.setPacketIDChecked(true);
             }
         }
@@ -1764,7 +1800,8 @@ S32 LLMessageSystem::sendMessage(const LLHost &host)
     cdp->nextPacketOutID();
 
     // Packet ID size is always 4
-    *((S32*)&mSendBuffer[PHL_PACKET_ID]) = htonl(cdp->getPacketOutID());
+    U32 packet_id = htonl(cdp->getPacketOutID());
+    memcpy(&mSendBuffer[PHL_PACKET_ID], &packet_id, sizeof(packet_id));
 
     // Compress the message, which will usually reduce its size.
     U8 * buf_ptr = (U8 *)mSendBuffer;
@@ -4039,7 +4076,7 @@ void LLMessageSystem::dumpPacketToLog()
     LL_WARNS("Messaging") << "Packet Size:" << sTrueReceiveSize << LL_ENDL;
     char line_buffer[256];      /* Flawfinder: ignore */
     S32 i;
-    S32 cur_line_pos = 0;
+    U32 cur_line_pos = 0;
     S32 cur_line = 0;
 
     for (i = 0; i < sTrueReceiveSize; i++)

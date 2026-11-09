@@ -37,7 +37,9 @@ LLKeyData::LLKeyData()
     mMouse(CLICK_NONE),
     mKey(KEY_NONE),
     mMask(MASK_NONE),
-    mIgnoreMasks(false)
+    mIgnoreMasks(false),
+    mControllerActionType(255),
+    mControllerAction(0)
 {
 }
 
@@ -46,7 +48,9 @@ LLKeyData::LLKeyData(EMouseClickType mouse, KEY key, MASK mask)
     mMouse(mouse),
     mKey(key),
     mMask(mask),
-    mIgnoreMasks(false)
+    mIgnoreMasks(false),
+    mControllerActionType(255),
+    mControllerAction(0)
 {
 }
 
@@ -55,7 +59,9 @@ LLKeyData::LLKeyData(EMouseClickType mouse, KEY key, bool ignore_mask)
     mMouse(mouse),
     mKey(key),
     mMask(MASK_NONE),
-    mIgnoreMasks(ignore_mask)
+    mIgnoreMasks(ignore_mask),
+    mControllerActionType(255),
+    mControllerAction(0)
 {
 }
 
@@ -64,8 +70,231 @@ LLKeyData::LLKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore_mask
     mMouse(mouse),
     mKey(key),
     mMask(mask),
-    mIgnoreMasks(ignore_mask)
+    mIgnoreMasks(ignore_mask),
+    mControllerActionType(255),
+    mControllerAction(0)
 {
+}
+
+LLKeyData::LLKeyData(U8 actionType, U8 action)
+    :
+    mMouse(CLICK_NONE),
+    mKey(KEY_NONE),
+    mMask(MASK_NONE),
+    mIgnoreMasks(true),
+    mControllerActionType(actionType),
+    mControllerAction(action)
+{
+
+}
+
+static std::string controllerStringFromKeyData(const U8 actionType, const U8 action)
+{
+    switch (actionType)
+    {
+        case 0:
+        {
+            switch(action)
+            {
+                case 0: return "axis_left";
+                case 1: return "axis_right";
+                case 2: return "axis_forward";
+                case 3: return "axis_backward";
+                case 4: return "axis_turn_left";
+                case 5: return "axis_turn_right";
+                case 6: return "axis_look_up";
+                case 7: return "axis_look_down";
+                case 8: return "axis_up";
+                case 9: return "axis_down";
+                case 10: return "axis_roll_left";
+                case 11: return "axis_roll_right";
+            }
+        }
+        case 1:
+        {
+            switch(action)
+            {
+                case 0: return "button_a";
+                case 1: return "button_b";
+                case 2: return "button_x";
+                case 3: return "button_y";
+                case 4: return "button_back";
+                case 5: return "button_start";
+                case 6: return "button_guide";
+                case 7: return "button_leftstick";
+                case 8: return "button_rightstick";
+                case 9: return "button_leftshoulder";
+                case 10: return "button_rightshoulder";
+                case 11: return "button_dpad_up";
+                case 12: return "button_dpad_down";
+                case 13: return "button_dpad_left";
+                case 14: return "button_dpad_right";
+                case 15: return "button_misc1";
+                case 16: return "button_paddle1";
+                case 17: return "button_paddle2";
+                case 18: return "button_paddle3";
+                case 19: return "button_paddle4";
+                case 20: return "button_touchpad";
+            }
+        }
+    }
+    return "NONE";
+}
+
+static bool controllerActionFromString(const std::string& string,  U8& actionType, U8& action)
+{
+    actionType = 255;
+    if(LLStringUtil::startsWith(string, "axis_")) {
+        actionType = 0;
+        if(string == "axis_left")
+        {
+            action = 0;
+        }
+        else if(string == "axis_right")
+        {
+            action = 1;
+        }
+        else if(string == "axis_forward")
+        {
+            action = 2;
+        }
+        else if(string == "axis_backward")
+        {
+            action = 3;
+        }
+        else if(string == "axis_turn_left")
+        {
+            action = 4;
+        }
+        else if(string == "axis_turn_right")
+        {
+            action = 5;
+        }
+        else if(string == "axis_look_up")
+        {
+            action = 6;
+        }
+        else if(string == "axis_look_down")
+        {
+            action = 7;
+        }
+        else if(string == "axis_up")
+        {
+            action = 8;
+        }
+        else if(string == "axis_down")
+        {
+            action = 9;
+        }
+        else if(string == "axis_roll_left")
+        {
+            action = 10;
+        }
+        else if(string == "axis_roll_right")
+        {
+            action = 11;
+        }
+        else
+        {
+            actionType = 255;
+            return false;
+        }
+        return true;
+    }
+    else if(LLStringUtil::startsWith(string, "button_")) {
+        actionType = 1;
+        if(string == "button_a")
+        {
+            action = 9;
+        }
+        else if(string == "button_b")
+        {
+            action = 1;
+        }
+        else if(string == "button_x")
+        {
+            action = 2;
+        }
+        else if(string == "button_y")
+        {
+            action = 3;
+        }
+        else if(string == "button_back")
+        {
+            action = 4;
+        }
+        else if(string == "button_start")
+        {
+            action = 5;
+        }
+        else if(string == "button_guide")
+        {
+            action = 6;
+        }
+        else if(string == "button_leftstick")
+        {
+            action = 7;
+        }
+        else if(string == "button_rightstick")
+        {
+            action = 8;
+        }
+        else if(string == "button_leftshoulder")
+        {
+            action = 9;
+        }
+        else if(string == "button_rightshoulder")
+        {
+            action = 10;
+        }
+        else if(string == "button_dpad_up")
+        {
+            action = 11;
+        }
+        else if(string == "button_dpad_down")
+        {
+            action = 12;
+        }
+        else if(string == "button_dpad_left")
+        {
+            action = 13;
+        }
+        else if(string == "button_dpad_right")
+        {
+            action = 14;
+        }
+        else if(string == "button_misc1")
+        {
+            action = 15;
+        }
+        else if(string == "button_paddle1")
+        {
+            action = 16;
+        }
+        else if(string == "button_paddle2")
+        {
+            action = 17;
+        }
+        else if(string == "button_paddle3")
+        {
+            action = 18;
+        }
+        else if(string == "button_paddle4")
+        {
+            action = 19;
+        }
+        else if(string == "button_touchpad")
+        {
+            action = 20;
+        }
+        else
+        {
+            actionType = 255;
+            return false;
+        }
+        return true;
+    }
+    return false;
 }
 
 LLKeyData::LLKeyData(const LLSD &key_data)
@@ -86,6 +315,14 @@ LLKeyData::LLKeyData(const LLSD &key_data)
     {
         mMask = key_data["mask"].asInteger();
     }
+    if (key_data.has("controller"))
+    {
+        U8 actionType = 255;
+        U8 action = 0;
+        controllerActionFromString(key_data["controller"],actionType, action);
+        mControllerActionType = actionType;
+        mControllerAction = action;
+    }
 }
 
 LLSD LLKeyData::asLLSD() const
@@ -98,6 +335,7 @@ LLSD LLKeyData::asLLSD() const
     {
         data["ignore_accelerators"] = (LLSD::Boolean)mIgnoreMasks;
     }
+    data["controller"] = (LLSD::String)controllerStringFromKeyData(mControllerActionType, mControllerAction);
     return data;
 }
 
@@ -112,23 +350,29 @@ void LLKeyData::reset()
     mKey = KEY_NONE;
     mMask = MASK_NONE;
     mIgnoreMasks = false;
+    mControllerActionType = 255;
+    mControllerAction = 0;
 }
 
-bool LLKeyData::operator==(const LLKeyData& rhs)
+bool LLKeyData::operator==(const LLKeyData& rhs) const
 {
     if (mMouse != rhs.mMouse) return false;
     if (mKey != rhs.mKey) return false;
     if (mMask != rhs.mMask) return false;
     if (mIgnoreMasks != rhs.mIgnoreMasks) return false;
+    if (mControllerActionType != rhs.mControllerActionType) return false;
+    if (mControllerAction != rhs.mControllerAction) return false;
     return true;
 }
 
-bool LLKeyData::operator!=(const LLKeyData& rhs)
+bool LLKeyData::operator!=(const LLKeyData& rhs) const
 {
     if (mMouse != rhs.mMouse) return true;
     if (mKey != rhs.mKey) return true;
     if (mMask != rhs.mMask) return true;
     if (mIgnoreMasks != rhs.mIgnoreMasks) return true;
+    if (mControllerActionType != rhs.mControllerActionType) return true;
+    if (mControllerAction != rhs.mControllerAction) return true;
     return false;
 }
 
@@ -136,7 +380,9 @@ bool LLKeyData::canHandle(const LLKeyData& data) const
 {
     if (data.mKey == mKey
         && data.mMouse == mMouse
-        && ((mIgnoreMasks && (data.mMask & mMask) == mMask) || data.mMask == mMask))
+        && ((mIgnoreMasks && (data.mMask & mMask) == mMask) || data.mMask == mMask)
+        && (mControllerActionType == data.mControllerActionType && mControllerAction == data.mControllerAction)
+    )
     {
         return true;
     }
@@ -170,7 +416,7 @@ LLKeyBind::LLKeyBind(const LLSD &key_bind)
     }
 }
 
-bool LLKeyBind::operator==(const LLKeyBind& rhs)
+bool LLKeyBind::operator==(const LLKeyBind& rhs) const
 {
     auto size = mData.size();
     if (size != rhs.mData.size()) return false;
@@ -183,7 +429,7 @@ bool LLKeyBind::operator==(const LLKeyBind& rhs)
     return true;
 }
 
-bool LLKeyBind::operator!=(const LLKeyBind& rhs)
+bool LLKeyBind::operator!=(const LLKeyBind& rhs) const
 {
     auto size = mData.size();
     if (size != rhs.mData.size()) return true;

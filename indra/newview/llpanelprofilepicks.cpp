@@ -41,6 +41,7 @@
 #include "llpanelavatar.h"
 #include "llpanelprofile.h"
 #include "llparcel.h"
+#include "llregionhandle.h"
 #include "llstartup.h"
 #include "lltabcontainer.h"
 #include "lltextbox.h"
@@ -915,7 +916,19 @@ void LLPanelProfilePick::processParcelInfo(const LLParcelData& parcel_data)
 {
     // Region might have moved since the pick was saved; refresh the stored global position
     // using the parcel info so map/teleport use the current location.
-    setPosGlobal(LLVector3d(parcel_data.global_x, parcel_data.global_y, parcel_data.global_z));
+    LLVector3d parcel_pos(parcel_data.global_x, parcel_data.global_y, parcel_data.global_z);
+    U64 old_region_handle = to_region_handle(getPosGlobal());
+    U64 new_region_handle = to_region_handle(parcel_pos);
+    if (old_region_handle != new_region_handle)
+    {
+        F32 old_origin_x, old_origin_y;
+        from_region_handle(old_region_handle, &old_origin_x, &old_origin_y);
+        LLVector3d local_offset = getPosGlobal() - LLVector3d(old_origin_x, old_origin_y, 0.0);
+
+        F32 new_origin_x, new_origin_y;
+        from_region_handle(new_region_handle, &new_origin_x, &new_origin_y);
+        setPosGlobal(LLVector3d(new_origin_x, new_origin_y, 0.0) + local_offset);
+    }
 
     setPickLocation(createLocationText(LLStringUtil::null, parcel_data.name, parcel_data.sim_name, getPosGlobal()));
 

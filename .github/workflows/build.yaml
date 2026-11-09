@@ -178,6 +178,10 @@ jobs:
       - name: Determine source branch
         id: which-branch
         uses: secondlife/viewer-build-util/which-branch@v2
+        env:
+          # which_branch.py writes PR text to $GITHUB_OUTPUT using the default
+          # encoding, which is cp1252 on Windows; force UTF-8.
+          PYTHONUTF8: "1"
         with:
           token: ${{ github.token }}
 
@@ -476,7 +480,7 @@ jobs:
           tar -xJf "${{ needs.build.outputs.viewer_channel }}.sym.tar.xz" -C _artifacts
       - name: Post Windows symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
-        uses: BugSplat-Git/symbol-upload@e019eb5090a6cd589268b9119e09cf4a18ace9ad
+        uses: BugSplat-Git/symbol-upload@b10247248859357264522ebb6d72f225b99be02b
         with:
           clientId: "${{ env.SYMBOL_UPLOAD_CLIENT_ID }}"
           clientSecret: "${{ env.SYMBOL_UPLOAD_CLIENT_SECRET }}"
@@ -520,7 +524,7 @@ jobs:
           done
       - name: Post Mac symbols
         if: env.BUGSPLAT_DATABASE && env.SYMBOL_UPLOAD_CLIENT_ID
-        uses: BugSplat-Git/symbol-upload@e019eb5090a6cd589268b9119e09cf4a18ace9ad
+        uses: BugSplat-Git/symbol-upload@b10247248859357264522ebb6d72f225b99be02b
         with:
           clientId: "${{ env.SYMBOL_UPLOAD_CLIENT_ID }}"
           clientSecret: "${{ env.SYMBOL_UPLOAD_CLIENT_SECRET }}"

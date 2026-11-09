@@ -29,6 +29,8 @@
 
 #include "llsingleton.h"
 
+class LLFetchAvatarPaymentInfo;
+
 class LLBuyCurrencyHTML
 {
     public:
@@ -45,10 +47,25 @@ class LLBuyCurrencyHTML
         // close (and destroy) the currency floater
         static void closeDialog();
 
-        // probe BuyCurrencyPacksURL once at login; clears sWebFloaterEnabled if 501
+        // probe BuyCurrencyPacksURL once at login; clears sWebFloaterEnabled if 501.
+        // also launches the BuyCurrencyAddPaymentURL probe that sets sAddPaymentEnabled
         static void checkFeatureFlag();
 
         static bool sWebFloaterEnabled;
+
+        // true only when BuyCurrencyAddPaymentURL answered 200, meaning the web floater
+        // can add a payment method; otherwise residents without one are sent to the LindeX
+        static bool sAddPaymentEnabled;
+
+    private:
+        // route to the legacy floater, the web floater, or the LindeX payment page
+        static void routeCurrencyRequest( bool has_target, const std::string& message, S32 sum );
+
+        // open the web floater, with the shortfall and fallback context when there is a target
+        static void openWebFloater( bool has_target, const std::string& message, S32 sum );
+
+        // pending payment info check made before opening the web floater
+        static LLFetchAvatarPaymentInfo* sPaymentInfoRequest;
 };
 
 #endif  // LL_LLBUYCURRENCYHTML_H
