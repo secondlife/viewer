@@ -6,7 +6,7 @@
  *
  * $LicenseInfo:firstyear=2013&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2013, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -47,6 +47,7 @@
 #include "httpheaders.h"
 #include "httpoptions.h"
 #include "llcorehttputil.h"
+#include "llcoproceduremanager.h"
 
 static  const std::string KEY_AGENTS = "agents";            // map
 static  const std::string KEY_WEIGHT = "weight";            // integer
@@ -326,17 +327,12 @@ void LLAvatarRenderInfoAccountant::sendRenderInfoToRegion(LLViewerRegion * regio
         // make sure we won't re-report, coro will update timer with correct time later
         regionp->getRenderInfoReportTimer().resetWithExpiry(SECS_BETWEEN_REGION_REPORTS);
 
-        try
-        {
-            std::string coroname =
-                LLCoros::instance().launch("LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro",
-                    boost::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro, url, regionp->getHandle()));
-        }
-        catch (std::bad_alloc&)
-        {
-            LLError::LLUserWarningMsg::showOutOfMemory();
-            LL_ERRS() << "LLCoros::launch() allocation failure" << LL_ENDL;
-        }
+        // While LLAvatarRenderInfoAccountant isn't directly related to experience cache,
+        // that's the list busy category. And we are sending too many requests (one per
+        // region) to spam LLCoros::instance().launch()
+        // Todo: consider renaming "ExpCache" into "General"
+        LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "RenderInfoAccountantSend",
+            boost::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro, url, regionp->getHandle()));
     }
 }
 
@@ -357,18 +353,12 @@ void LLAvatarRenderInfoAccountant::getRenderInfoFromRegion(LLViewerRegion * regi
         // make sure we won't re-request, coro will update timer with correct time later
         regionp->getRenderInfoRequestTimer().resetWithExpiry(SECS_BETWEEN_REGION_REQUEST);
 
-        try
-        {
-            // First send a request to get the latest data
-            std::string coroname =
-                LLCoros::instance().launch("LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro",
-                    boost::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro, url, regionp->getHandle()));
-        }
-        catch (std::bad_alloc&)
-        {
-            LLError::LLUserWarningMsg::showOutOfMemory();
-            LL_ERRS() << "LLCoros::launch() allocation failure" << LL_ENDL;
-        }
+        // While LLAvatarRenderInfoAccountant isn't directly related to experience cache,
+        // that's the list busy category. And we can be sending too many requests (one
+        // per region) to spam LLCoros::instance().launch()
+        // Todo: consider renaming "ExpCache" into "General"
+        LLCoprocedureManager::instance().enqueueCoprocedure("ExpCache", "RenderInfoAccountantGet",
+            boost::bind(&LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro, url, regionp->getHandle()));
     }
 }
 
