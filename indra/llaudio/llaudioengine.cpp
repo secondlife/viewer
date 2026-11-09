@@ -1845,3 +1845,17 @@ bool LLAudioData::load()
     mBufferp->mAudioDatap = this;
     return true;
 }
+
+
+
+
+//
+// LLAudioBuffer implementation
+//
+
+
+LLAudioBuffer::LLAudioBuffer() :
+    mInUse(false),
+    mAudioDatap(nullptr)
+{
+}

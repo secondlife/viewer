@@ -37,6 +37,7 @@
 #include "llmd5.h"
 #include "llfindlocale.h"
 #include "llversioninfo.h"
+#include "llfocusmgr.h"
 
 #include <exception>
 
@@ -76,12 +77,9 @@ namespace
     int gArgC = 0;
     char **gArgV = NULL;
     LLAppViewerLinux* gViewerAppPtr = NULL;
+    bool gViewerInitialized = false;
     void (*gOldTerminateHandler)() = NULL;
 }
-
-// Initialize static members
-guint32 LLAppViewerLinux::sPowerInhibitCookie = 0;
-bool LLAppViewerLinux::sPowerInhibitActive = false;
 
 void check_vm_bloat()
 {
@@ -174,7 +172,6 @@ finally:
     }
 #endif // LL_LINUX
 }
-
 static void exceptionTerminateHandler()
 {
     // reinstall default terminate() handler in case we re-terminate.
@@ -222,6 +219,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char **argv)
         return SDL_APP_FAILURE;
     }
 
+    gViewerInitialized = true;
     return SDL_APP_CONTINUE;
 }
 
@@ -261,11 +259,20 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
-    return LLWindowSDL::handleEvents(*event);
+    return LLWindowSDL::handleEvents(*event, gFocusMgr.getAppHasFocus());
 }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
+    if (!gViewerInitialized)
+    {
+        // SDL calls SDL_AppQuit() even when SDL_AppInit() failed. A failed
+        // init() either never got far enough to need cleanup or already
+        // tore everything down itself (e.g. the SLURL handoff fast exit),
+        // so running cleanup() here would recreate singletons and crash.
+        return;
+    }
+
     if (!LLApp::isError())
     {
         //
@@ -286,11 +293,6 @@ LLAppViewerLinux::LLAppViewerLinux()
 
 LLAppViewerLinux::~LLAppViewerLinux()
 {
-    // Clean up any power management inhibition on exit
-    if (sPowerInhibitActive)
-    {
-        uninhibitPowerManagement();
-    }
 }
 
 bool LLAppViewerLinux::init()
@@ -356,6 +358,10 @@ static void DoMethodeCall (GDBusConnection       *connection,
 
     g_variant_get (parameters, "(&s)", &slurl);
     dispatchSLURL(slurl);
+
+    // Reply so the sender's g_dbus_proxy_call_sync() returns right away
+    // instead of blocking until its timeout expires.
+    g_dbus_method_invocation_return_value(invocation, nullptr);
 }
 
 GDBusNodeInfo *gBusNodeInfo = nullptr;
@@ -432,6 +438,18 @@ bool LLAppViewerLinux::sendURLToOtherInstance(const std::string& url)
         return false;
     }
 
+    // The proxy is created even if nobody owns the service name, so check
+    // that another viewer is actually running before handing off.
+    gchar *pOwner = g_dbus_proxy_get_name_owner( pProxy );
+    if( !pOwner )
+    {
+        LL_INFOS() << "No running viewer to pass the SLURL to, starting normally." << LL_ENDL;
+        g_object_unref( pProxy );
+        g_object_unref( pBus );
+        return false;
+    }
+    g_free( pOwner );
+
     auto *pArgs = g_variant_new( "(s)", url.c_str() );
     if( !pArgs )
     {
@@ -440,18 +458,24 @@ bool LLAppViewerLinux::sendURLToOtherInstance(const std::string& url)
         return false;
     }
 
+    GError *pError = nullptr;
     auto pRes  = g_dbus_proxy_call_sync(pProxy,
                                         "GoSLURL",
                                         pArgs,
                                         G_DBUS_CALL_FLAGS_NONE,
-                                        -1, nullptr, nullptr);
+                                        5000, nullptr, &pError);
 
-
-
-    if( pRes )
-        g_variant_unref( pRes );
     g_object_unref( pProxy );
     g_object_unref( pBus );
+
+    if( !pRes )
+    {
+        LL_WARNS() << "Passing the SLURL to the running viewer failed: " << pError->message << LL_ENDL;
+        g_error_free( pError );
+        return false;
+    }
+
+    g_variant_unref( pRes );
     return true;
 }
 
@@ -465,178 +489,6 @@ bool LLAppViewerLinux::sendURLToOtherInstance(const std::string& url)
     return false; // not implemented without dbus
 }
 #endif // LL_GLIB
-
-
-#if LL_GLIB
-
-namespace
-{
-    // Session-bus sleep inhibitors, tried in order; both hand back a uint cookie.
-    struct PowerInhibitor
-    {
-        const char* service;
-        const char* path;
-        const char* iface;
-        const char* uninhibit;
-        bool gnome_args;
-    };
-
-    const PowerInhibitor POWER_INHIBITORS[] =
-    {
-        { "org.freedesktop.PowerManagement", "/org/freedesktop/PowerManagement/Inhibit",
-          "org.freedesktop.PowerManagement.Inhibit", "UnInhibit", false },
-        { "org.gnome.SessionManager", "/org/gnome/SessionManager",
-          "org.gnome.SessionManager", "Uninhibit", true }
-    };
-
-    const PowerInhibitor* sActiveInhibitor = nullptr;
-
-    // Returns the reply, or null on failure. Takes ownership of args.
-    GVariant* call_power_manager(const PowerInhibitor& inhibitor, const char* method, GVariant* args,
-                                 const GVariantType* reply_type)
-    {
-        g_variant_ref_sink(args);
-
-        GDBusConnection* bus = g_bus_get_sync(G_BUS_TYPE_SESSION, nullptr, nullptr);
-        if (!bus)
-        {
-            LL_WARNS("OS") << "Getting dbus failed." << LL_ENDL;
-            g_variant_unref(args);
-            return nullptr;
-        }
-
-        GError* error = nullptr;
-        GVariant* result = g_dbus_connection_call_sync(bus, inhibitor.service, inhibitor.path,
-                                                       inhibitor.iface, method, args, reply_type,
-                                                       G_DBUS_CALL_FLAGS_NONE, -1, nullptr, &error);
-        if (!result)
-        {
-            LL_DEBUGS("OS") << inhibitor.service << "." << method << " failed: "
-                            << (error ? error->message : "unknown error") << LL_ENDL;
-        }
-        if (error)
-        {
-            g_error_free(error);
-        }
-
-        g_variant_unref(args);
-        g_object_unref(bus);
-        return result;
-    }
-}
-
-#endif // LL_GLIB
-
-void LLAppViewerLinux::setOSHibernationMode(eHibernationMode mode)
-{
-    if (mode == LL_HIBERNATE_MODE_DEFAULT)
-    {
-        // Allow OS to sleep/hibernate - remove any inhibition
-        if (sPowerInhibitActive)
-        {
-            uninhibitPowerManagement();
-            LL_INFOS("OS") << "Permitted OS hibernation/sleep" << LL_ENDL;
-        }
-    }
-    else if (mode == LL_HIBERNATE_MODE_PREVENT)
-    {
-        // Prevent system sleep, but allow display to turn off
-        // Release any existing inhibition first to allow mode switching
-        if (sPowerInhibitActive)
-        {
-            uninhibitPowerManagement();
-        }
-
-        if (inhibitPowerManagement(false))
-        {
-            LL_INFOS("OS") << "Prevented OS hibernation/sleep, display sleep allowed" << LL_ENDL;
-        }
-        else
-        {
-            LL_WARNS("OS") << "Failed to prevent OS hibernation/sleep" << LL_ENDL;
-        }
-    }
-    else if (mode == LL_HIBERNATE_MODE_PREVENT_SCREEN)
-    {
-        // Prevent both system and display sleep
-        // Release any existing inhibition first to allow mode switching
-        if (sPowerInhibitActive)
-        {
-            uninhibitPowerManagement();
-        }
-
-        if (inhibitPowerManagement(true))
-        {
-            LL_INFOS("OS") << "Prevented OS hibernation/sleep and display sleep" << LL_ENDL;
-        }
-        else
-        {
-            LL_WARNS("OS") << "Failed to prevent OS hibernation/sleep and display sleep" << LL_ENDL;
-        }
-    }
-}
-
-// TODO: This is AI Generated!!!, needs review and testing.
-bool LLAppViewerLinux::inhibitPowerManagement(bool inhibit_display)
-{
-#if LL_GLIB
-    const char* reason = inhibit_display ?
-        "Viewer active - preventing system and display sleep" :
-        "Viewer active - preventing system sleep";
-
-    for (const PowerInhibitor& inhibitor : POWER_INHIBITORS)
-    {
-        // Inhibit(app: s, reason: s) -> u, or GNOME's Inhibit(app: s, xid: u, reason: s, flags: u) -> u
-        // GNOME flags: 4 = suspend, 8 = idle (display), 12 = both
-        GVariant* args = inhibitor.gnome_args ?
-            g_variant_new("(susu)", "SecondLifeViewer", (guint32)0, reason,
-                          (guint32)(inhibit_display ? 12 : 4)) :
-            g_variant_new("(ss)", "Second Life Viewer", reason);
-
-        GVariant* result = call_power_manager(inhibitor, "Inhibit", args, G_VARIANT_TYPE("(u)"));
-        if (!result)
-        {
-            continue;
-        }
-
-        guint32 cookie = 0;
-        g_variant_get(result, "(u)", &cookie);
-        g_variant_unref(result);
-
-        sPowerInhibitCookie = cookie;
-        sPowerInhibitActive = true;
-        sActiveInhibitor = &inhibitor;
-        LL_INFOS("OS") << "Successfully inhibited power management using "
-            << inhibitor.service << LL_ENDL;
-        return true;
-    }
-#endif // LL_GLIB
-
-    return false;
-}
-
-void LLAppViewerLinux::uninhibitPowerManagement()
-{
-#if LL_GLIB
-    if (sPowerInhibitActive && sActiveInhibitor)
-    {
-        GVariant* result = call_power_manager(*sActiveInhibitor, sActiveInhibitor->uninhibit,
-                                              g_variant_new("(u)", (guint32)sPowerInhibitCookie),
-                                              nullptr);
-        if (result)
-        {
-            g_variant_unref(result);
-            LL_INFOS("OS") << "Successfully uninhibited power management using "
-                << sActiveInhibitor->service << LL_ENDL;
-        }
-
-        sActiveInhibitor = nullptr;
-    }
-#endif // LL_GLIB
-
-    sPowerInhibitCookie = 0;
-    sPowerInhibitActive = false;
-}
 
 void LLAppViewerLinux::initCrashReporting(bool reportFreeze)
 {

@@ -106,7 +106,6 @@ LLGLSLShader    gDrawColorProgram;
 LLGLSLShader        gObjectPreviewProgram;
 LLGLSLShader        gSkinnedObjectPreviewProgram;
 LLGLSLShader        gPhysicsPreviewProgram;
-LLGLSLShader        gObjectFullbrightAlphaMaskProgram;
 LLGLSLShader        gObjectBumpProgram;
 LLGLSLShader        gSkinnedObjectBumpProgram;
 LLGLSLShader        gObjectAlphaMaskNoColorProgram;
@@ -414,7 +413,6 @@ void LLViewerShaderMgr::finalizeShaderList()
     mShaderList.push_back(&gWaterProgram);
     mShaderList.push_back(&gImpostorProgram);
     mShaderList.push_back(&gObjectBumpProgram);
-    mShaderList.push_back(&gObjectFullbrightAlphaMaskProgram);
     mShaderList.push_back(&gObjectAlphaMaskNoColorProgram);
     mShaderList.push_back(&gUnderWaterProgram);
     mShaderList.push_back(&gDeferredSunProgram);

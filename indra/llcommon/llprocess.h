@@ -199,6 +199,9 @@ public:
     static LLProcessPtr create(const LLSDOrParams& params);
     virtual ~LLProcess();
 
+    /// Wait for background child-process cleanup workers during application shutdown.
+    static void shutdownReapers();
+
     /// Is child process still running?
     bool isRunning() const;
     static bool isRunning(const LLProcessPtr&);
@@ -322,6 +325,16 @@ private:
     void connectMainloop();
     void tick();
     void handleExit(Status exitStatus);
+
+#if LL_DARWIN
+    void launchPosixSpawn(const LLSDOrParams& params,
+                          const std::vector<std::string>& args,
+                          const boost::filesystem::path& executable_path);
+
+    pid_t mDarwinPid{ -1 };
+#endif
+
+    id childPid() const;
 
     // Boost.Process v2 components
     boost::asio::io_context mIOContext;

@@ -144,6 +144,10 @@ void LLSkinningUtil::initSkinningMatrixPalette(
     if (skin->mInvBindMatrix.size() < count )
     {
         // faulty model? mInvBindMatrix.size() should have matched mJointNames.size()
+        for (S32 j = 0; j < count; ++j)
+        {
+            mat[j] = LLMatrix4a::identity();
+        }
         return;
     }
 
