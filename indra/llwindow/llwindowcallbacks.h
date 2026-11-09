@@ -80,6 +80,14 @@ public:
     virtual bool handleDisplayChanged();
     virtual bool handleWindowDidChangeScreen(LLWindow *window);
 
+    // How the element with keyboard focus takes typed text, for input methods.
+    enum TextInputType {
+        TEXT_INPUT_NONE = 0,    // Does not take text (e.g. a button)
+        TEXT_INPUT_ANY,         // Takes text from input methods (e.g. a web page)
+        TEXT_INPUT_PLAIN        // Takes text, but not from input methods (e.g. a password field)
+    };
+    virtual TextInputType handleFocusTextInputType(LLWindow *window);
+
     enum DragNDropAction {
         DNDA_START_TRACKING = 0,// Start tracking an incoming drag
         DNDA_TRACK,             // User is dragging an incoming drag around the window

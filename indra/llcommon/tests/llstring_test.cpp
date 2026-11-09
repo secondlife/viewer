@@ -856,4 +856,34 @@ namespace tut
                       LLStringUtil::getTokens("want x^^2", " ", "", "", "^"), StringVec{ "want", "x^2" });
         ensure_equals("escape at end", LLStringUtil::getTokens("it's^ up there^", " ", "", "'", "^"), StringVec{ "it's up", "there^" });
     }
+
+    template<> template<>
+    void string_index_object_t::test<43>()
+    {
+        set_test_name("UTF-16 lengths and offsets");
+
+        // 'a', U+1F600 (two UTF-16 units), 'b'
+        const LLWString text{ 'a', 0x1F600, 'b' };
+        ensure_equals("whole text", wstring_utf16_length(text, 0, 3), 4);
+        ensure_equals("character outside the BMP", wstring_utf16_length(text, 1, 1), 2);
+        ensure_equals("clamped at the end", wstring_utf16_length(text, 2, 5), 1);
+
+        bool unaligned = true;
+        ensure_equals("before U+1F600", wstring_wstring_length_from_utf16_length(text, 0, 1, &unaligned), 1);
+        ensure("before U+1F600 is aligned", !unaligned);
+        ensure_equals("inside U+1F600", wstring_wstring_length_from_utf16_length(text, 0, 2, &unaligned), 1);
+        ensure("inside U+1F600 is unaligned", unaligned);
+        ensure_equals("after U+1F600", wstring_wstring_length_from_utf16_length(text, 0, 3, &unaligned), 2);
+        ensure("after U+1F600 is aligned", !unaligned);
+        ensure_equals("from an offset", wstring_wstring_length_from_utf16_length(text, 1, 3, &unaligned), 2);
+        ensure("from an offset is aligned", !unaligned);
+        ensure_equals("past the end", wstring_wstring_length_from_utf16_length(text, 1, 10, &unaligned), 2);
+        ensure("past the end is aligned", !unaligned);
+        ensure_equals("empty", wstring_wstring_length_from_utf16_length(text, 0, 0, &unaligned), 0);
+        ensure("empty is aligned", !unaligned);
+
+        const llutf16string utf16 = wstring_to_utf16str(text);
+        ensure_equals("UTF-16 length", utf16.length(), size_t(4));
+        ensure("round trip", utf16str_to_wstring(utf16) == text);
+    }
 }
