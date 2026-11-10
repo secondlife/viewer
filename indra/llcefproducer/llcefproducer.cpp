@@ -1482,14 +1482,34 @@ int run_producer(int argc, char** argv)
             // slot just received above -- rather than waiting on CEF's own
             // windowless_frame_rate-paced internal timer (see the
             // external_begin_frame_enabled comment in llCefBrowserManagerImpl::
-            // CreateBrowser()). Cheap to call even when nothing changed: Chromium's
-            // own compositor already skips real work if there's nothing new to paint.
-            // Throttled to s.target_fps when set (see kSetRenderRate) -- distance/
-            // priority-based media (far away, out of view, etc.) doesn't need this
-            // slot's CEF instance painting at full rate; UI/parcel media never sets
-            // target_fps at all, so it's unaffected.
-            const bool begin_frame_due = (s.target_fps == 0) ||
-                (now - s.last_begin_frame >= std::chrono::duration<double>(1.0 / s.target_fps));
+            // CreateBrowser()). Throttled to s.target_fps when set (see
+            // kSetRenderRate) -- distance/priority-based media (far away, out of
+            // view, etc.) doesn't need this slot's CEF instance painting at full
+            // rate; UI/parcel media never sets target_fps, so it falls back to
+            // kUnthrottledBeginFrameFps below.
+            //
+            // target_fps == 0 used to mean "call SendExternalBeginFrame() on
+            // literally every main-loop tick, unconditionally" -- with this loop's
+            // own 1ms sleep, that's ~1000 calls/sec, nowhere near a real display's
+            // ~60Hz vsync. The assumption (a stale comment removed here) was that
+            // this is harmless because Chromium's compositor just skips real
+            // repaint work when nothing changed -- but confirmed via a real
+            // requestAnimationFrame-timing test (see the Google Maps POI click/
+            // hover investigation, 2026-11-09) that this is NOT true for Blink's
+            // *scheduling* of rAF callbacks, which are gated on BeginFrame
+            // delivery: flooding it at ~1000Hz produced a bursty ~31/46ms rAF
+            // cadence (2x/3x a ~15.5ms base) instead of a steady ~16.6ms one with
+            // CEF's internal timer, breaking any page JS that depends on rAF
+            // ticking normally (confirmed root cause of Maps' POI overlay staying
+            // stuck on top of its own canvas). Pacing every slot -- throttled or
+            // not -- at a real, bounded rate fixes this while still fully
+            // preserving the original scroll-latency win: still driven by us, not
+            // CEF's own decoupled internal timer, so input-to-repaint latency is
+            // still bounded by this interval rather than by CEF's own schedule.
+            static constexpr std::uint32_t kUnthrottledBeginFrameFps = 60;
+            const std::uint32_t effective_fps = (s.target_fps == 0) ? kUnthrottledBeginFrameFps : s.target_fps;
+            const bool begin_frame_due =
+                (now - s.last_begin_frame >= std::chrono::duration<double>(1.0 / effective_fps));
             if (begin_frame_due) {
                 s.last_begin_frame = now;
                 manager->SendExternalBeginFrame(s.cefHandle);
