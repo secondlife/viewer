@@ -293,6 +293,7 @@ public:
         static ptr_t matchSessionByChannelID(const std::string& channel_id);
 
         void shutdownAllConnections();
+        void logConnections() const;
         void revive();
         const std::string getVersion() const;
 
@@ -410,6 +411,7 @@ public:
     static void predSetMuteMic(const LLWebRTCVoiceClient::sessionStatePtr_t &session, bool mute);
     static void predSetSpeakerVolume(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 volume);
     static void predShutdownSession(const LLWebRTCVoiceClient::sessionStatePtr_t &session);
+    static void predLogUnclosedConnections(const LLWebRTCVoiceClient::sessionStatePtr_t& session);
     static void predSetUserMute(const LLWebRTCVoiceClient::sessionStatePtr_t &session, const LLUUID& id, bool mute);
     static void predSetUserVolume(const LLWebRTCVoiceClient::sessionStatePtr_t &session, const LLUUID& id, F32 volume);
 
