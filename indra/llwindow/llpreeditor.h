@@ -33,6 +33,7 @@
 #include "llrect.h"
 
 #include <deque>
+#include <vector>
 
 class LLPreeditor
 {
@@ -41,13 +42,18 @@ public:
     typedef std::vector<S32> segment_lengths_t;
     typedef std::deque<bool> standouts_t;
 
-    // Used as return value for getPreeditLocation()
+    // What getPreeditLocation() reports for one position, mValid being its return value
     struct Location
     {
         bool        mValid = false;
         LLCoordGL   mCaret;
         LLRect      mBounds;
         LLRect      mControl;
+
+        bool operator==(const Location& other) const
+        {
+            return mValid == other.mValid && mCaret == other.mCaret && mBounds == other.mBounds && mControl == other.mControl;
+        }
     };
     typedef std::vector<Location> locations_t;
 
@@ -96,7 +102,7 @@ public:
 
     virtual bool getPreeditLocation(S32 query_position, LLCoordGL *coord, LLRect *bounds, LLRect *control) const = 0;
 
-    // Get getPreeditLocation() for every preedit position, from 0 to the preedit length inclusive.
+    // Fill locations with what getPreeditLocation() reports for every preedit position, from 0 to the preedit length inclusive.
     // Implementations measure the text once for all positions instead of once per position.
 
     virtual void getPreeditLocations(locations_t& locations) const = 0;

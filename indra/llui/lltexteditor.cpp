@@ -3097,11 +3097,13 @@ void LLTextEditor::getPreeditLocations(locations_t& locations) const
             }
             if (current_line_start == current_line_end)
             {
-                // We have reached on the last line.  The query position must be here.
+                // We have reached the last line.  The query position must be here.
                 break;
             }
             current_line++;
         }
+
+        const S32 line_top = mVisibleTextRect.mTop - (current_line - first_visible_line) * line_height;
 
         if (current_line != measured_line)
         {
@@ -3131,10 +3133,7 @@ void LLTextEditor::getPreeditLocations(locations_t& locations) const
                 preedit_right += width(current_line_end - current_line_start);
             }
 
-            const S32 preedit_top = mVisibleTextRect.mTop - (current_line - first_visible_line) * line_height;
-            const S32 preedit_bottom = preedit_top - line_height;
-
-            const LLRect preedit_rect_local(preedit_left, preedit_top, preedit_right, preedit_bottom);
+            const LLRect preedit_rect_local(preedit_left, line_top, preedit_right, line_top - line_height);
             LLRect preedit_rect_screen;
             localRectToScreen(preedit_rect_local, &preedit_rect_screen);
             LLUI::getInstance()->screenRectToGL(preedit_rect_screen, &bounds);
@@ -3146,7 +3145,7 @@ void LLTextEditor::getPreeditLocations(locations_t& locations) const
         location.mControl = control;
 
         const S32 query_x = mVisibleTextRect.mLeft + width(query - current_line_start);
-        const S32 query_y = mVisibleTextRect.mTop - (current_line - first_visible_line) * line_height - line_height / 2;
+        const S32 query_y = line_top - line_height / 2;
         S32 query_screen_x, query_screen_y;
         localPointToScreen(query_x, query_y, &query_screen_x, &query_screen_y);
         LLUI::getInstance()->screenPointToGL(query_screen_x, query_screen_y, &location.mCaret.mX, &location.mCaret.mY);

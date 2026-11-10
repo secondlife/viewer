@@ -595,6 +595,7 @@ void LLFontGL::getWidths(const llwchar* wchars, S32 begin_offset, S32 max_chars,
     const S32 LAST_CHARACTER = LLFontFreetype::LAST_CHAR_FULL;
 
     widths.clear();
+    widths.reserve(llmax(max_chars, 0) + 1);
     widths.push_back(0);
 
     F32 cur_x = 0;
@@ -623,14 +624,14 @@ void LLFontGL::getWidths(const llwchar* wchars, S32 begin_offset, S32 max_chars,
 
         widths.push_back(ll_round(((F32)ll_round(cur_x) + width_padding) / sScaleX));
 
-        llwchar next_char = wchars[i+1];
-
-        if (((i + 1) < max_index)
-            && next_char
-            && (next_char < LAST_CHARACTER))
+        if ((i + 1) < max_index)
         {
-            next_glyph = mFontFreetype->getGlyphInfo(next_char, EFontGlyphType::Unspecified);
-            cur_x += mFontFreetype->getXKerning(fgi, next_glyph);
+            const llwchar next_char = wchars[i + 1];
+            if (next_char && (next_char < LAST_CHARACTER))
+            {
+                next_glyph = mFontFreetype->getGlyphInfo(next_char, EFontGlyphType::Unspecified);
+                cur_x += mFontFreetype->getXKerning(fgi, next_glyph);
+            }
         }
         cur_x = (F32)ll_round(cur_x);
     }

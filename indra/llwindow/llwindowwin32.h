@@ -39,8 +39,6 @@
 #include "llmutex.h"
 #include "workqueue.h"
 
-#include <atomic>
-
 // Hack for async host by name
 #define LL_WM_HOST_RESOLVED      (WM_APP + 1)
 // For requesting shutdown on uninstall,
@@ -181,7 +179,7 @@ protected:
 
     void    fillCandidateForm(const LLCoordGL& caret, const LLRect& bounds, CANDIDATEFORM *form);
     void    fillCharPosition(const LLCoordGL& caret, const LLRect& bounds, const LLRect& control, IMECHARPOSITION *char_position);
-    void    fillCompositionLogfont(LOGFONT *logfont);
+    void    fillCompositionLogfont(LOGFONT *logfont, S32 font_size);
     U32     fillReconvertString(const LLWString &text, S32 focus, S32 focus_length, RECONVERTSTRING *reconvert_string);
     void    handleStartCompositionMessage();
     void    handleCompositionMessage(const LLImeCompositionSnapshot& snapshot);
@@ -270,7 +268,6 @@ protected:
     struct ImeCache
     {
         bool                        mValid = false;
-        bool                        mLocated = false;   // mCursor and mPreeditLocations were measured
         ImeLocation                 mCursor;            // IMR_CANDIDATEWINDOW
         LLWString                   mPreeditText;       // IMR_QUERYCHARPOSITION, preedit characters only
         std::vector<S32>            mPreeditPositions;  // preedit character at each UTF-16 position, plus one past the end
@@ -282,6 +279,7 @@ protected:
         S32                         mSelectionContextOffset = 0; // position of mSelectionContext in the text
         S32                         mSelect = 0;        // selection, in the text
         S32                         mSelectLength = 0;
+        S32                         mFontSize = 0;      // IMR_COMPOSITIONFONT
 
         // What the cache was built from
         LLPreeditor*                mPreeditor = nullptr;
@@ -290,8 +288,6 @@ protected:
     };
     LLMutex         mImeCacheMutex;
     ImeCache        mImeCache;
-    // Set by the window thread when an IME is open or sends composition or requests (the emoji panel does so with the IME closed).
-    std::atomic<bool> mImeActive{ false };
 
     LLDragDropWin32* mDragDrop;
 
