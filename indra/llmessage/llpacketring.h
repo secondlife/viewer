@@ -40,6 +40,22 @@
 
 #include "llpacketbuffer.h"
 
+/*
+* KNOWN LIMITATION / FUTURE WORK:
+* Each slot owns a fixed, pre-allocated LLPacketBuffer that is overwritten
+* in place on push and copied out on pop. This keeps the ring allocation-free,
+* in steady state and keeps ownership simple (no slot is ever aliased by more
+* than one thread at a time), but it means every push/pop is a memcpy of the
+* live packet bytes (See LLPacketBuffer::operator=/copy-ctor). A packet
+* currently gets copied like this at least twice end-to-end: once into the
+* ring via pushPacket(), once out of the ring via popPacket() (on top of a
+* separate copy when crossing LLUDPReceiverThread's PacketQueue).
+*
+* REVISIT this if packet-copy overhead shows up as a hotspot
+* Consider a pool-based redesign, like a reusable buffer slots handed
+* out by index/token, explicitly released by the consumer, instead of
+* copied out.
+*/
 
 class LLPacketRing
 {
@@ -49,6 +65,8 @@ public:
 
     // Copy 'packet' onto the tail of the ring, growing the ring or
     // overwriting the oldest entry when the ring is at capacity.
+    // Only the live mSize bytes of 'packet' are copied (see
+    // LLPacketBuffer's custom copy assignment), not the full backing array.
     void pushPacket(const LLPacketBuffer& packet);
 
     // Copy the head (oldest) packet into 'packet'.
@@ -67,6 +85,7 @@ private:
 
     std::vector<LLPacketBuffer*> mRing;
     S16 mHeadIndex          { 0 };
-    S16 mNumBufferedPackets { 0 };
-    S32 mNumBufferedBytes   { 0 };
+    std::atomic<S16> mNumBufferedPackets { 0 };
+    std::atomic<S32> mNumBufferedBytes   { 0 };
+    std::atomic<F32> mBufferLoadRate     { 0.0f };
 };
