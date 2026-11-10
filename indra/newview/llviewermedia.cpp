@@ -3099,6 +3099,23 @@ void LLViewerMediaImpl::mouseDown(S32 x, S32 y, MASK mask, S32 button)
         // would wrongly tag some future, unrelated up as click_count=2.
         mPendingDoubleClickUp = false;
         LLEmbeddedBrowser::getInstance()->mouseButton(mEmbeddedBrowserId, x, y, (unsigned char)button, true, 1);
+
+        // Windowless/OSR CEF has no real OS window to tell it "you're the
+        // active one" -- unlike the legacy plugin backend, which calls CEF's
+        // own setFocus() unconditionally on every single left mouse-down
+        // (media_plugin_cef.cpp's "mouse_event" handler -- see also the
+        // removed "spoof a mouse click to *actually* pass focus" workaround
+        // in this file's own focus(), a sign this exact class of bug was
+        // already fought once before), this backend only reasserts CEF-level
+        // focus on a Viewer-UI focus *state change*
+        // (LLMediaCtrl::onFocusReceived(), fires at most once per click
+        // sequence), not on every subsequent click. Content whose own
+        // interaction/hit-testing logic depends on the renderer genuinely
+        // believing it has focus (confirmed: Google Maps' POI click/hover
+        // stopped working after the first click, despite correct mouse event
+        // delivery) can silently stop responding once that state goes stale.
+        // Reassert unconditionally on every down, matching legacy exactly.
+        LLEmbeddedBrowser::getInstance()->setFocus(mEmbeddedBrowserId, true);
     }
     else if (mMediaSource)
     {
@@ -3129,6 +3146,24 @@ void LLViewerMediaImpl::mouseUp(S32 x, S32 y, MASK mask, S32 button)
 void LLViewerMediaImpl::mouseMove(S32 x, S32 y, MASK mask)
 {
     scaleMouse(&x, &y);
+
+    // LLViewerWindow::updateUI() re-dispatches hover to whatever's under the
+    // cursor every single frame, using the last-known mouse position,
+    // regardless of whether the mouse actually moved since the previous
+    // frame -- harmless for most UI, but this forwards every one of those as
+    // a real mousemove to the embedded browser's page. Content that
+    // distinguishes a stationary click from a drag by watching for any
+    // mousemove between mousedown and mouseup (e.g. Google Maps' own pan-vs-
+    // tap gesture handling) sees this constant stream and treats every click
+    // as the start of a drag, so a plain click on map content never
+    // registers even though panning (which already expects a move stream)
+    // works fine. A real OS only ever generates a mousemove on genuine
+    // movement, so matching that here is also just correct, not a workaround.
+    if (mUseEmbeddedBrowser && x == mLastMouseX && y == mLastMouseY)
+    {
+        return;
+    }
+
     mLastMouseX = x;
     mLastMouseY = y;
 //  LL_INFOS() << "mouse move (" << x << ", " << y << ")" << LL_ENDL;
