@@ -35,6 +35,8 @@
 #include "llrect.h"
 #include "v2math.h"
 
+#include <vector>
+
 class LLColor4;
 // Key used to request a font.
 class LLFontDescriptor;

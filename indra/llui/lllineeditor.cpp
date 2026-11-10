@@ -2621,9 +2621,22 @@ bool LLLineEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
         return false;
     }
 
+    // Without a preedit the query and both preedit ends are the caret, measured once then
+    S32 measured_offset = S32_MIN;
+    S32 measured_pixel = 0;
+    auto pixel = [&](S32 cursor_offset)
+    {
+        if (cursor_offset != measured_offset)
+        {
+            measured_offset = cursor_offset;
+            measured_pixel = findPixelNearestPos(cursor_offset);
+        }
+        return measured_pixel;
+    };
+
     if (coord)
     {
-        S32 query_local = findPixelNearestPos(query - getCursor());
+        S32 query_local = pixel(query - getCursor());
         S32 query_screen_x, query_screen_y;
         localPointToScreen(query_local, getRect().getHeight() / 2, &query_screen_x, &query_screen_y);
         LLUI::getInstance()->screenPointToGL(query_screen_x, query_screen_y, &coord->mX, &coord->mY);
@@ -2631,8 +2644,8 @@ bool LLLineEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
 
     if (bounds)
     {
-        S32 preedit_left_local = findPixelNearestPos(llmax(preedit_left_column, mScrollHPos) - getCursor());
-        S32 preedit_right_local = llmin(findPixelNearestPos(preedit_right_column - getCursor()), getRect().getWidth() - mBorderThickness);
+        S32 preedit_left_local = pixel(llmax(preedit_left_column, mScrollHPos) - getCursor());
+        S32 preedit_right_local = llmin(pixel(preedit_right_column - getCursor()), getRect().getWidth() - mBorderThickness);
         if (preedit_left_local > preedit_right_local)
         {
             // Is this condition possible?

@@ -39,6 +39,8 @@
 #include "llmutex.h"
 #include "workqueue.h"
 
+#include <atomic>
+
 // Hack for async host by name
 #define LL_WM_HOST_RESOLVED      (WM_APP + 1)
 // For requesting shutdown on uninstall,
@@ -181,7 +183,7 @@ protected:
     void    fillCharPosition(const LLCoordGL& caret, const LLRect& bounds, const LLRect& control, IMECHARPOSITION *char_position);
     void    fillCompositionLogfont(LOGFONT *logfont, S32 font_size);
     U32     fillReconvertString(const LLWString &text, S32 focus, S32 focus_length, RECONVERTSTRING *reconvert_string);
-    void    handleStartCompositionMessage();
+    void    handleStartCompositionMessage(HWND h_wnd);
     void    handleCompositionMessage(const LLImeCompositionSnapshot& snapshot);
     bool    handleImeRequests(WPARAM request, LPARAM param, LRESULT *result);
     void    updateImeCache();
@@ -261,6 +263,7 @@ protected:
     LLRect          mLanguageTextInputAreaGL;
 
     LLPreeditor     *mPreeditor;
+    std::atomic<bool> mHasPreeditor{ false }; // mPreeditor is set, for the window thread
 
     // WM_IME_REQUEST is answered synchronously on the window thread, which has no GL context and races with the main thread.
     // The main thread keeps what the requests need here, see updateImeCache().
@@ -285,6 +288,7 @@ protected:
         LLPreeditor*                mPreeditor = nullptr;
         S32                         mPreeditStart = 0;
         S32                         mTextLength = 0;
+        S32                         mTextGeneration = 0; // see LLPreeditor::getPreeditTextGeneration()
     };
     LLMutex         mImeCacheMutex;
     ImeCache        mImeCache;

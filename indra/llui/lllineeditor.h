@@ -328,6 +328,7 @@ public:
     /*virtual*/ void    getPreeditLocations(locations_t& locations) const override;
     /*virtual*/ S32     getPreeditFontSize() const override;
     /*virtual*/ const LLWString& getPreeditString() const override { return getWText(); }
+    /*virtual*/ bool    getPreeditTextGeneration(S32 * /*generation*/) const override { return false; }
 
     void            setText(const LLStringExplicit &new_text, bool use_size_limit);
 

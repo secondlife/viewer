@@ -276,6 +276,7 @@ protected:
     virtual void    getPreeditLocations(locations_t& locations) const;
     virtual S32     getPreeditFontSize() const;
     virtual const LLWString& getPreeditString() const { return getWText(); }
+    virtual bool    getPreeditTextGeneration(S32 *generation) const { *generation = getTextGeneration(); return true; }
 
     virtual bool    useFontBuffers() const { return getReadOnly(); }
     //
@@ -309,6 +310,7 @@ private:
     //
     // Methods
     //
+    S32             getPreeditLine(S32 first_line, S32 position) const;
     void            pasteHelper(bool is_primary);
     void            cleanStringForPaste(LLWString& clean_string);
     void            pasteTextWithLinebreaks(LLWString & clean_string);

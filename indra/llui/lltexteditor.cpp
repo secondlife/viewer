@@ -2965,6 +2965,25 @@ void LLTextEditor::updatePreedit(const LLWString &preedit_string,
     onKeyStroke();
 }
 
+S32 LLTextEditor::getPreeditLine(S32 first_line, S32 position) const
+{
+    S32 low = first_line;
+    S32 high = llmax(getLineCount() - 1, first_line);
+    while (low < high)
+    {
+        const S32 middle = low + (high - low) / 2;
+        if (position < getLineStart(middle + 1))
+        {
+            high = middle;
+        }
+        else
+        {
+            low = middle + 1;
+        }
+    }
+    return low;
+}
+
 bool LLTextEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect *bounds, LLRect *control) const
 {
     if (control)
@@ -2997,31 +3016,30 @@ bool LLTextEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
         return false;
     }
 
-    S32 current_line = first_visible_line;
-    S32 current_line_start, current_line_end;
-    for (;;)
-    {
-        current_line_start = getLineStart(current_line);
-        current_line_end = getLineStart(current_line + 1);
-        if (query >= current_line_start && query < current_line_end)
-        {
-            break;
-        }
-        if (current_line_start == current_line_end)
-        {
-            // We have reached on the last line.  The query position must be here.
-            break;
-        }
-        current_line++;
-    }
+    const S32 current_line = getPreeditLine(first_visible_line, query);
+    const S32 current_line_start = getLineStart(current_line);
+    const S32 current_line_end = getLineStart(current_line + 1);
 
     const LLWString& textString = getWText();
     const llwchar * const text = textString.c_str();
     const S32 line_height = mFont->getLineHeight();
 
+    // Without a preedit the query and both preedit ends are the caret, measured once then
+    S32 measured_chars = -1;
+    S32 measured_width = 0;
+    auto width = [&](S32 chars)
+    {
+        if (chars != measured_chars)
+        {
+            measured_chars = chars;
+            measured_width = mFont->getWidth(text, current_line_start, chars);
+        }
+        return measured_width;
+    };
+
     if (coord)
     {
-        const S32 query_x = mVisibleTextRect.mLeft + mFont->getWidth(text, current_line_start, query - current_line_start);
+        const S32 query_x = mVisibleTextRect.mLeft + width(query - current_line_start);
         const S32 query_y = mVisibleTextRect.mTop - (current_line - first_visible_line) * line_height - line_height / 2;
         S32 query_screen_x, query_screen_y;
         localPointToScreen(query_x, query_y, &query_screen_x, &query_screen_y);
@@ -3033,17 +3051,17 @@ bool LLTextEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
         S32 preedit_left = mVisibleTextRect.mLeft;
         if (preedit_left_position > current_line_start)
         {
-            preedit_left += mFont->getWidth(text, current_line_start, preedit_left_position - current_line_start);
+            preedit_left += width(preedit_left_position - current_line_start);
         }
 
         S32 preedit_right = mVisibleTextRect.mLeft;
         if (preedit_right_position < current_line_end)
         {
-            preedit_right += mFont->getWidth(text, current_line_start, preedit_right_position - current_line_start);
+            preedit_right += width(preedit_right_position - current_line_start);
         }
         else
         {
-            preedit_right += mFont->getWidth(text, current_line_start, current_line_end - current_line_start);
+            preedit_right += width(current_line_end - current_line_start);
         }
 
         const S32 preedit_top = mVisibleTextRect.mTop - (current_line - first_visible_line) * line_height;
@@ -3087,21 +3105,9 @@ void LLTextEditor::getPreeditLocations(locations_t& locations) const
 
     for (S32 query = llmax(preedit_left_position, getLineStart(first_visible_line)); query <= preedit_right_position; ++query)
     {
-        for (;;)
-        {
-            current_line_start = getLineStart(current_line);
-            current_line_end = getLineStart(current_line + 1);
-            if (query >= current_line_start && query < current_line_end)
-            {
-                break;
-            }
-            if (current_line_start == current_line_end)
-            {
-                // We have reached the last line.  The query position must be here.
-                break;
-            }
-            current_line++;
-        }
+        current_line = getPreeditLine(current_line, query);
+        current_line_start = getLineStart(current_line);
+        current_line_end = getLineStart(current_line + 1);
 
         const S32 line_top = mVisibleTextRect.mTop - (current_line - first_visible_line) * line_height;
 

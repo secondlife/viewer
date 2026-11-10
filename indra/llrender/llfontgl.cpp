@@ -589,13 +589,13 @@ F32 LLFontGL::getWidthF32(const llwchar* wchars, S32 begin_offset, S32 max_chars
     return cur_x / sScaleX;
 }
 
+// Keep in sync with getWidthF32(), each width must be what getWidth() gives for that many characters
 void LLFontGL::getWidths(const llwchar* wchars, S32 begin_offset, S32 max_chars, std::vector<S32>& widths) const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     const S32 LAST_CHARACTER = LLFontFreetype::LAST_CHAR_FULL;
 
     widths.clear();
-    widths.reserve(llmax(max_chars, 0) + 1);
     widths.push_back(0);
 
     F32 cur_x = 0;

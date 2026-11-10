@@ -31,6 +31,7 @@
 
 #include "llcoord.h"
 #include "llrect.h"
+#include "llstring.h"
 
 #include <deque>
 #include <vector>
@@ -115,6 +116,11 @@ public:
     // the returned LLWString contains it.
 
     virtual const LLWString& getPreeditString() const = 0;
+
+    // Get a value that changes whenever the contents do, so they can be known unchanged without comparing them.
+    // Returns false if this preeditor has none.
+
+    virtual bool getPreeditTextGeneration(S32 *generation) const = 0;
 
     // Handle a UTF-32 char on this preeditor, i.e., add the character
     // to the contents.
