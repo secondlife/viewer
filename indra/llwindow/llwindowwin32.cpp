@@ -4660,13 +4660,11 @@ void LLWindowWin32::setLanguageTextInput( const LLCoordGL & position )
 {
     if (sLanguageTextInputAllowed && LLWinImm::isAvailable())
     {
-        HIMC himc = LLWinImm::getContext(mWindowHandle);
-
         LLCoordWindow win_pos;
         convertCoords( position, &win_pos );
 
         if ( win_pos.mX >= 0 && win_pos.mY >= 0 &&
-            (win_pos.mX != sWinIMEWindowPosition.mX) || (win_pos.mY != sWinIMEWindowPosition.mY) )
+            ((win_pos.mX != sWinIMEWindowPosition.mX) || (win_pos.mY != sWinIMEWindowPosition.mY)) )
         {
             COMPOSITIONFORM ime_form;
             memset( &ime_form, 0, sizeof(ime_form) );
@@ -4674,12 +4672,16 @@ void LLWindowWin32::setLanguageTextInput( const LLCoordGL & position )
             ime_form.ptCurrentPos.x = win_pos.mX;
             ime_form.ptCurrentPos.y = win_pos.mY;
 
-            LLWinImm::setCompositionWindow( himc, &ime_form );
+            // IMM only lets the thread owning the window change its input context
+            mWindowThread->post([this, ime_form]() mutable
+            {
+                HIMC himc = LLWinImm::getContext(mWindowHandle);
+                LLWinImm::setCompositionWindow( himc, &ime_form );
+                LLWinImm::releaseContext(mWindowHandle, himc);
+            });
 
             sWinIMEWindowPosition = win_pos;
         }
-
-        LLWinImm::releaseContext(mWindowHandle, himc);
     }
 }
 
@@ -4801,16 +4803,20 @@ void LLWindowWin32::updateLanguageTextInputArea()
         CANDIDATEFORM candidate_form;
         fillCandidateForm(caret_coord, preedit_bounds, &candidate_form);
 
-        HIMC himc = LLWinImm::getContext(mWindowHandle);
-        // Win32 document says there may be up to 4 candidate windows.
-        // This magic number 4 appears only in the document, and
-        // there are no constant/macro for the value...
-        for (int i = 3; i >= 0; --i)
+        // IMM only lets the thread owning the window change its input context
+        mWindowThread->post([this, candidate_form]() mutable
         {
-            candidate_form.dwIndex = i;
-            LLWinImm::setCandidateWindow(himc, &candidate_form);
-        }
-        LLWinImm::releaseContext(mWindowHandle, himc);
+            HIMC himc = LLWinImm::getContext(mWindowHandle);
+            // Win32 document says there may be up to 4 candidate windows.
+            // This magic number 4 appears only in the document, and
+            // there are no constant/macro for the value...
+            for (int i = 3; i >= 0; --i)
+            {
+                candidate_form.dwIndex = i;
+                LLWinImm::setCandidateWindow(himc, &candidate_form);
+            }
+            LLWinImm::releaseContext(mWindowHandle, himc);
+        });
     }
 }
 
