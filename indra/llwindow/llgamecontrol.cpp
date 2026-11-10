@@ -868,6 +868,12 @@ namespace
         mappings[GC_MODE_FLYCAM]    = makeMode(flycam_axes, flycam_buttons, flycam_axes_invert);
         mappings[GC_MODE_CAPTIVE]   = makeMode(avatar_axes, avatar_buttons, avatar_axes_invert);
         mappings[GC_MODE_CURSOR]    = makeMode(cursor_axes, cursor_buttons, cursor_axes_invert);
+        mappings[GC_MODE_AVATAR][GC_SPEED_FACTOR]    = 1.0;
+        mappings[GC_MODE_MOUSELOOK][GC_SPEED_FACTOR] = 1.0;
+        mappings[GC_MODE_FLYCAM][GC_SPEED_FACTOR]    = 1.0;
+        mappings[GC_MODE_FLYCAM][GC_ALLOW_ROLL]      = false;
+        mappings[GC_MODE_FLYCAM][GC_SHOW_CROSSHAIR]  = false;
+        mappings[GC_MODE_FLYCAM][GC_HIDE_CURSOR]     = true;
         return mappings;
     }
 
