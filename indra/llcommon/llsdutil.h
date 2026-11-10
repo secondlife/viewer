@@ -542,6 +542,35 @@ LLSD llsd_clone(LLSD value, LLSD filter = LLSD());
 // the filter parameter.
 LLSD llsd_shallow(LLSD value, LLSD filter = LLSD());
 
+// llsd_diff_from_default() and llsd_overlay_on_default() are inverses, used to
+// store an LLSD value compactly as its differences from a known default.
+//
+// llsd_diff_from_default(value, defaults) returns the parts of 'value' that
+// differ from 'defaults'.  When both are maps they are compared recursively,
+// key by key:
+//   - entries equal to the default (per llsd_equals()) are omitted
+//   - entries whose key is not in 'defaults' are included whole
+//   - entries in 'defaults' whose key is missing from 'value' are included
+//     as undefined, marking the removal
+// The result is a map, empty when 'value' matches 'defaults'.  When either
+// argument is not a map, the two are compared atomically: the result is
+// undefined if they are equal, otherwise 'value'.  Arrays are always compared
+// atomically, so a change to one element stores the whole array.
+//
+// llsd_overlay_on_default(diff, defaults) rebuilds the full value: when both
+// are maps it returns a copy of 'defaults' with each entry of 'diff' laid over
+// it recursively, where an undefined entry erases that key.  An undefined
+// 'diff' returns 'defaults'; any other non-map 'diff' is returned as is.  A
+// map 'diff' needn't come from llsd_diff_from_default(): a full value
+// overlays to itself, so either form can be read back.
+//
+// For any 'value', llsd_overlay_on_default(llsd_diff_from_default(value, d), d)
+// equals 'value', with two exceptions: an undefined value inside a map (or an
+// undefined 'value' itself) cannot be represented, since undefined means
+// "removed" (or "unchanged" at the top level).
+LL_COMMON_API LLSD llsd_diff_from_default(const LLSD& value, const LLSD& defaults);
+LL_COMMON_API LLSD llsd_overlay_on_default(const LLSD& diff, const LLSD& defaults);
+
 namespace llsd
 {
 

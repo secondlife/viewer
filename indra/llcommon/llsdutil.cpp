@@ -1045,6 +1045,78 @@ LLSD llsd_shallow(LLSD value, LLSD filter)
     return shallow;
 }
 
+LLSD llsd_diff_from_default(const LLSD& value, const LLSD& defaults)
+{
+    if (!value.isMap() || !defaults.isMap())
+    {
+        return llsd_equals(value, defaults) ? LLSD() : value;
+    }
+
+    LLSD diff = LLSD::emptyMap();
+    for (LLSD::map_const_iterator it = value.beginMap(); it != value.endMap(); ++it)
+    {
+        const std::string& key = it->first;
+        if (!defaults.has(key))
+        {
+            diff[key] = it->second;
+            continue;
+        }
+        const LLSD& default_value = defaults[key];
+        if (it->second.isMap() && default_value.isMap())
+        {
+            LLSD sub = llsd_diff_from_default(it->second, default_value);
+            if (sub.size() > 0)
+            {
+                diff[key] = sub;
+            }
+        }
+        else if (!llsd_equals(it->second, default_value))
+        {
+            diff[key] = it->second;
+        }
+    }
+    // Mark default entries that 'value' no longer has.
+    for (LLSD::map_const_iterator it = defaults.beginMap(); it != defaults.endMap(); ++it)
+    {
+        if (!value.has(it->first))
+        {
+            diff[it->first] = LLSD();
+        }
+    }
+    return diff;
+}
+
+LLSD llsd_overlay_on_default(const LLSD& diff, const LLSD& defaults)
+{
+    if (diff.isUndefined())
+    {
+        return llsd_clone(defaults);
+    }
+    if (!diff.isMap() || !defaults.isMap())
+    {
+        return diff;
+    }
+
+    LLSD result = llsd_clone(defaults);
+    for (LLSD::map_const_iterator it = diff.beginMap(); it != diff.endMap(); ++it)
+    {
+        const std::string& key = it->first;
+        if (it->second.isUndefined())
+        {
+            result.erase(key);
+        }
+        else if (it->second.isMap() && result.has(key) && result[key].isMap())
+        {
+            result[key] = llsd_overlay_on_default(it->second, result[key]);
+        }
+        else
+        {
+            result[key] = it->second;
+        }
+    }
+    return result;
+}
+
 LLSD LL::apply_llsd_fix(size_t arity, const LLSD& args)
 {
     // LLSD supports a number of types, two of which are aggregates: Map and
