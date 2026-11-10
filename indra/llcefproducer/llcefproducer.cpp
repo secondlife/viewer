@@ -179,6 +179,13 @@ constexpr std::uint32_t kMaxCommandBytes = 4096;
 // it drains every tick.
 constexpr std::uint32_t kCefAudioMaxQueuedMs = 500;
 
+// "Unthrottled" (target_fps == 0, see kSetRenderRate) maps to this real CEF
+// frame rate via llCefBrowser::SetFrameRate() -- matches
+// llCefBrowserLibInitOptions::windowlessFrameRate's own default (see
+// llcefbrowser's include/llCefBrowserLibInitOptions.h), which this producer
+// never overrides.
+constexpr int kUnthrottledFrameRateFps = 60;
+
 // One OnAudioStreamPacket's worth of captured CEF audio, already interleaved.
 struct CefAudioChunk
 {
@@ -232,12 +239,16 @@ struct Slot
     std::chrono::steady_clock::time_point last_active;
 
     // Distance/priority-based render throttle -- see kSetRenderRate's own
-    // comment in cefshm_protocol.h. 0 = unthrottled: SendExternalBeginFrame()
-    // fires every tick, same as before this existed. last_begin_frame default-
-    // constructs to the epoch, so a freshly throttled slot's very first check
-    // always finds itself due rather than waiting a full interval first.
+    // comment in cefshm_protocol.h. target_fps alone only gates how often an
+    // optional extra on-demand repaint is requested (see the RequestRepaint()
+    // call site below); the real CPU/GPU-saving effect comes from the
+    // SetFrameRate() call in the kSetRenderRate handler, which directly caps
+    // this browser's actual internal CEF paint rate. last_repaint_request
+    // default-constructs to the epoch, so a freshly throttled slot's very
+    // first check always finds itself due rather than waiting a full
+    // interval first.
     std::uint32_t                 target_fps = 0;
-    std::chrono::steady_clock::time_point last_begin_frame;
+    std::chrono::steady_clock::time_point last_repaint_request;
 
     // This slot's audio channel (see kAudioChannelPrefix) -- null unless the consumer asked
     // for audio capture and this producer granted it. Only ever sent on from the main loop,
@@ -1277,13 +1288,18 @@ int run_producer(int argc, char** argv)
                 if (cmd.type == kSetRenderRate)
                 {
                     // Same opcode SLVlcProducer also honours for its own slots (see
-                    // cefshm_protocol.h) -- just sets Slot's own target_fps field here,
-                    // read back by the render/publish tail below.
+                    // cefshm_protocol.h) -- sets Slot's own target_fps field (read back
+                    // by the repaint-request gating below) AND calls SetFrameRate() to
+                    // directly cap this browser's real internal CEF paint rate -- see
+                    // SetFrameRate()'s own comment for why the gating alone isn't
+                    // enough to actually save CPU/GPU now that External Begin Frame is
+                    // off.
                     std::uint32_t fps;
                     std::uint8_t tier;
                     std::string url;
                     if (unpack_render_rate(cmd.data.data(), cmd.data.size(), fps, tier, url)) {
                         s.target_fps = fps;
+                        manager->SetFrameRate(s.cefHandle, fps == 0 ? kUnthrottledFrameRateFps : int(fps));
                         log_priority("slot " + std::to_string(i) + " render rate: " + priority_tier_label(tier) +
                                      " (" + (fps == 0 ? std::string("unthrottled") : (std::to_string(fps) + "fps")) +
                                      ") - " + url + active_slot_suffix(slots));
@@ -1479,40 +1495,30 @@ int run_producer(int argc, char** argv)
             }
 
             // Request a fresh composite right now, reflecting whatever input this
-            // slot just received above -- rather than waiting on CEF's own
-            // windowless_frame_rate-paced internal timer (see the
-            // external_begin_frame_enabled comment in llCefBrowserManagerImpl::
-            // CreateBrowser()). Throttled to s.target_fps when set (see
-            // kSetRenderRate) -- distance/priority-based media (far away, out of
-            // view, etc.) doesn't need this slot's CEF instance painting at full
-            // rate; UI/parcel media never sets target_fps, so it falls back to
-            // kUnthrottledBeginFrameFps below.
+            // slot just received above -- rather than relying solely on CEF's own
+            // windowless_frame_rate-paced internal timer, which still composites
+            // regardless (see external_begin_frame_enabled's own comment in
+            // llCefBrowserManagerImpl::CreateBrowser() -- that mode is OFF as of
+            // 2026-11-10, after being found to break click/hover on WebGL canvas
+            // content; this call now uses CefBrowserHost::Invalidate() via
+            // RequestRepaint() instead of SendExternalBeginFrame()).
             //
-            // target_fps == 0 used to mean "call SendExternalBeginFrame() on
-            // literally every main-loop tick, unconditionally" -- with this loop's
-            // own 1ms sleep, that's ~1000 calls/sec, nowhere near a real display's
-            // ~60Hz vsync. The assumption (a stale comment removed here) was that
-            // this is harmless because Chromium's compositor just skips real
-            // repaint work when nothing changed -- but confirmed via a real
-            // requestAnimationFrame-timing test (see the Google Maps POI click/
-            // hover investigation, 2026-11-09) that this is NOT true for Blink's
-            // *scheduling* of rAF callbacks, which are gated on BeginFrame
-            // delivery: flooding it at ~1000Hz produced a bursty ~31/46ms rAF
-            // cadence (2x/3x a ~15.5ms base) instead of a steady ~16.6ms one with
-            // CEF's internal timer, breaking any page JS that depends on rAF
-            // ticking normally (confirmed root cause of Maps' POI overlay staying
-            // stuck on top of its own canvas). Pacing every slot -- throttled or
-            // not -- at a real, bounded rate fixes this while still fully
-            // preserving the original scroll-latency win: still driven by us, not
-            // CEF's own decoupled internal timer, so input-to-repaint latency is
-            // still bounded by this interval rather than by CEF's own schedule.
-            static constexpr std::uint32_t kUnthrottledBeginFrameFps = 60;
-            const std::uint32_t effective_fps = (s.target_fps == 0) ? kUnthrottledBeginFrameFps : s.target_fps;
-            const bool begin_frame_due =
-                (now - s.last_begin_frame >= std::chrono::duration<double>(1.0 / effective_fps));
-            if (begin_frame_due) {
-                s.last_begin_frame = now;
-                manager->SendExternalBeginFrame(s.cefHandle);
+            // This gating alone no longer actually reduces a throttled slot's
+            // real CEF paint rate the way it did under external-begin-frame
+            // mode (that mode made this call the *only* thing driving any
+            // repaint at all; CEF's own internal timer now composites every
+            // browser regardless of how often this is called) -- it only
+            // skips an optional *extra* on-demand repaint beyond CEF's own
+            // baseline. The real CPU/GPU-saving throttle is the
+            // SetFrameRate() call in the kSetRenderRate handler above, which
+            // directly caps that baseline itself.
+            static constexpr std::uint32_t kUnthrottledRepaintFps = 60;
+            const std::uint32_t effective_fps = (s.target_fps == 0) ? kUnthrottledRepaintFps : s.target_fps;
+            const bool repaint_due =
+                (now - s.last_repaint_request >= std::chrono::duration<double>(1.0 / effective_fps));
+            if (repaint_due) {
+                s.last_repaint_request = now;
+                manager->RequestRepaint(s.cefHandle);
             }
 
             int fw = 0, fh = 0;

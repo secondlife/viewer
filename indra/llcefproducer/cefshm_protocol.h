@@ -190,13 +190,19 @@ namespace cefshm_demo
                           // explicit "silence immediately" signal used at teardown, independent of
                           // slider position.
         kSetRenderRate = 35, // data = {uint32 targetFps, uint8 priorityTier, url bytes (remainder)}
-                          // -- caps how often the producer calls SendExternalBeginFrame() for
-                          // this handle (0 = unthrottled/full rate, the default). Distance/
-                          // priority-based render throttling, the embedded-browser equivalent
-                          // of the legacy plugin's own setPriority()/setLowPrioritySizeLimit()
-                          // -- see LLViewerMediaImpl::setPriority()'s own EMBEDDED_BROWSER_FPS_*
+                          // -- caps how often the producer calls RequestRepaint() (an optional
+                          // on-demand extra repaint; see llCefBrowserManager.h) for this handle
+                          // (0 = unthrottled/full rate, the default). Distance/priority-based
+                          // render throttling, the embedded-browser equivalent of the legacy
+                          // plugin's own setPriority()/setLowPrioritySizeLimit() -- see
+                          // LLViewerMediaImpl::setPriority()'s own EMBEDDED_BROWSER_FPS_*
                           // constants for the tiers this is actually driven from. Never sent as
                           // anything but 0/tier-0 for UI/parcel media -- see that same comment.
+                          // NOTE (2026-11-10): the producer's kSetRenderRate handler also calls
+                          // llCefBrowserManager::SetFrameRate() alongside this gating -- that's
+                          // the real CPU/GPU-saving throttle (directly caps CEF's own internal
+                          // paint rate), needed since external_begin_frame_enabled is off and
+                          // this call alone no longer reduces a throttled slot's real paint rate.
                           // priorityTier (0=Normal/High, 1=Low, 2=Slideshow, 3=Hidden) and url
                           // are for the producer's own console/log output only (see
                           // log_priority() in llcefproducer.cpp) -- purely diagnostic, nothing

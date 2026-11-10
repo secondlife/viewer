@@ -351,10 +351,24 @@ rendered and published frames at full rate no matter how far away or
 uninteresting it was, which wasted CPU on busy, media-heavy regions.
 
 This is now fixed with a producer-side render throttle. `SLCefProducer.exe`
-drives CEF manually via `SendExternalBeginFrame()`, called once per tab per
-tick; a new wire command, `kSetRenderRate`, lets the Viewer cap how often
-that call actually fires for a given tab (0 means unthrottled, the
-default). `LLViewerMediaImpl::setPriority()` maps the same priority value
+requests an on-demand repaint via `RequestRepaint()` (`CefBrowserHost::
+Invalidate()`), called once per tab per tick, and directly caps each tab's
+real internal CEF paint rate via `SetFrameRate()` (`CefBrowserHost::
+SetWindowlessFrameRate()`, callable at runtime); a new wire command,
+`kSetRenderRate`, drives both for a given tab (0 means unthrottled, the
+default).
+
+(2026-11-10 history: this throttle was originally built entirely around CEF's
+"External Begin Frame" mode, under which gating the repaint-request call was
+the *only* thing driving any repaint at all for a tab. That mode was disabled
+project-wide after being found to break click/hover on WebGL canvas content
+(see the "Known limitations" section below) -- which briefly broke this
+throttle's real CPU/GPU-saving effect too, since CEF's own internal timer
+then composited every tab at the same rate regardless of the old gating.
+Fixed by adding the direct `SetFrameRate()` call, which controls CEF's real
+paint rate per tab independently of External Begin Frame entirely.)
+
+`LLViewerMediaImpl::setPriority()` maps the same priority value
 `LLViewerMedia::updateMedia()` already computes for every media instance
 (distance, screen size, focus, CPU budget, and so on) to a target frame
 rate for non-UI, non-parcel prim media only:
@@ -1301,6 +1315,26 @@ to exercise the producer half again without the Viewer.
   will now fail to configure rather than silently produce a working legacy
   plugin, which is fine given this code is not expected to build again
   before it is fully removed.
+- **RESOLVED 2026-11-10, worth knowing the history:** clicking/hovering
+  interactive content on a WebGL `<canvas>` (confirmed repro: Google Maps POI
+  markers) briefly did not register at all, between 2026-08-14 and
+  2026-11-10, even though the underlying mouse events were delivered
+  correctly. Found 2026-11-09: `document.elementFromPoint()` at the exact
+  coordinates of a visible POI icon resolved to a background `<div>` instead
+  of the page's own canvas, while `mousedown`/`mouseup`/`click` DOM events all
+  fired at the right place and time (confirmed via a page-level event logger
+  over the existing Chrome remote-debugging feature) -- a DOM hit-testing/
+  compositor issue, not an input-delivery one. Root-caused to CEF's "External
+  Begin Frame" mode (`external_begin_frame_enabled`, added 2026-08-14 for
+  scroll latency): disabling it fixed this completely; legacy Dullahan-based
+  CEF, which never enabled it, never had the bug. Fixed by disabling that
+  mode and requesting repaints on demand via `CefBrowserHost::Invalidate()`
+  instead (see "Render throttle" above) -- confirmed via live testing that
+  this restores correct click/hover behavior, with scroll/pan latency
+  reported as comparable (a subjective read, not a hard measurement). Filed
+  upstream to `chromiumembedded/cef`'s GitHub issue tracker in case it's a
+  genuine, reproducible CEF bug worth them knowing about; no response as of
+  this writing, not blocking since our own fix works regardless.
 
 ## Cross-platform porting notes
 
