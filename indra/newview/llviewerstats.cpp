@@ -943,7 +943,15 @@ void send_viewer_stats(bool include_preferences)
     if (include_preferences)
     {
         bool diffs_only = true; // only log preferences that differ from default
-        body["preferences"]["settings"] = gSavedSettings.asLLSD(diffs_only);
+        LLSD settings = gSavedSettings.asLLSD(diffs_only);
+        // The GameControl setting is large (several KB of mostly default
+        // mappings) and pushes the stats payload past what the server can
+        // log intact, so leave it out.
+        if (settings.has("GameControl"))
+        {
+            settings.erase("GameControl");
+        }
+        body["preferences"]["settings"] = settings;
         body["preferences"]["settings_per_account"] = gSavedPerAccountSettings.asLLSD(diffs_only);
     }
 
