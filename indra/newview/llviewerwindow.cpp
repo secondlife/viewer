@@ -3368,6 +3368,22 @@ bool LLViewerWindow::handleKey(KEY key, MASK mask)
 }
 
 
+bool LLViewerWindow::keyboardFocusAcceptsText()
+{
+    LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
+    if (!keyboard_focus)
+    {
+        return false;
+    }
+    // In-world media (MoaP) takes focus via LLViewerMediaFocus, which isn't an LLUICtrl
+    if (keyboard_focus == LLViewerMediaFocus::getInstance())
+    {
+        return true;
+    }
+    LLUICtrl* ctrl = dynamic_cast<LLUICtrl*>(keyboard_focus);
+    return ctrl && ctrl->acceptsTextInput();
+}
+
 bool LLViewerWindow::handleUnicodeChar(llwchar uni_char, MASK mask)
 {
     // HACK:  We delay processing of return keys until they arrive as a Unicode char,
