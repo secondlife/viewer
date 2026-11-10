@@ -352,21 +352,29 @@ uninteresting it was, which wasted CPU on busy, media-heavy regions.
 
 This is now fixed with a producer-side render throttle. `SLCefProducer.exe`
 requests an on-demand repaint via `RequestRepaint()` (`CefBrowserHost::
-Invalidate()`), called once per tab per tick, and directly caps each tab's
-real internal CEF paint rate via `SetFrameRate()` (`CefBrowserHost::
-SetWindowlessFrameRate()`, callable at runtime); a new wire command,
-`kSetRenderRate`, drives both for a given tab (0 means unthrottled, the
-default).
+Invalidate()`), called once per tab per tick; a new wire command,
+`kSetRenderRate`, lets the Viewer cap how often that call actually fires for
+a given tab (0 means unthrottled, the default).
 
-(2026-11-10 history: this throttle was originally built entirely around CEF's
-"External Begin Frame" mode, under which gating the repaint-request call was
-the *only* thing driving any repaint at all for a tab. That mode was disabled
-project-wide after being found to break click/hover on WebGL canvas content
-(see the "Known limitations" section below) -- which briefly broke this
-throttle's real CPU/GPU-saving effect too, since CEF's own internal timer
-then composited every tab at the same rate regardless of the old gating.
-Fixed by adding the direct `SetFrameRate()` call, which controls CEF's real
-paint rate per tab independently of External Begin Frame entirely.)
+**Known limitation (2026-11-10):** this throttle was originally built around
+CEF's "External Begin Frame" mode, under which gating this call was the
+*only* thing driving any repaint at all for a tab -- a real, effective
+CPU/GPU-saving mechanism. That mode was disabled project-wide after being
+found to break click/hover on WebGL canvas content (see the "Known
+limitations" section below); with it off, CEF's own internal
+`windowless_frame_rate` timer composites every tab at the same rate
+regardless of this gating, so throttling a low-priority tab now only skips
+an optional *extra* on-demand repaint, it no longer actually reduces that
+tab's real CEF-side paint rate the way it used to. A direct fix via
+`SetFrameRate()` (`CefBrowserHost::SetWindowlessFrameRate()`, callable at
+runtime) was tried and reverted the same day: live-tested with several
+same-priority media instances competing for the same small number of
+"full rate" slots (so tiers flipped frequently as their near-identical
+interest values jittered frame to frame), it caused a connection-churn/
+reconnect-loop regression -- calling that method, even correctly, was
+apparently disruptive enough to interrupt the frame pipeline and trip the
+Viewer's own disconnect detection. Not yet re-addressed; needs that method
+tested in isolation before trying again.
 
 `LLViewerMediaImpl::setPriority()` maps the same priority value
 `LLViewerMedia::updateMedia()` already computes for every media instance
