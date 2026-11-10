@@ -134,6 +134,7 @@ bool callKeyUp(NSKeyEventRef event, unsigned short key, unsigned int mask);
 bool callKeyDown(NSKeyEventRef event, unsigned short key, unsigned int mask, wchar_t character);
 void callResetKeys();
 bool callUnicodeCallback(wchar_t character, unsigned int mask);
+bool callKeyboardFocusAcceptsText();
 void callRightMouseDown(float *pos, unsigned int mask);
 void callRightMouseUp(float *pos, unsigned int mask);
 void callLeftMouseDown(float *pos, unsigned int mask);
