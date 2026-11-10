@@ -340,13 +340,13 @@ void LLWebRTCVoiceClient::terminate()
         return;
     }
 
-    LL_INFOS("Voice") << "Terminating WebRTC" << LL_ENDL;
-
     mVoiceEnabled = false;
     sShuttingDown = true; // so that coroutines won't post more work.
 
+    LL_INFOS("Voice") << "Draining WebRTC connections" << LL_ENDL;
     drainConnections();
 
+    LL_INFOS("Voice") << "Calling llwebrtc::terminate()" << LL_ENDL;
     sWebRTCTerminated = true;
     llwebrtc::terminate();
 
@@ -384,6 +384,9 @@ void LLWebRTCVoiceClient::drainConnections()
     constexpr F32 DRAIN_TIMEOUT_SECONDS = 3.0f;
     constexpr U32 DRAIN_POLL_MS = 10;
 
+    LL_DEBUGS("Voice") << "Draining voice connections, timeout "
+        << DRAIN_TIMEOUT_SECONDS << "s" << LL_ENDL;
+
     // Wait on the peer connections being closed rather than on the sessions
     // being reaped.  A connection that still has an HTTP coroutine in flight
     // holds its session alive until mOutstandingRequests unwinds, and those
@@ -409,8 +412,12 @@ void LLWebRTCVoiceClient::drainConnections()
     if (!sessionState::allSessionsClosed())
     {
         LL_WARNS("Voice") << "Timed out draining voice connections after "
-                          << DRAIN_TIMEOUT_SECONDS
+                          << timer.getElapsedTimeF32()
                           << "s; leaving the rest to llwebrtc::terminate()." << LL_ENDL;
+
+        // Identify exactly what's still stuck so repeat occurrences can be
+        // correlated to a specific region/session type rather than guessed at.
+        sessionState::for_each(boost::bind(predLogUnclosedConnections, _1));
     }
     else
     {
@@ -1827,6 +1834,17 @@ void LLWebRTCVoiceClient::setVoiceEnabled(bool enabled)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
+    if (sShuttingDown)
+    {
+        // Don't allow voice to be re-enabled (or disabled again, which would
+        // re-run teardown paths) once terminate() has started draining
+        // connections -- mWebRTCDeviceInterface and the signaling threads
+        // may already be gone or mid-shutdown.
+        LL_INFOS("Voice") << "setVoiceEnabled(" << (enabled ? "true" : "false")
+            << ") called while shutting down; ignoring." << LL_ENDL;
+        return;
+    }
+
     if (enabled != mVoiceEnabled)
     {
         LL_INFOS("Voice") << "( " << (enabled ? "enabled" : "disabled") << " )"
@@ -2249,6 +2267,20 @@ void LLWebRTCVoiceClient::sessionState::shutdownAllConnections()
     }
 }
 
+void LLWebRTCVoiceClient::sessionState::logConnections() const
+{
+    for (const auto& connection : mWebRTCConnections)
+    {
+        if (connection && !connection->isClosed())
+        {
+            LL_WARNS("Voice") << "Connection channel " << mChannelID
+                << ", region " << connection->getRegionID()
+                << (connection->isPrimary() ? " (primary)" : " (secondary)")
+                << LL_ENDL;
+        }
+    }
+}
+
 // in case we drop into a session (spatial, etc.) right after
 // telling the session to shut down, revive it so it reconnects.
 void LLWebRTCVoiceClient::sessionState::revive()
@@ -2468,6 +2500,19 @@ LLWebRTCVoiceClient::adhocSessionState::adhocSessionState(const std::string &cha
 void LLWebRTCVoiceClient::predShutdownSession(const LLWebRTCVoiceClient::sessionStatePtr_t& session)
 {
     session->shutdownAllConnections();
+}
+
+void LLWebRTCVoiceClient::predLogUnclosedConnections(const LLWebRTCVoiceClient::sessionStatePtr_t& session)
+{
+    if (!session)
+    {
+        return;
+    }
+    if (session->allConnectionsClosed())
+    {
+        return;
+    }
+    session->logConnections();
 }
 
 void LLWebRTCVoiceClient::deleteSession(const sessionStatePtr_t &session)
