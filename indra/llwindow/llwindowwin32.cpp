@@ -5391,11 +5391,21 @@ void LLWindowWin32::clearHighPerformanceGPURequest() const
         gD3D11Device->Release();
         gD3D11Device = nullptr;
     }
-    if (gD3D11Library)
-    {
-        FreeLibrary(gD3D11Library);
-        gD3D11Library = nullptr;
-    }
+
+    // Deliberately NOT calling FreeLibrary(gD3D11Library) / clearing it here.
+    // Once an ID3D11Device has actually been created from d3d11.dll, GPU
+    // vendor drivers (observed with NVIDIA's nvoglv64.dll OpenGL driver) may
+    // retain internal references/threads into that module independent of our
+    // own COM refcounting. Unloading the DLL out from under the driver can
+    // cause a later, seemingly unrelated crash inside driver code that still
+    // expects d3d11.dll's code to be mapped.
+    // Leaving d3d11.dll loaded for the life of the process is the safe,
+    // standard practice once a device has been created from it.
+    //if (gD3D11Library)
+    //{
+    //    FreeLibrary(gD3D11Library);
+    //    gD3D11Library = nullptr;
+    //}
 }
 
 void* LLWindowWin32::getDirectInput8()
