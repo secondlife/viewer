@@ -79,10 +79,10 @@ public:
         }
     }
 
-    // Return a high precision usec since epoch
+    // Return current wall-clock microseconds since the Unix epoch.
     static U64MicrosecondsImplicit getTotalTime();
 
-    // Return a high precision seconds since epoch
+    // Return current wall-clock seconds since the Unix epoch.
     static F64SecondsImplicit getTotalSeconds();
 
 
@@ -180,6 +180,7 @@ LL_COMMON_API struct tm* utc_to_pacific_time(time_t utc_time, bool pacific_dayli
 LL_COMMON_API void microsecondsToTimecodeString(U64MicrosecondsImplicit current_time, std::string& tcstring);
 LL_COMMON_API void secondsToTimecodeString(F32SecondsImplicit current_time, std::string& tcstring);
 
-U64MicrosecondsImplicit LL_COMMON_API totalTime();                  // Returns current system time in microseconds
+// Returns monotonic microseconds anchored to the Unix epoch on first use.
+U64MicrosecondsImplicit LL_COMMON_API totalTime();
 
 #endif
