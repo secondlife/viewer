@@ -37,7 +37,9 @@
 #include "llviewerwindow.h"
 #include "llvoiceclient.h"
 #include "llviewermedia.h"
+#include "llviewerobject.h"
 #include "llviewerregion.h"
+#include "llvoavatarself.h"
 #include "llprogressview.h"
 #include "llcallbacklist.h"
 #include "llstartup.h"
@@ -500,6 +502,22 @@ void audio_update_volume(bool force_update)
     }
 }
 
+// Sound sources use the velocity of their (root) object, so when seated the
+// listener must use the velocity of the seat's object too. Otherwise our own
+// vehicle, or one moving at our speed, gets a false Doppler shift.
+static LLVector3 get_listener_velocity()
+{
+    if (isAgentAvatarValid())
+    {
+        LLViewerObject* parent = gAgentAvatarp->getSubParent();
+        if (parent)
+        {
+            return parent->getRootEdit()->getVelocity();
+        }
+    }
+    return gAgent.getVelocity();
+}
+
 void audio_update_listener()
 {
     if (gAudiop)
@@ -525,7 +543,7 @@ void audio_update_listener()
         gAudiop->setListener(lpos_global_f,
                              // LLViewerCamera::getInstance()VelocitySmoothed,
                              // LLVector3::zero,
-                             gAgent.getVelocity(),    // !!! *TODO: need to replace this with smoothed velocity!
+                             get_listener_velocity(),    // !!! *TODO: need to replace this with smoothed velocity!
                              LLViewerCamera::getInstance()->getUpAxis(),
                              LLViewerCamera::getInstance()->getAtAxis());
     }

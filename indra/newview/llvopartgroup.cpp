@@ -97,6 +97,10 @@ bool LLVOPartGroup::isActive() const
 
 F32 LLVOPartGroup::getBinRadius()
 {
+    if (!mViewerPartGroupp)
+    {
+        return LLAlphaObject::getBinRadius();
+    }
     return mViewerPartGroupp->getBoxSide();
 }
 
@@ -109,7 +113,8 @@ void LLVOPartGroup::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 
     p.load3(pos_agent.mV);
 
-    scale.splat(mScale.mV[0]+mViewerPartGroupp->getBoxSide()*0.5f);
+    const F32 box_side = mViewerPartGroupp ? mViewerPartGroupp->getBoxSide() : 0.f;
+    scale.splat(mScale.mV[0] + box_side * 0.5f);
 
     newMin.setSub(p, scale);
     newMax.setAdd(p,scale);
@@ -161,7 +166,7 @@ LLDrawable* LLVOPartGroup::createDrawable(LLPipeline *pipeline)
  {
      LLUUID ret = LLUUID::null;
 
-     if (idx < (S32) mViewerPartGroupp->mParticles.size())
+     if (mViewerPartGroupp && idx < (S32) mViewerPartGroupp->mParticles.size())
      {
          ret = mViewerPartGroupp->mParticles[idx]->mPartSourcep->getOwnerUUID();
      }
@@ -173,7 +178,7 @@ LLDrawable* LLVOPartGroup::createDrawable(LLPipeline *pipeline)
  {
      LLUUID ret = LLUUID::null;
 
-     if (idx < (S32) mViewerPartGroupp->mParticles.size())
+     if (mViewerPartGroupp && idx < (S32) mViewerPartGroupp->mParticles.size())
      {
          LLViewerPart* part = mViewerPartGroupp->mParticles[idx];
          if (part && part->mPartSourcep.notNull() &&
@@ -190,7 +195,7 @@ LLDrawable* LLVOPartGroup::createDrawable(LLPipeline *pipeline)
 
 F32 LLVOPartGroup::getPartSize(S32 idx)
 {
-    if (idx < (S32) mViewerPartGroupp->mParticles.size())
+    if (mViewerPartGroupp && idx < (S32) mViewerPartGroupp->mParticles.size())
     {
         return mViewerPartGroupp->mParticles[idx]->mScale.mV[0];
     }
@@ -200,7 +205,7 @@ F32 LLVOPartGroup::getPartSize(S32 idx)
 
 void LLVOPartGroup::getBlendFunc(S32 idx, LLRender::eBlendFactor& src, LLRender::eBlendFactor& dst)
 {
-    if (idx < (S32) mViewerPartGroupp->mParticles.size())
+    if (mViewerPartGroupp && idx < (S32) mViewerPartGroupp->mParticles.size())
     {
         LLViewerPart* part = mViewerPartGroupp->mParticles[idx];
         src = (LLRender::eBlendFactor) part->mBlendFuncSource;
@@ -216,6 +221,12 @@ LLVector3 LLVOPartGroup::getCameraPosition() const
 bool LLVOPartGroup::updateGeometry(LLDrawable *drawable)
 {
     LL_PROFILE_ZONE_SCOPED;
+
+    if (!mViewerPartGroupp)
+    {
+        // Owning particle group is gone, this object is dead or about to be
+        return true;
+    }
 
     dirtySpatialGroup();
 
@@ -405,6 +416,11 @@ bool LLVOPartGroup::lineSegmentIntersect(const LLVector4a& start, const LLVector
     F32 closest_t = 2.f;
     bool ret = false;
 
+    if (!mViewerPartGroupp)
+    {
+        return false;
+    }
+
     for (U32 idx = 0; idx < mViewerPartGroupp->mParticles.size(); ++idx)
     {
         const LLViewerPart &part = *((LLViewerPart*) (mViewerPartGroupp->mParticles[idx]));
@@ -582,7 +598,7 @@ void LLVOPartGroup::getGeometry(S32 idx,
                                 LLStrider<LLColor4U>& emissivep,
                                 LLStrider<U16>& indicesp)
 {
-    if (idx >= (S32) mViewerPartGroupp->mParticles.size())
+    if (!mViewerPartGroupp || idx >= (S32) mViewerPartGroupp->mParticles.size())
     {
         return;
     }

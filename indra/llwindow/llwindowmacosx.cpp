@@ -303,6 +303,13 @@ bool callUnicodeCallback(wchar_t character, unsigned int mask)
     return result;
 }
 
+bool callKeyboardFocusAcceptsText()
+{
+    return gWindowImplementation
+        && gWindowImplementation->getCallbacks()
+        && gWindowImplementation->getCallbacks()->keyboardFocusAcceptsText();
+}
+
 void callFocus()
 {
     if (gWindowImplementation && gWindowImplementation->getCallbacks())

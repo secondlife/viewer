@@ -289,6 +289,8 @@ LLViewerTextureList::~LLViewerTextureList()
 void LLViewerTextureList::shutdown()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    mShuttingDown = true;
+
     // clear out preloads
     mImagePreloads.clear();
 
@@ -363,6 +365,7 @@ void LLViewerTextureList::shutdown()
     mImageList.clear();
 
     mInitialized = false ; //prevent loading textures again.
+    mShuttingDown = false;
 }
 
 void LLViewerTextureList::dump()
