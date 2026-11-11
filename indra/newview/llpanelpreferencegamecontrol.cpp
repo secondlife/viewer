@@ -193,7 +193,7 @@ LLSD LLPanelPreferenceGameControl::getSettingsAsLLSD()
     }
 
     LLSD result = LLSD::emptyMap();
-    result["GameControl"] = LLGameControl::getGameControlSettings();
+    result["GameControl"] = LLGameControl::compactGameControlSettings(LLGameControl::getGameControlSettings());
     return result;
 }
 
