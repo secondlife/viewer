@@ -5409,7 +5409,7 @@ void LLViewerObject::setTE(const U8 te, const LLTextureEntry& texture_entry)
     updateTEMaterialTextures(te);
 }
 
-void LLViewerObject::updateTEMaterialTextures(U8 te)
+bool LLViewerObject::updateTEMaterialTextures(U8 te)
 {
     if (getTE(te)->getMaterialParams().notNull())
     {
@@ -5422,6 +5422,7 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
 
     LLFetchedGLTFMaterial* mat = (LLFetchedGLTFMaterial*) getTE(te)->getGLTFRenderMaterial();
     llassert(mat == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(getTE(te)->getGLTFRenderMaterial()) != nullptr);
+    LLFetchedGLTFMaterial* const old_mat = mat;
     LLUUID mat_id = getRenderMaterialID(te);
     if (mat == nullptr && mat_id.notNull())
     {
@@ -5478,13 +5479,27 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
         return img;
     };
 
+    bool changed = mat != old_mat;
+
+    // Refetches one slot and notes whether its fetched or local bake binding changed
+    auto update_slot = [&](LLPointer<LLViewerFetchedTexture>& fetched, S32 index)
+    {
+        LLPointer<LLViewerTexture>& local_bake = mat->mLocalBakeTextures[index];
+        const LLPointer<LLViewerFetchedTexture> old_fetched = fetched;
+        const LLPointer<LLViewerTexture> old_local_bake = local_bake;
+        fetched = fetch_texture(mat->mTextureId[index], local_bake);
+        changed |= fetched != old_fetched || local_bake != old_local_bake;
+    };
+
     if (mat != nullptr)
     {
-        mat->mBaseColorTexture = fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR], mat->mLocalBakeTextures[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR]);
-        mat->mNormalTexture = fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL], mat->mLocalBakeTextures[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL]);
-        mat->mMetallicRoughnessTexture = fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS], mat->mLocalBakeTextures[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS]);
-        mat->mEmissiveTexture= fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE], mat->mLocalBakeTextures[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE]);
+        update_slot(mat->mBaseColorTexture, LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR);
+        update_slot(mat->mNormalTexture, LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL);
+        update_slot(mat->mMetallicRoughnessTexture, LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS);
+        update_slot(mat->mEmissiveTexture, LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE);
     }
+
+    return changed;
 }
 
 void LLViewerObject::refreshBakeTexture()
@@ -5508,8 +5523,7 @@ void LLViewerObject::refreshBakeTexture()
             {
                 if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(texture_id))
                 {
-                    updateTEMaterialTextures((U8)face_index);
-                    pbr_bake_refreshed = true;
+                    pbr_bake_refreshed |= updateTEMaterialTextures((U8)face_index);
                     break;
                 }
             }
