@@ -52,6 +52,9 @@ namespace llwebrtc_test
 class RecordingLogCallback : public llwebrtc::LLWebRTCLogCallback
 {
 public:
+    // Subclassed by the Gated* observers in llwebrtc_shutdown_test.h.
+    virtual ~RecordingLogCallback() = default;
+
     struct Entry
     {
         LogLevel    mLevel;
@@ -81,6 +84,9 @@ void stopNetworking();
 class RecordingDevicesObserver : public llwebrtc::LLWebRTCDevicesObserver
 {
 public:
+    // Subclassed by the Gated* observers in llwebrtc_shutdown_test.h.
+    virtual ~RecordingDevicesObserver() = default;
+
     void OnDevicesChanged(const llwebrtc::LLWebRTCVoiceDeviceList& render_devices,
                           const llwebrtc::LLWebRTCVoiceDeviceList& capture_devices) override
     {
@@ -115,6 +121,9 @@ private:
 class RecordingSignalingObserver : public llwebrtc::LLWebRTCSignalingObserver
 {
 public:
+    // Subclassed by the Gated* observers in llwebrtc_shutdown_test.h.
+    virtual ~RecordingSignalingObserver() = default;
+
     void OnIceGatheringState(EIceGatheringState state) override { mIceGatheringStateChanges.increment(); }
     void OnIceCandidate(const llwebrtc::LLWebRTCIceCandidate& candidate) override { mIceCandidates.increment(); }
     void OnOfferAvailable(const std::string& sdp) override { mOffer.set(sdp); }
@@ -175,6 +184,9 @@ struct ReceivedMessage
 class RecordingDataObserver : public llwebrtc::LLWebRTCDataObserver
 {
 public:
+    // Subclassed by the Gated* observers in llwebrtc_shutdown_test.h.
+    virtual ~RecordingDataObserver() = default;
+
     void OnDataReceived(const std::string& data, bool binary) override
     {
         {
@@ -200,7 +212,7 @@ private:
 // Stands in for the Second Life voice server: owns a test peer
 // (gtests/testpeer) and records everything it reports.  The test peer is
 // destroyed with this object, after which it makes no more callbacks.
-class TestServer : public llwebrtc_testpeer::LLWebRTCTestPeerObserver
+class TestServer final : public llwebrtc_testpeer::LLWebRTCTestPeerObserver
 {
 public:
     TestServer();

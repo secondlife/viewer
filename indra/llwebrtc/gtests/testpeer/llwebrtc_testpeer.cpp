@@ -141,9 +141,9 @@ Observer::EConnectionState toObserverState(webrtc::PeerConnectionInterface::Peer
 // PeerConnectionObserver and DataChannelObserver callbacks there too, so
 // once shutdown() has synchronized with that thread no further callbacks to
 // the test's observer are possible.
-class TestPeer : public LLWebRTCTestPeer,
-                 public webrtc::PeerConnectionObserver,
-                 public webrtc::DataChannelObserver
+class TestPeer final : public LLWebRTCTestPeer,
+                       public webrtc::PeerConnectionObserver,
+                       public webrtc::DataChannelObserver
 {
 public:
     explicit TestPeer(Observer* observer) :
