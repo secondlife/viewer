@@ -111,6 +111,14 @@ public:
     static const char* const GLTF_FILE_EXTENSION_TRANSFORM_ROTATION;
     static const LLUUID GLTF_OVERRIDE_NULL_UUID;
 
+    // Family of extensions a serialized document may carry; ordered, new
+    // families append.
+    enum ExtensionFamily : U8
+    {
+        GLTF_EXTENSION_CORE = 0,
+        GLTF_EXTENSION_V1,
+    };
+
     // get a UUID based on a hash of this LLGLTFMaterial
     LLUUID getHash() const;
 
@@ -182,7 +190,7 @@ public:
     bool fromJSON(const std::string& json, std::string& warn_msg, std::string& error_msg);
 
     // get the contents of this LLGLTFMaterial as a json string
-    std::string asJSON(bool prettyprint = false) const;
+    std::string asJSON(bool prettyprint = false, ExtensionFamily family = GLTF_EXTENSION_V1) const;
 
     virtual void applyOverride(const LLGLTFMaterial& override_mat);
 
@@ -236,7 +244,7 @@ protected:
     // Parse from glTF JSON document
     bool setFromDocument(const boost::json::value& doc, S32 mat_index);
     // Serialize to glTF JSON document
-    boost::json::value writeDocument() const;
+    boost::json::value writeDocument(ExtensionFamily family = GLTF_EXTENSION_V1) const;
     // Resolve texture index -> textures[].source -> images[].uri
     static std::string getTextureURI(const boost::json::value& doc, S32 texture_index);
     // Read texture info from JSON

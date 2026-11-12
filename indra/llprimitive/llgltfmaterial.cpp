@@ -213,10 +213,10 @@ bool LLGLTFMaterial::fromJSON(const std::string& json, std::string& warn_msg, st
     }
 }
 
-std::string LLGLTFMaterial::asJSON(bool prettyprint) const
+std::string LLGLTFMaterial::asJSON(bool prettyprint, ExtensionFamily family) const
 {
     LL_PROFILE_ZONE_SCOPED;
-    boost::json::value doc = writeDocument();
+    boost::json::value doc = writeDocument(family);
     return boost::json::serialize(doc);
 }
 
@@ -562,7 +562,7 @@ void LLGLTFMaterial::writeTextureEntry(boost::json::array& images, boost::json::
     dst[key] = tex_info;
 }
 
-boost::json::value LLGLTFMaterial::writeDocument() const
+boost::json::value LLGLTFMaterial::writeDocument(ExtensionFamily family) const
 {
     LL_PROFILE_ZONE_SCOPED;
     boost::json::object root;
@@ -696,57 +696,60 @@ boost::json::value LLGLTFMaterial::writeDocument() const
     // Material extensions
     boost::json::object mat_extensions;
 
-    // KHR_materials_emissive_strength
-    if (mEmissiveStrength != getDefaultEmissiveStrength())
+    if (family >= GLTF_EXTENSION_V1)
     {
-        boost::json::object es_ext;
-        es_ext["emissiveStrength"] = (double)mEmissiveStrength;
-        mat_extensions["KHR_materials_emissive_strength"] = es_ext;
-    }
-
-    // KHR_materials_specular
-    {
-        bool has_specular = false;
-        boost::json::object specular_ext;
-
-        if (mSpecularFactor != getDefaultSpecularFactor())
+        // KHR_materials_emissive_strength
+        if (mEmissiveStrength != getDefaultEmissiveStrength())
         {
-            specular_ext["specularFactor"] = (double)mSpecularFactor;
-            has_specular = true;
+            boost::json::object es_ext;
+            es_ext["emissiveStrength"] = (double)mEmissiveStrength;
+            mat_extensions["KHR_materials_emissive_strength"] = es_ext;
         }
 
-        if (mSpecularColorFactor != getDefaultSpecularColorFactor())
+        // KHR_materials_specular
         {
-            specular_ext["specularColorFactor"] = boost::json::array({
-                boost::json::value((double)mSpecularColorFactor.mV[0]),
-                boost::json::value((double)mSpecularColorFactor.mV[1]),
-                boost::json::value((double)mSpecularColorFactor.mV[2])
-            });
-            has_specular = true;
+            bool has_specular = false;
+            boost::json::object specular_ext;
+
+            if (mSpecularFactor != getDefaultSpecularFactor())
+            {
+                specular_ext["specularFactor"] = (double)mSpecularFactor;
+                has_specular = true;
+            }
+
+            if (mSpecularColorFactor != getDefaultSpecularColorFactor())
+            {
+                specular_ext["specularColorFactor"] = boost::json::array({
+                    boost::json::value((double)mSpecularColorFactor.mV[0]),
+                    boost::json::value((double)mSpecularColorFactor.mV[1]),
+                    boost::json::value((double)mSpecularColorFactor.mV[2])
+                });
+                has_specular = true;
+            }
+
+            boost::json::object spec_tex_dst;
+            writeTextureEntry(images, textures, spec_tex_dst, "specularTexture_tmp",
+                mTextureId[GLTF_TEXTURE_INFO_SPECULAR], mTextureTransform[GLTF_TEXTURE_INFO_SPECULAR]);
+            if (spec_tex_dst.contains("specularTexture_tmp"))
+            {
+                specular_ext["specularTexture"] = spec_tex_dst["specularTexture_tmp"];
+                specular_ext["specularColorTexture"] = spec_tex_dst["specularTexture_tmp"];
+                has_specular = true;
+            }
+
+            if (has_specular)
+            {
+                mat_extensions["KHR_materials_specular"] = specular_ext;
+            }
         }
 
-        boost::json::object spec_tex_dst;
-        writeTextureEntry(images, textures, spec_tex_dst, "specularTexture_tmp",
-            mTextureId[GLTF_TEXTURE_INFO_SPECULAR], mTextureTransform[GLTF_TEXTURE_INFO_SPECULAR]);
-        if (spec_tex_dst.contains("specularTexture_tmp"))
+        // KHR_materials_ior
+        if (mIOR != getDefaultIOR())
         {
-            specular_ext["specularTexture"] = spec_tex_dst["specularTexture_tmp"];
-            specular_ext["specularColorTexture"] = spec_tex_dst["specularTexture_tmp"];
-            has_specular = true;
+            boost::json::object ior_ext;
+            ior_ext["ior"] = (double)mIOR;
+            mat_extensions["KHR_materials_ior"] = ior_ext;
         }
-
-        if (has_specular)
-        {
-            mat_extensions["KHR_materials_specular"] = specular_ext;
-        }
-    }
-
-    // KHR_materials_ior
-    if (mIOR != getDefaultIOR())
-    {
-        boost::json::object ior_ext;
-        ior_ext["ior"] = (double)mIOR;
-        mat_extensions["KHR_materials_ior"] = ior_ext;
     }
 
     if (!mat_extensions.empty())

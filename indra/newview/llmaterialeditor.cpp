@@ -1076,11 +1076,15 @@ void LLMaterialEditor::setEnableEditing(bool can_modify)
     mEmissiveTextureCtrl->setEnabled(can_modify);
     mNormalTextureCtrl->setEnabled(can_modify);
 
-    // PBR Extensions V1 - hide controls when server flag is absent
-    bool pbr_ext = false;
+    // PBR Extensions V1 - hide controls when server flag is absent,
+    // unless overrides are applied locally
+    static LLCachedControl<bool> local_gltf_overrides(gSavedSettings, "LocalGLTFMaterialOverrides", false);
+    bool pbr_ext = local_gltf_overrides;
     LLViewerRegion* region = gAgent.getRegion();
-    if (region)
+    if (!pbr_ext && region)
+    {
         pbr_ext = region->pbrExtensionsV1Enabled();
+    }
 
     childSetVisible("specular_layout_pnl", pbr_ext);
     childSetVisible("emissive_strength_lbl", pbr_ext);

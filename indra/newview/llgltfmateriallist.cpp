@@ -464,6 +464,18 @@ void LLGLTFMaterialList::queueUpdate(const LLSD& data)
     }
 }
 
+// extension family the agent's region accepts on the wire
+static LLGLTFMaterial::ExtensionFamily wire_extension_family()
+{
+    LLGLTFMaterial::ExtensionFamily family = LLGLTFMaterial::GLTF_EXTENSION_CORE;
+    LLViewerRegion* region = gAgent.getRegion();
+    if (region && region->pbrExtensionsV1Enabled())
+    {
+        family = LLGLTFMaterial::GLTF_EXTENSION_V1;
+    }
+    return family;
+}
+
 void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
 {
     std::shared_ptr<CallbackHolder> callback_holder;
@@ -483,6 +495,8 @@ void LLGLTFMaterialList::flushUpdatesOnce(std::shared_ptr<CallbackHolder> callba
 
     size_t i = data.size();
 
+    LLGLTFMaterial::ExtensionFamily family = wire_extension_family();
+
     while (!sModifyQueue.empty() && i < MAX_TASK_UPDATES)
     {
         ModifyMaterialData& e = sModifyQueue.front();
@@ -497,7 +511,7 @@ void LLGLTFMaterialList::flushUpdatesOnce(std::shared_ptr<CallbackHolder> callba
 
         if (e.has_override)
         {
-            data[i]["gltf_json"] = e.override_data.asJSON();
+            data[i]["gltf_json"] = e.override_data.asJSON(false, family);
         }
         else
         {
@@ -518,11 +532,24 @@ void LLGLTFMaterialList::flushUpdatesOnce(std::shared_ptr<CallbackHolder> callba
         data[i]["asset_id"] = e.asset_id;
         if (e.override_data)
         {
-            data[i]["gltf_json"] = e.override_data->asJSON();
+            data[i]["gltf_json"] = e.override_data->asJSON(false, family);
         }
         else if (!e.override_json.empty())
         {
-            data[i]["gltf_json"] = e.override_json;
+            std::string override_json = e.override_json;
+
+            if (family < LLGLTFMaterial::GLTF_EXTENSION_V1)
+            {
+                // pre-serialized JSON gets re-serialized at the wire family
+                LLGLTFMaterial parsed;
+                std::string warn_msg, error_msg;
+                if (parsed.fromJSON(e.override_json, warn_msg, error_msg))
+                {
+                    override_json = parsed.asJSON(false, family);
+                }
+            }
+
+            data[i]["gltf_json"] = override_json;
         }
         else
         {
