@@ -131,6 +131,8 @@ LONG WINAPI printCrashStack(EXCEPTION_POINTERS* info)
 }
 
 } // namespace
+#else
+#include <signal.h>
 #endif
 
 int main(int argc, char** argv)
@@ -148,6 +150,14 @@ int main(int argc, char** argv)
     // Windows Error Reporting dialog.
     SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
     SetUnhandledExceptionFilter(printCrashStack);
+#else
+    // Run with SIGPIPE ignored, as the viewer does (LLApp's signal setup).
+    // webrtc suppresses SIGPIPE itself only on Linux (MSG_NOSIGNAL); on
+    // macOS it leaves that to the embedding app.  Without this, a send on a
+    // TCP connection whose other end has gone -- routine in the tests where
+    // the server stops responding or is torn down -- kills the whole test
+    // process instead of failing with EPIPE.
+    signal(SIGPIPE, SIG_IGN);
 #endif
 
     // Initializes both GoogleMock and GoogleTest, and strips the flags
