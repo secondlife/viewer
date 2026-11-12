@@ -152,7 +152,11 @@ TEST_F(LLWebRTCPeerConnectionTest, OfferRequestsStereoOpusAt48k)
     std::optional<std::string> offer = connection.mObserver->mOffer.wait();
     ASSERT_TRUE(offer.has_value());
 
+#ifdef GTEST_USES_SIMPLE_RE
     EXPECT_THAT(*offer, ContainsRegex("a=rtpmap:\\d+ opus/48000/2"));
+#else
+    EXPECT_THAT(*offer, ContainsRegex("a=rtpmap:[0-9]+ opus/48000/2"));
+#endif
     EXPECT_THAT(*offer, HasSubstr("stereo=1;sprop-stereo=1"));
     EXPECT_THAT(*offer, HasSubstr("maxplaybackrate=48000"));
 }
