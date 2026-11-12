@@ -5449,9 +5449,10 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
         getTE(te)->setGLTFMaterial(nullptr);
     }
 
-    auto fetch_texture = [this](const LLUUID& id)
+    auto fetch_texture = [this](const LLUUID& id, LLPointer<LLViewerTexture>& local_bake)
     {
         LLViewerFetchedTexture* img = nullptr;
+        local_bake = nullptr;
         if (id.notNull())
         {
             if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(id))
@@ -5459,6 +5460,13 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
                  // TODO -- fall back to LLTextureEntry::mGLTFRenderMaterial when overriding with baked texture
                 LLViewerTexture* viewerTexture = getBakedTextureForMagicId(id);
                 img = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : nullptr;
+
+                // While appearance is being edited the bake is composited locally instead of
+                // fetched, render that one so the edits show live.
+                if (!img)
+                {
+                    local_bake = viewerTexture;
+                }
             }
             else
             {
@@ -5472,10 +5480,10 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
 
     if (mat != nullptr)
     {
-        mat->mBaseColorTexture = fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR]);
-        mat->mNormalTexture = fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL]);
-        mat->mMetallicRoughnessTexture = fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS]);
-        mat->mEmissiveTexture= fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE]);
+        mat->mBaseColorTexture = fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR], mat->mLocalBakeTextures[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR]);
+        mat->mNormalTexture = fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL], mat->mLocalBakeTextures[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL]);
+        mat->mMetallicRoughnessTexture = fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS], mat->mLocalBakeTextures[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS]);
+        mat->mEmissiveTexture= fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE], mat->mLocalBakeTextures[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE]);
     }
 }
 

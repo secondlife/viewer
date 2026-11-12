@@ -67,6 +67,7 @@ public:
     LLPointer<LLViewerFetchedTexture> mNormalTexture;
     LLPointer<LLViewerFetchedTexture> mMetallicRoughnessTexture;
     LLPointer<LLViewerFetchedTexture> mEmissiveTexture;
+    LLPointer<LLViewerTexture> mLocalBakeTextures[GLTF_TEXTURE_INFO_COUNT];
     void clearFetchedTextures();
 
     std::set<LLTextureEntry*> mTextureEntires;
