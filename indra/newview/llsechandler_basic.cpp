@@ -627,7 +627,8 @@ int LLBasicCertificateVector::load_from(const std::filesystem::path& file_path, 
     // scan the PEM file extracting each certificate
     if (LLFile::isfile(file_path))
     {
-        BIO* file_bio = BIO_new_file(file_path.string().c_str(), "rt");
+        // On Windows path is expected to be UTF-8 encoded
+        BIO* file_bio = BIO_new_file((const char*)file_path.u8string().c_str(), "rt");
         if (file_bio)
         {
             X509* cert_x509 = nullptr;
@@ -725,7 +726,96 @@ LLSystemCertificateVector::LLSystemCertificateVector(bool suppress_expire_warnin
     }
 }
 
-#if LL_DARWIN
+#if LL_WINDOWS
+static bool validate_certificate(PCCERT_CONTEXT pTargetCert, bool suppress_expire_warning)
+{
+    if (!pTargetCert) return false;
+
+    // Configure the chain engine parameters
+    CERT_CHAIN_PARA chainPara;
+    ZeroMemory(&chainPara, sizeof(CERT_CHAIN_PARA));
+    chainPara.cbSize = sizeof(CERT_CHAIN_PARA);
+
+    // Request basic usage checking (e.g., Server Authentication)
+    LPCSTR pszUsageOid = szOID_PKIX_KP_SERVER_AUTH;
+    chainPara.RequestedUsage.dwType = USAGE_MATCH_TYPE_AND;
+    chainPara.RequestedUsage.Usage.cUsageIdentifier = 1;
+    chainPara.RequestedUsage.Usage.rgpszUsageIdentifier = (LPSTR*)&pszUsageOid;
+
+    PCCERT_CHAIN_CONTEXT pChainContext = NULL;
+
+    // Build the chain from the target certificate
+    // Flags tell Windows to perform online revocation checks (CRL/OCSP)
+    DWORD dwFlags = CERT_CHAIN_REVOCATION_CHECK_CHAIN;
+
+    BOOL bResult = CertGetCertificateChain(
+        NULL,                  // Use default system chain engine
+        pTargetCert,           // Target certificate to verify
+        NULL,                  // Use current system time
+        NULL,                  // Search default store locations
+        &chainPara,            // Verification parameters
+        dwFlags,               // Revocation/validation flags
+        NULL,                  // Reserved
+        &pChainContext         // Out: Pointer to created chain context
+    );
+
+    if (!bResult || !pChainContext)
+    {
+        LL_WARNS("SECAPI") << "Failed to build certificate chain. Error: " << GetLastError() << LL_ENDL;
+        return false;
+    }
+
+    bool isTrusted = false;
+
+    // Inspect the trust status of the built chain
+    // Check for high-level errors (Expiration, Revocation, Untrusted Root)
+    if (pChainContext->TrustStatus.dwErrorStatus == CERT_TRUST_NO_ERROR)
+    {
+        // Grab the root element (the final node at the top of the chain assembly)
+        PCERT_SIMPLE_CHAIN pSimpleChain = pChainContext->rgpChain[0];
+        DWORD rootIndex = pSimpleChain->cElement - 1;
+        PCERT_CHAIN_ELEMENT pRootElement = pSimpleChain->rgpElement[rootIndex];
+        PCCERT_CONTEXT pRootCert = pRootElement->pCertContext;
+
+        // Double check that the root certificate is actually a CA and Self-Signed
+        DWORD dwThumbprintSize = 0;
+        if (CertGetCertificateContextProperty(pRootCert, CERT_HASH_PROP_ID, NULL, &dwThumbprintSize))
+        {
+            BYTE* pThumbprint = new BYTE[dwThumbprintSize];
+            if (CertGetCertificateContextProperty(pRootCert, CERT_HASH_PROP_ID, pThumbprint, &dwThumbprintSize))
+            {
+                LL_DEBUGS("SECAPI") << "Chain is cryptographically sound and valid." << LL_ENDL;
+
+                isTrusted = true;
+            }
+            delete[] pThumbprint;
+        }
+    }
+    else
+    {
+        LL_WARNS("SECAPI") << "Chain trust evaluation failed. Bitmask error flags: 0x"
+                           << std::hex << pChainContext->TrustStatus.dwErrorStatus << LL_ENDL;
+
+        // Pinpointing specific error reasons
+        if (pChainContext->TrustStatus.dwErrorStatus & CERT_TRUST_IS_NOT_TIME_VALID && !suppress_expire_warning)
+        {
+            LL_WARNS("SECAPI") << " - A certificate in the chain has expired or is not yet valid." << LL_ENDL;
+        }
+        if (pChainContext->TrustStatus.dwErrorStatus & CERT_TRUST_IS_UNTRUSTED_ROOT)
+        {
+            LL_WARNS("SECAPI") << " - The root is not recognized by the Microsoft Third-Party Root program." << LL_ENDL;
+        }
+        if (pChainContext->TrustStatus.dwErrorStatus & CERT_TRUST_IS_REVOKED)
+        {
+            LL_WARNS("SECAPI") << " - A certificate in the chain was explicitly revoked." << LL_ENDL;
+        }
+    }
+
+    // Always clean up CAPI unmanaged resources
+    CertFreeCertificateChain(pChainContext);
+    return isTrusted;
+}
+#elif LL_DARWIN
 static CFDataRef validate_certificate(SecPolicyRef policy, SecCertificateRef certRef)
 {
     SecTrustRef trustRef = nullptr;
@@ -739,6 +829,7 @@ static CFDataRef validate_certificate(SecPolicyRef policy, SecCertificateRef cer
     status = SecTrustSetNetworkFetchAllowed(trustRef, false);
     if (status)
     {
+        LL_WARNS("SECAPI") << "Failed to set network fetch to false." << LL_ENDL;
         CFRelease(trustRef);
         return nullptr;
     }
@@ -761,8 +852,11 @@ static CFDataRef validate_certificate(SecPolicyRef policy, SecCertificateRef cer
                 break;
             case kSecTrustResultDeny:
                 /* The user specified that the certificate should not be trusted. */
+                LL_WARNS("SECAPI") << "Explicitly untrusted certificate." << LL_ENDL;
+                break;
             default:
                 /* Some other error when evaluating the trust */
+                LL_WARNS("SECAPI") << "Some other certificate trust problem." << LL_ENDL;
                 break;
         }
     }
@@ -814,8 +908,11 @@ int LLSystemCertificateVector::load_from_system(bool suppress_expire_warning)
         PCCERT_CONTEXT cert_ctxt = CertEnumCertificatesInStore(cert_store, nullptr);
         for (; cert_ctxt; cert_ctxt = CertEnumCertificatesInStore(cert_store, cert_ctxt))
         {
-            const unsigned char* cert = reinterpret_cast<const unsigned char*>(cert_ctxt->pbCertEncoded);
-            certificates += verify_and_add(cert, cert_ctxt->cbCertEncoded, true, suppress_expire_warning);
+            if (validate_certificate(cert_ctxt, suppress_expire_warning))
+            {
+                const unsigned char* cert = reinterpret_cast<const unsigned char*>(cert_ctxt->pbCertEncoded);
+                certificates += verify_and_add(cert, cert_ctxt->cbCertEncoded, true, suppress_expire_warning);
+            }
         }
         CertCloseStore(cert_store, 0);
         LL_INFOS("SECAPI") << "System Certificate store '" << domain << "': loaded " << certificates << " certificates" << LL_ENDL;
@@ -936,6 +1033,28 @@ int LLSystemCertificateVector::load_from_system(bool suppress_expire_warning)
                            << loaded << " certificates " << LL_ENDL;
     }
 
+    // next check for the SSL environment variable for a list of cert directories
+    env_val = getenv("SSL_CERT_DIR");
+    if (env_val && *env_val)
+    {
+        const std::string dir_list(env_val);
+
+        // OpenSSL and BoringSSL both use ":" as the SSL_CERT_DIR separator.
+        // See: https://www.openssl.org/docs/man1.0.2/man1/c_rehash.html
+        for (boost::split_iterator<std::string::const_iterator>
+             ti(dir_list, boost::first_finder(":")), tend;
+             ti != tend && !loaded; ++ti)
+        {
+            const std::string certDir = std::string(ti->begin(), ti->end());
+            loaded += load_from(certDir, true, suppress_expire_warning);
+            if (loaded)
+            {
+                LL_INFOS("SECAPI") << "System Certificate store '" << certDir << "': loaded "
+                                   << loaded << " certificates " << LL_ENDL;
+            }
+        }
+    }
+
     if (!loaded)
     {
         // if we didn't have an existing cert bundle defined from the environment variable, try
@@ -953,44 +1072,18 @@ int LLSystemCertificateVector::load_from_system(bool suppress_expire_warning)
         }
     }
 
-    // Only try to load from directories if we did not have a valid cert bundle to read
     if (!loaded)
     {
-        // first check for the SSL environment variable for a list of cert directories
-        env_val = getenv("SSL_CERT_DIR");
-        if (env_val && *env_val)
+        // if we had no valid certificates so far, we try above predefined directories until
+        // we found one that contains any valid certificates
+        for (const std::string& certDir : certDirs)
         {
-            const std::string dir_list(env_val);
-
-            // OpenSSL and BoringSSL both use ":" as the SSL_CERT_DIR separator.
-            // See: https://www.openssl.org/docs/man1.0.2/man1/c_rehash.html
-            for (boost::split_iterator<std::string::const_iterator>
-                     ti(dir_list, boost::first_finder(":")), tend;
-                 ti != tend && !loaded; ++ti)
+            loaded += load_from(certDir, true, suppress_expire_warning);
+            if (loaded)
             {
-                const std::string certDir = std::string(ti->begin(), ti->end());
-                loaded += load_from(certDir, true, suppress_expire_warning);
-                if (loaded)
-                {
-                    LL_INFOS("SECAPI") << "System Certificate store '" << certDir << "': loaded "
-                                       << loaded << " certificates " << LL_ENDL;
-                }
-            }
-        }
-
-        if (!loaded)
-        {
-            // If we had no valid environment variable entry, we try above predefined directories until
-            // we found one that contains any valid certificates
-            for (const std::string& certDir : certDirs)
-            {
-                loaded += load_from(certDir, true, suppress_expire_warning);
-                if (loaded)
-                {
-                    LL_INFOS("SECAPI") << "System Certificate store '" << certDir << "': loaded "
-                                       << loaded << " certificates " << LL_ENDL;
-                    break;
-                }
+                LL_INFOS("SECAPI") << "System Certificate store '" << certDir << "': loaded "
+                                   << loaded << " certificates " << LL_ENDL;
+                break;
             }
         }
     }
