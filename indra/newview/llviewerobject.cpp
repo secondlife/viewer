@@ -5489,6 +5489,7 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
 
 void LLViewerObject::refreshBakeTexture()
 {
+    bool pbr_bake_refreshed = false;
     for (int face_index = 0; face_index < getNumTEs(); face_index++)
     {
         LLTextureEntry* tex_entry = getTE(face_index);
@@ -5498,6 +5499,26 @@ void LLViewerObject::refreshBakeTexture()
             LLViewerTexture* bakedTexture = getBakedTextureForMagicId(image_id);
             changeTEImage(face_index, bakedTexture);
         }
+
+        // PBR materials can use bakes regardless of the diffuse texture.
+        const LLGLTFMaterial* render_mat = tex_entry ? tex_entry->getGLTFRenderMaterial() : nullptr;
+        if (render_mat)
+        {
+            for (const LLUUID& texture_id : render_mat->mTextureId)
+            {
+                if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(texture_id))
+                {
+                    updateTEMaterialTextures((U8)face_index);
+                    pbr_bake_refreshed = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (pbr_bake_refreshed && mDrawable.notNull())
+    {
+        gPipeline.markTextured(mDrawable);
     }
 }
 
