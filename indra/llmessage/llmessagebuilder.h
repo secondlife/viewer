@@ -49,7 +49,6 @@ public:
     virtual void newMessage(const char* name) = 0;
 
     virtual void nextBlock(const char* blockname) = 0;
-    virtual bool removeLastBlock() = 0; // TODO: babbage: remove this horror
 
     /** All add* methods expect pointers to canonical strings. */
     virtual void addBinaryData(

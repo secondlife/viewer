@@ -353,6 +353,10 @@ public:
     bool avatarHoverHeightEnabled() const;
 
     bool pbrExtensionsV1Enabled() const;
+    bool groupChatPostLinksEnabled() const;
+
+    // does the simulator accept GameControlData messages?
+    bool gameControlEnabled() const;
 
     typedef enum
     {

@@ -30,21 +30,34 @@
 #include "llavatarpropertiesprocessor.h"
 #include "stdtypes.h"
 #include "llagent.h"
+
+#include <functional>
+
 class LLFloater;
 
 class LLFetchAvatarPaymentInfo : public LLAvatarPropertiesObserver
 {
 public:
+    typedef std::function<void(bool has_piof)> callback_t;
+
+    // hands the result to LLFloaterBuyCurrency::handleBuyCurrency
     LLFetchAvatarPaymentInfo(bool has_target, const std::string& name = std::string(), S32 price = 0);
+
+    // hands the result to cb, which may delete this observer
+    LLFetchAvatarPaymentInfo(const callback_t& cb);
+
     ~LLFetchAvatarPaymentInfo();
 
     void processProperties(void* data, EAvatarProcessorType type);
 
 private:
+    void sendRequest();
+
     LLUUID mAvatarID;
     bool mHasTarget;
     std::string mName;
     S32 mPrice;
+    callback_t mCallback;
 };
 
 
@@ -61,6 +74,9 @@ public:
                 "Uploading costs"
             a space and the price will be appended
         */
+
+    // open the LindeX page where a resident adds a payment method
+    static void openPaymentMethodPage();
 
     static LLFloater* buildFloater(const LLSD& key);
 

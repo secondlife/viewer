@@ -52,9 +52,23 @@ const S32 MAX_RAPID_CHANGES_PER_SEC = 10;
 // period of time over which to measure rapid changes
 const F32Seconds RAPID_CHANGE_WINDOW(1.f);
 
+namespace
+{
+    bool fits_in_s32(F64 value)
+    {
+        return value >= (F64)S32_MIN &&
+               value <= (F64)S32_MAX;
+    }
+}
+
 F32 calc_tick_value(F32 min, F32 max)
 {
     F32 range = max - min;
+    if (!llfinite(range) || is_approx_equal(range, 0.f))
+    {
+        return 0.f;
+    }
+
     const S32 DIVISORS[] = {6, 8, 10, 4, 5};
     // try storing
     S32 best_decimal_digit_count = S32_MAX;
@@ -63,12 +77,18 @@ F32 calc_tick_value(F32 min, F32 max)
     {
         S32 divisor = DIVISORS[divisor_idx];
         F32 possible_tick_value = range / divisor;
-        S32 num_whole_digits = llceil(logf(llabs(min + possible_tick_value)) * OO_LN10);
+        F32 whole_digits = logf(llabs(min + possible_tick_value)) * OO_LN10;
+        if (!fits_in_s32(whole_digits))
+        {
+            continue;
+        }
+
+        S32 num_whole_digits = llceil(whole_digits);
         for (S32 digit_count = -(num_whole_digits - 1); digit_count < 6; digit_count++)
         {
             F32 test_tick_value = min + (possible_tick_value * (F32)pow(10.0, digit_count));
 
-            if (is_approx_equal((F32)(S32)test_tick_value, test_tick_value))
+            if (fits_in_s32(test_tick_value) && is_approx_equal((F32)(S32)test_tick_value, test_tick_value))
             {
                 if (digit_count < best_decimal_digit_count)
                 {
@@ -80,7 +100,7 @@ F32 calc_tick_value(F32 min, F32 max)
         }
     }
 
-    return is_approx_equal(range, 0.f) ? 0.f : range / best_divisor;
+    return range / best_divisor;
 }
 
 void calc_auto_scale_range(F32& min, F32& max, F32& tick)
@@ -116,12 +136,12 @@ void calc_auto_scale_range(F32& min, F32& max, F32& tick)
         cur_max = starting_max * RANGES[range_idx];
         cur_min = starting_min * RANGES[range_idx];
 
-        if (min > 0.f && cur_min <= min)
+        if (llfinite(cur_min) && min > 0.f && cur_min <= min)
         {
             out_min = cur_min;
             cur_tick_min = TICKS[range_idx];
         }
-        if (max < 0.f && cur_max >= max)
+        if (llfinite(cur_max) && max < 0.f && cur_max >= max)
         {
             out_max = cur_max;
             cur_tick_max = TICKS[range_idx];
@@ -135,12 +155,12 @@ void calc_auto_scale_range(F32& min, F32& max, F32& tick)
         cur_max = starting_max * RANGES[range_idx];
         cur_min = starting_min * RANGES[range_idx];
 
-        if (min < 0.f && cur_min <= min)
+        if (llfinite(cur_min) && min < 0.f && cur_min <= min)
         {
             out_min = cur_min;
             cur_tick_min = TICKS[range_idx];
         }
-        if (max > 0.f && cur_max >= max)
+        if (llfinite(cur_max) && max > 0.f && cur_max >= max)
         {
             out_max = cur_max;
             cur_tick_max = TICKS[range_idx];
@@ -363,7 +383,7 @@ void LLStatBar::draw()
                 display_value = current;
                 // always display current value, don't rate limit
                 mLastDisplayValue = current;
-                if (is_approx_equal((F32)(S32)display_value, display_value))
+                if (fits_in_s32(display_value) && is_approx_equal((F32)(S32)display_value, display_value))
                 {
                     decimal_digits = 0;
                 }
@@ -429,24 +449,32 @@ void LLStatBar::draw()
         gl_rect_2d(bar_rect.mLeft, bar_rect.mTop, bar_rect.mRight, bar_rect.mBottom, LLColor4(0.f, 0.f, 0.f, 0.25f));
 
         // draw values
-        if (!llisnan(display_value) && frame_recording.getNumRecordedPeriods() != 0)
+        const F64 min_pos = ((F64)min - mCurMinBar) * value_scale;
+        const F64 max_pos = ((F64)max - mCurMinBar) * value_scale;
+        const F64 current_pos = ((F64)current - mCurMinBar) * value_scale;
+        const F64 mean_pos = ((F64)mean - mCurMinBar) * value_scale;
+
+        if (llfinite(display_value) && frame_recording.getNumRecordedPeriods() != 0)
         {
             // draw min and max
-            S32 begin = (S32) ((min - mCurMinBar) * value_scale);
+            if (fits_in_s32(min_pos) && fits_in_s32(max_pos))
+            {
+                S32 begin = (S32)min_pos;
 
-            if (begin < 0)
-            {
-                begin = 0;
-            }
+                if (begin < 0)
+                {
+                    begin = 0;
+                }
 
-            S32 end = (S32) ((max - mCurMinBar) * value_scale);
-            if (mOrientation == HORIZONTAL)
-            {
-                gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight, begin, LLColor4(1.f, 0.f, 0.f, 0.25f));
-            }
-            else // VERTICAL
-            {
-                gl_rect_2d(begin, bar_rect.mTop, end, bar_rect.mBottom, LLColor4(1.f, 0.f, 0.f, 0.25f));
+                S32 end = (S32)max_pos;
+                if (mOrientation == HORIZONTAL)
+                {
+                    gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight, begin, LLColor4(1.f, 0.f, 0.f, 0.25f));
+                }
+                else // VERTICAL
+                {
+                    gl_rect_2d(begin, bar_rect.mTop, end, bar_rect.mBottom, LLColor4(1.f, 0.f, 0.f, 0.25f));
+                }
             }
 
             F32 span = (mOrientation == HORIZONTAL)
@@ -516,10 +544,10 @@ void LLStatBar::draw()
                 }
                 gGL.end();
             }
-            else
+            else if (fits_in_s32(current_pos - 1.0) && fits_in_s32(current_pos + 1.0))
             {
-                S32 begin = (S32) ((current - mCurMinBar) * value_scale) - 1;
-                S32 end = (S32) ((current - mCurMinBar) * value_scale) + 1;
+                S32 begin = (S32)current_pos - 1;
+                S32 end = (S32)current_pos + 1;
                 // draw current
                 if (mOrientation == HORIZONTAL)
                 {
@@ -532,9 +560,10 @@ void LLStatBar::draw()
             }
 
             // draw mean bar
+            if (fits_in_s32(mean_pos - 1.0) && fits_in_s32(mean_pos + 1.0))
             {
-                const S32 begin = (S32) ((mean - mCurMinBar) * value_scale) - 1;
-                const S32 end = (S32) ((mean - mCurMinBar) * value_scale) + 1;
+                const S32 begin = (S32)mean_pos - 1;
+                const S32 end = (S32)mean_pos + 1;
                 if (mOrientation == HORIZONTAL)
                 {
                     gl_rect_2d(bar_rect.mLeft - 2, begin, bar_rect.mRight + 2, end, LLColor4(0.f, 1.f, 0.f, 1.f));
@@ -628,7 +657,7 @@ void LLStatBar::drawLabelAndValue( F32 value, std::string &label, LLRect &bar_re
 
 void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
 {
-    if (!llisnan(min) && (mAutoScaleMax || mAutoScaleMin))
+    if (llfinite(min) && llfinite(max) && (mAutoScaleMax || mAutoScaleMin))
     {
         F32 u = LLSmoothInterpolation::getInterpolant(10.f);
         mFloatingTargetMinBar = llmin(min, lerp(mFloatingTargetMinBar, min, u));
@@ -636,16 +665,20 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
         F32 range_min = mAutoScaleMin ? mFloatingTargetMinBar : mTargetMinBar;
         F32 range_max = mAutoScaleMax ? mFloatingTargetMaxBar : mTargetMaxBar;
         F32 tick_value = 0.f;
-        calc_auto_scale_range(range_min, range_max, tick_value);
-        if (mAutoScaleMin) { mTargetMinBar = range_min; }
-        if (mAutoScaleMax) { mTargetMaxBar = range_max; }
-        if (mAutoScaleMin && mAutoScaleMax)
+
+        if (llfinite(range_min) && llfinite(range_max))
         {
-            mTickSpacing = tick_value;
-        }
-        else
-        {
-            mTickSpacing = calc_tick_value(mTargetMinBar, mTargetMaxBar);
+            calc_auto_scale_range(range_min, range_max, tick_value);
+            if (mAutoScaleMin) { mTargetMinBar = range_min; }
+            if (mAutoScaleMax) { mTargetMaxBar = range_max; }
+            if (mAutoScaleMin && mAutoScaleMax)
+            {
+                mTickSpacing = tick_value;
+            }
+            else
+            {
+                mTickSpacing = calc_tick_value(mTargetMinBar, mTargetMaxBar);
+            }
         }
     }
 
@@ -653,63 +686,92 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
     // ensure ticks always hit 0
     S32 last_tick = S32_MIN;
     S32 last_label = S32_MIN;
-    if (mTickSpacing > 0.f && value_scale > 0.f)
+    if (llfinite(mTickSpacing) && mTickSpacing > 0.f &&
+        llfinite(value_scale) && value_scale > 0.f &&
+        llfinite(mCurMinBar) && llfinite(mCurMaxBar))
     {
         const S32 MIN_TICK_SPACING  = mOrientation == HORIZONTAL ? 20 : 30;
         const S32 MIN_LABEL_SPACING = mOrientation == HORIZONTAL ? 30 : 60;
         const S32 TICK_LENGTH = 4;
         const S32 TICK_WIDTH = 1;
 
-        F32 start = mCurMinBar < 0.f
-            ? llceil(-mCurMinBar / mTickSpacing) * -mTickSpacing
+        F64 start = mCurMinBar < 0.f
+            ? std::ceil(-(F64)mCurMinBar / (F64)mTickSpacing) * -(F64)mTickSpacing
             : 0.f;
-        for (F32 tick_value = start; ;tick_value += mTickSpacing)
-        {
-            // clamp to S32_MAX / 2 to avoid floating point to integer overflow resulting in S32_MIN
-            const S32 tick_begin = llfloor(llmin((F32)(S32_MAX / 2), (tick_value - mCurMinBar)*value_scale));
-            const S32 tick_end = tick_begin + TICK_WIDTH;
-            if (tick_begin < last_tick + MIN_TICK_SPACING)
-            {
-                continue;
-            }
-            last_tick = tick_begin;
 
-            S32 decimal_digits = mDecimalDigits;
-            if (is_approx_equal((F32)(S32)tick_value, tick_value))
+        if (!llfinite(start) ||
+            start < -(F64)F32_MAX ||
+            start > (F64)F32_MAX)
+        {
+            return;
+        }
+
+        for (F32 tick_value = (F32)start; llfinite(tick_value); )
+        {
+            F64 tick_position = ((F64)tick_value - mCurMinBar) * value_scale;
+            if (!llfinite(tick_position))
             {
-                decimal_digits = 0;
+                break;
             }
-            LLWString tick_label = utf8str_to_wstring(llformat("%.*f", decimal_digits, tick_value));
-            S32 tick_label_width = LLFontGL::getFontMonospace()->getWidth(tick_label.c_str());
-            if (mOrientation == HORIZONTAL)
+
+            // Keep tick coordinates within a safe range for llfloor() and tick_end.
+            tick_position = llmax((F64)(S32_MIN / 2), llmin((F64)(S32_MAX / 2), tick_position));
+            const S32 tick_begin = llfloor((F32)tick_position);
+            const S32 tick_end = tick_begin + TICK_WIDTH;
+            if ((F64)tick_begin >= (F64)last_tick + MIN_TICK_SPACING)
             {
-                if (tick_begin > last_label + MIN_LABEL_SPACING)
+                last_tick = tick_begin;
+                S32 decimal_digits = mDecimalDigits;
+                if (fits_in_s32(tick_value) && is_approx_equal((F32)(S32)tick_value, tick_value))
                 {
-                    gl_rect_2d(bar_rect.mLeft, tick_end, bar_rect.mRight - TICK_LENGTH, tick_begin, LLColor4(1.f, 1.f, 1.f, 0.25f));
-                    LLFontGL::getFontMonospace()->render(tick_label, 0, (F32)bar_rect.mRight, (F32)tick_begin,
-                        LLColor4(1.f, 1.f, 1.f, 0.5f),
-                        LLFontGL::LEFT, LLFontGL::VCENTER);
-                    last_label = tick_begin;
+                    decimal_digits = 0;
+                }
+
+                LLWString tick_label = utf8str_to_wstring(llformat("%.*f", decimal_digits, tick_value));
+                S32 tick_label_width = LLFontGL::getFontMonospace()->getWidth(tick_label.c_str());
+                if (mOrientation == HORIZONTAL)
+                {
+                    if ((F64)tick_begin > (F64)last_label + MIN_LABEL_SPACING)
+                    {
+                        gl_rect_2d(bar_rect.mLeft, tick_end, bar_rect.mRight - TICK_LENGTH, tick_begin, LLColor4(1.f, 1.f, 1.f, 0.25f));
+                        LLFontGL::getFontMonospace()->render(tick_label, 0, (F32)bar_rect.mRight, (F32)tick_begin,
+                            LLColor4(1.f, 1.f, 1.f, 0.5f),
+                            LLFontGL::LEFT, LLFontGL::VCENTER);
+                        last_label = tick_begin;
+                    }
+                    else
+                    {
+                        gl_rect_2d(bar_rect.mLeft, tick_end, bar_rect.mRight - TICK_LENGTH/2, tick_begin, LLColor4(1.f, 1.f, 1.f, 0.1f));
+                    }
                 }
                 else
                 {
-                    gl_rect_2d(bar_rect.mLeft, tick_end, bar_rect.mRight - TICK_LENGTH/2, tick_begin, LLColor4(1.f, 1.f, 1.f, 0.1f));
-                }
-            }
-            else
-            {
-                if (tick_begin > last_label + MIN_LABEL_SPACING)
-                {
-                    gl_rect_2d(tick_begin, bar_rect.mTop, tick_end, bar_rect.mBottom - TICK_LENGTH, LLColor4(1.f, 1.f, 1.f, 0.25f));
-                    S32 label_pos = tick_begin - ll_round((F32)tick_label_width * ((F32)tick_begin / (F32)bar_rect.getWidth()));
-                    LLFontGL::getFontMonospace()->render(tick_label, 0, (F32)label_pos, (F32)(bar_rect.mBottom - TICK_LENGTH),
-                        LLColor4(1.f, 1.f, 1.f, 0.5f),
-                        LLFontGL::LEFT, LLFontGL::TOP);
-                    last_label = label_pos;
-                }
-                else
-                {
-                    gl_rect_2d(tick_begin, bar_rect.mTop, tick_end, bar_rect.mBottom - TICK_LENGTH/2, LLColor4(1.f, 1.f, 1.f, 0.1f));
+                    if ((F64)tick_begin > (F64)last_label + MIN_LABEL_SPACING)
+                    {
+                        gl_rect_2d(tick_begin, bar_rect.mTop, tick_end, bar_rect.mBottom - TICK_LENGTH, LLColor4(1.f, 1.f, 1.f, 0.25f));
+
+                        if (bar_rect.getWidth() > 0)
+                        {
+                            F32 label_offset = (F32)tick_label_width * ((F32)tick_begin / (F32)bar_rect.getWidth());
+                            if (fits_in_s32(label_offset))
+                            {
+                                S32 rounded_offset = ll_round(label_offset);
+                                F64 label_position = (F64)tick_begin - rounded_offset;
+                                if (fits_in_s32(label_position))
+                                {
+                                    S32 label_pos = (S32)label_position;
+                                    LLFontGL::getFontMonospace()->render(tick_label, 0, (F32)label_pos, (F32)(bar_rect.mBottom - TICK_LENGTH),
+                                        LLColor4(1.f, 1.f, 1.f, 0.5f),
+                                        LLFontGL::LEFT, LLFontGL::TOP);
+                                    last_label = label_pos;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        gl_rect_2d(tick_begin, bar_rect.mTop, tick_end, bar_rect.mBottom - TICK_LENGTH/2, LLColor4(1.f, 1.f, 1.f, 0.1f));
+                    }
                 }
             }
             // always draw one tick value past tick_end, so we can see part of the text, if possible
@@ -717,6 +779,13 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
             {
                 break;
             }
+
+            F32 next_tick_value = tick_value + mTickSpacing;
+            if (!llfinite(next_tick_value) || next_tick_value <= tick_value)
+            {
+                break;
+            }
+            tick_value = next_tick_value;
         }
     }
 }

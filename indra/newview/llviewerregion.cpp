@@ -2120,7 +2120,7 @@ void LLViewerRegion::updateNetStats()
     F32 dt = mImpl->mLastNetUpdate.getElapsedTimeAndResetF32();
 
     LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(mImpl->mHost);
-    if (!cdp)
+    if (!cdp || !cdp->isAlive())
     {
         mAlive = false;
         return;
@@ -3275,6 +3275,8 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("AvatarRenderInfo");
     capabilityNames.append("CharacterProperties");
     capabilityNames.append("ChatSessionRequest");
+    capabilityNames.append("PersistentChatConversationsRequest");
+    capabilityNames.append("PersistentChatHistoryRequest");
     capabilityNames.append("CopyInventoryFromNotecard");
     capabilityNames.append("CreateInventoryCategory");
     capabilityNames.append("DeclineFriendship");
@@ -3791,6 +3793,18 @@ bool LLViewerRegion::pbrExtensionsV1Enabled() const
     return ( mSimulatorFeatures.has("PBRExtensionsV1") &&
              mSimulatorFeatures["PBRExtensionsV1"].asBoolean());
 }
+bool LLViewerRegion::groupChatPostLinksEnabled() const
+{
+    return ( mSimulatorFeatures.has("GroupChatPostLinksEnabled") &&
+             mSimulatorFeatures["GroupChatPostLinksEnabled"].asBoolean());
+}
+
+bool LLViewerRegion::gameControlEnabled() const
+{
+    return ( mSimulatorFeatures.has("GameControlEnabled") &&
+             mSimulatorFeatures["GameControlEnabled"].asBoolean());
+}
+
 /* Static Functions */
 
 void log_capabilities(const CapabilityMap &capmap)

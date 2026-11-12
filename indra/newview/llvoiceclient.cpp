@@ -30,6 +30,7 @@
 #endif
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
+#include "llviewerregion.h"
 #include "llcommandhandler.h"
 #include "lldir.h"
 #include "llhttpnode.h"
@@ -298,12 +299,15 @@ void LLVoiceClient::setHidden(bool hidden)
 
 void LLVoiceClient::terminate()
 {
+    LLTimer terminate_timer;
 #ifndef DISABLE_WEBRTC
     if (LLWebRTCVoiceClient::instanceExists())
     {
+        LL_INFOS("Voice") << "Terminating LLWebRTCVoiceClient" << LL_ENDL;
         LLWebRTCVoiceClient::getInstance()->terminate();
     }
 #endif
+    LL_INFOS("Voice") << "Voice module cleanup" << LL_ENDL;
     mSpatialVoiceModule = NULL;
     m_servicePump = NULL;
 
@@ -312,6 +316,8 @@ void LLVoiceClient::terminate()
     {
         LLSpeakerVolumeStorage::deleteSingleton();
     }
+    LL_INFOS("Voice") << "LLVoiceClient::terminate() complete after "
+        << terminate_timer.getElapsedTimeF32() << "s" << LL_ENDL;
 }
 
 const LLVoiceVersionInfo LLVoiceClient::getVersion()

@@ -214,6 +214,9 @@ private:
 
     void setFading(bool fading);
 
+    // Use a unique root name for LEAP toast lookups.
+    void updateUniqueName();
+
     LLUUID              mNotificationID;
     LLUUID              mSessionID;
     LLNotificationPtr   mNotification;

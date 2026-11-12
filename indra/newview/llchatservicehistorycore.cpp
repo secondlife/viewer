@@ -1,0 +1,1449 @@
+/**
+ * @file llchatservicehistorycore.cpp
+ * @brief ChatService wire/storage primitives and direct history composition.
+ *
+ * $LicenseInfo:firstyear=2026&license=viewerlgpl$
+ * Second Life Viewer Source Code
+ * Copyright (C) 2026, Linden Research, Inc.
+ * $/LicenseInfo$
+ */
+#include "llviewerprecompiledheaders.h"
+
+#include "llchatservicehistorycore.h"
+
+#include "llcachename.h"
+#include "lldate.h"
+#include "llfile.h"
+#include "llstring.h"
+#include "llsdutil.h"
+#include "fsyspath.h"
+
+#if LL_WINDOWS
+#include "llwin32headers.h"
+#else
+#include <sys/stat.h>
+#endif
+
+#include <algorithm>
+#include <boost/regex.hpp>
+#include <cerrno>
+#include <cstdlib>
+#include <limits>
+#include <map>
+#include <set>
+#include <span>
+#include <utility>
+
+namespace LLChatServiceHistoryCore
+{
+const char* const CSV_HEADER =
+    "conversation_id,msg_id,from_id,from_name,message,dialog,created_at\n";
+const char* const INDEX_HEADER = "filename,agent_id,agent_name,display_name\n";
+
+namespace
+{
+    const U32 COLUMN_COUNT = 7;
+
+    // Occurrence checks and grouped lookup share the same clock tolerances.
+    constexpr S64 MAX_LOCAL_CLOCK_SKEW = 59;
+    constexpr S64 MAX_DELIVERY_DELAY = 60;
+    constexpr S64 MAX_SERVICE_LEAD = 5;
+
+    bool cleanText(const std::string& value, size_t limit)
+    {
+        // Wire and CSV text must remain bounded, NUL-free, and canonical UTF-8.
+        return value.size() <= limit && value.find('\0') == std::string::npos &&
+               wstring_to_utf8str(utf8str_to_wstring(value)) == value;
+    }
+
+    bool decimalDialog(const std::string& text, S32& dialog)
+    {
+        if (text.empty() || (text.size() > 1 && text[0] == '0') ||
+            text.find_first_not_of("0123456789") != std::string::npos)
+        {
+            return false;
+        }
+
+        return LLStringUtil::convertToS32(text, dialog) && persistedDirectDialog(dialog);
+    }
+
+    bool rowFromFields(const std::vector<std::string>& fields,
+                       const LLUUID& agent_id, const LLUUID& resident_id,
+                       Row& row)
+    {
+        // A stored row is trusted only after every field and cross-field identity
+        // constraint matches the current account and resident.
+        if (fields.size() != COLUMN_COUNT ||
+            fields[0] != directConversationId(agent_id, resident_id) ||
+            !parseTimeUuid(fields[1], row.key) ||
+            !parseCanonicalUuid(fields[2], row.from_id) ||
+            (row.from_id != agent_id && row.from_id != resident_id) ||
+            !cleanText(fields[3], 256) || !cleanText(fields[4], 1024) ||
+            !decimalDialog(fields[5], row.dialog) ||
+            !parseCreatedAt(fields[6], row.created_at))
+        {
+            return false;
+        }
+
+        row.conversation_id = fields[0];
+        row.msg_id = fields[1];
+        row.from_name = fields[3];
+        row.message = fields[4];
+        return true;
+    }
+
+    // Decode RFC-4180 records incrementally so validation and torn-tail recovery
+    // classify the same byte stream with one parser.
+    bool readRecord(std::istream& input, std::vector<std::string>& fields,
+                    bool& eof_torn, bool& had_record)
+    {
+        fields.clear();
+        eof_torn = false;
+        had_record = false;
+        std::string field;
+        bool quoted = false;
+        bool quote_closed = false;
+        bool started = false;
+
+        for (;;)
+        {
+            const int raw = input.get();
+            if (raw == EOF)
+            {
+                // EOF after a complete unquoted field is a valid final record. An
+                // open quote or too few columns marks only the final record as torn.
+                had_record = started;
+                eof_torn = started && (quoted || fields.size() + 1 < COLUMN_COUNT);
+                if (started && !eof_torn && !quoted)
+                {
+                    fields.push_back(field);
+                }
+                return !input.bad();
+            }
+            started = true;
+            const char ch = static_cast<char>(raw);
+
+            // Quoted fields retain delimiters and newlines; doubled quotes decode
+            // to one literal quote.
+            if (quoted)
+            {
+                if (ch != '"')
+                {
+                    field.push_back(ch);
+                    continue;
+                }
+                if (input.peek() == '"')
+                {
+                    input.get();
+                    field.push_back('"');
+                    continue;
+                }
+                quoted = false;
+                quote_closed = true;
+                continue;
+            }
+
+            // Outside quotes, delimiters advance columns and either newline style
+            // terminates the record. Bytes after a closing quote are invalid.
+            if (ch == '"')
+            {
+                if (!field.empty() || quote_closed)
+                {
+                    return false;
+                }
+                quoted = true;
+            }
+            else if (ch == ',')
+            {
+                fields.push_back(field);
+                field.clear();
+                quote_closed = false;
+            }
+            else if (ch == '\n' || ch == '\r')
+            {
+                if (ch == '\r' && input.peek() == '\n')
+                {
+                    input.get();
+                }
+                fields.push_back(field);
+                had_record = true;
+                return true;
+            }
+            else if (quote_closed)
+            {
+                return false;
+            }
+            else
+            {
+                field.push_back(ch);
+            }
+        }
+    }
+
+    bool headerMatches(const std::vector<std::string>& fields)
+    {
+        static const std::vector<std::string> header{
+            "conversation_id", "msg_id", "from_id", "from_name",
+            "message", "dialog", "created_at"};
+        return fields == header;
+    }
+
+    bool llsdString(const LLSD& map, const char* name, std::string& value)
+    {
+        const LLSD& field = map[name];
+        if (!field.isString())
+        {
+            return false;
+        }
+        value = field.asString();
+        return true;
+    }
+}
+
+bool inspectRegular(const std::string& path, bool& exists)
+{
+    exists = false;
+#if LL_WINDOWS
+    const DWORD attributes = GetFileAttributesW(ll_convert<std::wstring>(path).c_str());
+    if (attributes == INVALID_FILE_ATTRIBUTES)
+    {
+        return GetLastError() == ERROR_FILE_NOT_FOUND ||
+               GetLastError() == ERROR_PATH_NOT_FOUND;
+    }
+    exists = true;
+    return !(attributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT));
+#else
+    struct stat status;
+    if (::lstat(path.c_str(), &status) != 0)
+    {
+        return errno == ENOENT;
+    }
+    exists = true;
+    return S_ISREG(status.st_mode);
+#endif
+}
+
+bool TimeUuidKey::operator==(const TimeUuidKey& rhs) const
+{
+    return ticks == rhs.ticks && tail == rhs.tail;
+}
+
+bool TimeUuidKey::operator<(const TimeUuidKey& rhs) const
+{
+    // Cassandra orders equal-time UUIDs by signed bytes 8-15, not UUID text.
+    return ticks != rhs.ticks ? ticks < rhs.ticks : tail < rhs.tail;
+}
+
+std::string directConversationId(const LLUUID& agent_id, const LLUUID& resident_id)
+{
+    return agent_id < resident_id
+        ? agent_id.asString() + "_" + resident_id.asString()
+        : resident_id.asString() + "_" + agent_id.asString();
+}
+
+bool parseCanonicalUuid(const std::string& text, LLUUID& id)
+{
+    if (text.size() != 36 || text != utf8str_tolower(text) || !LLUUID::validate(text))
+    {
+        return false;
+    }
+
+    id.set(text, false);
+    return id.asString() == text;
+}
+
+bool parseTimeUuid(const std::string& text, TimeUuidKey& key)
+{
+    LLUUID id;
+    if (!parseCanonicalUuid(text, id) || (id.mData[6] >> 4) != 1 ||
+        (id.mData[8] & 0xc0) != 0x80)
+    {
+        return false;
+    }
+
+    // UUIDv1 stores the 60-bit timestamp across three network-order fields.
+    const U64 time_low = (U64(id.mData[0]) << 24) | (U64(id.mData[1]) << 16) |
+                         (U64(id.mData[2]) << 8) | U64(id.mData[3]);
+    const U64 time_mid = (U64(id.mData[4]) << 8) | U64(id.mData[5]);
+    const U64 time_high = (U64(id.mData[6] & 0x0f) << 8) | U64(id.mData[7]);
+    key.ticks = (time_high << 48) | (time_mid << 32) | time_low;
+
+    for (U32 pos = 0; pos < key.tail.size(); ++pos)
+    {
+        key.tail[pos] = static_cast<S8>(id.mData[pos + 8]);
+    }
+
+    return true;
+}
+
+std::string formatTimeUuid(const TimeUuidKey& key)
+{
+    if (key == TimeUuidKey())
+    {
+        return {};
+    }
+
+    // Reverse the UUIDv1 field layout without losing equal-timestamp tail ordering.
+    LLUUID id;
+    for (U32 pos = 0; pos < 4; ++pos)
+    {
+        id.mData[pos] = U8(key.ticks >> (24 - pos * 8));
+    }
+    id.mData[4] = U8(key.ticks >> 40);
+    id.mData[5] = U8(key.ticks >> 32);
+    id.mData[6] = U8((key.ticks >> 56) & 0x0f) | 0x10;
+    id.mData[7] = U8(key.ticks >> 48);
+    for (U32 pos = 0; pos < key.tail.size(); ++pos)
+    {
+        id.mData[pos + 8] = U8(key.tail[pos]);
+    }
+    return id.asString();
+}
+
+bool persistedDirectDialog(S32 dialog)
+{
+    switch (dialog)
+    {
+        case 0:
+        case 3:
+        case 4:
+        case 20:
+        case 22:
+        case 26:
+        case 38:
+            return true;
+
+        default:
+            return false;
+    }
+}
+
+bool sameDirectSenderName(const std::string& left, const std::string& right)
+{
+    // Extract the resident name from complete transcript names before normalizing
+    // legacy and dotted forms; the display-name prefix is presentation only.
+    const std::string left_resident =
+        LLCacheName::buildUsername(LLCacheName::buildLegacyName(left));
+    const std::string right_resident =
+        LLCacheName::buildUsername(LLCacheName::buildLegacyName(right));
+    return !left_resident.empty() && left_resident == right_resident;
+}
+
+bool sameDirectHistoryOccurrence(const LLSD& history, const LLSD& timed)
+{
+    if (!timed["timestamp"].isInteger() || timed["timestamp"].asInteger() <= 0)
+    {
+        return false;
+    }
+
+    // Service bodies omit offline notices and translations. Plaintext contains
+    // the rendered body, so compare it against the same displayed value.
+    const bool service = history["chat_service_msg_id"].isString();
+    const LLSD& text = service && timed["chat_service_original_text"].isString()
+        ? timed["chat_service_original_text"] : timed["message"];
+    if (history["message"].asString() != text.asString())
+    {
+        return false;
+    }
+
+    // UUIDs are authoritative when available; plaintext otherwise identifies
+    // its sender by the resident username, including complete-name spellings.
+    const bool same_sender = history["from_id"].isDefined() && timed["from_id"].isDefined()
+        ? history["from_id"].asUUID() == timed["from_id"].asUUID()
+        : sameDirectSenderName(history["from"].asString(), timed["from"].asString());
+    if (!same_sender)
+    {
+        return false;
+    }
+
+    const S32 timestamp = timed["timestamp"].asInteger();
+    if (service)
+    {
+        if (!history["timestamp"].isInteger() || history["timestamp"].asInteger() <= 0)
+        {
+            return false;
+        }
+
+        const S32 service_timestamp = history["timestamp"].asInteger();
+        // Receipt and service recording use separate clocks and can finish in
+        // either order. Admit bounded service lead as well as delivery delay.
+        if (timed["chat_service_time_source"].asString() == "receipt")
+        {
+            const S64 delay = static_cast<S64>(timestamp) - service_timestamp;
+            return delay >= -MAX_SERVICE_LEAD && delay <= MAX_DELIVERY_DELAY;
+        }
+
+        // Outgoing echoes tolerate less than a minute of clock skew in either
+        // direction, including across minute, hour, and day boundaries.
+        if (timed["chat_service_time_source"].asString() == "local")
+        {
+            // History already known before this send cannot be its service copy.
+            TimeUuidKey after, key;
+            if (parseTimeUuid(timed["chat_service_after_msg_id"].asString(), after) &&
+                (!parseTimeUuid(history["chat_service_msg_id"].asString(), key) || key <= after))
+            {
+                return false;
+            }
+            const S64 skew = static_cast<S64>(timestamp) - service_timestamp;
+            return skew >= -MAX_LOCAL_CLOCK_SKEW && skew <= MAX_LOCAL_CLOCK_SKEW;
+        }
+
+        // Saved offline send timestamps and unmarked callers retain exact seconds.
+        return service_timestamp == timestamp;
+    }
+
+    // Offline IMs are logged when delivered, potentially days after being sent.
+    // Legacy SLT minutes admit either UTC-7 or UTC-8 because no offset is stored.
+    if (!history["chat_service_legacy_wall_time"].isReal())
+    {
+        return false;
+    }
+    const S32 logged = timed["chat_service_log_timestamp"].isInteger()
+        ? timed["chat_service_log_timestamp"].asInteger() : timestamp;
+    for (const F64 offset : { 7.0 * 3600.0, 8.0 * 3600.0 })
+    {
+        const F64 minute = history["chat_service_legacy_wall_time"].asReal() + offset;
+        if (logged >= minute && logged < minute + 60.0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Consumed history/live pairs preserve the occurrence counts needed by retained history.
+using DirectHistoryMatches = std::vector<std::pair<LLSD, LLSD>>;
+
+static void retainHistoryAnchors(Messages& retained, const DirectHistoryMatches& matches,
+                                 const Messages& loaded)
+{
+    // The two SLT offsets let earlier plaintext matches depend on later ones.
+    // Walk backwards and prepend anchors to preserve their same-minute order.
+    using Identity = std::pair<LLUUID, std::string>;
+    std::map<Identity, std::multimap<S32, const DirectHistoryMatches::value_type*>> groups;
+    for (auto it = matches.rbegin(); it != matches.rend(); ++it)
+    {
+        const auto& match = *it;
+        const LLSD& row = match.first;
+        if (!row["chat_service_msg_id"].isString())
+        {
+            if (std::any_of(retained.begin(), retained.end(), [&](const LLSD& candidate)
+                { return !candidate["chat_service_msg_id"].isString() &&
+                         sameDirectHistoryOccurrence(candidate, match.second); }))
+            {
+                retained.push_front(row);
+            }
+            continue;
+        }
+        groups[{row["from_id"].asUUID(), row["message"].asString()}].emplace(
+            row["timestamp"].asInteger(), &match);
+    }
+
+    // Keep connected service assignments that protect retained plaintext counts
+    // or visible repeats. Loaded plaintext may also still need its service copy.
+    // Prepending service anchors keeps this original context range fixed.
+    const auto context = retained.cbegin();
+    for (const auto& group : groups)
+    {
+        const auto& times = group.second;
+        for (auto begin = times.begin(); begin != times.end();)
+        {
+            auto end = std::next(begin);
+            while (end != times.end() && S64(end->first) - std::prev(end)->first <= 2 * MAX_LOCAL_CLOCK_SKEW)
+            {
+                ++end;
+            }
+            const bool needed = std::any_of(begin, end, [&](const auto& entry)
+            {
+                const auto& match = *entry.second;
+                return std::any_of(context, retained.cend(), [&](const LLSD& row)
+                    { return sameDirectHistoryOccurrence(row, match.second); }) ||
+                    std::any_of(loaded.begin(), loaded.end(), [&](const LLSD& row)
+                    {
+                        return !row["chat_service_msg_id"].isString() &&
+                            sameDirectHistoryOccurrence(row, match.first);
+                    });
+            });
+            if (needed)
+            {
+                for (auto anchor = begin; anchor != end; ++anchor)
+                {
+                    retained.push_front(anchor->second->first);
+                }
+            }
+            begin = end;
+        }
+    }
+}
+
+
+struct TimedOccurrence
+{
+    S64 timestamp;
+    size_t index;
+    TimeUuidKey key;
+};
+
+// Pair one sender/body/time component, maximizing count before minimizing skew.
+static void matchLocalOccurrences(std::span<const TimedOccurrence> local,
+                                 std::span<const TimedOccurrence> service,
+                                 std::vector<std::pair<size_t, size_t>>& pairs)
+{
+    // Ordered matching supplies the maximum count. If both sides are completely
+    // paired, their only ordered assignment is already optimal.
+    const size_t saved = pairs.size();
+    size_t i = 0, j = 0;
+    while (i < local.size() && j < service.size())
+    {
+        const S64 skew = local[i].timestamp - service[j].timestamp;
+        if (std::abs(skew) <= MAX_LOCAL_CLOCK_SKEW)
+            pairs.emplace_back(local[i++].index, service[j++].index);
+        else if (skew > 0) ++i;
+        else ++j;
+    }
+    const size_t count = pairs.size() - saved;
+    if (!count || (count == local.size() && count == service.size())) return;
+    pairs.resize(saved);
+
+    // A maximum-count path can skip only these many occurrences on either side.
+    // Store scores just inside that band; they also supply the traceback.
+    const size_t skip_local = local.size() - count;
+    const size_t skip_service = service.size() - count;
+    auto begin = [&](size_t row) { return row > skip_local ? row - skip_local : 0; };
+    auto end = [&](size_t row) { return std::min(service.size(), row + skip_service); };
+    // Suffix scores prefer more pairs, then less total skew; either side can be skipped.
+    using Score = std::pair<S32, S32>;
+    std::vector<std::vector<Score>> scores(local.size() + 1);
+    auto scoreAt = [&](size_t row, size_t column)
+    {
+        return column >= begin(row) && column <= end(row)
+            ? scores[row][column - begin(row)] : Score{-1, 0};
+    };
+    auto pairedScore = [&](size_t row, size_t column) -> Score
+    {
+        const S64 distance = std::abs(local[row].timestamp - service[column].timestamp);
+        const Score suffix = scoreAt(row + 1, column + 1);
+        return distance <= MAX_LOCAL_CLOCK_SKEW && suffix.first >= 0
+            ? Score{suffix.first + 1, suffix.second - S32(distance)} : Score{-1, 0};
+    };
+    for (size_t row = local.size() + 1; row-- > 0;)
+    {
+        scores[row].resize(end(row) - begin(row) + 1);
+        for (size_t column = end(row) + 1; column-- > begin(row);)
+        {
+            if (row < local.size() && column < service.size())
+                scores[row][column - begin(row)] = std::max(
+                    {scoreAt(row + 1, column), scoreAt(row, column + 1), pairedScore(row, column)});
+        }
+    }
+
+    // Equal scores prefer the newer pair, then skipping a service occurrence.
+    i = 0;
+    j = 0;
+    while (i < local.size() && j < service.size())
+    {
+        if (scoreAt(i, j) == pairedScore(i, j))
+            pairs.emplace_back(local[i++].index, service[j++].index);
+        else if (scoreAt(i, j) == scoreAt(i, j + 1)) ++j;
+        else ++i;
+    }
+}
+
+// Group service candidates once for exact sends, receipts, and local echoes.
+static std::vector<std::pair<size_t, size_t>> serviceMatches(
+    const std::vector<const LLSD*>& deliveries,
+    const std::vector<Messages::const_iterator>& service)
+{
+    // Newer captures exclude more history. Give them first claim on eligible
+    // service rows, then let earlier captures match the remaining occurrences.
+    // This priority can leave an extra duplicate when clock windows compete;
+    // assignments are not optimized across different capture boundaries.
+    auto newer_capture = [](const TimeUuidKey& left, const TimeUuidKey& right)
+    {
+        return !(left == TimeUuidKey()) && (right == TimeUuidKey() || right < left);
+    };
+    struct Group
+    {
+        std::map<TimeUuidKey, std::vector<TimedOccurrence>, decltype(newer_capture)> captures;
+        std::vector<TimedOccurrence> service;
+        size_t cursor = 0;
+        bool receipts = false;
+    };
+    std::map<std::pair<LLUUID, std::string>, Group> groups;
+    bool complete_ids = true;
+    for (size_t pos = 0; pos < service.size(); ++pos)
+    {
+        const LLSD& row = *service[pos];
+        complete_ids = complete_ids && row["from_id"].isDefined();
+        if (row["timestamp"].isInteger() && row["timestamp"].asInteger() > 0)
+        {
+            TimeUuidKey key;
+            parseTimeUuid(row["chat_service_msg_id"].asString(), key);
+            groups[{row["from_id"].asUUID(), row["message"].asString()}].service.push_back(
+                {row["timestamp"].asInteger(), pos, key});
+        }
+    }
+
+    // Reserve exact sends and receipts before local-clock matching; missing UUIDs
+    // retain the original name-based scan and stable service order.
+    std::vector<bool> used(service.size(), false);
+    std::vector<std::pair<size_t, size_t>> pairs;
+    for (size_t pos = 0; pos < deliveries.size(); ++pos)
+    {
+        const LLSD& delivery = *deliveries[pos];
+        if (!delivery["timestamp"].isInteger() || delivery["timestamp"].asInteger() <= 0) continue;
+        const std::string source = delivery["chat_service_time_source"].asString();
+        const bool local = source == "local";
+        if (!delivery["from_id"].isDefined() || (!local && !complete_ids))
+        {
+            for (size_t row = 0; row < service.size(); ++row)
+            {
+                if (!used[row] && sameDirectHistoryOccurrence(*service[row], delivery))
+                {
+                    pairs.emplace_back(pos, row);
+                    used[row] = true;
+                    break;
+                }
+            }
+            continue;
+        }
+        const LLSD& body = delivery["chat_service_original_text"].isString()
+            ? delivery["chat_service_original_text"] : delivery["message"];
+        const auto found = groups.find({delivery["from_id"].asUUID(), body.asString()});
+        if (found == groups.end()) continue;
+        auto& group = found->second;
+        const S64 timestamp = delivery["timestamp"].asInteger();
+        if (local)
+        {
+            TimeUuidKey after;
+            parseTimeUuid(delivery["chat_service_after_msg_id"].asString(), after);
+            group.captures[after].push_back({timestamp, pos});
+            continue;
+        }
+
+        // Deliveries are newest-first within each policy. Each cursor advances
+        // past a candidate at most once per policy; receipts restart after exact sends.
+        const bool receipt = source == "receipt";
+        if (receipt && !group.receipts)
+        {
+            group.cursor = 0;
+            group.receipts = true;
+        }
+        const S64 latest = timestamp + (receipt ? MAX_SERVICE_LEAD : 0);
+        const S64 earliest = timestamp - (receipt ? MAX_DELIVERY_DELAY : 0);
+        while (group.cursor < group.service.size() &&
+               (group.service[group.cursor].timestamp > latest || used[group.service[group.cursor].index]))
+        {
+            ++group.cursor;
+        }
+        if (group.cursor < group.service.size() && group.service[group.cursor].timestamp >= earliest)
+        {
+            const size_t row = group.service[group.cursor++].index;
+            pairs.emplace_back(pos, row);
+            used[row] = true;
+        }
+    }
+
+    // Remove reserved occurrences and unmatched candidates before sizing the
+    // local alignment band; each group retains its original newest-first order.
+    auto hasCandidate = [](const TimedOccurrence& row, const std::vector<TimedOccurrence>& candidates)
+    {
+        const auto match = std::lower_bound(candidates.begin(), candidates.end(), row.timestamp + MAX_LOCAL_CLOCK_SKEW,
+            [](const TimedOccurrence& candidate, S64 latest) { return candidate.timestamp > latest; });
+        return match != candidates.end() && match->timestamp >= row.timestamp - MAX_LOCAL_CLOCK_SKEW;
+    };
+    for (auto& entry : groups)
+    {
+        auto& group = entry.second;
+        for (auto& capture : group.captures)
+        {
+            // Restrict the copy to this capture's possible timestamps. Long
+            // retained chains then visit only nearby service records.
+            auto& local_rows = capture.second;
+            const auto first = std::lower_bound(group.service.begin(), group.service.end(),
+                local_rows.front().timestamp + MAX_LOCAL_CLOCK_SKEW,
+                [](const TimedOccurrence& row, S64 latest) { return row.timestamp > latest; });
+            const auto last = std::upper_bound(first, group.service.end(),
+                local_rows.back().timestamp - MAX_LOCAL_CLOCK_SKEW,
+                [](S64 earliest, const TimedOccurrence& row) { return earliest > row.timestamp; });
+            std::vector<TimedOccurrence> service_rows(first, last);
+
+            // Only unclaimed records newer than the pre-send boundary are eligible.
+            std::erase_if(service_rows, [&](const TimedOccurrence& row)
+            {
+                return used[row.index] || (!(capture.first == TimeUuidKey()) && row.key <= capture.first);
+            });
+            const size_t saved = pairs.size();
+            std::erase_if(local_rows, [&](const TimedOccurrence& row) { return !hasCandidate(row, service_rows); });
+            if (local_rows.empty()) continue;
+            std::erase_if(service_rows, [&](const TimedOccurrence& row) { return !hasCandidate(row, local_rows); });
+            const auto local = std::span(local_rows);
+            const auto rows = std::span(service_rows);
+
+            // Separate time regions cannot share candidates or influence tied choices.
+            size_t i = 0, j = 0, local_start = 0, service_start = 0;
+            S64 previous = std::max(local.front().timestamp, rows.front().timestamp);
+            while (i < local.size() || j < rows.size())
+            {
+                const S64 timestamp = std::max(i < local.size() ? local[i].timestamp : 0,
+                                               j < rows.size() ? rows[j].timestamp : 0);
+                if (previous - timestamp > MAX_LOCAL_CLOCK_SKEW)
+                {
+                    matchLocalOccurrences(local.subspan(local_start, i - local_start),
+                                          rows.subspan(service_start, j - service_start), pairs);
+                    local_start = i;
+                    service_start = j;
+                }
+                if (i < local.size() && local[i].timestamp == timestamp) ++i;
+                else ++j;
+                previous = timestamp;
+            }
+            matchLocalOccurrences(local.subspan(local_start), rows.subspan(service_start), pairs);
+
+            // Reserving each selected record prevents another capture from reusing it.
+            for (size_t match = saved; match < pairs.size(); ++match) used[pairs[match].second] = true;
+        }
+    }
+    return pairs;
+}
+
+// Broad clock ranges exclude old traffic cheaply; occurrence matching still
+// checks each row's source, sender, body, and precise timing rules.
+static std::pair<F64, F64> historyTimeRange(const Messages& history, const char* field)
+{
+    std::pair<F64, F64> range{std::numeric_limits<F64>::max(), 0};
+    for (const LLSD& row : history)
+    {
+        const LLSD& time = row[field];
+        if (time.isInteger() || time.isReal())
+        {
+            range.first = std::min(range.first, time.asReal());
+            range.second = std::max(range.second, time.asReal());
+        }
+    }
+    return range;
+}
+
+static std::list<LLSD> filterHistoryDuplicates(
+    const std::list<LLSD>& history, const std::list<LLSD>& live,
+    DirectHistoryMatches* history_matches)
+{
+    // Empty sources cannot contribute a duplicate or a retained anchor.
+    if (history.empty() || live.empty())
+    {
+        return history;
+    }
+
+    // Exclude old session traffic outside both historical clock windows before
+    // sorting. Plaintext uses logging time and admits either legacy SLT offset.
+    const auto service_time = historyTimeRange(history, "timestamp");
+    const auto legacy_time = historyTimeRange(history, "chat_service_legacy_wall_time");
+
+    // Reserve known sends and online receipts in their established order;
+    // local echoes are reconciled together after those candidates are reserved.
+    auto priority = [](const LLSD& message)
+    {
+        const std::string source = message["chat_service_time_source"].asString();
+        return source == "receipt" ? 1 : source == "local" ? 2 : 0;
+    };
+    std::vector<const LLSD*> deliveries;
+    for (const LLSD& message : live)
+    {
+        const S64 timestamp = message["timestamp"].asInteger();
+        const S32 logged = message["chat_service_log_timestamp"].isInteger()
+            ? message["chat_service_log_timestamp"].asInteger() : S32(timestamp);
+        if ((timestamp >= service_time.first - MAX_LOCAL_CLOCK_SKEW &&
+             timestamp <= service_time.second + MAX_DELIVERY_DELAY) ||
+            (logged >= legacy_time.first + 7.0 * 3600.0 && logged < legacy_time.second + 8.0 * 3600.0 + 60.0))
+        {
+            deliveries.push_back(&message);
+        }
+    }
+    std::stable_sort(deliveries.begin(), deliveries.end(), [&](const LLSD* a, const LLSD* b)
+    {
+        return priority(*a) != priority(*b) ? priority(*a) < priority(*b)
+            : (*a)["timestamp"].asInteger() > (*b)["timestamp"].asInteger();
+    });
+
+    // Sorted iterators allow matching in time order while retaining the source order.
+    Messages result = history;
+    std::vector<Messages::const_iterator> service;
+    for (auto row = result.cbegin(); row != result.cend(); ++row)
+    {
+        if ((*row)["chat_service_msg_id"].isString()) service.push_back(row);
+    }
+    std::stable_sort(service.begin(), service.end(), [](auto a, auto b)
+    {
+        return (*a)["timestamp"].asInteger() > (*b)["timestamp"].asInteger();
+    });
+
+    // Apply the plan once, saving consumed rows for plaintext reconciliation and
+    // retained history. No service occurrence can appear in more than one pair.
+    std::vector<LLSD> matched(deliveries.size());
+    for (const auto& pair : serviceMatches(deliveries, service))
+    {
+        matched[pair.first] = *service[pair.second];
+        if (history_matches) history_matches->emplace_back(matched[pair.first], *deliveries[pair.first]);
+        result.erase(service[pair.second]);
+    }
+
+    // Service-only seams have no logged-body occurrences left to reconcile.
+    if (service.size() == history.size())
+    {
+        return result;
+    }
+
+    // A live occurrence can also cover plaintext that the matched service row
+    // could not consume: a decorated body or a different actual logging minute.
+    // Plaintext already eligible for that service row remains an extra occurrence.
+    for (size_t pos = 0; pos < deliveries.size(); ++pos)
+    {
+        const LLSD& delivery = *deliveries[pos];
+        const auto match = std::find_if(result.begin(), result.end(), [&](const LLSD& row)
+        {
+            return !row["chat_service_msg_id"].isString() && sameDirectHistoryOccurrence(row, delivery) &&
+                   (!matched[pos].isDefined() || !sameDirectHistoryOccurrence(row, matched[pos]));
+        });
+        if (match != result.end())
+        {
+            if (history_matches) history_matches->emplace_back(*match, delivery);
+            result.erase(match);
+        }
+    }
+
+    return result;
+}
+
+std::list<LLSD> filterDirectHistoryDuplicates(
+    const std::list<LLSD>& history, const std::list<LLSD>& live)
+{
+    return filterHistoryDuplicates(history, live, nullptr);
+}
+
+std::list<LLSD> interleaveDirectHistory(const std::list<LLSD>& history,
+                                      std::list<LLSD> result)
+{
+    // Reuse live nodes when the caller moves the list; const reads preserve shared LLSD maps.
+    auto position = result.cbegin();
+
+    // A service head may contain messages sent after live delivery began. Insert
+    // them by UTC time while retaining both sources' order and untimed live anchors.
+    for (const LLSD& message : history)
+    {
+        const S32 timestamp = message["timestamp"].asInteger();
+        while (position != result.end() &&
+               (timestamp <= 0 || (*position)["timestamp"].asInteger() <= 0 ||
+                (*position)["timestamp"].asInteger() >= timestamp))
+        {
+            ++position;
+        }
+        result.insert(position, message);
+    }
+    return result;
+}
+
+Messages mergeDirectHistory(const Messages& loaded, const Messages& incoming)
+{
+    // Each input is a seam already reconciled against its own service IDs.
+    // Reconcile only IDs missing from that input, then union legacy occurrences.
+    struct Seam
+    {
+        Messages legacy;
+        std::map<TimeUuidKey, LLSD> service;
+        explicit Seam(const Messages& messages)
+        {
+            for (const LLSD& row : messages)
+            {
+                TimeUuidKey key;
+                if (parseTimeUuid(row["chat_service_msg_id"].asString(), key))
+                    service.emplace(key, row);
+                else
+                    legacy.push_back(row);
+            }
+        }
+    } left(loaded), right(incoming);
+
+    auto reconcile = [](Seam& seam, const Seam& other)
+    {
+        // Index minutes so full transcript reads do not compare every pair.
+        std::multimap<S64, const LLSD*> added;
+        for (const auto& entry : other.service)
+        {
+            if (!seam.service.count(entry.first))
+                added.emplace(entry.second["timestamp"].asInteger() / 60, &entry.second);
+        }
+        seam.legacy.remove_if([&](const LLSD& row)
+        {
+            if (!row["chat_service_legacy_wall_time"].isReal()) return false;
+            for (S64 offset : {7 * 3600, 8 * 3600})
+            {
+                const S64 minute = (static_cast<S64>(row["chat_service_legacy_wall_time"].asReal()) + offset) / 60;
+                const auto range = added.equal_range(minute);
+                for (auto candidate = range.first; candidate != range.second; ++candidate)
+                {
+                    if (sameDirectHistoryOccurrence(row, *candidate->second))
+                    {
+                        added.erase(candidate);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        });
+    };
+    reconcile(left, right);
+    reconcile(right, left);
+
+    // Shared plaintext occurrences count once; distinct repeated lines retain
+    // the greater occurrence count from the two bounded source windows.
+    Messages unmatched = left.legacy;
+    for (const LLSD& row : right.legacy)
+    {
+        const auto match = std::find_if(unmatched.begin(), unmatched.end(),
+            [&](const LLSD& candidate) { return llsd_equals(candidate, row); });
+        if (match == unmatched.end()) left.legacy.push_back(row);
+        else unmatched.erase(match);
+    }
+    left.legacy.sort([](const LLSD& a, const LLSD& b)
+    {
+        const LLSD& at = a["chat_service_legacy_wall_time"];
+        const LLSD& bt = b["chat_service_legacy_wall_time"];
+        return at.isReal() && (!bt.isReal() || at.asReal() < bt.asReal());
+    });
+
+    // Loaded canonical values win preview identity; all service rows use TimeUUID order.
+    left.service.insert(right.service.begin(), right.service.end());
+    for (const auto& entry : left.service) left.legacy.push_back(entry.second);
+    return left.legacy;
+}
+
+void History::setLoaded(const Messages& messages)
+{
+    mLoaded = messages;
+    if (messages.empty())
+    {
+        mVisible.clear();
+    }
+}
+
+void History::clear()
+{
+    mLoaded.clear();
+    mVisible.clear();
+    mCandidates.clear();
+}
+
+void History::clearService()
+{
+    auto service = [](const LLSD& row) { return row["chat_service_msg_id"].isString(); };
+    mLoaded.remove_if(service);
+    mVisible.remove_if(service);
+    mCandidates.remove_if(service);
+}
+
+TimeUuidKey History::latestServiceKey() const
+{
+    // Loaded rows can precede the first publication; retained and consumed rows
+    // can outlive the current archive window. All were known before the next send.
+    TimeUuidKey latest;
+    for (const Messages* source : {&mLoaded, &mVisible, &mCandidates})
+    {
+        for (const LLSD& row : *source)
+        {
+            TimeUuidKey key;
+            if (parseTimeUuid(row["chat_service_msg_id"].asString(), key) &&
+                (latest == TimeUuidKey() || latest < key))
+            {
+                latest = key;
+            }
+        }
+    }
+    return latest;
+}
+
+Messages History::compose(const Messages& preview, const Messages& live, U32 limit,
+                          bool retain_context)
+{
+    // Retain bounded visible context while open, including plaintext that has not
+    // acquired a service ID. Compose before filtering so live copies cannot evict it.
+    Messages result = mergeDirectHistory(mLoaded, preview);
+    if (retain_context)
+    {
+        result = mergeDirectHistory(result, mVisible);
+    }
+    mCandidates = result;
+    DirectHistoryMatches matches;
+    result = filterHistoryDuplicates(result, live, retain_context ? &matches : nullptr);
+    while (limit && result.size() > limit)
+    {
+        result.pop_front();
+    }
+
+    // Keep consumed occurrences that protect retained repeats after archive
+    // rollover. Visible rows and anchors remain one reconciled seam.
+    mVisible = retain_context ? result : Messages();
+    if (retain_context)
+    {
+        retainHistoryAnchors(mVisible, matches, mLoaded);
+    }
+    return result;
+}
+
+bool replaceHistory(Messages& current, const Messages& history, bool direct)
+{
+    Messages live;
+    for (const LLSD& message : current)
+    {
+        if (!message["is_history"].asBoolean())
+        {
+            live.push_back(message);
+        }
+    }
+    Messages historical;
+    for (const LLSD& source : history)
+    {
+        LLSD message = source;
+        message["timestamp"] = source["timestamp"].asInteger();
+        message["is_history"] = true;
+        message["is_region_msg"] = false;
+        historical.push_front(message);
+    }
+    if (direct)
+    {
+        live = interleaveDirectHistory(historical, std::move(live));
+    }
+    else
+    {
+        live.insert(live.end(), historical.begin(), historical.end());
+    }
+
+    // Live order is preserved, so equal history/live positions identify the same
+    // live rows. Compare only history values, ignoring presentation indices.
+    if (current.size() == live.size() &&
+        std::equal(current.begin(), current.end(), live.begin(), [](const LLSD& left, const LLSD& right)
+        {
+            const bool historical = left["is_history"].asBoolean();
+            if (historical != right["is_history"].asBoolean()) return false;
+            if (!historical) return true;
+            LLSD left_history = left;
+            LLSD right_history = right;
+            left_history.erase("index");
+            right_history.erase("index");
+            return llsd_equals(left_history, right_history);
+        }))
+    {
+        return false;
+    }
+    current.swap(live);
+    S32 index = static_cast<S32>(current.size());
+    for (LLSD& message : current)
+    {
+        message["index"] = --index;
+    }
+    return true;
+}
+
+LLSD incomingContext(const LLSD& original_text, bool online)
+{
+    LLSD context;
+    context["chat_service_original_text"] = original_text;
+    context["chat_service_time_source"] = online ? "receipt" : "sent";
+    return context;
+}
+
+LLSD captureLiveMessage(const std::string& text, U32& timestamp, const LLSD& context, U32 now)
+{
+    LLSD captured = context;
+    if (!context["chat_service_original_text"].isString())
+    {
+        captured["chat_service_original_text"] = text;
+    }
+    if (!context["chat_service_time_source"].isString() ||
+        (!timestamp && context["chat_service_time_source"].asString() != "receipt"))
+    {
+        captured["chat_service_time_source"] = timestamp ? "sent" : "local";
+    }
+    if (!timestamp)
+    {
+        timestamp = now;
+    }
+    return captured;
+}
+
+void recordLiveMessage(LLSD& message, const LLSD& context, U32 logged_at)
+{
+    message["chat_service_original_text"] = context["chat_service_original_text"];
+    message["chat_service_time_source"] = context["chat_service_time_source"];
+    message["chat_service_log_timestamp"] = static_cast<S32>(logged_at);
+
+    // Keep the original pre-send boundary through translation and later reloads.
+    if (context["chat_service_after_msg_id"].isString())
+    {
+        message["chat_service_after_msg_id"] = context["chat_service_after_msg_id"];
+    }
+}
+
+bool legacyWallMayPrecedeService(F64 wall_epoch, F64 service_epoch)
+{
+    return wall_epoch + 7.0 * 3600.0 < service_epoch;
+}
+
+bool parseCreatedAt(const std::string& text, std::string& normalized)
+{
+    // Match the entire ISO timestamp, with bounded clock/offset fields and an
+    // optional nonempty fraction. LLDate itself also accepts malformed suffixes.
+    static const boost::regex shape(
+        R"(([0-9]{4})-([0-9]{2})-([0-9]{2})T)"
+        R"((?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9])"
+        R"((?:\.[0-9]+)?(Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])?)");
+    boost::smatch fields;
+    if (!boost::regex_match(text, fields, shape))
+    {
+        return false;
+    }
+
+    const U32 year = std::stoi(fields[1]);
+    const U32 month = std::stoi(fields[2]);
+    const U32 day = std::stoi(fields[3]);
+    static const U32 DAYS_PER_MONTH[] = {
+        31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+    };
+    if (!year || month < 1 || month > 12)
+    {
+        return false;
+    }
+
+    // Validate the day against the parsed month, including Gregorian leap years.
+    U32 month_days = DAYS_PER_MONTH[month - 1];
+    if (month == 2 && (year % 400 == 0 || (year % 4 == 0 && year % 100 != 0)))
+    {
+        ++month_days;
+    }
+    if (day < 1 || day > month_days)
+    {
+        return false;
+    }
+
+    // Offset-less timestamps are UTC; preserve an explicit zone and fractional precision.
+    const std::string parsed = fields[4].matched ? text : text + 'Z';
+    LLDate date;
+    if (!date.fromString(parsed))
+    {
+        return false;
+    }
+
+    normalized = parsed;
+    return true;
+}
+
+bool validateConversationList(const LLSD& value, const LLUUID& agent_id,
+                              std::vector<ListEntry>& entries)
+{
+    entries.clear();
+
+    // Reject the complete discovery response before extracting any direct entries.
+    if (!value.isArray() || value.size() > 10000)
+    {
+        return false;
+    }
+
+    std::set<LLUUID> residents;
+    for (LLSD::array_const_iterator it = value.beginArray(); it != value.endArray(); ++it)
+    {
+        // Every list row must have a known type and bounded canonical identifiers,
+        // even when non-direct rows are ignored by this feature.
+        std::string type;
+        std::string conversation;
+        if (!it->isMap() || !llsdString(*it, "conversation_type", type) ||
+            !llsdString(*it, "conversation_id", conversation) || conversation.empty() ||
+            conversation.size() > 512 || !cleanText(conversation, 512) ||
+            (type != "direct" && type != "group" && type != "adhoc"))
+        {
+            return false;
+        }
+        if (type != "direct")
+        {
+            continue;
+        }
+
+        // Direct entries use the deterministic account/participant conversation ID
+        // with a valid latest-message token and no duplicate participants.
+        std::string resident_text;
+        std::string token;
+        LLUUID resident;
+        TimeUuidKey token_key;
+        if (!llsdString(*it, "other_participant_id", resident_text) ||
+            !llsdString(*it, "last_msg_id", token) ||
+            !parseCanonicalUuid(resident_text, resident) ||
+            resident == agent_id ||
+            !parseTimeUuid(token, token_key) ||
+            conversation != directConversationId(agent_id, resident) ||
+            !residents.insert(resident).second)
+        {
+            return false;
+        }
+
+        // The service also lists system traffic with a null participant; only
+        // resident conversations can have a local history archive.
+        if (resident.notNull())
+        {
+            entries.push_back({resident, token});
+        }
+    }
+
+    return true;
+}
+
+bool validateHistoryPage(const LLSD& value, const LLUUID& agent_id,
+                         const LLUUID& resident_id,
+                         const std::string& requested_cursor,
+                         U64 deleted_before_ticks, Page& page)
+{
+    page = Page();
+    const std::string conversation_id = directConversationId(agent_id, resident_id);
+
+    // The service echoes the exact conversation and fixed page size. Coercible LLSD
+    // types are rejected so paging state cannot drift across malformed responses.
+    if (!value.isMap() || !value["conversation_id"].isString() ||
+        value["conversation_id"].asString() != conversation_id ||
+        !value["limit"].isInteger() || value["limit"].asInteger() != 100 ||
+        !value["messages"].isArray() || value["messages"].size() > 100)
+    {
+        return false;
+    }
+
+    // Cursor echoes are exact: the head omits one, while older pages repeat the
+    // requested UUID unchanged.
+    const LLSD& echoed = value["before_msg_id"];
+    if ((requested_cursor.empty() && !echoed.isUndefined()) ||
+        (!requested_cursor.empty() &&
+         (!echoed.isString() || echoed.asString() != requested_cursor)))
+    {
+        return false;
+    }
+
+    TimeUuidKey cursor_key;
+    if (!requested_cursor.empty() && !parseTimeUuid(requested_cursor, cursor_key))
+    {
+        return false;
+    }
+
+    TimeUuidKey previous;
+    bool have_previous = false;
+
+    // Validate every row before the page can affect scheduler or archive state.
+    // Strictly descending UUIDv1 keys below the cursor exclude duplicate IDs
+    // both within this page and across earlier pages in the same pass.
+    for (LLSD::array_const_iterator it = value["messages"].beginArray();
+         it != value["messages"].endArray(); ++it)
+    {
+        Row row;
+        std::string from_text;
+        if (!it->isMap() || !llsdString(*it, "conversation_id", row.conversation_id) ||
+            !llsdString(*it, "msg_id", row.msg_id) ||
+            !llsdString(*it, "from_id", from_text) ||
+            !llsdString(*it, "from_name", row.from_name) ||
+            !llsdString(*it, "message", row.message) ||
+            !(*it)["dialog"].isInteger() ||
+            !llsdString(*it, "created_at", row.created_at) ||
+            row.conversation_id != conversation_id ||
+            !parseTimeUuid(row.msg_id, row.key) ||
+            !parseCanonicalUuid(from_text, row.from_id) ||
+            (row.from_id != agent_id && row.from_id != resident_id) ||
+            !cleanText(row.from_name, 256) || !cleanText(row.message, 1024) ||
+            !persistedDirectDialog(row.dialog = (*it)["dialog"].asInteger()) ||
+            !parseCreatedAt(row.created_at, row.created_at) ||
+            (have_previous && !(row.key < previous)) ||
+            (!requested_cursor.empty() && !(row.key < cursor_key)))
+        {
+            return false;
+        }
+
+        have_previous = true;
+        previous = row.key;
+        page.next_cursor = row.msg_id;
+
+        // The account-wide cutoff is inclusive. Once reached, older rows from the
+        // same validated page remain suppressed and older paging terminates.
+        if (row.key.ticks <= deleted_before_ticks)
+        {
+            page.terminal = true;
+        }
+        else
+        {
+            page.rows.push_back(row);
+        }
+    }
+
+    page.terminal = page.terminal || value["messages"].size() == 0;
+    if (page.terminal)
+    {
+        page.next_cursor.clear();
+    }
+
+    return true;
+}
+
+std::string quoteCsv(const std::string& value)
+{
+    if (value.find_first_of(",\"\r\n") == std::string::npos)
+    {
+        return value;
+    }
+
+    std::string result("\"");
+    for (char ch : value)
+    {
+        result.push_back(ch);
+        if (ch == '"')
+        {
+            result.push_back('"');
+        }
+    }
+
+    return result + '"';
+}
+
+void writeCsvRow(std::ostream& output, const Row& row)
+{
+    output << quoteCsv(row.conversation_id) << ',' << quoteCsv(row.msg_id) << ','
+           << quoteCsv(row.from_id.asString()) << ',' << quoteCsv(row.from_name) << ','
+           << quoteCsv(row.message) << ',' << row.dialog << ','
+           << quoteCsv(row.created_at) << '\n';
+}
+
+bool archiveStamp(const std::string& path, U64& file_size, S64& file_mtime)
+{
+    bool exists = false;
+    if (!inspectRegular(path, exists) || !exists)
+    {
+        return false;
+    }
+
+    std::error_code error;
+    const std::filesystem::path native_path = fsyspath(path);
+    const uintmax_t size = std::filesystem::file_size(native_path, error);
+    if (error || size > std::numeric_limits<U64>::max())
+    {
+        return false;
+    }
+
+    const std::filesystem::file_time_type write_time =
+        std::filesystem::last_write_time(native_path, error);
+    if (error)
+    {
+        return false;
+    }
+
+    file_size = static_cast<U64>(size);
+    file_mtime = static_cast<S64>(write_time.time_since_epoch().count());
+    return true;
+}
+
+bool scanArchive(const std::string& path, const LLUUID& agent_id,
+                 const LLUUID& resident_id, U64 deleted_before_ticks,
+                 U32 display_cap, ArchiveScan& scan)
+{
+    scan = ArchiveScan();
+
+    // Only a regular canonical path may participate in archive reads.
+    bool exists = false;
+    if (!inspectRegular(path, exists))
+    {
+        scan.state = ARCHIVE_FAILED;
+        return false;
+    }
+    if (!exists)
+    {
+        scan.state = ARCHIVE_ABSENT;
+        return true;
+    }
+    if (!archiveStamp(path, scan.file_size, scan.file_mtime))
+    {
+        scan.state = ARCHIVE_FAILED;
+        return false;
+    }
+    llifstream input(path.c_str(), std::ios::binary);
+    if (!input.is_open())
+    {
+        scan.state = ARCHIVE_FAILED;
+        return false;
+    }
+
+    // The exact header is the first committed record and is never repairable data.
+    std::vector<std::string> fields;
+    bool torn = false;
+    bool present = false;
+    if (!readRecord(input, fields, torn, present) || !present || torn || !headerMatches(fields))
+    {
+        scan.state = ARCHIVE_CORRUPT;
+        return false;
+    }
+
+    scan.valid_prefix_bytes = input.tellg();
+    TimeUuidKey previous;
+    bool have_previous = false;
+    std::deque<Row> newest;
+
+    // Fold records in ascending TimeUUID order while retaining only the newest
+    // display_cap rows. Complete malformed records are corrupt; incomplete EOF is torn.
+    for (;;)
+    {
+        if (!readRecord(input, fields, torn, present))
+        {
+            scan.state = ARCHIVE_CORRUPT;
+            return false;
+        }
+        if (!present)
+        {
+            scan.state = torn ? ARCHIVE_TORN : ARCHIVE_VALID;
+            break;
+        }
+        if (torn)
+        {
+            scan.state = ARCHIVE_TORN;
+            break;
+        }
+
+        Row row;
+        if (!rowFromFields(fields, agent_id, resident_id, row) ||
+            (have_previous && !(previous < row.key)))
+        {
+            scan.state = ARCHIVE_CORRUPT;
+            return false;
+        }
+
+        have_previous = true;
+        previous = row.key;
+        const std::streamoff position = input.tellg();
+        scan.valid_prefix_bytes = position >= 0 ? position : scan.file_size;
+
+        // Deleted rows still participate in structural and ordering validation but
+        // do not enter the visible summary.
+        if (row.key.ticks <= deleted_before_ticks)
+        {
+            continue;
+        }
+
+        if (!scan.has_oldest)
+        {
+            scan.has_oldest = true;
+            scan.oldest = row.key;
+        }
+        scan.newest = row.key;
+        ++scan.row_count;
+
+        if (display_cap)
+        {
+            newest.push_back(row);
+            if (newest.size() > display_cap)
+            {
+                newest.pop_front();
+            }
+        }
+    }
+
+    scan.display_rows.assign(newest.begin(), newest.end());
+    return scan.state == ARCHIVE_VALID;
+}
+}

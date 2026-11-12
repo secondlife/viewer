@@ -207,6 +207,7 @@
 #include "llsky.h"
 #include "llstatview.h"
 #include "llstatusbar.h"        // sendMoneyBalanceRequest(), owns L$ balance
+#include "llbuycurrencyhtml.h"
 #include "llsurface.h"
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
@@ -382,10 +383,12 @@ void do_startup_frame()
         constexpr U64 MAX_STARTUP_FRAME_TIME = 2000; // usec
         constexpr U64 MAX_STARTUP_FRAME_MESSAGES = 100;
         S32 num_messages = 0;
-        bool needs_drain = false;
-        LockMessageChecker lmc(gMessageSystem);
-        while (lmc.checkAllMessages(gFrameCount, gServicePump))
+
+        std::unique_ptr<LLDecodedMessage> decoded;
+        while (gMessageSystem->tryPopDecoded(decoded))
         {
+            gMessageSystem->dispatchDecoded(*decoded);
+
             if (gDoDisconnect)
             {
                 // We're disconnecting, don't process any more messages from the server
@@ -396,15 +399,16 @@ void do_startup_frame()
             if (++num_messages >= MAX_STARTUP_FRAME_MESSAGES
                 || (totalTime() - t0) > MAX_STARTUP_FRAME_TIME)
             {
-                needs_drain = true;
                 break;
             }
         }
-        if (needs_drain || gMessageSystem->getNumBufferedPackets() > 0)
-        {
-             gMessageSystem->drainUdpSocket();
-        }
+
+        gServicePump->pump();
+        gServicePump->callback();
+
+        LockMessageChecker lmc(gMessageSystem);
         lmc.processAcks();
+        gMessageSystem->resetReceiveCounts();
     }
     // ...then call display_startup()
     display_startup();
@@ -415,12 +419,24 @@ void pump_idle_startup_network(void)
     // while there are message to process:
     //     process one then call display_startup()
     {
-        LockMessageChecker lmc(gMessageSystem);
-        while (lmc.checkAllMessages(gFrameCount, gServicePump))
+        std::unique_ptr<LLDecodedMessage> decoded;
+        while (gMessageSystem->tryPopDecoded(decoded))
         {
+            gMessageSystem->dispatchDecoded(*decoded);
             display_startup();
+
+            if (gDoDisconnect)
+            {
+                break;
+            }
         }
+
+        gServicePump->pump();
+        gServicePump->callback();
+
+        LockMessageChecker lmc(gMessageSystem);
         lmc.processAcks();
+        gMessageSystem->resetReceiveCounts();
     }
     // finally call one last display_startup()
     display_startup();
@@ -1616,8 +1632,11 @@ bool idle_startup()
     {
         do_startup_frame();
 
+        gInventory.cancelCacheLoad();
+        LLInventoryModel::loadInventoryCacheAsync(gAgentID);
+
         // These textures are not warrantied to be cached, so needs
-        // to hapen with caps granted
+        // to happen with caps granted (textures use asset cap)
         gTextureList.doPrefetchImages();
 
         // will init images, should be done with caps, but before gSky.init()
@@ -1692,7 +1711,9 @@ bool idle_startup()
 
         // *Note: this is where gWorldMap used to be initialized.
 
-        // register null callbacks for audio until the audio system is initialized
+        // Register null callbacks for audio until the audio system is initialized
+        // Note that until process_sound_trigger starts working with setHandlerFuncThrdFast
+        // this one also should stay setHandlerFuncFast.
         gMessageSystem->setHandlerFuncFast(_PREHASH_SoundTrigger, null_message_callback, NULL);
         gMessageSystem->setHandlerFuncFast(_PREHASH_AttachedSound, null_message_callback, NULL);
         do_startup_frame();
@@ -1963,6 +1984,7 @@ bool idle_startup()
         // Get L$ and ownership credit information
         LL_INFOS() << "Requesting Money Balance" << LL_ENDL;
         LLStatusBar::sendMoneyBalanceRequest();
+        LLBuyCurrencyHTML::checkFeatureFlag();
 
         do_startup_frame();
 
@@ -1986,6 +2008,9 @@ bool idle_startup()
         }
         do_startup_frame();
 
+        // Technically can use hardcoded ALEXANDRIA_LIBRARY_OWNER_ID,
+        // as half the inventory already relies on it, and it hasn't
+        // changed in over a decade
         LLSD inv_lib_owner = response["inventory-lib-owner"];
         if(inv_lib_owner.isDefined())
         {
@@ -1993,7 +2018,9 @@ bool idle_startup()
             LLSD id = inv_lib_owner[0]["agent_id"];
             if(id.isDefined())
             {
-                gInventory.setLibraryOwnerID(LLUUID(id.asUUID()));
+                LLUUID library_owner_id = id.asUUID();
+                gInventory.setLibraryOwnerID(library_owner_id);
+                LLInventoryModel::loadInventoryCacheAsync(library_owner_id);
             }
         }
         do_startup_frame();
@@ -2009,26 +2036,72 @@ bool idle_startup()
         LLSD response = LLLoginInstance::getInstance()->getResponse();
 
         LLSD inv_skel_lib = response["inventory-skel-lib"];
-        if (inv_skel_lib.isDefined() && gInventory.getLibraryOwnerID().notNull())
+        bool have_lib_skel = inv_skel_lib.isDefined() && gInventory.getLibraryOwnerID().notNull();
+
+        S32 num_ready = 0; // wait for both inventories to be ready before moving on to STATE_INVENTORY_SEND2
+        if (have_lib_skel)
         {
-            LL_PROFILE_ZONE_NAMED("load library inv")
-            if (!gInventory.loadSkeleton(inv_skel_lib, gInventory.getLibraryOwnerID()))
+            LLInventoryModel::ECacheLoadResult res = gInventory.waitForCacheResult(gInventory.getLibraryOwnerID());
+            if (res == LLInventoryModel::CACHE_READY_TO_PROCESS)
             {
-                LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
+                do_startup_frame();
+                LL_PROFILE_ZONE_NAMED("load library inv")
+                num_ready++;
+                if (!gInventory.loadSkeleton(inv_skel_lib, gInventory.getLibraryOwnerID()))
+                {
+                    LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
+                }
             }
+            else if (res == LLInventoryModel::CACHE_PROCESSED)
+            {
+                num_ready++;
+            }
+            // else wait for cache to be ready
         }
-        do_startup_frame();
+        else
+        {
+            // absent in login response, needs no processing.
+            num_ready++;
+        }
 
         LLSD inv_skeleton = response["inventory-skeleton"];
-        if (inv_skeleton.isDefined())
+        bool have_agent_skel = inv_skeleton.isDefined();
+        if (have_agent_skel)
         {
-            LL_PROFILE_ZONE_NAMED("load personal inv")
-            if (!gInventory.loadSkeleton(inv_skeleton, gAgent.getID()))
+            LLInventoryModel::ECacheLoadResult res = gInventory.waitForCacheResult(gAgentID);
+            if (res == LLInventoryModel::CACHE_READY_TO_PROCESS)
             {
-                LL_WARNS("AppInit") << "Problem loading inventory-skel-targets" << LL_ENDL;
+                do_startup_frame();
+                LL_PROFILE_ZONE_NAMED("load personal inv")
+                    num_ready++;
+                if (!gInventory.loadSkeleton(inv_skeleton, gAgentID))
+                {
+                    LL_WARNS("AppInit") << "Problem loading inventory-skeleton" << LL_ENDL;
+                }
             }
+            else if (res == LLInventoryModel::CACHE_PROCESSED)
+            {
+                num_ready++;
+            }
+            // else wait for cache to be ready
         }
-        do_startup_frame();
+        else
+        {
+            // absent in login response, needs no processing.
+            num_ready++;
+        }
+
+        if (num_ready < 2)
+        {
+            do_startup_frame();
+            return false;
+        }
+
+        // In case agent or library skeleton were not consumed due to
+        // have_agent_skel or have_lib_skel being false, cancel to
+        // drop and clear unused requests.
+        gInventory.cancelCacheLoad();
+
         LLStartUp::setStartupState(STATE_INVENTORY_SEND2);
         do_startup_frame();
         return false;
@@ -2988,11 +3061,11 @@ void register_viewer_callbacks(LLMessageSystem* msg)
     msg->setHandlerFuncFast(_PREHASH_AvatarPicksReply,      LLAvatarPropertiesProcessor::processAvatarPicksReply);
     msg->setHandlerFuncFast(_PREHASH_AvatarClassifiedReply, LLAvatarPropertiesProcessor::processAvatarClassifiedsReply);
 
-    msg->setHandlerFuncFast(_PREHASH_CreateGroupReply,      LLGroupMgr::processCreateGroupReply);
-    msg->setHandlerFuncFast(_PREHASH_JoinGroupReply,        LLGroupMgr::processJoinGroupReply);
-    msg->setHandlerFuncFast(_PREHASH_EjectGroupMemberReply, LLGroupMgr::processEjectGroupMemberReply);
-    msg->setHandlerFuncFast(_PREHASH_LeaveGroupReply,       LLGroupMgr::processLeaveGroupReply);
-    msg->setHandlerFuncFast(_PREHASH_GroupProfileReply,     LLGroupMgr::processGroupPropertiesReply);
+    msg->setHandlerFuncThrdFast(_PREHASH_CreateGroupReply,      LLGroupMgr::processCreateGroupReply);
+    msg->setHandlerFuncThrdFast(_PREHASH_JoinGroupReply,        LLGroupMgr::processJoinGroupReply);
+    msg->setHandlerFuncThrdFast(_PREHASH_EjectGroupMemberReply, LLGroupMgr::processEjectGroupMemberReply);
+    msg->setHandlerFuncThrdFast(_PREHASH_LeaveGroupReply,       LLGroupMgr::processLeaveGroupReply);
+    msg->setHandlerFuncThrdFast(_PREHASH_GroupProfileReply,     LLGroupMgr::processGroupPropertiesReply);
 
     // ratings deprecated
     //msg->setHandlerFuncFast(_PREHASH_ReputationIndividualReply,    LLFloaterRate::processReputationIndividualReply);
@@ -3287,6 +3360,7 @@ void reset_login()
     gSky.cleanup(); // mVOSkyp is an inworld object.
     LLWorld::getInstance()->resetClass();
     LLAppearanceMgr::getInstance()->cleanup();
+    gInventory.cancelCacheLoad();
 
     if ( gViewerWindow )
     {   // Hide menus and normal buttons
@@ -4149,4 +4223,3 @@ void transition_back_to_login_panel(const std::string& emsg)
     reset_login(); // calls LLStartUp::setStartupState( STATE_LOGIN_SHOW );
     gSavedSettings.setBOOL("AutoLogin", false);
 }
-

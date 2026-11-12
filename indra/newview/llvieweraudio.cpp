@@ -37,7 +37,9 @@
 #include "llviewerwindow.h"
 #include "llvoiceclient.h"
 #include "llviewermedia.h"
+#include "llviewerobject.h"
 #include "llviewerregion.h"
+#include "llvoavatarself.h"
 #include "llprogressview.h"
 #include "llcallbacklist.h"
 #include "llstartup.h"
@@ -399,6 +401,9 @@ void init_audio()
 void audio_update_volume(bool force_update)
 {
     static LLCachedControl<F32> master_volume(gSavedSettings, "AudioLevelMaster");
+    static LLCachedControl<F32> doppler_level(gSavedSettings, "AudioLevelDoppler");
+    static LLCachedControl<F32> rolloff_level(gSavedSettings, "AudioLevelRolloff");
+    static LLCachedControl<F32> underwater_rolloff_level(gSavedSettings, "AudioLevelUnderwaterRolloff");
     static LLCachedControl<bool> mute_audio_setting(gSavedSettings, "MuteAudio");
     static LLCachedControl<bool> mute_when_minimized(gSavedSettings, "MuteWhenMinimized");
     bool mute_audio = mute_audio_setting();
@@ -415,18 +420,18 @@ void audio_update_volume(bool force_update)
 
         gAudiop->setMasterGain (master_volume());
 
-        const F32 AUDIO_LEVEL_DOPPLER = 1.f;
-        gAudiop->setDopplerFactor(AUDIO_LEVEL_DOPPLER);
+        // User adjustable, clamped to what the audio backends accept
+        const F32 MAX_AUDIO_LEVEL_DOPPLER = 10.f;
+        const F32 MAX_AUDIO_LEVEL_ROLLOFF = 10.f;
+        gAudiop->setDopplerFactor(llclamp(doppler_level(), 0.f, MAX_AUDIO_LEVEL_DOPPLER));
 
         if(!LLViewerCamera::getInstance()->cameraUnderWater())
         {
-            const F32 AUDIO_LEVEL_ROLLOFF = 1.f;
-            gAudiop->setRolloffFactor(AUDIO_LEVEL_ROLLOFF);
+            gAudiop->setRolloffFactor(llclamp(rolloff_level(), 0.f, MAX_AUDIO_LEVEL_ROLLOFF));
         }
         else
         {
-            const F32 AUDIO_LEVEL_UNDERWATER_ROLLOFF = 5.f;
-            gAudiop->setRolloffFactor(AUDIO_LEVEL_UNDERWATER_ROLLOFF);
+            gAudiop->setRolloffFactor(llclamp(underwater_rolloff_level(), 0.f, MAX_AUDIO_LEVEL_ROLLOFF));
         }
 
         bool progress_view_visible = gViewerWindow->getShowProgress();
@@ -500,6 +505,22 @@ void audio_update_volume(bool force_update)
     }
 }
 
+// Sound sources use the velocity of their (root) object, so when seated the
+// listener must use the velocity of the seat's object too. Otherwise our own
+// vehicle, or one moving at our speed, gets a false Doppler shift.
+static LLVector3 get_listener_velocity()
+{
+    if (isAgentAvatarValid())
+    {
+        LLViewerObject* parent = gAgentAvatarp->getSubParent();
+        if (parent)
+        {
+            return parent->getRootEdit()->getVelocity();
+        }
+    }
+    return gAgent.getVelocity();
+}
+
 void audio_update_listener()
 {
     if (gAudiop)
@@ -525,7 +546,7 @@ void audio_update_listener()
         gAudiop->setListener(lpos_global_f,
                              // LLViewerCamera::getInstance()VelocitySmoothed,
                              // LLVector3::zero,
-                             gAgent.getVelocity(),    // !!! *TODO: need to replace this with smoothed velocity!
+                             get_listener_velocity(),    // !!! *TODO: need to replace this with smoothed velocity!
                              LLViewerCamera::getInstance()->getUpAxis(),
                              LLViewerCamera::getInstance()->getAtAxis());
     }

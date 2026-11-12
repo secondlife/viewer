@@ -120,6 +120,7 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
       tests/test_bufferarray.hpp
       tests/test_bufferstream.hpp
       tests/test_jsonrpcws.hpp
+      tests/test_websocketmgr.hpp
       )
 
   list(APPEND llcorehttp_TEST_SOURCE_FILES ${llcorehttp_TEST_HEADER_FILES})
@@ -143,6 +144,10 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
                           ${PYTHON_EXECUTABLE}
                           "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llcorehttp_peer.py"
                           )
+
+  LL_ADD_INTEGRATION_TEST(wsserver "" "${test_libs}")
+
+  LL_ADD_INTEGRATION_TEST(jsonrpcws "" "${test_libs}")
 
   #
   # Example Programs

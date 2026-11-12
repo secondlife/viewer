@@ -10,6 +10,9 @@ include(Linking)
 include(Boost)
 include(bugsplat)
 include(BuildPackagesInfo)
+# Luau isn't an autobuild package, so stage its license separately.
+file(MAKE_DIRECTORY "${AUTOBUILD_INSTALL_DIR}/LICENSES")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/luau.txt" "${AUTOBUILD_INSTALL_DIR}/LICENSES/luau.txt" COPYONLY)
 include(BuildVersion)
 include(CMakeCopyIfDifferent)
 include(CubemapToEquirectangularJS)
@@ -122,6 +125,8 @@ set(viewer_SOURCE_FILES
     llchathistory.cpp
     llchatitemscontainerctrl.cpp
     llchatmsgbox.cpp
+    llchatservicehistory.cpp
+    llchatservicehistorycore.cpp
     llchiclet.cpp
     llchicletbar.cpp
     llclassifiedinfo.cpp
@@ -185,7 +190,6 @@ set(viewer_SOURCE_FILES
     llfloaterabout.cpp
     llfloateravatarwelcomepack.cpp
     llfloaterbvhpreview.cpp
-    llfloateraddpaymentmethod.cpp
     llfloaterauction.cpp
     llfloaterautoreplacesettings.cpp
     llfloateravatarpicker.cpp
@@ -203,6 +207,7 @@ set(viewer_SOURCE_FILES
     llfloaterbuycurrencyhtml.cpp
     llfloaterbuyland.cpp
     llfloatercamera.cpp
+    llfloatercombatsettings.cpp
     llfloatercamerapresets.cpp
     llfloaterchangeitemthumbnail.cpp
     llfloaterchatmentionpicker.cpp
@@ -247,6 +252,7 @@ set(viewer_SOURCE_FILES
     llfloaterinspect.cpp
     llfloaterinventorysettings.cpp
     llfloaterinventorythumbnailshelper.cpp
+    llfloaterjoin.cpp
     llfloaterjoystick.cpp
     llfloaterlagmeter.cpp
     llfloaterland.cpp
@@ -255,6 +261,7 @@ set(viewer_SOURCE_FILES
     llfloaterloadprefpreset.cpp
     llfloatermarketplacelistings.cpp
     llfloatermap.cpp
+    llfloatermaturitydialog.cpp
     llfloatermediasettings.cpp
     llfloatermemleak.cpp
     llfloatermodelpreview.cpp
@@ -313,6 +320,7 @@ set(viewer_SOURCE_FILES
     llfloaterurlentry.cpp
     llfloatervoicevolume.cpp
     llfloaterwebcontent.cpp
+    llfloaterwebmodal.cpp
     llfloaterwhitelistentry.cpp
     llfloaterwindowsize.cpp
     llfloaterworldmap.cpp
@@ -320,6 +328,7 @@ set(viewer_SOURCE_FILES
     llfollowcam.cpp
     llfriendcard.cpp
     llflyoutcombobtn.cpp
+    llflycam.cpp
     llgesturelistener.cpp
     llgesturemgr.cpp
     llgiveinventory.cpp
@@ -493,6 +502,7 @@ set(viewer_SOURCE_FILES
     llpanelplaceprofile.cpp
     llpanelplaces.cpp
     llpanelplacestab.cpp
+    llpanelpreferencegamecontrol.cpp
     llpanelpresetscamerapulldown.cpp
     llpanelpresetspulldown.cpp
     llpanelprimmediacontrols.cpp
@@ -800,6 +810,8 @@ set(viewer_HEADER_FILES
     llchathistory.h
     llchatitemscontainerctrl.h
     llchatmsgbox.h
+    llchatservicehistory.h
+    llchatservicehistorycore.h
     llchiclet.h
     llchicletbar.h
     llclassifiedinfo.h
@@ -863,7 +875,6 @@ set(viewer_HEADER_FILES
     llfloaterabout.h
     llfloateravatarwelcomepack.h
     llfloaterbvhpreview.h
-    llfloateraddpaymentmethod.h
     llfloaterauction.h
     llfloaterautoreplacesettings.h
     llfloateravatarpicker.h
@@ -884,6 +895,7 @@ set(viewer_HEADER_FILES
     llfloaterchangeitemthumbnail.h
     llfloaterchatmentionpicker.h
     llfloatercamera.h
+    llfloatercombatsettings.h
     llfloaterchatvoicevolume.h
     llfloaterclassified.h
     llfloatercolorpicker.h
@@ -928,6 +940,7 @@ set(viewer_HEADER_FILES
     llfloaterinspect.h
     llfloaterinventorysettings.h
     llfloaterinventorythumbnailshelper.h
+    llfloaterjoin.h
     llfloaterjoystick.h
     llfloaterlagmeter.h
     llfloaterland.h
@@ -937,6 +950,7 @@ set(viewer_HEADER_FILES
     llfloatermap.h
     llfloatermarketplace.h
     llfloatermarketplacelistings.h
+    llfloatermaturitydialog.h
     llfloatermediasettings.h
     llfloatermemleak.h
     llfloatermodelpreview.h
@@ -995,6 +1009,7 @@ set(viewer_HEADER_FILES
     llfloaterurlentry.h
     llfloatervoicevolume.h
     llfloaterwebcontent.h
+    llfloaterwebmodal.h
     llfloaterwhitelistentry.h
     llfloaterwindowsize.h
     llfloaterworldmap.h
@@ -1002,6 +1017,7 @@ set(viewer_HEADER_FILES
     llfollowcam.h
     llfriendcard.h
     llflyoutcombobtn.h
+    llflycam.h
     llgesturelistener.h
     llgesturemgr.h
     llgiveinventory.h
@@ -1049,6 +1065,7 @@ set(viewer_HEADER_FILES
     llinventoryitemslist.h
     llinventorylistener.h
     llinventorylistitem.h
+    llinventorycache.h
     llinventorymodel.h
     llinventorymodelbackgroundfetch.h
     llinventoryobserver.h
@@ -1164,6 +1181,7 @@ set(viewer_HEADER_FILES
     llpanelplaceprofile.h
     llpanelplaces.h
     llpanelplacestab.h
+    llpanelpreferencegamecontrol.h
     llpanelpresetscamerapulldown.h
     llpanelpresetspulldown.h
     llpanelprimmediacontrols.h
@@ -1743,6 +1761,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/toolbars.xml
     app_settings/trees.xml
     app_settings/viewerart.xml
+    app_settings/gamecontrollerdb.txt
     app_settings/message.xml
     ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
     packages-info.txt
@@ -2394,6 +2413,8 @@ if (LL_TESTS)
   include(LLAddBuildTest)
   SET(viewer_TEST_SOURCE_FILES
     llagentaccess.cpp
+    llchatservicehistorycore.cpp
+    llconversationlog.cpp
     lldateutil.cpp
 #    llmediadataclient.cpp
     lllogininstance.cpp
@@ -2438,7 +2459,7 @@ if (LL_TESTS)
   set_property(SOURCE
     ${viewer_TEST_SOURCE_FILES}
     PROPERTY
-    LL_TEST_ADDITIONAL_LIBRARIES 
+    LL_TEST_ADDITIONAL_LIBRARIES
     ${test_libs}
   )
 

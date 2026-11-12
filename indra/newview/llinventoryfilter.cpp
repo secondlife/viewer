@@ -30,6 +30,7 @@
 
 // viewer includes
 #include "llagent.h"
+#include "llcallbacklist.h"
 #include "llfolderviewmodel.h"
 #include "llfolderviewitem.h"
 #include "llinventorymodel.h"
@@ -1743,8 +1744,18 @@ bool LLInventoryFilter::isTimedOut()
 
 void LLInventoryFilter::resetTime(S32 timeout)
 {
-    mFilterTime.reset();
     F32 time_in_sec = (F32)(timeout)/1000.0f;
+
+    if (gIdleCallbacks.isInCallFunctions())
+    {
+        // LLInventoryFilter is used in a variety of places, including
+        // gIdleCallbacks. If we are inside gIdleCallbacks, use
+        // gIdleCallbacks's time instead of unattached time limit.
+        F64 elapsed_since_pass_start = LLTimer::getTotalSeconds() - gIdleCallbacks.getStartTime();
+        time_in_sec -= (F32)llmax(elapsed_since_pass_start, 0.0);
+    }
+
+    mFilterTime.reset();
     mFilterTime.setTimerExpirySec(time_in_sec);
 }
 

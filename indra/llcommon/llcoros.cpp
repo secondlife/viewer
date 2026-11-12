@@ -61,6 +61,40 @@
 #include <excpt.h>
 #endif
 
+namespace
+{
+    // Wraps protected_fixedsize_stack so coroutine stack allocations are
+    // visible as a distinct, named pool in Tracy's Memory view.
+    class LLCoroTracyStack
+    {
+    public:
+        explicit LLCoroTracyStack(std::size_t size)
+            : mAlloc(size)
+        {
+        }
+
+        boost::context::stack_context allocate()
+        {
+            boost::context::stack_context ctx = mAlloc.allocate();
+            // ctx.sp is the stack's high address; ctx.size is its size.
+            // Record the low address as the "pointer" for Tracy bookkeeping.
+            void* base = static_cast<char*>(ctx.sp) - ctx.size;
+            LL_PROFILE_ALLOC_NAMED(base, ctx.size, "Coroutine Stack");
+            return ctx;
+        }
+
+        void deallocate(boost::context::stack_context& ctx)
+        {
+            void* base = static_cast<char*>(ctx.sp) - ctx.size;
+            LL_PROFILE_FREE_NAMED(base, "Coroutine Stack");
+            mAlloc.deallocate(ctx);
+        }
+
+    private:
+        boost::fibers::protected_fixedsize_stack mAlloc;
+    };
+} // anonymous namespace
+
 // static
 bool LLCoros::on_main_coro()
 {
@@ -285,13 +319,14 @@ std::string LLCoros::launch(const std::string& prefix, const callable_t& callabl
     {
         boost::fibers::fiber newCoro(boost::fibers::launch::dispatch,
             std::allocator_arg,
-            boost::fibers::protected_fixedsize_stack(mStackSize),
+            LLCoroTracyStack(mStackSize),
             [this, &name, &callable]() { toplevel(name, callable); });
 
         // You have two choices with a fiber instance: you can join() it or you
         // can detach() it. If you try to destroy the instance before doing
         // either, the program silently terminates. We don't need this handle.
         newCoro.detach();
+        LL_PROFILE_PLOT("LLCoros live count", (int64_t)CoroData::instanceCount());
     }
     catch (std::bad_alloc&)
     {
@@ -378,6 +413,7 @@ void sehandle(const LLCoros::callable_t& callable, const std::string& name)
 // case, we WANT to copy both the name and the callable to our local stack!
 void LLCoros::toplevel(std::string name, callable_t callable)
 {
+    {
     // keep the CoroData on this top-level function's stack frame
     CoroData corodata(name);
     // set it as current
@@ -413,6 +449,10 @@ void LLCoros::toplevel(std::string name, callable_t callable)
         LLCoros::instance().saveException(name, std::current_exception());
     }
 #endif // else LL_WINDOWS
+
+    // corodata destructs here, at end of this inner scope, before LL_PROFILE_PLOT
+    }
+    LL_PROFILE_PLOT("LLCoros live count", (int64_t)CoroData::instanceCount());
 }
 
 //static

@@ -1,10 +1,10 @@
 /**
- * @file llfloateraddpaymentmethod.h
- * @brief LLFloaterAddPaymentMethod class definition
+ * @file lldecodedmessage.cpp
+ * @brief Definition of LLDecodedMessage class.
  *
- * $LicenseInfo:firstyear=2020&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2026&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2020, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,29 +24,10 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_FLOATER_ADDPAYMENTMETHOD_H
-#define LL_FLOATER_ADDPAYMENTMETHOD_H
+#include "linden_common.h"
+#include "lldecodedmessage.h"
+#include "llmessagetemplate.h"   // now safe: only included from the .cpp,
+                                  // where LLMsgData/LLMessageTemplate need
+                                  // to be complete for unique_ptr's destructor
 
-#include "llfloater.h"
-
-class LLFloaterAddPaymentMethod:
-    public LLFloater
-{
-    friend class LLFloaterReg;
-public:
-    bool postBuild() override;
-    void onOpen(const LLSD& key) override;
-
-private:
-    LLFloaterAddPaymentMethod(const LLSD& key);
-
-    void centerOnScreen();
-
-    void onCloseBtn();
-    void onContinueBtn();
-
-    /*virtual*/ ~LLFloaterAddPaymentMethod();
-
-};
-
-#endif
+LLDecodedMessage::~LLDecodedMessage() = default;

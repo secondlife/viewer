@@ -4795,7 +4795,7 @@ const LLVector3 LLViewerObject::getRenderPosition() const
         }
     }
 
-    if (mDrawable.isNull() || mDrawable->getGeneration() < 0)
+    if (mDrawable.isNull())
     {
         return getPositionAgent();
     }
@@ -6807,17 +6807,20 @@ LLViewerObject::ExtraParameter* LLViewerObject::createNewParameterEntry(U16 para
       }
     };
 
-    ExtraParameter& entry = mExtraParameterList[U32(param_type >> 4) - 1];
-    if (new_block)
+    if (isValidExtraParamType(param_type))
     {
-        entry.in_use = in_use;
-        *entry.in_use = false; // not in use yet
-        entry.data = new_block;
-        return &entry;
-    }
-    else
-    {
-        entry.is_invalid = true;
+        ExtraParameter& entry = mExtraParameterList[U32(param_type >> 4) - 1];
+        if (new_block)
+        {
+            entry.in_use = in_use;
+            *entry.in_use = false; // not in use yet
+            entry.data = new_block;
+            return &entry;
+        }
+        else
+        {
+            entry.is_invalid = true;
+        }
     }
     return nullptr;
 }
@@ -6847,7 +6850,7 @@ bool LLViewerObject::setParameterEntry(U16 param_type, const LLNetworkData& new_
 // Should always return true.
 bool LLViewerObject::setParameterEntryInUse(U16 param_type, bool in_use, bool local_origin)
 {
-    if (param_type <= LLNetworkData::PARAMS_MAX)
+    if (isValidExtraParamType(param_type))
     {
         ExtraParameter* param = (in_use ? getExtraParameterEntryCreate(param_type) : &getExtraParameterEntry(param_type));
         if (param && param->data && *param->in_use != in_use)
@@ -6862,7 +6865,7 @@ bool LLViewerObject::setParameterEntryInUse(U16 param_type, bool in_use, bool lo
 
 void LLViewerObject::parameterChanged(U16 param_type, bool local_origin)
 {
-    if (param_type <= LLNetworkData::PARAMS_MAX)
+    if (isValidExtraParamType(param_type))
     {
         const ExtraParameter& param = getExtraParameterEntry(param_type);
         if (param.data)
@@ -8107,4 +8110,3 @@ public:
 
 LLHTTPRegistration<ObjectPhysicsProperties>
     gHTTPRegistrationObjectPhysicsProperties("/message/ObjectPhysicsProperties");
-

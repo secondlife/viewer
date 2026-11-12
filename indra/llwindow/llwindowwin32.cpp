@@ -31,6 +31,7 @@
 #include "llwindowwin32.h"
 
 // LLWindow library includes
+#include "llgamecontrol.h"
 #include "llkeyboardwin32.h"
 #include "lldragdropwin32.h"
 #include "llpreeditor.h"
@@ -63,6 +64,8 @@
 #include <future>
 #include <sstream>
 #include <utility>                  // std::pair
+#include <cstring>
+#include <vector>
 
 #include <d3d9.h>
 #include <d3d11.h>
@@ -347,6 +350,159 @@ bool        LLWinImm::notifyIME(HIMC himc, DWORD action, DWORD index, DWORD valu
 }
 
 
+
+// Capture IME composition data while handling WM_IME_COMPOSITION.
+// IMM32 composition state is mutable, so reading it later from the queued
+// application-thread callback can associate a notification with newer state.
+enum class LLImeFieldStatus
+{
+    Absent,
+    NoContext,
+    Error,
+    Empty,
+    Value
+};
+
+struct LLImeField
+{
+    LLImeFieldStatus status = LLImeFieldStatus::Absent;
+    bool available = false;
+    std::vector<U8> bytes;
+};
+
+struct LLImeScalar
+{
+    LLImeFieldStatus status = LLImeFieldStatus::Absent;
+    LONG value = 0;
+};
+
+struct LLImeCompositionSnapshot
+{
+    U32 indexes = 0;
+    LLImeField result;
+    LLImeField composition;
+    LLImeField attributes;
+    LLImeField clauses;
+    LLImeScalar cursor;
+};
+
+namespace
+{
+LLImeField captureImeField(HIMC himc, U32 indexes, DWORD flag)
+{
+    LLImeField field;
+
+    if (!(indexes & flag))
+    {
+        return field;
+    }
+
+    if (!himc)
+    {
+        field.status = LLImeFieldStatus::NoContext;
+        return field;
+    }
+
+    LONG size = LLWinImm::getCompositionString(himc, flag, nullptr, 0);
+    if (size < 0)
+    {
+        field.status = LLImeFieldStatus::Error;
+        return field;
+    }
+
+    field.available = true;
+
+    if (size == 0)
+    {
+        field.status = LLImeFieldStatus::Empty;
+        return field;
+    }
+
+    field.bytes.resize(static_cast<size_t>(size));
+    const LONG received = LLWinImm::getCompositionString(
+        himc, flag, field.bytes.data(), static_cast<DWORD>(field.bytes.size()));
+    if (received != size)
+    {
+        field.bytes.clear();
+        field.available = false;
+        field.status = LLImeFieldStatus::Error;
+        return field;
+    }
+
+    field.bytes.resize(static_cast<size_t>(received));
+    field.status = received == 0 ? LLImeFieldStatus::Empty : LLImeFieldStatus::Value;
+    return field;
+}
+
+LLImeScalar captureImeCursor(HIMC himc, U32 indexes)
+{
+    LLImeScalar cursor;
+
+    if (!(indexes & GCS_CURSORPOS))
+    {
+        return cursor;
+    }
+
+    if (!himc)
+    {
+        cursor.status = LLImeFieldStatus::NoContext;
+        return cursor;
+    }
+
+    cursor.value = LLWinImm::getCompositionString(himc, GCS_CURSORPOS, nullptr, 0);
+    cursor.status = cursor.value < 0 ? LLImeFieldStatus::Error : LLImeFieldStatus::Value;
+    return cursor;
+}
+
+LLImeCompositionSnapshot captureImeCompositionSnapshot(HWND window, U32 indexes)
+{
+    LLImeCompositionSnapshot snapshot;
+    snapshot.indexes = indexes;
+
+    HIMC himc = LLWinImm::getContext(window);
+    snapshot.result = captureImeField(himc, indexes, GCS_RESULTSTR);
+    snapshot.composition = captureImeField(himc, indexes, GCS_COMPSTR);
+    snapshot.clauses = captureImeField(himc, indexes, GCS_COMPCLAUSE);
+    snapshot.attributes = captureImeField(himc, indexes, GCS_COMPATTR);
+    snapshot.cursor = captureImeCursor(himc, indexes);
+
+    if (himc)
+    {
+        LLWinImm::releaseContext(window, himc);
+    }
+
+    return snapshot;
+}
+
+bool imeFieldCaptureSucceeded(const LLImeField& field)
+{
+    return field.available;
+}
+
+std::wstring imeFieldAsWideString(const LLImeField& field)
+{
+    if (field.bytes.empty() || (field.bytes.size() % sizeof(WCHAR)) != 0)
+    {
+        return std::wstring();
+    }
+
+    std::wstring result(field.bytes.size() / sizeof(WCHAR), L'\0');
+    std::memcpy(result.data(), field.bytes.data(), field.bytes.size());
+    return result;
+}
+
+std::vector<DWORD> imeFieldAsDwords(const LLImeField& field)
+{
+    if (field.bytes.empty() || (field.bytes.size() % sizeof(DWORD)) != 0)
+    {
+        return std::vector<DWORD>();
+    }
+
+    std::vector<DWORD> result(field.bytes.size() / sizeof(DWORD));
+    std::memcpy(result.data(), field.bytes.data(), field.bytes.size());
+    return result;
+}
+} // anonymous namespace
 
 class LLMonitorInfo
 {
@@ -1178,17 +1334,17 @@ void LLWindowWin32::setThreadPriorityNormal()
     }
 }
 
-bool LLWindowWin32::getVisible()
+bool LLWindowWin32::getVisible() const
 {
     return (mWindowHandle && IsWindowVisible(mWindowHandle));
 }
 
-bool LLWindowWin32::getMinimized()
+bool LLWindowWin32::getMinimized() const
 {
     return (mWindowHandle && IsIconic(mWindowHandle));
 }
 
-bool LLWindowWin32::getMaximized()
+bool LLWindowWin32::getMaximized() const
 {
     return (mWindowHandle && IsZoomed(mWindowHandle));
 }
@@ -1213,26 +1369,21 @@ bool LLWindowWin32::maximize()
     return true;
 }
 
-bool LLWindowWin32::getFullscreen()
-{
-    return mFullscreen;
-}
-
-bool LLWindowWin32::getPosition(LLCoordScreen *position)
+bool LLWindowWin32::getPosition(LLCoordScreen *position) const
 {
     position->mX = mRect.left;
     position->mY = mRect.top;
     return true;
 }
 
-bool LLWindowWin32::getSize(LLCoordScreen *size)
+bool LLWindowWin32::getSize(LLCoordScreen *size) const
 {
     size->mX = mRect.right - mRect.left;
     size->mY = mRect.bottom - mRect.top;
     return true;
 }
 
-bool LLWindowWin32::getSize(LLCoordWindow *size)
+bool LLWindowWin32::getSize(LLCoordWindow *size) const
 {
     size->mX = mClientRect.right - mClientRect.left;
     size->mY = mClientRect.bottom - mClientRect.top;
@@ -2167,7 +2318,7 @@ bool LLWindowWin32::getCursorPosition(LLCoordWindow *position)
     return true;
 }
 
-bool LLWindowWin32::getCursorDelta(LLCoordCommon* delta)
+bool LLWindowWin32::getCursorDelta(LLCoordCommon* delta) const
 {
     if (delta == nullptr)
     {
@@ -2355,7 +2506,7 @@ void LLWindowWin32::delayInputProcessing()
 }
 
 
-void LLWindowWin32::gatherInput()
+void LLWindowWin32::gatherInput(bool app_has_focus)
 {
     ASSERT_MAIN_THREAD();
     LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
@@ -2435,6 +2586,8 @@ void LLWindowWin32::gatherInput()
     mInputProcessingPaused = false;
 
     updateCursor();
+
+    LLGameControl::processEvents(app_has_focus);
 }
 
 static LLTrace::BlockTimerStatHandle FTM_KEYHANDLER("Handle Keyboard");
@@ -2603,7 +2756,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                     // minimize the viewer and hide its owned dialog.
                     if (!activating && activating_same_process_thread)
                     {
-                        activating = TRUE;
+                        return;
                     }
 
                     if (window_imp->mFullscreen)
@@ -3056,7 +3209,12 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_COMPOSITION");
             if (LLWinImm::isAvailable() && window_imp->mPreeditor)
             {
-                WINDOW_IMP_POST(window_imp->handleCompositionMessage((U32)l_param));
+                LLImeCompositionSnapshot snapshot =
+                    captureImeCompositionSnapshot(h_wnd, static_cast<U32>(l_param));
+                window_imp->post([window_imp, snapshot = std::move(snapshot)]()
+                {
+                    window_imp->handleCompositionMessage(snapshot);
+                });
                 return 0;
             }
             break;
@@ -3142,8 +3300,6 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_LBUTTONDBLCLK");
             window_imp->postMouseButtonEvent([=]()
                 {
-                    //RN: ignore right button double clicks for now
-                    //case WM_RBUTTONDBLCLK:
                     if (!sHandleDoubleClick)
                     {
                         sHandleDoubleClick = true;
@@ -3153,7 +3309,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
                     // generate move event to update mouse coordinates
                     window_imp->mCursorPosition = window_coord;
-                    window_imp->mCallbacks->handleDoubleClick(window_imp, window_imp->mCursorPosition.convert(), mask);
+                    window_imp->mCallbacks->handleLeftMouseDoubleClick(window_imp, window_imp->mCursorPosition.convert(), mask);
                 });
 
             return 0;
@@ -3182,6 +3338,24 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             return 0;
         }
         case WM_RBUTTONDBLCLK:
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_RBUTTONDBLCLK");
+            window_imp->postMouseButtonEvent([=]()
+            {
+                if (!sHandleDoubleClick)
+                {
+                    sHandleDoubleClick = true;
+                    return;
+                }
+                MASK mask = gKeyboard->currentMask(true);
+
+                // generate move event to update mouse coordinates
+                window_imp->mCursorPosition = window_coord;
+                window_imp->mCallbacks->handleRightMouseDoubleClick(window_imp, window_imp->mCursorPosition.convert(), mask);
+            });
+
+            return 0;
+        }
         case WM_RBUTTONDOWN:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_RBUTTONDOWN");
@@ -3219,6 +3393,25 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         break;
 
+        case WM_MBUTTONDBLCLK:
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_MBUTTONDBLCLK");
+            window_imp->postMouseButtonEvent([=]()
+            {
+                if (!sHandleDoubleClick)
+                {
+                    sHandleDoubleClick = true;
+                    return;
+                }
+                MASK mask = gKeyboard->currentMask(true);
+
+                // generate move event to update mouse coordinates
+                window_imp->mCursorPosition = window_coord;
+                window_imp->mCallbacks->handleMiddleMouseDoubleClick(window_imp, window_imp->mCursorPosition.convert(), mask);
+            });
+            return 0;
+        }
+
         case WM_MBUTTONDOWN:
             //      case WM_MBUTTONDBLCLK:
         {
@@ -3236,6 +3429,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                         window_imp->mCallbacks->handleMiddleMouseDown(window_imp, window_imp->mCursorPosition.convert(), mask);
                     });
             }
+            return 0;
         }
         break;
 
@@ -3252,6 +3446,9 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             }
         }
         break;
+        case WM_XBUTTONDBLCLK:
+            // TODO: not supported yet.
+            // Fall through to WM_XBUTTONDOWN for now.
         case WM_XBUTTONDOWN:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_XBUTTONDOWN");
@@ -3677,7 +3874,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
     return ret;
 }
 
-bool LLWindowWin32::convertCoords(LLCoordGL from, LLCoordWindow *to)
+bool LLWindowWin32::convertCoords(LLCoordGL from, LLCoordWindow *to) const
 {
     S32     client_height;
     RECT    client_rect;
@@ -3697,7 +3894,7 @@ bool LLWindowWin32::convertCoords(LLCoordGL from, LLCoordWindow *to)
     return true;
 }
 
-bool LLWindowWin32::convertCoords(LLCoordWindow from, LLCoordGL* to)
+bool LLWindowWin32::convertCoords(LLCoordWindow from, LLCoordGL* to) const
 {
     S32     client_height;
     RECT    client_rect;
@@ -3716,7 +3913,7 @@ bool LLWindowWin32::convertCoords(LLCoordWindow from, LLCoordGL* to)
     return true;
 }
 
-bool LLWindowWin32::convertCoords(LLCoordScreen from, LLCoordWindow* to)
+bool LLWindowWin32::convertCoords(LLCoordScreen from, LLCoordWindow* to) const
 {
     POINT mouse_point;
 
@@ -3733,7 +3930,7 @@ bool LLWindowWin32::convertCoords(LLCoordScreen from, LLCoordWindow* to)
     return result;
 }
 
-bool LLWindowWin32::convertCoords(LLCoordWindow from, LLCoordScreen *to)
+bool LLWindowWin32::convertCoords(LLCoordWindow from, LLCoordScreen *to) const
 {
     POINT mouse_point;
 
@@ -3750,7 +3947,7 @@ bool LLWindowWin32::convertCoords(LLCoordWindow from, LLCoordScreen *to)
     return result;
 }
 
-bool LLWindowWin32::convertCoords(LLCoordScreen from, LLCoordGL *to)
+bool LLWindowWin32::convertCoords(LLCoordScreen from, LLCoordGL *to) const
 {
     LLCoordWindow window_coord;
 
@@ -3764,7 +3961,7 @@ bool LLWindowWin32::convertCoords(LLCoordScreen from, LLCoordGL *to)
     return true;
 }
 
-bool LLWindowWin32::convertCoords(LLCoordGL from, LLCoordScreen *to)
+bool LLWindowWin32::convertCoords(LLCoordGL from, LLCoordScreen *to) const
 {
     LLCoordWindow window_coord;
 
@@ -3883,7 +4080,7 @@ void LLWindowWin32::setMouseClipping( bool b )
     }
 }
 
-bool LLWindowWin32::getClientRectInScreenSpace( RECT* rectp )
+bool LLWindowWin32::getClientRectInScreenSpace( RECT* rectp ) const
 {
     bool success = false;
 
@@ -3927,7 +4124,7 @@ void LLWindowWin32::flashIcon(F32 seconds)
         });
 }
 
-F32 LLWindowWin32::getGamma()
+F32 LLWindowWin32::getGamma() const
 {
     return mCurrentGamma;
 }
@@ -3989,7 +4186,7 @@ void LLWindowWin32::setFSAASamples(const U32 fsaa_samples)
     mFSAASamples = fsaa_samples;
 }
 
-U32 LLWindowWin32::getFSAASamples()
+U32 LLWindowWin32::getFSAASamples() const
 {
     return mFSAASamples;
 }
@@ -4342,7 +4539,7 @@ void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url, bool async)
     Make the raw keyboard data available - used to poke through to LLQtWebKit so
     that Qt/Webkit has access to the virtual keycodes etc. that it needs
 */
-LLSD LLWindowWin32::getNativeKeyData()
+LLSD LLWindowWin32::getNativeKeyData() const
 {
     LLSD result = LLSD::emptyMap();
 
@@ -4388,7 +4585,7 @@ bool LLWindowWin32::dialogColorPicker( F32 *r, F32 *g, F32 *b )
     return (retval);
 }
 
-void *LLWindowWin32::getPlatformWindow()
+void* LLWindowWin32::getPlatformWindow() const
 {
     return (void*)mWindowHandle;
 }
@@ -4684,12 +4881,14 @@ void LLWindowWin32::handleStartCompositionMessage()
 
 // Handle WM_IME_COMPOSITION message.
 
-void LLWindowWin32::handleCompositionMessage(const U32 indexes)
+void LLWindowWin32::handleCompositionMessage(const LLImeCompositionSnapshot& snapshot)
 {
     if (!mPreeditor)
     {
         return;
     }
+
+    const U32 indexes = snapshot.indexes;
     bool needs_update = false;
     LLWString result_string;
     LLWString preedit_string;
@@ -4697,97 +4896,78 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
     LLPreeditor::segment_lengths_t preedit_segment_lengths;
     LLPreeditor::standouts_t preedit_standouts;
 
-    // Step I: Receive details of preedits from IME.
+    // Step I: Use the immutable IME state captured synchronously when
+    // WM_IME_COMPOSITION was delivered on the window thread.
 
-    HIMC himc = LLWinImm::getContext(mWindowHandle);
-
-    if (indexes & GCS_RESULTSTR)
+    if ((indexes & GCS_RESULTSTR) && imeFieldCaptureSucceeded(snapshot.result))
     {
-        LONG size = LLWinImm::getCompositionString(himc, GCS_RESULTSTR, NULL, 0);
-        if (size >= 0)
+        if (snapshot.result.status == LLImeFieldStatus::Value)
         {
-            const LPWSTR data = new WCHAR[size / sizeof(WCHAR) + 1];
-            size = LLWinImm::getCompositionString(himc, GCS_RESULTSTR, data, size);
-            if (size > 0)
+            result_string = ll_convert_wide_to_wstring(imeFieldAsWideString(snapshot.result));
+        }
+        needs_update = true;
+    }
+
+    if ((indexes & GCS_COMPSTR) && imeFieldCaptureSucceeded(snapshot.composition))
+    {
+        if (snapshot.composition.status == LLImeFieldStatus::Value)
+        {
+            const std::wstring preedit_utf16 = imeFieldAsWideString(snapshot.composition);
+            preedit_string_utf16_length = static_cast<S32>(preedit_utf16.length());
+            preedit_string = ll_convert_wide_to_wstring(preedit_utf16);
+        }
+        needs_update = true;
+    }
+
+    if ((indexes & GCS_COMPCLAUSE) && preedit_string.length() > 0 &&
+        snapshot.clauses.status == LLImeFieldStatus::Value)
+    {
+        const std::vector<DWORD> data = imeFieldAsDwords(snapshot.clauses);
+        if (data.size() >= 2 &&
+            data.front() == 0 &&
+            data.back() == static_cast<DWORD>(preedit_string_utf16_length))
+        {
+            preedit_segment_lengths.resize(data.size() - 1);
+            S32 offset = 0;
+            for (U32 i = 0; i < preedit_segment_lengths.size(); i++)
             {
-                result_string = ll_convert_wide_to_wstring(std::wstring(data, size / sizeof(WCHAR)));
+                const S32 length = wstring_wstring_length_from_utf16_length(
+                    preedit_string, offset, data[i + 1] - data[i]);
+                preedit_segment_lengths[i] = length;
+                offset += length;
             }
-            delete[] data;
-            needs_update = true;
         }
     }
 
-    if (indexes & GCS_COMPSTR)
+    if ((indexes & GCS_COMPATTR) && preedit_segment_lengths.size() > 1 &&
+        snapshot.attributes.status == LLImeFieldStatus::Value)
     {
-        LONG size = LLWinImm::getCompositionString(himc, GCS_COMPSTR, NULL, 0);
-        if (size >= 0)
+        const std::vector<U8>& data = snapshot.attributes.bytes;
+        if (data.size() == static_cast<size_t>(preedit_string_utf16_length))
         {
-            const LPWSTR data = new WCHAR[size / sizeof(WCHAR) + 1];
-            size = LLWinImm::getCompositionString(himc, GCS_COMPSTR, data, size);
-            if (size > 0)
+            preedit_standouts.assign(preedit_segment_lengths.size(), false);
+            S32 offset = 0;
+            for (U32 i = 0; i < preedit_segment_lengths.size(); i++)
             {
-                preedit_string_utf16_length = size / sizeof(WCHAR);
-                preedit_string = ll_convert_wide_to_wstring(std::wstring(data, size / sizeof(WCHAR)));
-            }
-            delete[] data;
-            needs_update = true;
-        }
-    }
-
-    if ((indexes & GCS_COMPCLAUSE) && preedit_string.length() > 0)
-    {
-        LONG size = LLWinImm::getCompositionString(himc, GCS_COMPCLAUSE, NULL, 0);
-        if (size > 0)
-        {
-            const LPDWORD data = new DWORD[size / sizeof(DWORD)];
-            size = LLWinImm::getCompositionString(himc, GCS_COMPCLAUSE, data, size);
-            if (size >= sizeof(DWORD) * 2
-                && data[0] == 0 && data[size / sizeof(DWORD) - 1] == preedit_string_utf16_length)
-            {
-                preedit_segment_lengths.resize(size / sizeof(DWORD) - 1);
-                S32 offset = 0;
-                for (U32 i = 0; i < preedit_segment_lengths.size(); i++)
+                if (ATTR_TARGET_CONVERTED == data[offset] ||
+                    ATTR_TARGET_NOTCONVERTED == data[offset])
                 {
-                    const S32 length = wstring_wstring_length_from_utf16_length(preedit_string, offset, data[i + 1] - data[i]);
-                    preedit_segment_lengths[i] = length;
-                    offset += length;
+                    preedit_standouts[i] = true;
                 }
+                offset += wstring_utf16_length(
+                    preedit_string, offset, preedit_segment_lengths[i]);
             }
-            delete[] data;
-        }
-    }
-
-    if ((indexes & GCS_COMPATTR) && preedit_segment_lengths.size() > 1)
-    {
-        LONG size = LLWinImm::getCompositionString(himc, GCS_COMPATTR, NULL, 0);
-        if (size > 0)
-        {
-            const LPBYTE data = new BYTE[size / sizeof(BYTE)];
-            size = LLWinImm::getCompositionString(himc, GCS_COMPATTR, data, size);
-            if (size == preedit_string_utf16_length)
-            {
-                preedit_standouts.assign(preedit_segment_lengths.size(), false);
-                S32 offset = 0;
-                for (U32 i = 0; i < preedit_segment_lengths.size(); i++)
-                {
-                    if (ATTR_TARGET_CONVERTED == data[offset] || ATTR_TARGET_NOTCONVERTED == data[offset])
-                    {
-                        preedit_standouts[i] = true;
-                    }
-                    offset += wstring_utf16_length(preedit_string, offset, preedit_segment_lengths[i]);
-                }
-            }
-            delete[] data;
         }
     }
 
     S32 caret_position = static_cast<S32>(preedit_string.length());
-    if (indexes & GCS_CURSORPOS)
+    if ((indexes & GCS_CURSORPOS) && snapshot.cursor.status == LLImeFieldStatus::Value)
     {
-        const S32 caret_position_utf16 = LLWinImm::getCompositionString(himc, GCS_CURSORPOS, NULL, 0);
+        const S32 caret_position_utf16 = static_cast<S32>(snapshot.cursor.value);
         if (caret_position_utf16 >= 0 && caret_position <= preedit_string_utf16_length)
         {
-            caret_position = wstring_wstring_length_from_utf16_length(preedit_string, 0, caret_position_utf16);
+            caret_position = wstring_wstring_length_from_utf16_length(
+                preedit_string, 0, caret_position_utf16);
         }
     }
 
@@ -4798,8 +4978,6 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
         // of "reset everything."
         needs_update = true;
     }
-
-    LLWinImm::releaseContext(mWindowHandle, himc);
 
     // Step II: Update the active preeditor.
 
@@ -5268,11 +5446,21 @@ void LLWindowWin32::clearHighPerformanceGPURequest() const
         gD3D11Device->Release();
         gD3D11Device = nullptr;
     }
-    if (gD3D11Library)
-    {
-        FreeLibrary(gD3D11Library);
-        gD3D11Library = nullptr;
-    }
+
+    // Deliberately NOT calling FreeLibrary(gD3D11Library) / clearing it here.
+    // Once an ID3D11Device has actually been created from d3d11.dll, GPU
+    // vendor drivers (observed with NVIDIA's nvoglv64.dll OpenGL driver) may
+    // retain internal references/threads into that module independent of our
+    // own COM refcounting. Unloading the DLL out from under the driver can
+    // cause a later, seemingly unrelated crash inside driver code that still
+    // expects d3d11.dll's code to be mapped.
+    // Leaving d3d11.dll loaded for the life of the process is the safe,
+    // standard practice once a device has been created from it.
+    //if (gD3D11Library)
+    //{
+    //    FreeLibrary(gD3D11Library);
+    //    gD3D11Library = nullptr;
+    //}
 }
 
 void* LLWindowWin32::getDirectInput8()
@@ -5311,7 +5499,7 @@ void LLWindowWin32::initWatchdog()
     clearHighPerformanceGPURequest();
 }
 
-F32 LLWindowWin32::getSystemUISize()
+F32 LLWindowWin32::getSystemUISize() const
 {
     F32 scale_value = 1.f;
     HWND hWnd = (HWND)getPlatformWindow();

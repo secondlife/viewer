@@ -32,6 +32,5 @@
 
 void force_ns_sxeption();
 void register_url_schemes();
-void set_os_hibernation_mode(int mode);
 
 #endif // LL_LLAPPVIEWERMACOSX_OBJC_H

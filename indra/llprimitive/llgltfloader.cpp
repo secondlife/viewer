@@ -426,10 +426,7 @@ void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>
             (LLModel::NO_ERRORS == pModel->getStatus()) &&
             validate_model(pModel))
         {
-            // Build the scene transform.
-            // Non-skinned meshes: scene transform carries coord rotation + hierarchy,
-            // preserving the object's rotation/position/scale for upload.
-            // Skinned meshes: transform is already baked into vertices, so scene is identity.
+            // Skinned meshes already have the full transform baked into vertices.
             if (node.mSkin >= 0)
             {
                 mTransform.setIdentity();
@@ -438,11 +435,13 @@ void LLGLTFLoader::processNodeHierarchy(S32 node_idx, std::map<std::string, S32>
             {
                 glm::mat4 hierarchy_transform;
                 computeCombinedNodeTransform(mGLTFAsset, node_idx, hierarchy_transform);
-                glm::mat4 combined = coord_system_rotation * hierarchy_transform;
+                glm::mat4 rotation = coord_system_rotation;
                 if (mApplyXYRotation)
                 {
-                    combined = coord_system_rotationxy * combined;
+                    rotation = coord_system_rotationxy * rotation;
                 }
+                // Vertices are in SL axes; convert the hierarchy to the same basis.
+                glm::mat4 combined = rotation * hierarchy_transform * glm::transpose(rotation);
                 mTransform = LLMatrix4(glm::value_ptr(combined));
             }
             transformation = mTransform;
@@ -975,11 +974,8 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
 
     S32 skinIdx = nodeno.mSkin;
 
-    // Compute the vertex transform for this mesh.
-    // Non-skinned meshes: vertices are left untransformed; the node's hierarchy transform
-    // (rotation, translation, scale) is stored in the scene transform instead, matching
-    // the DAE loader. This ensures the uploaded object's bounding box and transform
-    // properties are correct. See: https://github.com/secondlife/viewer/issues/5431
+    // Convert non-skinned vertices to SL axes; keep the hierarchy in the scene transform.
+    // This preserves local axes (#6618) and the object's rotation/scale/position (#5431).
     // Skinned meshes: coord rotation + hierarchy are baked into vertex positions because
     // inverse bind matrices and skin weights are already computed in that space.
     // TODO: consider aligning skinned meshes with the DAE loader (scene transform instead
@@ -989,30 +985,20 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
     glm::mat4 hierarchy_transform;
     computeCombinedNodeTransform(mGLTFAsset, node_index, hierarchy_transform);
 
-    glm::mat4 vertex_transform;
+    glm::mat4 vertex_transform = coord_system_rotation;
     if (skinIdx >= 0)
     {
-        // Skinned mesh: bake coord rotation + hierarchy into vertices.
-        // Inverse bind matrices and skin weights depend on this transform being applied.
-        vertex_transform = coord_system_rotation * hierarchy_transform;
-        if (mApplyXYRotation)
-        {
-            vertex_transform = coord_system_rotationxy * vertex_transform;
-        }
+        vertex_transform *= hierarchy_transform;
     }
-    else
+    if (mApplyXYRotation)
     {
-        // Non-skinned mesh: don't apply any transform to vertices.
-        // The hierarchy transform will be stored in the scene transform matrix.
-        vertex_transform = glm::mat4(1.0f); // identity
+        vertex_transform = coord_system_rotationxy * vertex_transform;
     }
 
     // Check if we have a negative scale (flipped coordinate system)
     // coord_system_rotation and coord_system_rotationxy are pure rotations (det=1),
     // so negative scale depends only on the hierarchy transform.
     bool hasNegativeScale = glm::determinant(hierarchy_transform) < 0.0f;
-
-    bool hasVertexTransform = (vertex_transform != glm::mat4(1.0f));
 
     // Pre-compute normal transform matrix (transpose of inverse of upper-left 3x3)
     const glm::mat3 normal_transform = glm::transpose(glm::inverse(glm::mat3(vertex_transform)));
@@ -1068,45 +1054,22 @@ bool LLGLTFLoader::populateModelFromMesh(LLModel* pModel, const std::string& bas
             return false; // Skip this primitive
         }
 
-        // Apply vertex transform (if any) to all vertices.
-        // Skinned meshes: this bakes coord rotation + hierarchy into vertices.
-        // Non-skinned meshes: vertex_transform is identity (no baking).
         for (U32 i = 0; i < prim.getVertexCount(); i++)
         {
             GLTFVertex vert;
+            glm::vec4 pos(prim.mPositions[i][0], prim.mPositions[i][1], prim.mPositions[i][2], 1.0f);
+            glm::vec4 transformed_pos = vertex_transform * pos;
+            vert.position = glm::vec3(transformed_pos);
 
-            if (hasVertexTransform)
+            if (!prim.mNormals.empty())
             {
-                glm::vec4 pos(prim.mPositions[i][0], prim.mPositions[i][1], prim.mPositions[i][2], 1.0f);
-                glm::vec4 transformed_pos = vertex_transform * pos;
-                vert.position = glm::vec3(transformed_pos);
-
-                if (!prim.mNormals.empty())
-                {
-                    glm::vec3 normal_vec(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
-                    vert.normal = glm::normalize(normal_transform * normal_vec);
-                }
-                else
-                {
-                    vert.normal = glm::normalize(normal_transform * glm::vec3(0.0f, 0.0f, 1.0f));
-                    LL_DEBUGS("GLTF_IMPORT") << "No normals found for primitive, using default normal." << LL_ENDL;
-                }
+                glm::vec3 normal_vec(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
+                vert.normal = glm::normalize(normal_transform * normal_vec);
             }
             else
             {
-                // No transform: store raw GLTF positions and normals.
-                // The scene transform will carry coord rotation + hierarchy.
-                vert.position = glm::vec3(prim.mPositions[i][0], prim.mPositions[i][1], prim.mPositions[i][2]);
-
-                if (!prim.mNormals.empty())
-                {
-                    vert.normal = glm::vec3(prim.mNormals[i][0], prim.mNormals[i][1], prim.mNormals[i][2]);
-                }
-                else
-                {
-                    vert.normal = glm::vec3(0.0f, 0.0f, 1.0f);
-                    LL_DEBUGS("GLTF_IMPORT") << "No normals found for primitive, using default normal." << LL_ENDL;
-                }
+                vert.normal = glm::normalize(normal_transform * glm::vec3(0.0f, 0.0f, 1.0f));
+                LL_DEBUGS("GLTF_IMPORT") << "No normals found for primitive, using default normal." << LL_ENDL;
             }
 
             // Flip texture V coordinate
@@ -1794,10 +1757,18 @@ void LLGLTFLoader::buildOverrideMatrix(LLJointData& viewer_data, joints_data_map
         glm::quat rotation;
         glm::decompose(translated_joint, scale, rotation, translation_override, skew, perspective);
 
-        glm::mat4 viewer_rotation_scale(1.0f);
-        viewer_rotation_scale = glm::rotate(viewer_rotation_scale, glm::radians(viewer_data.mRotation[0]), glm::vec3(1, 0, 0));
-        viewer_rotation_scale = glm::rotate(viewer_rotation_scale, glm::radians(viewer_data.mRotation[1]), glm::vec3(0, 1, 0));
-        viewer_rotation_scale = glm::rotate(viewer_rotation_scale, glm::radians(viewer_data.mRotation[2]), glm::vec3(0, 0, 1));
+        // Match the rotation convention used by LLAvatarAppearance::setupBone().
+        // Convert LLQuaternion's (x, y, z, w) components to GLM's (w, x, y, z).
+        const LLQuaternion viewer_rotation = mayaQ(
+            viewer_data.mRotation[0],
+            viewer_data.mRotation[1],
+            viewer_data.mRotation[2],
+            LLQuaternion::XYZ);
+        glm::mat4 viewer_rotation_scale = glm::mat4_cast(glm::quat(
+            viewer_rotation.mQ[VW],
+            viewer_rotation.mQ[VX],
+            viewer_rotation.mQ[VY],
+            viewer_rotation.mQ[VZ]));
         viewer_rotation_scale = glm::scale(viewer_rotation_scale, viewer_data.mScale);
 
         // Viewer allows overrides, which are base joint with applied translation override.

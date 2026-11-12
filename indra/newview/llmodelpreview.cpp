@@ -783,6 +783,13 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
         return;
     }
 
+    if (!getPreviewAvatar())
+    {
+        LL_WARNS() << "No preview avatar, can't load model " << filename << LL_ENDL;
+        mLoading = false;
+        return;
+    }
+
     mLODFile[lod] = filename;
 
     std::map<std::string, std::string, std::less<>> joint_alias_map;

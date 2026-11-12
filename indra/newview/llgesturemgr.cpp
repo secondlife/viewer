@@ -337,7 +337,7 @@ void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
     msg->addU32("Flags", 0x0);
 
     msg->nextBlock("Data");
-    msg->addUUID("ItemID", item_id);
+    msg->addUUID("ItemID", base_item_id);
     msg->addU32("GestureFlags", 0x0);
 
     gAgent.sendReliableMessage();

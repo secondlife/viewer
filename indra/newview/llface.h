@@ -39,6 +39,7 @@
 #include "llvertexbuffer.h"
 #include "llviewertexture.h"
 #include "lldrawable.h"
+#include "llmodel.h"
 
 class LLFacePool;
 class LLVolume;
@@ -49,7 +50,6 @@ class LLVertexProgram;
 class LLViewerTexture;
 class LLGeometryManager;
 class LLDrawInfo;
-class LLMeshSkinInfo;
 
 const F32 MIN_ALPHA_SIZE = 1024.f;
 const F32 MIN_TEX_ANIM_SIZE = 512.f;
@@ -269,7 +269,7 @@ public:
     LLMatrix4*  mNormalMapMatrix;
     LLDrawInfo* mDrawInfo;
     LLVOAvatar* mAvatar = nullptr;
-    LLMeshSkinInfo* mSkinInfo = nullptr;
+    LLPointer<LLMeshSkinInfo> mSkinInfo;
 
     // return mSkinInfo->mHash or 0 if mSkinInfo is null
     U64 getSkinHash();

@@ -66,6 +66,7 @@
 #include "llfloaterpreference.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloatersnapshot.h"
+#include "llgamecontrol.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llimprocessing.h"
@@ -3190,8 +3191,8 @@ void process_crossed_region(LLMessageSystem* msg, void**)
 }
 
 
-// sends an AgentUpdate message to the server... or not:
-// only when force_send is 'true' OR
+// sends an AgentUpdate message to the server... or not
+// e.g. only when force_send is 'true' OR
 // something changed AND the update is not being throttled
 void send_agent_update(bool force_send, bool send_reliable)
 {
@@ -3260,8 +3261,6 @@ void send_agent_update(bool force_send, bool send_reliable)
         return;
     }
 
-    bool send_update = force_send || sec_since_last_send > MAX_AGENT_UPDATE_PERIOD;
-
     LLVector3 camera_pos_agent = gAgentCamera.getCameraPositionAgent(); // local to avatar's region
     LLVector3 camera_at = LLViewerCamera::getInstance()->getAtAxis();
     LLQuaternion body_rotation = gAgent.getFrameAgent().getQuaternion();
@@ -3278,6 +3277,7 @@ void send_agent_update(bool force_send, bool send_reliable)
         flags |= AU_FLAGS_CLIENT_AUTOPILOT;
     }
 
+    bool send_update = force_send || sec_since_last_send > MAX_AGENT_UPDATE_PERIOD;
     if (!send_update)
     {
         // check to see if anything changed
@@ -3951,6 +3951,11 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
         if (measurementp )
         {
             measurementp->sample(stat_value);
+            if (stat_id == LL_SIM_STAT_FPS)
+            {
+                // let GameControlData's outgoing throttle track the sim's actual rate
+                LLGameControl::setServerFrameRate(stat_value);
+            }
         }
         else
         {
@@ -4263,6 +4268,10 @@ void process_clear_follow_cam_properties(LLMessageSystem *mesgsys, void **user_d
     mesgsys->getUUIDFast(_PREHASH_ObjectData, _PREHASH_ObjectID, source_id);
 
     LLFollowCamMgr::getInstance()->removeFollowCamParams(source_id);
+    if (!LLFollowCamMgr::getInstance()->getActiveFollowCamParams())
+    {
+        gAgentCamera.notifyFollowCamParamsCleared();
+    }
 }
 
 void process_set_follow_cam_properties(LLMessageSystem *mesgsys, void **user_data)
@@ -4332,6 +4341,10 @@ void process_set_follow_cam_properties(LLMessageSystem *mesgsys, void **user_dat
         case FOLLOWCAM_ACTIVE:
             //if 1, set using followcam,.
             LLFollowCamMgr::getInstance()->setCameraActive(source_id, value != 0.f);
+            if (value == 0.f && !LLFollowCamMgr::getInstance()->getActiveFollowCamParams())
+            {
+                gAgentCamera.notifyFollowCamParamsCleared();
+            }
             break;
         case FOLLOWCAM_POSITION_X:
             settingPosition = true;
@@ -4928,10 +4941,12 @@ bool handle_teleport_access_blocked(LLSD& llsdBlock, const std::string & notific
     {
         U8 regionAccess = static_cast<U8>(llsdBlock["_region_access"].asInteger());
         std::string regionMaturity = LLViewerRegion::accessToString(regionAccess);
+        llsdBlock["REGIONMATURITY_CAP"] = regionMaturity;
         LLStringUtil::toLower(regionMaturity);
         llsdBlock["REGIONMATURITY"] = regionMaturity;
 
         LLNotificationPtr tp_failure_notification;
+        bool skip_notif = false;
         std::string notifySuffix;
 
         if (notificationID == std::string("TeleportEntryAccessBlocked"))
@@ -5001,21 +5016,39 @@ bool handle_teleport_access_blocked(LLSD& llsdBlock, const std::string & notific
             }
         }       // End of special handling for "TeleportEntryAccessBlocked"
         else
-        {   // Normal case, no message munging
-            gAgent.clearTeleportRequest();
-            if (LLNotifications::getInstance()->templateExists(notificationID))
+        {
+            if (notificationID == "RegionTPAccessBlocked")
             {
-                tp_failure_notification = LLNotificationsUtil::add(notificationID, llsdBlock, llsdBlock);
+                bool can_change_maturity = (regionAccess == SIM_ACCESS_MATURE) ? gAgent.isMature() : gAgent.isAdult();
+                if (can_change_maturity)
+                {
+                    LLFloaterReg::showInstance("maturity_dialog", LLSD((S32)regionAccess));
+                    skip_notif = true;
+                }
+                else
+                {
+                    gAgent.clearTeleportRequest();
+                    tp_failure_notification = LLNotificationsUtil::add("RegionTPAccessBlocked_NotifyAdultsOnly", llsdBlock);
+                }
             }
             else
             {
-                llsdBlock["MESSAGE"] = defaultMessage;
-                tp_failure_notification = LLNotificationsUtil::add("GenericAlertOK", llsdBlock);
+                // Normal case, no message munging
+                gAgent.clearTeleportRequest();
+                if (LLNotifications::getInstance()->templateExists(notificationID))
+                {
+                    tp_failure_notification = LLNotificationsUtil::add(notificationID, llsdBlock, llsdBlock);
+                }
+                else
+                {
+                    llsdBlock["MESSAGE"] = defaultMessage;
+                    tp_failure_notification = LLNotificationsUtil::add("GenericAlertOK", llsdBlock);
+                }
             }
             returnValue = true;
         }
 
-        if ((tp_failure_notification == NULL) || tp_failure_notification->isIgnored())
+        if (((tp_failure_notification == NULL) || tp_failure_notification->isIgnored()) && !skip_notif)
         {
             // Given a simple notification if no tp_failure_notification is set or it is ignore
             LLNotificationsUtil::add(notificationID + notifySuffix, llsdBlock);
@@ -6128,7 +6161,7 @@ void process_teleport_local(LLMessageSystem *msg,void**)
     gAgent.setPositionAgent(pos);
     gAgentCamera.slamLookAt(look_at);
 
-    if ( !(gAgent.getTeleportKeepsLookAt() && LLViewerJoystick::getInstance()->getOverrideCamera()) )
+    if ( !(gAgent.getTeleportKeepsLookAt() && gAgent.isCameraExternallyDriven()) )
     {
         gAgentCamera.resetView(true, true);
     }
@@ -6989,4 +7022,3 @@ void LLOfferInfo::forceResponse(InventoryOfferResponse response)
     params.functor.function(boost::bind(&LLOfferInfo::inventory_offer_callback, this, _1, _2));
     LLNotifications::instance().forceResponse(params, response);
 }
-

@@ -36,7 +36,6 @@
 #include "llfasttimerview.h"
 #include "llfloater360capture.h"
 #include "llfloaterabout.h"
-#include "llfloateraddpaymentmethod.h"
 #include "llfloaterauction.h"
 #include "llfloaterautoreplacesettings.h"
 #include "llfloateravatarpicker.h"
@@ -92,6 +91,7 @@
 #include "llfloaterinspect.h"
 #include "llfloaterinventorysettings.h"
 #include "llfloaterinventorythumbnailshelper.h"
+#include "llfloaterjoin.h"
 #include "llfloaterjoystick.h"
 #include "llfloaterlagmeter.h"
 #include "llfloaterland.h"
@@ -101,6 +101,7 @@
 #include "llfloatermap.h"
 #include "llfloatermarketplace.h"
 #include "llfloatermarketplacelistings.h"
+#include "llfloatermaturitydialog.h"
 #include "llfloatermediasettings.h"
 #include "llfloatermemleak.h"
 #include "llfloatermodelpreview.h"
@@ -125,6 +126,7 @@
 #include "llfloaterpreviewtrash.h"
 #include "llfloaterprofile.h"
 #include "llfloaterregiondebugconsole.h"
+#include "llfloatercombatsettings.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterregionrestarting.h"
 #include "llfloaterreporter.h"
@@ -153,6 +155,7 @@
 #include "llfloatertranslationsettings.h"
 #include "llfloateruipreview.h"
 #include "llfloaterwebcontent.h"
+#include "llfloaterwebmodal.h"
 #include "llfloatervoicevolume.h"
 #include "llfloaterwhitelistentry.h"
 #include "llfloaterwindowsize.h"
@@ -239,7 +242,6 @@ public:
             const std::list<std::string> blacklist_untrusted = {
                 "360capture",
                 "block_timers",
-                "add_payment_method",
                 "appearance",
                 "associate_listing",
                 "avatar_picker",
@@ -329,7 +331,6 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("360capture", "floater_360capture.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloater360Capture>);
     LLFloaterReg::add("block_timers", "floater_fast_timers.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFastTimerView>);
     LLFloaterReg::add("about_land", "floater_about_land.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLand>);
-    LLFloaterReg::add("add_payment_method", "floater_add_payment_method.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAddPaymentMethod>);
     LLFloaterReg::add("appearance", "floater_my_appearance.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSidePanelContainer>);
     LLFloaterReg::add("associate_listing", "floater_associate_listing.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAssociateListing>);
     LLFloaterReg::add("auction", "floater_auction.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAuction>);
@@ -405,6 +406,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("item_properties", "floater_item_properties.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterItemProperties>);
     LLFloaterReg::add("task_properties", "floater_task_properties.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterItemProperties>);
     LLFloaterReg::add("inventory_settings", "floater_inventory_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterInventorySettings>);
+    LLFloaterReg::add("join", "floater_join.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterJoin>);
     LLInspectAvatarUtil::registerFloater();
     LLInspectGroupUtil::registerFloater();
     LLInspectObjectUtil::registerFloater();
@@ -424,6 +426,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("marketplace", "floater_marketplace.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMarketplace>);
     LLFloaterReg::add("marketplace_listings", "floater_marketplace_listings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMarketplaceListings>);
     LLFloaterReg::add("marketplace_validation", "floater_marketplace_validation.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMarketplaceValidation>);
+    LLFloaterReg::add("maturity_dialog", "floater_maturity_dialog.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMaturityDialog>);
     LLFloaterReg::add("message_critical", "floater_critical.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTOS>);
     LLFloaterReg::add("message_tos", "floater_tos.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTOS>);
     LLFloaterReg::add("moveview", "floater_moveview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMove>);
@@ -486,6 +489,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("reset_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterResetQueue>);
     LLFloaterReg::add("region_debug_console", "floater_region_debug_console.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRegionDebugConsole>);
     LLFloaterReg::add("region_info", "floater_region_info.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRegionInfo>);
+    LLFloaterReg::add("region_combat_settings", "floater_combat_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCombatSettings>);
     LLFloaterReg::add("region_restarting", "floater_region_restarting.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterRegionRestarting>);
 
     LLFloaterReg::add("script_debug", "floater_script_debug.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterScriptDebug>);
@@ -517,6 +521,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("upload_sound", "floater_sound_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSoundPreview>, "upload");
 
     LLFloaterReg::add("web_content", "floater_web_content.xml", (LLFloaterBuildFunc)&LLFloaterWebContent::create);
+    LLFloaterReg::add("web_modal", "floater_web_modal.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWebModal>);
     LLFloaterReg::add("whitelist_entry", "floater_whitelist_entry.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWhiteListEntry>);
     LLFloaterReg::add("window_size", "floater_window_size.xml", &LLFloaterReg::build<LLFloaterWindowSize>);
     LLFloaterReg::add("world_map", "floater_world_map.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWorldMap>);

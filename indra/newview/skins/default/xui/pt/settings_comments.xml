@@ -1435,8 +1435,6 @@
   <string>Número de logins bem-sucedidos no Second Life.</string>
   <key>NvAPICreateApplicationProfile</key>
   <string>Criar perfil de aplicativo NVIDIA para configurações otimizadas.</string>
-  <key>OSHibernationMode</key>
-  <string>Se deve impedir que o SO hiberne. 0 - pode hibernar; 1 - não pode hibernar, pode desligar a tela; 2 - não pode hibernar, não pode desligar a tela.</string>
   <key>ObjectCacheEnabled</key>
   <string>Ativar o cache de objetos.</string>
   <key>ObjectCostHighColor</key>

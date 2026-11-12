@@ -104,7 +104,7 @@ public:
     LLMatrix4* mLastModelMatrix = nullptr;
 
     LLPointer<LLVOAvatar> mAvatar = nullptr;
-    LLMeshSkinInfo* mSkinInfo = nullptr;
+    LLPointer<LLMeshSkinInfo> mSkinInfo;
 
     // Material pointer here is likely for debugging only and are immaterial (zing!)
     LLPointer<LLMaterial> mMaterial;

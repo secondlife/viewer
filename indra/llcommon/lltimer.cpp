@@ -251,16 +251,14 @@ U64 get_clock_count()
 
 
 TimerInfo::TimerInfo()
-:   mClockFrequency(0.0),
-    mTotalTimeClockCount(0),
-    mLastTotalTimeClockCount(0)
-{}
+{
+    update();
+}
 
 void TimerInfo::update()
 {
     mClockFrequency = calc_clock_frequency();
     mClockFrequencyInv = 1.0/mClockFrequency;
-    mClocksToMicroseconds = mClockFrequencyInv;
 }
 
 TimerInfo& get_timer_info()
@@ -275,43 +273,9 @@ TimerInfo& get_timer_info()
 // microseconds since the Unix epoch - Jan 1, 1970
 U64MicrosecondsImplicit totalTime()
 {
-    U64 current_clock_count = get_clock_count();
-    if (!get_timer_info().mTotalTimeClockCount || get_timer_info().mClocksToMicroseconds.value() == 0)
-    {
-        get_timer_info().update();
-        get_timer_info().mTotalTimeClockCount = current_clock_count;
-
-#if LL_WINDOWS
-        // Sync us up with local time (even though we PROBABLY don't need to, this is how it was implemented)
-        // Unix platforms use gettimeofday so they are synced, although this probably isn't a good assumption to
-        // make in the future.
-
-        get_timer_info().mTotalTimeClockCount = (U64)(time(NULL) * get_timer_info().mClockFrequency);
-#endif
-
-        // Update the last clock count
-        get_timer_info().mLastTotalTimeClockCount = current_clock_count;
-    }
-    else
-    {
-        if (current_clock_count >= get_timer_info().mLastTotalTimeClockCount)
-        {
-            // No wrapping, we're all okay.
-            get_timer_info().mTotalTimeClockCount += current_clock_count - get_timer_info().mLastTotalTimeClockCount;
-        }
-        else
-        {
-            // We've wrapped.  Compensate correctly
-            get_timer_info().mTotalTimeClockCount += (0xFFFFFFFFFFFFFFFFULL - get_timer_info().mLastTotalTimeClockCount) + current_clock_count;
-        }
-
-        // Update the last clock count
-        get_timer_info().mLastTotalTimeClockCount = current_clock_count;
-    }
-
-    // Return the total clock tick count in microseconds.
-    U64Microseconds time(get_timer_info().mTotalTimeClockCount*get_timer_info().mClocksToMicroseconds);
-    return time;
+    // Unix timestamps must follow system-clock corrections and suspend/resume.
+    return U64Microseconds(std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count());
 }
 
 
@@ -319,11 +283,6 @@ U64MicrosecondsImplicit totalTime()
 
 LLTimer::LLTimer()
 {
-    if (!get_timer_info().mClockFrequency)
-    {
-        get_timer_info().update();
-    }
-
     mStarted = true;
     reset();
 }

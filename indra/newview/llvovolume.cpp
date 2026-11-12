@@ -410,6 +410,11 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
                     }
 
                     gPipeline.markTextured(mDrawable);
+                    if (LLSpatialGroup* group = mDrawable->getSpatialGroup())
+                    {
+                        group->dirtyGeom();
+                        gPipeline.markRebuild(group);
+                    }
                     mFaceMappingChanged = true;
                     mTexAnimMode = 0;
                 }
@@ -514,6 +519,11 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
                 }
 
                 gPipeline.markTextured(mDrawable);
+                if (LLSpatialGroup* group = mDrawable->getSpatialGroup())
+                {
+                    group->dirtyGeom();
+                    gPipeline.markRebuild(group);
+                }
                 mFaceMappingChanged = true;
                 mTexAnimMode = 0;
             }

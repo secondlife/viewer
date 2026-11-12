@@ -319,6 +319,12 @@ bool LL::WorkQueue::tryPost(const Work& callable)
     }
 }
 
+bool LL::WorkQueue::postToMainLoop(const Work& work)
+{
+    auto queue = getInstance("mainloop");
+    return queue && queue->tryPost(work);
+}
+
 LL::WorkQueue::Work LL::WorkQueue::pop_()
 {
     return mQueue.pop();

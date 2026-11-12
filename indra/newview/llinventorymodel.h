@@ -35,6 +35,7 @@
 #include "llassettype.h"
 #include "llfoldertype.h"
 #include "llframetimer.h"
+#include "llinventorycache.h"
 #include "lluuid.h"
 #include "llpermissionsflags.h"
 #include "llviewerinventory.h"
@@ -105,6 +106,8 @@ public:
 
     typedef std::vector<LLPointer<LLViewerInventoryCategory> > cat_array_t;
     typedef std::vector<LLPointer<LLViewerInventoryItem> > item_array_t;
+    typedef std::unordered_map<LLUUID, LLPointer<LLViewerInventoryCategory> > cat_map_t;
+    typedef std::unordered_map<LLUUID, LLPointer<LLViewerInventoryItem>>     item_map_t;
     typedef std::set<LLUUID> changed_items_t;
 
     // Rider: This is using the old responder patter.  It should be refactored to
@@ -158,12 +161,21 @@ protected:
 public:
     // The inventory model usage is sensitive to the initial construction of the model
     bool isInventoryUsable() const;
+    // Time spent merging the cached/downloaded skeleton into the live model
+    // (main thread, loadSkeleton() body only - does NOT include time spent
+    // waiting on the async cache load).
     F32 getLibrarySkeletonLoadTime() const { return mLibrarySkeletonLoadTime; }
     F32 getAgentSkeletonLoadTime() const { return mAgentSkeletonLoadTime; }
+    // Duration from the first time the viewer entered
+    // STATE_INVENTORY_SKEL until loadSkeleton() was invoked.
+    F32 getLibrarySkeletonWaitTime() const { return mLibrarySkeletonWaitTime; }
+    F32 getAgentSkeletonWaitTime() const { return mAgentSkeletonWaitTime; }
 private:
     bool mIsAgentInvUsable; // used to handle an invalid inventory state
     F32 mLibrarySkeletonLoadTime;
     F32 mAgentSkeletonLoadTime;
+    F32 mLibrarySkeletonWaitTime = 0.f;
+    F32 mAgentSkeletonWaitTime = 0.f;
 
     // One-time initialization of HTTP system.
     void initHttpRequest();
@@ -191,10 +203,40 @@ private:
 public:
     // Methods to load up inventory skeleton & meat. These are used
     // during authentication. Returns true if everything parsed.
+    // Records the elapsed time since the first waitForCacheResult() call
+    // for this owner_id (i.e. since the viewer started waiting on the
+    // async cache load) for stats purposes, alongside the local merge time.
     bool loadSkeleton(const LLSD& options, const LLUUID& owner_id);
     void buildParentChildMap(); // brute force method to rebuild the entire parent-child relations
     void createCommonSystemCategories();
 
+    // gunzip the cache file (if present) and parse it via loadFromFile().
+    // Touches only local state / filesystem, no gInventory access,
+    // so it is safe to call off the main thread.
+    static std::shared_ptr<LLCacheLoadResult> loadCacheResultFromDisk(const LLUUID& owner_id);
+
+    // Kick off loadCacheResultFromDisk() on the "General" thread pool, then
+    // deliver the result back to the caller on the "mainloop" WorkQueue.
+    static void loadInventoryCacheAsync(const LLUUID& owner_id);
+
+    // Stash a completed cache load, keyed by owner_id, for loadSkeleton()
+    // to consume once the matching skeleton arrives. Main thread.
+    void setCacheLoadResult(const LLUUID& owner_id, std::shared_ptr<LLCacheLoadResult> result);
+
+    // Non-blocking poll: returns CACHE_READY_TO_PROCESS once the async cache
+    // load for owner_id has completed and is ready to be consumed by loadSkeleton().
+    enum ECacheLoadResult
+    {
+        CACHE_WAIT,
+        CACHE_READY_TO_PROCESS,
+        CACHE_PROCESSED,
+    };
+    ECacheLoadResult waitForCacheResult(const LLUUID& owner_id);
+
+    // Cancel/ignore any in-flight or stashed cache loads.
+    void cancelCacheLoad();
+
+    // Path to cache file for the given owner_id. Does not check for existence.
     static std::string getInvCacheAddres(const LLUUID& owner_id);
 
     // Call on logout to save a terse representation.
@@ -203,13 +245,19 @@ public:
     // Wait for any pending async cache operations to complete
     static void waitForPendingCacheWrites();
 private:
+    std::map<LLUUID, std::shared_ptr<LLCacheLoadResult>> mCacheLoadResults;
+    uuid_set_t mCacheLoadRequested;
+    S32 mCacheLoadGeneration = 0; // To reset load in case of login failure
+    // Timers started on first waitForCacheResult() call per owner_id, used
+    // to measure the full skeleton wait duration. Cleared in loadSkeleton()
+    // (once consumed) and in cancelCacheLoad() (on relog/login failure).
+    std::map<LLUUID, LLTimer> mCacheWaitTimers;
+
     // Information for tracking the actual inventory. We index this
     // information in a lot of different ways so we can access
     // the inventory using several different identifiers.
     // mInventory member data is the 'master' list of inventory, and
     // mCategoryMap and mItemMap store uuid->object mappings.
-    typedef std::unordered_map<LLUUID, LLPointer<LLViewerInventoryCategory> > cat_map_t;
-    typedef std::unordered_map<LLUUID, LLPointer<LLViewerInventoryItem>>     item_map_t;
     cat_map_t mCategoryMap;
     item_map_t mItemMap;
     // This last set of indices is used to map parents to children.
@@ -673,14 +721,18 @@ public:
     // File I/O
     //--------------------------------------------------------------------
 protected:
+
     static bool loadFromFile(const std::string& filename,
-                             cat_array_t& categories,
-                             item_array_t& items,
+                             cat_map_t& categories,
+                             item_map_t& items,
                              changed_items_t& cats_to_update,
+                             uuid_set_t& priority_cats,
+                             std::unordered_map<LLUUID, uuid_vec_t>& child_item_ids,
                              bool& is_cache_obsolete);
     static bool saveToFile(const std::string& filename,
                            const cat_array_t& categories,
-                           const item_array_t& items);
+                           const item_array_t& items,
+                           const uuid_set_t& priority_cats);
 
     //--------------------------------------------------------------------
     // Message handling functionality

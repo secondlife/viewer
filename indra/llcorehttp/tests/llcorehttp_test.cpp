@@ -45,6 +45,7 @@
 #include "test_httpheaders.hpp"
 #include "test_httprequestqueue.hpp"
 #include "test_jsonrpcws.hpp"
+#include "test_websocketmgr.hpp"
 #include "_httpservice.h"
 
 #include "llproxy.h"

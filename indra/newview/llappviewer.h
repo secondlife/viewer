@@ -270,8 +270,6 @@ public:
     // Note: mQuitRequested can be aborted by user.
     void outOfMemorySoftQuit();
 
-    virtual void setPermitOSHibernation(bool permit);
-
 #ifdef LL_DISCORD
     static void initDiscordSocial();
     static void updateDiscordActivity();
@@ -287,14 +285,6 @@ protected:
     virtual bool initHardwareTest() { return true; } // A false result indicates the app should quit.
     virtual bool initSLURLHandler();
     virtual bool sendURLToOtherInstance(const std::string& url);
-
-    typedef enum
-    {
-        LL_HIBERNATE_MODE_DEFAULT = 0, // Use the platform's default behavior.
-        LL_HIBERNATE_MODE_PREVENT = 1,
-        LL_HIBERNATE_MODE_PREVENT_SCREEN = 2,
-    } eHibernationMode;
-    virtual void setOSHibernationMode(eHibernationMode mode);
 
     virtual bool initParseCommandLine(LLCommandLineParser& clp)
         { return true; } // Allow platforms to specify the command line args.
@@ -403,9 +393,6 @@ private:
     LLAppCoreHttp mAppCoreHttp;
 
     bool mIsFirstRun;
-
-    eHibernationMode mCurrentHibernationMode = LL_HIBERNATE_MODE_DEFAULT;
-    boost::signals2::scoped_connection mOSHibernationModeChangeConnection;
 };
 
 // Globals with external linkage. From viewer.h

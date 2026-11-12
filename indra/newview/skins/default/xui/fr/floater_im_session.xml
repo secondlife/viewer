@@ -38,6 +38,11 @@
 							<layout_panel name="translate_chat_checkbox_lp">
 								<check_box label="Traduire le chat" name="translate_chat_checkbox"/>
 							</layout_panel>
+							<layout_panel name="chat_holder">
+								<panel name="chat_service_loading">
+									<text name="chat_service_loading_text" value="Chargement..."/>
+								</panel>
+							</layout_panel>
 						</layout_stack>
 					</layout_panel>
 				</layout_stack>

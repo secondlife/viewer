@@ -1043,6 +1043,31 @@ void LLSD::clear()                      { Impl::assignUndefined(impl); }
 
 LLSD::Type LLSD::type() const           { return safe(impl).type(); }
 
+bool LLSD::isEmpty() const
+{
+    switch (type())
+    {
+    case TypeUndefined:
+        return true; // Always empty
+    case TypeBinary:
+        return !asBoolean(); // Empty when default
+    case TypeInteger:
+        return !asInteger(); // Empty when default
+    case TypeReal:
+        return !asReal(); // Empty when default
+    case TypeString:
+    case TypeURI:
+        return asString().empty(); // Empty natively
+    case TypeArray:
+    case TypeMap:
+        return !size(); // Empty natively
+    default:;
+    }
+    // All other value types (TypeDate) don't have default values so can't be empty
+    return false;
+}
+
+
 // Scalar Constructors
 LLSD::LLSD(Boolean v) : impl(0)         { ALLOC_LLSD_OBJECT;    assign(v); }
 LLSD::LLSD(Integer v) : impl(0)         { ALLOC_LLSD_OBJECT;    assign(v); }
@@ -1264,6 +1289,19 @@ LLSD::Real string_to_real(std::string_view in_string)
     // *NOTE: gcc 2.95 does not generate an eof() event on the
     // stream operation above, so we manually get here to force it
     // across platforms.
+    int c = i_stream.get();
+    return ((EOF == c) ? v : 0.0);
+}
+
+// Locale-independent variant of string_to_real()
+LLSD::Real string_to_real_classic(std::string_view in_string)
+{
+    LLSD::Real v = 0.0;
+    boost::iostreams::stream<boost::iostreams::array_source> i_stream(in_string.data(), in_string.size());
+    // Force classic locale
+    i_stream.imbue(std::locale::classic());
+    i_stream >> v;
+
     int c = i_stream.get();
     return ((EOF == c) ? v : 0.0);
 }

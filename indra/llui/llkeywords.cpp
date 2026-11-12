@@ -201,12 +201,7 @@ LLUIColor LLKeywords::getColorGroup(std::string_view key_in) const
         color_group = "SyntaxLslGodMode";
     }
     else if (key_in == "constants"
-             || key_in == "constants-integer"
-             || key_in == "constants-float"
-             || key_in == "constants-string"
-             || key_in == "constants-key"
-             || key_in == "constants-rotation"
-             || key_in == "constants-vector")
+             || key_in.compare(0, 10, "constants-") == 0)
     {
         color_group = "SyntaxLslConstant";
     }
@@ -364,7 +359,7 @@ void LLKeywords::processTokensGroup(const LLSD& tokens, std::string_view group)
                         break;
                     case LLKeywordToken::TT_FUNCTION:
                         tooltip = getAttribute("return") + " " + outer_itr->first + "(" + getArguments(arguments) + ");";
-                        if (std::stod(getAttribute("energy")) >= 0)
+                        if (getAttribute("energy").empty() || std::stod(getAttribute("energy")) >= 0)
                         {
                             tooltip.append("\nEnergy: ");
                             tooltip.append(getAttribute("energy").empty() ? "0.0" : getAttribute("energy"));
@@ -373,6 +368,7 @@ void LLKeywords::processTokensGroup(const LLSD& tokens, std::string_view group)
                         {
                             tooltip += ", Sleep: " + getAttribute("sleep");
                         }
+                        break;
                     default:
                         break;
                 }
@@ -870,7 +866,6 @@ bool LLKeywords::applySegmentOpsRange(std::vector<LLTextSegmentPtr> *seg_list,
         if (op.type == SegmentOp::OP_LINE_BREAK)
         {
             LLTextSegmentPtr text_segment = new LLLineBreakTextSegment(style, op.start);
-            text_segment->setToken( 0 );
             insertSegment( *seg_list, text_segment, text_len, style, editor);
         }
         else
@@ -927,7 +922,6 @@ void LLKeywords::insertSegments(const LLWString& wtext, std::vector<LLTextSegmen
         }
 
         LLTextSegmentPtr text_segment = new LLLineBreakTextSegment(style, static_cast<S32>(pos));
-        text_segment->setToken( cur_token );
         insertSegment( seg_list, text_segment, text_len, style, editor);
 
         seg_start = static_cast<S32>(pos) + 1;

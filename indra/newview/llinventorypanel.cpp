@@ -602,8 +602,8 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
         if (model_item && view_item && viewmodel_item)
         {
             const LLUUID idp = viewmodel_item->getUUID();
-            view_item->destroyView();
             removeItemID(idp);
+            view_item->destroyView();
         }
 
         LLInventoryObject const* objectp = mInventory->getObject(item_id);
@@ -709,6 +709,7 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
                 LLFolderViewModelItem* old_parent_vmi = old_parent->getViewModelItem();
                 LLFolderViewModelItemInventory* viewmodel_folder = static_cast<LLFolderViewModelItemInventory*>(old_parent_vmi);
                 LLFolderViewFolder* new_parent = getFolderByID(model_item->getParentUUID());
+                const bool was_favorite = view_item->isFavorite();
 
                 if (old_parent != new_parent // Item has been moved.
                     && (new_parent != NULL || !isInRootContent(item_id, view_item)) // item is not or shouldn't be in root content
@@ -748,7 +749,7 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
                         old_parent_vmi->dirtyDescendantsFilter();
                     }
 
-                    if (view_item->isFavorite())
+                    if (was_favorite)
                     {
                         if (old_parent)
                         {
@@ -909,30 +910,26 @@ void LLInventoryPanel::idle(void* user_data)
     if (!panel->mBuildRootQueue.empty())
     {
         const F64 max_time = in_visible_chain ? 0.006f : 0.001f; // 6 ms
-        F64 curent_time = LLTimer::getTotalSeconds();
-        panel->mBuildViewsEndTime = curent_time + max_time;
+        panel->mBuildViewsEndTime = gIdleCallbacks.getStartTime() + max_time;
 
-        while (curent_time < panel->mBuildViewsEndTime
+        while (LLTimer::getTotalSeconds() < panel->mBuildViewsEndTime
             && !panel->mBuildRootQueue.empty())
         {
             LLUUID item_id = panel->mBuildRootQueue.back();
             panel->mBuildRootQueue.pop_back();
             panel->findAndInitRootContent(item_id);
-
-            curent_time = LLTimer::getTotalSeconds();
         }
     }
     else if (!panel->mBuildViewsQueue.empty())
     {
         const F64 max_time = in_visible_chain ? 0.006f : 0.001f; // 6 ms
-        F64 curent_time = LLTimer::getTotalSeconds();
-        panel->mBuildViewsEndTime = curent_time + max_time;
+        panel->mBuildViewsEndTime = gIdleCallbacks.getStartTime() + max_time;
 
         // things added last are closer to root thus of higher priority
         std::deque<LLUUID> priority_list;
         priority_list.swap(panel->mBuildViewsQueue);
 
-        while (curent_time < panel->mBuildViewsEndTime
+        while (LLTimer::getTotalSeconds() < panel->mBuildViewsEndTime
             && !priority_list.empty())
         {
             LLUUID item_id = priority_list.back();
@@ -949,7 +946,6 @@ void LLInventoryPanel::idle(void* user_data)
                     panel->buildViewsTree(item_id, parent_id, objectp, folder_view_item, parent_folder, BUILD_TIMELIMIT);
                 }
             }
-            curent_time = LLTimer::getTotalSeconds();
         }
         while (!priority_list.empty())
         {
@@ -1005,8 +1001,8 @@ void LLInventoryPanel::initializeViews(F64 max_time)
 
     mViewsInitialized = VIEWS_BUILDING;
 
-    F64 curent_time = LLTimer::getTotalSeconds();
-    mBuildViewsEndTime = curent_time + max_time;
+    F64 start_time = gIdleCallbacks.isInCallFunctions() ? (F64)gIdleCallbacks.getStartTime() : (F64)LLTimer::getTotalSeconds();
+    mBuildViewsEndTime = start_time + max_time;
 
     // init everything
     initRootContent();
