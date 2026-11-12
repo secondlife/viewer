@@ -102,8 +102,8 @@ TEST_F(LLWebRTCDevicesTest, UnsetObserverIsNoLongerNotified)
     mDevices->setDevicesObserver(&kept);
 
     mDevices->refreshDevices();
-    ASSERT_TRUE(removed.mCalls.waitFor(1));
-    ASSERT_TRUE(kept.mCalls.waitFor(1));
+    EXPECT_TRUE(removed.mCalls.waitFor(1));
+    EXPECT_TRUE(kept.mCalls.waitFor(1));
 
     mDevices->unsetDevicesObserver(&removed);
     const int removed_calls = removed.mCalls.count();
