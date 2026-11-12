@@ -1317,11 +1317,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cbf0bdca7ae3b46966735dcac1417863e436faf2</string>
+              <string>f703635cacadfe37b9453e4fa8eb4288598790f2</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.61.0/llcefbrowser-1.61.0-windows64-42915411260.tar.zst</string>
+              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.62.0/llcefbrowser-1.62.0-windows64-43295241336.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1331,11 +1331,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>552da705133f187d645db04ecd528ba20b3b7e00</string>
+              <string>cf89706cc96e46d80f323c593baf6954d217d708</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.61.0/llcefbrowser-1.61.0-darwin64-42915411260.tar.zst</string>
+              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.62.0/llcefbrowser-1.62.0-darwin64-43295241336.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1345,18 +1345,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>84f8b46b30840647b51cd29d1ee4309461bb43a6</string>
+              <string>f83704c939d57eaeed61429c4efdd443c78848cf</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.61.0/llcefbrowser-1.61.0-linux64-42915411260.tar.zst</string>
+              <string>https://github.com/secondlife/llcefbrowser/releases/download/v1.62.0/llcefbrowser-1.62.0-linux64-43295241336.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.61.0</string>
+        <string>1.62.0</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
@@ -1463,11 +1463,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7d002cac578bd19ace1693c089514a559e75517c</string>
+              <string>a8500458f06852de6041f6bd36aaad3bb7074eb4</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llshmframe/releases/download/v1.22.0/llshmframe-1.23.0-windows64-36943825281.tar.zst</string>
+              <string>https://github.com/secondlife/llshmframe/releases/download/v1.23.0/llshmframe-1.26.0-windows64-43295049028.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1477,11 +1477,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0880d10ab64248e57a941e2daec3514f31f20baf</string>
+              <string>b257736d2188683dd9f12bcf913100865abbfd70</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llshmframe/releases/download/v1.22.0/llshmframe-1.23.0-darwin64-36943825281.tar.zst</string>
+              <string>https://github.com/secondlife/llshmframe/releases/download/v1.23.0/llshmframe-1.26.0-darwin64-43295049028.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1491,18 +1491,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e96aca48124351fc1c420e75337f553a2f39fe34</string>
+              <string>01e7897e30cdca9a213a968a0c3ad2815c7e0b38</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/llshmframe/releases/download/v1.22.0/llshmframe-1.23.0-linux64-36943825281.tar.zst</string>
+              <string>https://github.com/secondlife/llshmframe/releases/download/v1.23.0/llshmframe-1.26.0-linux64-43295049028.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.23.0</string>
+        <string>1.26.0</string>
       </map>
       <key>lsl_definitions</key>
       <map>

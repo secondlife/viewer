@@ -86,6 +86,17 @@ namespace {
 volatile std::sig_atomic_t g_run = 1;
 void on_signal(int) { g_run = 0; }
 
+// Guards each Slot's pub/audioPub pointer *value* (not what it points to)
+// against the race between the main thread writing it (allocate_slot()'s
+// initial assignment, free_slot()'s s = Slot{} reset) and the heartbeat
+// thread reading it (see heartbeat_thread_fn()). The main thread's own many
+// other reads of s.pub/s.audioPub throughout the rest of this file need no
+// locking: they only ever run on the main thread, which is already
+// self-consistent with its own writes by ordinary program order -- the only
+// cross-thread access is this one pointer field, read concurrently by a
+// second thread.
+std::mutex g_slot_pub_mutex;
+
 // Set once a console is actually attached (see show_debug_console()) --
 // gates whether log_*() below emit ANSI color codes at all, so output
 // stays plain if it's ever redirected somewhere colors don't make sense
@@ -270,6 +281,74 @@ std::string active_slot_suffix(const std::vector<Slot>& slots)
         if (s.pub) ++active;
     }
     return " (" + std::to_string(active) + "/" + std::to_string(slots.size()) + " active)";
+}
+
+// Keeps every already-connected slot's heartbeat fresh during a control-
+// channel command batch that might otherwise run long (e.g. several
+// CreateBrowser() calls back to back -- confirmed ~54-91ms each via direct
+// timing). Without this, a burst of several kRequestSlot commands in the
+// same tick (several new pieces of media coming into view/range at once, or
+// a priority re-evaluation that triggers a wave of reconnects) can blow past
+// LLSubscriber::producer_responsive()'s staleness window (3000ms as of
+// 2026-11-11, see llsubscriber.cpp's own comment) for every OTHER already-
+// connected slot, which disconnects them, which makes them immediately
+// reconnect -- adding MORE CreateBrowser() calls to the very next batch and
+// compounding into a self-sustaining churn avalanche. This does not fix
+// whatever triggers the first one or two slow allocations, but it breaks
+// the compounding mechanism: called after processing each individual
+// command in the drain loop below, so no already-connected slot's heartbeat
+// can go stale by more than roughly one allocation's worth of time, however
+// large the batch turns out to be. Also called on a fixed cadence from a
+// dedicated thread (see heartbeat_thread_fn() below) for the same reason,
+// covering the much larger and hardware-dependent cost inside
+// DoMessageLoopWork()/Tick() itself (CEF's own OnPaint handling), not just
+// this control-channel batching.
+//
+// Takes g_slot_pub_mutex itself: reads s.pub/s.audioPub, which the main
+// thread can concurrently reassign (allocate_slot()/free_slot()) when this
+// is called from heartbeat_thread_fn() on a separate thread. The main
+// thread's own call sites below don't strictly need the lock for their own
+// correctness (same-thread program order already orders them against their
+// own writes), but it's taken unconditionally here anyway for one simple,
+// uniform rule rather than a case-by-case exception, and so callers never
+// need to remember to take it themselves.
+void heartbeat_active_slots(std::vector<Slot>& slots)
+{
+    std::lock_guard<std::mutex> lock(g_slot_pub_mutex);
+    for (auto& s : slots)
+    {
+        if (s.pub) s.pub->heartbeat();
+        if (s.audioPub) s.audioPub->heartbeat();
+    }
+}
+
+// Keeps every active slot's heartbeat fresh on a fixed cadence, independent
+// of how long the main loop's DoMessageLoopWork()/Tick() call takes.
+//
+// Why this exists (2026-11-11): a CEF trace capture found CefRenderWidget
+// HostViewOSR::OnPaint -- which runs synchronously on the main loop's own
+// thread for every live browser -- can cost tens to hundreds of ms per call
+// once several browsers are alive at once, real work scaling with live
+// browser count and host CPU speed, not a hang. Relying on the main loop's
+// own pace to also carry every slot's heartbeat (as it did before this)
+// means a single slow-but-healthy iteration can starve every slot's
+// heartbeat simultaneously -- tripping LLSubscriber::producer_responsive()
+// for all of them at once, which looks exactly like a dead producer to the
+// consumer and triggers a mass disconnect/reconnect. Those reconnects add
+// MORE CreateBrowser() load right when the producer was already behind,
+// which can cascade into a self-sustaining avalanche (this was the real
+// cause of the "churn" bug chased through 2026-11-11 -- see the Viewer-side
+// investigation notes). Widening the staleness window (see llsubscriber.cpp)
+// helps, but only shifts the threshold -- it doesn't remove the dependency
+// on host speed. This does: the liveness signal no longer depends on render
+// throughput at all, on any hardware, at any live browser count.
+void heartbeat_thread_fn(std::vector<Slot>& slots)
+{
+    while (g_run)
+    {
+        heartbeat_active_slots(slots); // takes g_slot_pub_mutex itself
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
 }
 
 // Labels for kSetRenderRate's priorityTier byte -- purely for log_priority()'s
@@ -584,7 +663,10 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
         return false; // pub destructs here, cleanly unlinking the segment we just made
     }
 
-    s.pub            = std::move(pub);
+    {
+        std::lock_guard<std::mutex> lock(g_slot_pub_mutex);
+        s.pub = std::move(pub);
+    }
     s.cefHandle      = handle;
     s.width          = kDefaultWidth;
     s.height         = kDefaultHeight;
@@ -598,7 +680,10 @@ bool allocate_slot(Slot& s, int index, LLConfig cfg, llCefBrowserManager& manage
     // Capture itself only starts once the consumer claims the channel (see
     // update_cef_audio_route()).
     if (audioCapture) {
-        s.audioPub = create_audio_publisher(index);
+        {
+            std::lock_guard<std::mutex> lock(g_slot_pub_mutex);
+            s.audioPub = create_audio_publisher(index);
+        }
         if (s.audioPub) {
             s.cefAudio = std::make_shared<CefAudioQueue>();
         }
@@ -754,7 +839,10 @@ void free_slot(Slot& s, int index, llCefBrowserManager& manager,
             audio_stats += " (+" + std::to_string(s.cefAudio->droppedFrames) + " frames dropped in a stall)";
         }
     }
-    s = Slot{};
+    {
+        std::lock_guard<std::mutex> lock(g_slot_pub_mutex);
+        s = Slot{};
+    }
     // Logged after clearing s (which is slots[index]) so the count already
     // reflects this slot's release, matching allocate_slot()'s own log.
     log_disconnect("slot " + std::to_string(index) + " disconnected (" + reason + audio_stats + ")" +
@@ -942,6 +1030,16 @@ int run_producer(int argc, char** argv)
     init_options.logFile             = (exe_dir / "cefshm_producer_log.txt").string();
     init_options.userAgentProduct    = "SLCefProducer/1.0";
     init_options.remoteDebuggingPort = remote_debugging_port;
+    // A/B TESTED AND REFUTED (2026-11-11): re-enabling this to test whether the
+    // DoMessageLoopWork()/Tick() scaling-with-live-browser-count stall (up to
+    // ~500ms-1s per call once ~10 instances are alive) was a consequence of
+    // switching EBF off on 2026-11-10 -- it was not. With EBF back on (Maps
+    // click/hover confirmed broken again, proving the toggle took effect), the
+    // exact same stall pattern and magnitude still occurred at the same ~10-
+    // instance threshold. The real cause is something more fundamental than
+    // the repaint-driving mechanism -- see llcefproducer.cpp's phase-timing
+    // instrumentation and the memory file for this investigation. Left false
+    // (the shipped default) since this bought nothing and cost the Maps fix.
     if (disable_javascript)
     {
         init_options.javascript = llCefFeatureState::Disabled;
@@ -1034,6 +1132,12 @@ int run_producer(int argc, char** argv)
     const std::uint64_t worst_case_bytes = segment_bytes(view_cfg) * std::uint64_t(slot_count);
 
     std::vector<Slot> slots(static_cast<std::size_t>(slot_count)); // all start unallocated (pub == nullptr)
+
+    // See heartbeat_thread_fn()'s own comment. Never resizes/reallocates
+    // `slots` after this point (fixed-size for the whole run), which is what
+    // makes it safe for this thread to hold a plain reference to it for as
+    // long as the process runs.
+    std::thread heartbeat_thread(heartbeat_thread_fn, std::ref(slots));
 
     // See JsBridge's own comment. Registered once, process-wide, for the whole
     // lifetime of the producer -- unregistered explicitly before Shutdown() below.
@@ -1169,6 +1273,11 @@ int run_producer(int argc, char** argv)
                 }
             }
 
+            // Right after the expensive part of this command (CreateBrowser(),
+            // inside allocate_slot() above) -- see heartbeat_active_slots()'s own
+            // comment for why this can't wait until the whole batch drains.
+            heartbeat_active_slots(slots);
+
             if (free_index < 0)
             {
                 control->send(kSlotUnavailable, nullptr, 0, cmd.id);
@@ -1194,7 +1303,7 @@ int run_producer(int argc, char** argv)
         // Unlike the per-view/per-audio publishers above, the control channel never
         // commits a frame, so without this it only ever gets ONE heartbeat -- the one
         // LLPublisher::create() stamps at creation (see llpublisher.cpp). Past
-        // stale_ns (500ms by default) past launch, LLSubscriber::producer_responsive()
+        // stale_ns (3000ms by default, see llsubscriber.cpp) past launch, LLSubscriber::producer_responsive()
         // on this channel would then read as false forever, even while this producer
         // is fully healthy and actively serving every other slot -- confirmed as the
         // cause of a regression where connectToProducer()'s switch to
@@ -1281,27 +1390,14 @@ int run_producer(int argc, char** argv)
                 {
                     // Same opcode SLVlcProducer also honours for its own slots (see
                     // cefshm_protocol.h) -- just sets Slot's own target_fps field here,
-                    // read back by the repaint-request gating below.
-                    //
-                    // REVERTED (2026-11-10): this handler also called the new
-                    // llCefBrowserManager::SetFrameRate() here, to directly cap this
-                    // browser's real internal CEF paint rate now that External Begin
-                    // Frame is off (see that method's own comment). Live-tested with 6
-                    // competing same-priority prim media (only PluginInstancesNormal=2
-                    // "full rate" slots exist, so several of them were constantly
-                    // flipping tiers as their near-identical interest values jittered
-                    // frame to frame) and caused exactly the kind of connection churn
-                    // CreateBrowser()'s external_begin_frame_enabled comment warned
-                    // about avoiding -- slots repeatedly hit the "idle timeout" path
-                    // and reconnected from scratch, even for media front-and-center in
-                    // view. Not confirmed which part of CefBrowserHost::
-                    // SetWindowlessFrameRate() causes this, only that calling it (even
-                    // correctly, gated on real tier changes, not spammed) was enough to
-                    // reproduce it reliably, and removing the call made it go away.
-                    // Don't re-add this call without testing it in isolation first
-                    // (e.g. call it once manually against a live tab and watch for any
-                    // disruption) rather than wiring it back into the live priority
-                    // system directly.
+                    // read back by the repaint-request gating below. With
+                    // external_begin_frame_enabled back on (2026-11-12), that gating is
+                    // the real throttle again -- no direct CefBrowserHost::
+                    // SetWindowlessFrameRate() call needed (that approach was tried
+                    // twice while EBF was off and reverted both times, see
+                    // llCefBrowserLibInitOptions::externalBeginFrameEnabled's own
+                    // comment for the full history; the API itself has since been
+                    // removed from llcefbrowser).
                     std::uint32_t fps;
                     std::uint8_t tier;
                     std::string url;
@@ -1355,6 +1451,12 @@ int run_producer(int argc, char** argv)
                             s.width  = w;
                             s.height = h;
                             manager->ResizeBrowser(s.cefHandle, int(w), int(h));
+                            // Same reasoning as the CreateBrowser() call site above --
+                            // see heartbeat_active_slots()'s own comment. A burst of
+                            // resizes across many slots in the same pass (e.g. a window
+                            // size change cascading to several UI panels at once) is
+                            // just as capable of starving every other slot's heartbeat.
+                            heartbeat_active_slots(slots);
                         }
                     }
                     break;
@@ -1501,29 +1603,13 @@ int run_producer(int argc, char** argv)
                 }
             }
 
-            // Request a fresh composite right now, reflecting whatever input this
-            // slot just received above -- rather than relying solely on CEF's own
-            // windowless_frame_rate-paced internal timer, which still composites
-            // regardless (see external_begin_frame_enabled's own comment in
-            // llCefBrowserManagerImpl::CreateBrowser() -- that mode is OFF as of
-            // 2026-11-10, after being found to break click/hover on WebGL canvas
-            // content; this call now uses CefBrowserHost::Invalidate() via
-            // RequestRepaint() instead of SendExternalBeginFrame()).
-            //
-            // KNOWN GAP: this gating alone no longer actually reduces a
-            // throttled slot's real CEF paint rate the way it did under
-            // external-begin-frame mode (that mode made this call the *only*
-            // thing driving any repaint at all; CEF's own internal timer now
-            // composites every browser regardless of how often this is
-            // called) -- it only skips an optional *extra* on-demand repaint
-            // beyond CEF's own baseline. A direct fix via
-            // llCefBrowserManager::SetFrameRate() (CefBrowserHost::
-            // SetWindowlessFrameRate()) was tried and reverted (see
-            // kSetRenderRate's own handler comment above) -- it caused
-            // connection-churn/reconnect-loop regressions when several
-            // same-priority media instances flip tiers frequently. Not yet
-            // re-addressed; needs that method tested in isolation before
-            // trying again.
+            // Requests a fresh composite via RequestRepaint() (CefBrowserHost::
+            // SendExternalBeginFrame(), since external_begin_frame_enabled is back
+            // on as of 2026-11-12 -- see that field's own comment in
+            // llCefBrowserLibInitOptions.h for the full history). With that mode
+            // on, this call is the *only* thing driving any repaint at all, so
+            // gating it per-tier here is the real CPU/GPU-saving throttle, not
+            // just an optional extra on top of CEF's own internal timer.
             static constexpr std::uint32_t kUnthrottledRepaintFps = 60;
             const std::uint32_t effective_fps = (s.target_fps == 0) ? kUnthrottledRepaintFps : s.target_fps;
             const bool repaint_due =
@@ -1555,6 +1641,10 @@ int run_producer(int argc, char** argv)
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
+
+    // g_run is already false here, so heartbeat_thread_fn()'s own loop exits
+    // on its own within one sleep_for(100ms) -- this just waits for that.
+    heartbeat_thread.join();
 
     log_info("SLCefProducer: shutting down");
 

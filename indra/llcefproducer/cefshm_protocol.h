@@ -198,13 +198,16 @@ namespace cefshm_demo
                           // LLViewerMediaImpl::setPriority()'s own EMBEDDED_BROWSER_FPS_*
                           // constants for the tiers this is actually driven from. Never sent as
                           // anything but 0/tier-0 for UI/parcel media -- see that same comment.
-                          // KNOWN GAP (2026-11-10): with external_begin_frame_enabled off (see
-                          // llCefBrowserManagerImpl::CreateBrowser()), this no longer actually
-                          // reduces a throttled slot's real CEF paint rate -- CEF's own internal
-                          // timer composites every browser at the same rate regardless. A direct
-                          // fix via llCefBrowserManager::SetFrameRate() was tried and reverted --
-                          // see the producer's kSetRenderRate handler's own comment for why.
-                          // priorityTier (0=Normal/High, 1=Low, 2=Slideshow, 3=Hidden) and url
+                          // Real effect depends on external_begin_frame_enabled staying on (see
+                          // llCefBrowserManagerImpl::CreateBrowser()) -- with it on (the default
+                          // again as of 2026-11-12), gating RequestRepaint() really does reduce a
+                          // throttled slot's real CEF paint rate, since that call is the only thing
+                          // driving any repaint at all. (2026-11-10/12 history: this mode was
+                          // briefly off to fix a Google Maps hit-test bug, which silently broke
+                          // this throttle's real effect and eventually destabilized the whole
+                          // producer under enough concurrent media -- see that field's own comment
+                          // for the full account.) priorityTier (0=Normal/High, 1=Low,
+                          // 2=Slideshow, 3=Hidden) and url
                           // are for the producer's own console/log output only (see
                           // log_priority() in llcefproducer.cpp) -- purely diagnostic, nothing
                           // on the producer side branches on either.
