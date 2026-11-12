@@ -92,22 +92,52 @@ LLViewerPart::~LLViewerPart()
         mPartSourcep->mLastPart = NULL;
     }
 
-    //patch up holes in the ribbon
-    if (mParent)
+    //patch up holes in the ribbon, but don't propagate a link that doesn't point back to us
+    LLViewerPart* parent = mParent;
+    if (parent && parent->mChild != this)
     {
-        llassert(mParent->mChild == this);
-        mParent->mChild = mChild;
+        logBrokenLink("destroy");
+        parent = nullptr;
     }
 
-    if (mChild)
+    LLViewerPart* child = mChild;
+    if (child && child->mParent != this)
     {
-        llassert (mChild->mParent == this);
-        mChild->mParent = mParent;
+        logBrokenLink("destroy");
+        child = nullptr;
+    }
+
+    if (parent)
+    {
+        parent->mChild = child;
+    }
+
+    if (child)
+    {
+        child->mParent = parent;
     }
 
     mPartSourcep = NULL;
 
     --LLViewerPartSim::sParticleCount2 ;
+}
+
+void LLViewerPart::logBrokenLink(const char* where) const
+{
+    // Keep per-particle values out of the message, LL_WARNS_ONCE dedupes on the full message text
+    LLUUID owner_id;
+    LLUUID object_id;
+    if (mPartSourcep.notNull())
+    {
+        owner_id = mPartSourcep->getOwnerUUID();
+        if (mPartSourcep->mSourceObjectp.notNull())
+        {
+            object_id = mPartSourcep->mSourceObjectp->getID();
+        }
+    }
+    LL_WARNS_ONCE("Particles") << "Broken particle ribbon link on " << where
+        << " flags " << mFlags << " owner " << owner_id << " object " << object_id
+        << LL_ENDL;
 }
 
 void LLViewerPart::init(LLPointer<LLViewerPartSource> sourcep, LLViewerTexture *imagep, LLVPCallback cb)
@@ -212,6 +242,8 @@ void LLViewerPartGroup::cleanup()
 {
     if (mVOPartGroupp)
     {
+        // The object can outlive this group, don't leave it pointing at us
+        mVOPartGroupp->setViewerPartGroup(nullptr);
         if (!mVOPartGroupp->isDead())
         {
             gObjectList.killObject(mVOPartGroupp);
@@ -434,8 +466,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
     // Kill the viewer object if this particle group is empty
     if (mParticles.empty())
     {
-        gObjectList.killObject(mVOPartGroupp);
-        mVOPartGroupp = NULL;
+        cleanup();
     }
 
     LLViewerPartSim::checkParticleCount() ;

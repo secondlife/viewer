@@ -319,8 +319,16 @@ void LLViewerPartSourceScript::update(const F32 dt)
 
             if (part->mFlags & LLPartData::LL_PART_RIBBON_MASK && mLastPart)
             { //set previous particle's parent to this particle to chain ribbon together
-                mLastPart->mParent = part;
-                part->mChild = mLastPart;
+                if (mLastPart->mParent)
+                {
+                    // Relinking would leave the existing parent's mChild dangling
+                    part->logBrokenLink("relink");
+                }
+                else
+                {
+                    mLastPart->mParent = part;
+                    part->mChild = mLastPart;
+                }
                 part->mAxis = LLVector3(0,0,1);
 
                 if (mSourceObjectp.notNull())

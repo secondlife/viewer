@@ -38,8 +38,16 @@ public:
     LLPacketBuffer(S32 hSocket);    // receive a packet
     ~LLPacketBuffer();
 
-    LLPacketBuffer(const LLPacketBuffer&) = default;
-    LLPacketBuffer& operator=(const LLPacketBuffer&) = default;
+    // Custom copy/move: mData is a fixed NET_BUFFER_SIZE array, but only
+    // the first mSize bytes are ever live/meaningful. A defaulted copy or
+    // move would transfer the full array, so these are written to only
+    // touch the live mSize bytes. This matters because LLPacketBuffer
+    // can get copied multiple times per packet.
+
+    LLPacketBuffer(const LLPacketBuffer& other);
+    LLPacketBuffer& operator=(const LLPacketBuffer& other);
+    LLPacketBuffer(LLPacketBuffer&& other) noexcept;
+    LLPacketBuffer& operator=(LLPacketBuffer&& other) noexcept;
 
     S32         getSize() const                 { return mSize; }
     const char  *getData() const                { return mData; }
