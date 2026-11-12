@@ -24,6 +24,7 @@ set(llmessage_SOURCE_FILES
     llcoproceduremanager.cpp
     llcorehttputil.cpp
     lldatapacker.cpp
+    lldecodedmessage.cpp
     lldispatcher.cpp
     llexperiencecache.cpp
     llgenericstreamingmessage.cpp
@@ -67,6 +68,7 @@ set(llmessage_SOURCE_FILES
     lltransfertargetfile.cpp
     lltransfertargetvfile.cpp
     lltrustedmessageservice.cpp
+    lludpreceiverthread.cpp
     lluseroperation.cpp
     llxfer.cpp
     llxfer_file.cpp
@@ -102,6 +104,7 @@ set(llmessage_HEADER_FILES
     llcorehttputil.h
     lldatapacker.h
     lldbstrings.h
+    lldecodedmessage.h
     lldispatcher.h
     lleventflags.h
     llexperiencecache.h
@@ -157,6 +160,7 @@ set(llmessage_HEADER_FILES
     lltransfertargetfile.h
     lltransfertargetvfile.h
     lltrustedmessageservice.h
+    lludpreceiverthread.h
     lluseroperation.h
     llvehicleparams.h
     llxfer.h
@@ -224,6 +228,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llsdmessagebuilder "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llsdmessagereader "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llmessageconfig "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llmessagetemplate "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llmessagetemplateparser "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llpartdata "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llservicebuilder "" "${test_libs}")

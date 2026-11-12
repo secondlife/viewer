@@ -416,31 +416,40 @@ bool LLWebRTCImpl::terminate()
     std::vector<webrtc::scoped_refptr<LLWebRTCPeerConnectionImpl>> connections;
     connections.swap(mPeerConnections);
 
-    // Explicitely unregister observers before shutting down the threads.
-    // shutdown_thread, if detached, can outlive observer.
-    mWorkerThread->BlockingCall([this]()
-    {
-        if (mDeviceModule)
-        {
-            mDeviceModule->SetObserver(nullptr);
-        }
-    });
-
-    // Signaling thread may still run workerDeployDevices() that reposts to mWorkerThread, so drain it.
-    mSignalingThread->BlockingCall([]() {});
-    mVoiceDevicesObserverList.clear();
-
-    // shutdown_thread can be detached, then LLWebRTCImpl will be nulled out.
-    // Capture what's needed in lambda, don't rely on [this].
+    // Every BlockingCall into the webrtc threads must happen on shutdown_thread,
+    // under the timeout below, never directly on this thread. The worker thread
+    // can be stuck inside the platform audio API for a long time (e.g. on macOS,
+    // stopping/terminating a Bluetooth device that vanished because Bluetooth was
+    // switched off blocks in CoreAudio, see #6684) and a BlockingCall from here would
+    // hang the viewer on exit.
     std::thread shutdown_thread(
-        [networkThread = std::move(mNetworkThread),
-        workerThread = std::move(mWorkerThread),
-        signalingThread = std::move(mSignalingThread),
-        deviceModule = std::move(mDeviceModule),
-        factory = std::move(mPeerConnectionFactory),
+        [this,
         connections = std::move(connections),
         done_promise]() mutable
     {
+        // Explicitly unregister the CoreAudio/ADM observer and the viewer's
+        // device observers on the worker thread, where updateDevices() uses
+        // them. This also flushes worker tasks queued before it.
+        mWorkerThread->BlockingCall([this]()
+        {
+            if (mDeviceModule)
+            {
+                mDeviceModule->SetObserver(nullptr);
+            }
+            mVoiceDevicesObserverList.clear();
+        });
+
+        // Signaling thread may still run workerDeployDevices() that reposts to
+        // mWorkerThread, so drain it, then drain anything it reposted.
+        mSignalingThread->BlockingCall([]() {});
+        mWorkerThread->BlockingCall([]() {});
+
+        auto networkThread = std::move(mNetworkThread);
+        auto workerThread = std::move(mWorkerThread);
+        auto signalingThread = std::move(mSignalingThread);
+        auto deviceModule = std::move(mDeviceModule);
+        auto factory = std::move(mPeerConnectionFactory);
+
         // Stop the capture/render devices alongside the connection teardown
         // below rather than ahead of it.  Both of these calls end in a
         // WaitForSingleObject on a WASAPI thread with a 2s timeout apiece
@@ -924,7 +933,9 @@ void LLWebRTCImpl::setStopCaptureOnMute(bool stop)
 // updateDevices needs to happen on the worker thread.
 void LLWebRTCImpl::updateDevices()
 {
-    if (!mDeviceModule)
+    // During shutdown the viewer's device observers may already be gone (if
+    // terminate() timed out waiting for this thread), so don't touch them.
+    if (!mDeviceModule || mTerminating)
     {
         return;
     }
@@ -1026,6 +1037,12 @@ void LLWebRTCImpl::updateDevices()
 
     logNewlyAddedDevices(previousPlayoutDeviceList, mPlayoutDeviceList, "playout");
     logNewlyAddedDevices(previousRecordingDeviceList, mRecordingDeviceList, "recording");
+
+    // Enumeration above can block in the platform audio API; re-check.
+    if (mTerminating)
+    {
+        return;
+    }
 
     for (auto &observer : mVoiceDevicesObserverList)
     {

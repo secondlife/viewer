@@ -117,6 +117,7 @@ public:
     void dump();
     void destroyGL();
     bool isInitialized() const {return mInitialized;}
+    bool isShuttingDown() const { return mShuttingDown; }
 
     void findTexturesByID(const LLUUID &image_id, std::vector<LLViewerFetchedTexture*> &output);
     LLViewerFetchedTexture *findImage(const LLUUID &image_id, ETexListType tex_type);
@@ -237,6 +238,7 @@ private:
     std::unordered_set<LLPointer<LLViewerFetchedTexture> > mImagePreloads;
 
     bool mInitialized ;
+    bool mShuttingDown = false; // true while shutdown() releases the lists, textures are expected to be deleted still flagged as listed
     LLFrameTimer mForceDecodeTimer;
 
 private:
