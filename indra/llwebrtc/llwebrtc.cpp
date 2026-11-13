@@ -326,6 +326,15 @@ void LLWebRTCImpl::init()
         {
             webrtc::scoped_refptr<webrtc::AudioDeviceModule> realADM =
                 webrtc::CreateAudioDeviceModule(mEnv, webrtc::AudioDeviceModule::AudioLayer::kPlatformDefaultAudio);
+            if (!realADM || realADM->Init() != 0)
+            {
+                // No usable audio system (on Linux, no PulseAudio or ALSA
+                // device).  webrtc treats an ADM that won't initialize as
+                // fatal when it builds the voice engine, so carry on with
+                // no audio devices rather than crashing.
+                RTC_LOG(LS_WARNING) << "Failed to initialize the platform audio device module; continuing without audio devices";
+                realADM = webrtc::CreateAudioDeviceModule(mEnv, webrtc::AudioDeviceModule::AudioLayer::kDummyAudio);
+            }
             mDeviceModule = webrtc::make_ref_counted<LLWebRTCAudioDeviceModule>(realADM);
             mDeviceModule->SetObserver(this);
             mDeviceModule->Init();
