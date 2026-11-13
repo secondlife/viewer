@@ -2614,16 +2614,28 @@ LLVoiceWebRTCConnection::LLVoiceWebRTCConnection(const LLUUID &regionID, const s
     mRetryWaitSecs = (F32)((F32) rand() / F32(RAND_MAX)) + 0.5f;
 
     mWebRTCPeerConnectionInterface = llwebrtc::newPeerConnection();
-    mWebRTCPeerConnectionInterface->setSignalingObserver(this);
+    if (mWebRTCPeerConnectionInterface)
+    {
+        mWebRTCPeerConnectionInterface->setSignalingObserver(this);
+    }
+    else
+    {
+        // The webrtc library has been terminated.  Start out shut down and
+        // closed, so the state machine reports the connection gone without
+        // ever touching the (missing) peer connection.
+        LL_WARNS("Voice") << "No peer connection; webrtc is not running" << LL_ENDL;
+        mShutDown = true;
+        mVoiceConnectionState = VOICE_STATE_CLOSED;
+    }
     mVoiceMainQueue = LLWebRTCVoiceClient::getInstance()->getVoiceWorkQueue();
 }
 
 LLVoiceWebRTCConnection::~LLVoiceWebRTCConnection()
 {
-    if (LLWebRTCVoiceClient::isWebRTCTerminated())
+    if (LLWebRTCVoiceClient::isWebRTCTerminated() || !mWebRTCPeerConnectionInterface)
     {
         // peer connection and observers have already been cleaned up
-        // by llwebrtc::terminate().
+        // by llwebrtc::terminate() (or there never was a peer connection).
         return;
     }
     // Note this is deliberately keyed off isWebRTCTerminated() rather than

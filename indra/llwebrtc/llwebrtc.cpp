@@ -326,6 +326,15 @@ void LLWebRTCImpl::init()
         {
             webrtc::scoped_refptr<webrtc::AudioDeviceModule> realADM =
                 webrtc::CreateAudioDeviceModule(mEnv, webrtc::AudioDeviceModule::AudioLayer::kPlatformDefaultAudio);
+            if (!realADM || realADM->Init() != 0)
+            {
+                // No usable audio system (on Linux, no PulseAudio or ALSA
+                // device).  webrtc treats an ADM that won't initialize as
+                // fatal when it builds the voice engine, so carry on with
+                // no audio devices rather than crashing.
+                RTC_LOG(LS_WARNING) << "Failed to initialize the platform audio device module; continuing without audio devices";
+                realADM = webrtc::CreateAudioDeviceModule(mEnv, webrtc::AudioDeviceModule::AudioLayer::kDummyAudio);
+            }
             mDeviceModule = webrtc::make_ref_counted<LLWebRTCAudioDeviceModule>(realADM);
             mDeviceModule->SetObserver(this);
             mDeviceModule->Init();
@@ -1289,6 +1298,14 @@ void LLWebRTCImpl::freePeerConnection(LLWebRTCPeerConnectionInterface* peer_conn
     std::find(mPeerConnections.begin(), mPeerConnections.end(), peer_connection);
     if (it != mPeerConnections.end())
     {
+        // Release the connection's factory reference on the signaling thread.
+        // Posted, so it runs after any work the connection has already queued
+        // there (which may still use the factory), and terminate() drains the
+        // signaling thread before it takes the factory down.  The task holds
+        // the connection alive until then.
+        webrtc::scoped_refptr<LLWebRTCPeerConnectionImpl> connection = *it;
+        PostSignalingTask([connection]() { connection->releaseFactory(); });
+
         // Todo: make sure conection had no jobs in workers
         mPeerConnections.erase(it);
         if (mPeerConnections.empty())
@@ -1381,7 +1398,18 @@ LLWebRTCPeerConnectionImpl::~LLWebRTCPeerConnectionImpl()
 {
     mSignalingObserverList.clear();
     mDataObserverList.clear();
-    mPeerConnectionFactory.release();
+    if (mPeerConnectionFactory)
+    {
+        // releaseFactory() should already have run, on the signaling thread:
+        // either from freePeerConnection() or from terminate()'s close.  This
+        // destructor can run on any thread, possibly after the signaling
+        // thread is gone, and if this were the last reference, dropping it
+        // here would destroy the factory there (#4777).  So leak the
+        // reference instead: release() gives up the pointer without dropping
+        // the reference.
+        RTC_LOG(LS_WARNING) << __FUNCTION__ << " Connection still holds the peer connection factory; leaking it";
+        mPeerConnectionFactory.release();
+    }
     if (mPendingJobs > 0)
     {
         RTC_LOG(LS_ERROR) << __FUNCTION__ << "Destroying a connection that has " << std::to_string(mPendingJobs) << " unfinished jobs that might cause workers to crash";
@@ -1471,7 +1499,16 @@ void LLWebRTCPeerConnectionImpl::closeOnSignalingThread(bool webrtc_terminate)
         // so a late callback would be reaching into freed memory.
         mSignalingObserverList.clear();
         mDataObserverList.clear();
+
+        // Not reused after a terminate() close.
+        releaseFactory();
     }
+}
+
+// Signaling thread only.
+void LLWebRTCPeerConnectionImpl::releaseFactory()
+{
+    mPeerConnectionFactory = nullptr;
 }
 
 void LLWebRTCPeerConnectionImpl::setSignalingObserver(LLWebRTCSignalingObserver *observer) { mSignalingObserverList.emplace_back(observer); }
@@ -1850,14 +1887,18 @@ void LLWebRTCPeerConnectionImpl::OnConnectionChange(webrtc::PeerConnectionInterf
             mWebRTCImpl->startPlayout();
             mPendingJobs++;
             webrtc::scoped_refptr<LLWebRTCPeerConnectionImpl> self(this);
-            mWebRTCImpl->PostWorkerTask([self]()
+            if (!mWebRTCImpl->PostWorkerTask([self]()
             {
                 for (auto &observer : self->mSignalingObserverList)
                 {
                     observer->OnAudioEstablished(self.get());
                 }
                 self->mPendingJobs--;
-            });
+            }))
+            {
+                // llwebrtc is terminating; this connection is about to be closed.
+                mPendingJobs--;
+            }
             break;
         }
 
@@ -2135,13 +2176,16 @@ void LLWebRTCPeerConnectionImpl::sendData(const std::string& data, bool binary)
         webrtc::CopyOnWriteBuffer cowBuffer(data.data(), data.length());
         webrtc::DataBuffer     buffer(cowBuffer, binary);
         mPendingJobs++;
-        mWebRTCImpl->PostNetworkTask([this, buffer]() {
+        if (!mWebRTCImpl->PostNetworkTask([this, buffer]() {
                 if (mDataChannel)
                 {
                     mDataChannel->Send(buffer);
                 }
                 mPendingJobs--;
-            });
+            }))
+        {
+            mPendingJobs--;
+        }
     }
 }
 
@@ -2244,11 +2288,21 @@ LLWebRTCDeviceInterface * getDeviceInterface()
 
 LLWebRTCPeerConnectionInterface* newPeerConnection()
 {
+    if (!gWebRTCImpl)
+    {
+        return nullptr;
+    }
     return gWebRTCImpl->newPeerConnection();
 }
 
 void freePeerConnection(LLWebRTCPeerConnectionInterface* peer_connection)
 {
+    // After terminate() the connection has already been destroyed, so the
+    // pointer must not be touched.
+    if (!gWebRTCImpl)
+    {
+        return;
+    }
     gWebRTCImpl->freePeerConnection(peer_connection);
 }
 
