@@ -47,6 +47,7 @@
 #include "llavatarrendernotifier.h"
 #include "llcontrolavatar.h"
 #include "llexperiencecache.h"
+#include "llfetchedgltfmaterial.h"
 #include "llphysicsmotion.h"
 #include "llviewercontrol.h"
 #include "llcallingcard.h"      // IDEVO for LLAvatarTracker
@@ -2385,7 +2386,13 @@ namespace
         {
             tex->setIsMissingAsset(false);
         }
+
+        // Drop any request in flight and reset the stats, then release the GL image.
+        // updateFetch() only requests a texture again when its current discard level
+        // is above the desired one, so a fully loaded texture (discard 0) would
+        // otherwise never be fetched again.
         tex->forceToDeleteRequest();
+        tex->destroyTexture();
     }
 
     // Same for an object and its child prims, then rebuild its geometry.
