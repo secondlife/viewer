@@ -3077,7 +3077,10 @@ void LLVoiceWebRTCSpatialConnection::requestVoiceConnection()
                 mCurrentStatus = LLVoiceClientStatusObserver::ERROR_UNKNOWN;
                 break;
         }
-        setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
+        // Retry rather than exit: SESSION_RETRY reports the failure to the
+        // status observers and backs off before trying again, where
+        // SESSION_EXIT would silently restart the connection at once.
+        setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
     }
     mOutstandingRequests--;
 }
@@ -3104,7 +3107,8 @@ void LLVoiceWebRTCConnection::OnVoiceConnectionRequestSuccess(const LLSD &result
     else
     {
         LL_WARNS("Voice") << "Invalid voice provision request result:" << result << LL_ENDL;
-        setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
+        mCurrentStatus = LLVoiceClientStatusObserver::ERROR_UNKNOWN;
+        setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
         return;
     }
 
@@ -3882,7 +3886,10 @@ void LLVoiceWebRTCAdHocConnection::requestVoiceConnection()
                 mCurrentStatus = LLVoiceClientStatusObserver::ERROR_UNKNOWN;
                 break;
         }
-        setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
+        // Retry rather than exit: SESSION_RETRY reports the failure to the
+        // status observers and backs off before trying again, where
+        // SESSION_EXIT would silently restart the connection at once.
+        setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
     }
     else
     {

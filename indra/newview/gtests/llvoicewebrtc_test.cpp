@@ -818,16 +818,24 @@ TEST_F(LLVoiceWebRTCTest, FailedProvisioningIsNotRetriedInATightLoop)
     ASSERT_NE(connection, nullptr);
 
     // Play webrtc: every (re)initialization produces a fresh offer.
+    int offers = 0;
     for (int i = 0; i < 20; ++i)
     {
-        if (connection->mInitializeCalls > (int)world().mPosts.size())
+        if (connection->mInitializeCalls > offers)
         {
             connection->offer();
+            ++offers;
         }
         tick();
     }
     // 20 ticks is 2s of the voice loop; retries back off from 0.5-1.5s.
-    EXPECT_LE(world().mPosts.size(), 4u);
+    size_t provisioning_requests = 0;
+    for (auto& post : world().mPosts)
+    {
+        provisioning_requests += post->mBody.has("jsep") ? 1 : 0;
+    }
+    EXPECT_GE(provisioning_requests, 1u);
+    EXPECT_LE(provisioning_requests, 3u);
 }
 
 TEST_F(LLVoiceWebRTCTest, MissingProvisioningCapabilityIsAFailure)
