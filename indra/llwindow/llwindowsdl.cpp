@@ -39,6 +39,8 @@
 #include "llfindlocale.h"
 #include "llpreeditor.h"
 #include "llsdl.h"
+#include "llapp.h"
+#include "llsdlinput.h"
 #include "llgamecontrol.h"
 
 #if LL_LINUX
@@ -1245,6 +1247,14 @@ void LLWindowSDL::gatherInput(bool app_has_focus)
         SDL_FlashWindow(mWindow, SDL_FLASH_CANCEL);
         mFlashing = false;
     }
+}
+
+void LLWindowSDL::waitForInput(U32 milliseconds, bool app_has_focus)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    LLSDL::waitForInput(std::chrono::milliseconds(milliseconds),
+        [this, app_has_focus](SDL_Event& event) { handleEvent(event, app_has_focus); },
+        [this]() { return mWindow && !LLApp::isExiting(); });
 }
 
 SDL_AppResult LLWindowSDL::handleEvent(const SDL_Event& event, bool app_has_focus)

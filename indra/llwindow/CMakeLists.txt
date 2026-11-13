@@ -79,6 +79,7 @@ set(linux_SOURCE_FILES
     )
 
 set(linux_HEADER_FILES
+    llsdlinput.h
     llkeyboardsdl.h
     llwindowsdl.h
     )
