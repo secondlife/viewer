@@ -1659,7 +1659,20 @@ bool LLAppViewer::doFrame()
                 if (milliseconds_to_sleep > 0)
                 {
                     LLPerfStats::RecordSceneTime T ( LLPerfStats::StatType_t::RENDER_SLEEP );
-                    ms_sleep(milliseconds_to_sleep);
+#if LL_LINUX && LL_SDL_WINDOW
+                    // SDL cannot dispatch native input while SDL_AppIterate is
+                    // sleeping. Keep X11 input-method exchanges moving too.
+                    auto* sdl_window = gViewerWindow
+                        ? dynamic_cast<LLWindowSDL*>(gViewerWindow->getWindow()) : nullptr;
+                    if (sdl_window)
+                    {
+                        sdl_window->waitForInput(milliseconds_to_sleep, gFocusMgr.getAppHasFocus());
+                    }
+                    else // Headless windows do not have an SDL event queue.
+#endif
+                    {
+                        ms_sleep(milliseconds_to_sleep);
+                    }
                     // also pause worker threads during this wait period
                     LLAppViewer::getTextureCache()->pause();
                 }

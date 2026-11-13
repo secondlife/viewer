@@ -121,6 +121,9 @@ public:
 
     void gatherInput(bool app_has_focus) override;
 
+    // Keep native input responsive while yielding between frames.
+    void waitForInput(U32 milliseconds, bool app_has_focus);
+
     SDL_AppResult handleEvent(const SDL_Event& event, bool app_has_focus);
     static SDL_AppResult handleEvents(const SDL_Event& event, bool app_has_focus);
 
