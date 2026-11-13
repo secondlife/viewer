@@ -2551,6 +2551,77 @@ if (LL_TESTS)
   )
   LL_ADD_INTEGRATION_TEST(lltextureinfo "${lltextureinfo_test_sources}" "${test_libs}")
   #LL_ADD_INTEGRATION_TEST(lltextureinfodetails "" "${test_libs}") test cases currently empty
+
+  # GoogleTest suites for llvoicewebrtc.cpp.  The file is compiled as is,
+  # against stubs for the rest of the viewer (gtests/llvoicewebrtc_stubs.cpp)
+  # driven by a scriptable test world (gtests/llvoicewebrtc_test_world.h).
+  include(LLAddGTest)
+  set(llvoicewebrtc_gtest_COMMON_SOURCES
+    llvoicewebrtc.cpp
+    gtests/llvoicewebrtc_stubs.cpp
+    gtests/llvoicewebrtc_test_world.h
+    gtests/llvoicewebrtc_test_world_internal.h
+    gtests/llvoicewebrtc_test_support.h
+    gtests/llvoicewebrtc_test_world.cpp
+    )
+  # llmessage is deliberately not linked: the stubs stand in for the HTTP
+  # coroutine adapter and the avatar name cache, so the tests script the
+  # simulator's responses.
+  set(llvoicewebrtc_gtest_LIBRARIES
+    llinventory
+    llcorehttp
+    llxml
+    llmath
+    llcommon
+    )
+  set(llvoicewebrtc_gtest_INCLUDE_DIRS
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/gtests
+    $<TARGET_PROPERTY:llwebrtc,INTERFACE_INCLUDE_DIRECTORIES>
+    )
+  # Headers the viewer pulls in through llvoicewebrtc.h and its includes.
+  foreach (lib llmessage llaudio llcharacter llimage llplugin llprimitive llrender llui
+               llfilesystem llwindow lllogin llappearance)
+    list(APPEND llvoicewebrtc_gtest_INCLUDE_DIRS $<TARGET_PROPERTY:${lib},INTERFACE_INCLUDE_DIRECTORIES>)
+  endforeach ()
+
+  # llwebrtc replaced by a scriptable fake: covers the connection state
+  # machine, provisioning, data channel handling, sessions and shutdown.
+  ll_add_gtest(llvoicewebrtc
+    SOURCES
+      ${llvoicewebrtc_gtest_COMMON_SOURCES}
+      gtests/llvoicewebrtc_fake_llwebrtc.h
+      gtests/llvoicewebrtc_fake_llwebrtc.cpp
+      gtests/llvoicewebrtc_test.cpp
+    LIBRARIES ${llvoicewebrtc_gtest_LIBRARIES}
+    INCLUDE_DIRS ${llvoicewebrtc_gtest_INCLUDE_DIRS}
+    )
+  target_precompile_headers(UNIT_TEST_llvoicewebrtc PRIVATE llviewerprecompiledheaders.h)
+
+  # The real llwebrtc, connecting to the voice server stand-in from
+  # llwebrtc's own tests.  Like those, these use fixed ports (hence the
+  # lock), and each test gets its own process since each inits and
+  # terminates llwebrtc.
+  set(llvoicewebrtc_e2e_gtest_LIBRARIES ${llvoicewebrtc_gtest_LIBRARIES} llwebrtc llwebrtc_testpeer)
+  if (WINDOWS)
+    list(APPEND llvoicewebrtc_e2e_gtest_LIBRARIES ws2_32)
+  endif ()
+  set(llwebrtc_gtests_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../llwebrtc/gtests)
+  ll_add_gtest(llvoicewebrtc_e2e
+    PER_TEST_PROCESS
+    RESOURCE_LOCK llwebrtc
+    SOURCES
+      ${llvoicewebrtc_gtest_COMMON_SOURCES}
+      ${llwebrtc_gtests_DIR}/llwebrtc_test_support.h
+      ${llwebrtc_gtests_DIR}/llwebrtc_test_support.cpp
+      gtests/llvoicewebrtc_e2e_test.cpp
+    LIBRARIES ${llvoicewebrtc_e2e_gtest_LIBRARIES}
+    INCLUDE_DIRS ${llvoicewebrtc_gtest_INCLUDE_DIRS} ${llwebrtc_gtests_DIR}
+    )
+  target_precompile_headers(UNIT_TEST_llvoicewebrtc_e2e PRIVATE llviewerprecompiledheaders.h)
+  set_source_files_properties(${llwebrtc_gtests_DIR}/llwebrtc_test_support.cpp
+    TARGET_DIRECTORY UNIT_TEST_llvoicewebrtc_e2e
+    PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
 endif (LL_TESTS)
 
 check_message_template(${VIEWER_BINARY_NAME})
