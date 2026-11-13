@@ -2359,7 +2359,8 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
 
 namespace
 {
-    // Restart the fetch of a texture that isn't fully loaded yet.
+    // Restart the fetch of a texture, including ones already fully loaded
+    // (a stale or corrupt texture is a common reason to reload).
     void restart_texture_fetch(LLViewerTexture* texp)
     {
         LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(texp);
@@ -2374,7 +2375,8 @@ namespace
             return;
         }
 
-        if (tex->getDiscardLevel() == 0 && !tex->isFetching() && !tex->isMissingAsset())
+        // Discard level -1: still queued for its first download, nothing to restart
+        if (tex->getDiscardLevel() == -1)
         {
             return;
         }
@@ -2399,6 +2401,20 @@ namespace
             restart_texture_fetch(objp->getTEImage(te));
             restart_texture_fetch(objp->getTENormalMap(te));
             restart_texture_fetch(objp->getTESpecularMap(te));
+
+            // PBR material textures
+            LLTextureEntry* tep = objp->getTE(te);
+            if (tep)
+            {
+                LLFetchedGLTFMaterial* mat = dynamic_cast<LLFetchedGLTFMaterial*>(tep->getGLTFRenderMaterial());
+                if (mat)
+                {
+                    restart_texture_fetch(mat->mBaseColorTexture.get());
+                    restart_texture_fetch(mat->mNormalTexture.get());
+                    restart_texture_fetch(mat->mMetallicRoughnessTexture.get());
+                    restart_texture_fetch(mat->mEmissiveTexture.get());
+                }
+            }
         }
 
         if (objp->mDrawable.notNull())
