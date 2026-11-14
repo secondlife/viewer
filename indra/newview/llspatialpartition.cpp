@@ -649,8 +649,6 @@ F32 LLSpatialPartition::calcDistance(LLSpatialGroup* group, LLCamera& camera)
 
     if (group->mDrawMap.find(LLRenderPass::PASS_ALPHA) != group->mDrawMap.end())
     {
-        LLVector4a v = eye;
-
         dist = eye.getLength3().getF32();
         eye.normalize3fast();
 
@@ -677,19 +675,7 @@ F32 LLSpatialPartition::calcDistance(LLSpatialGroup* group, LLCamera& camera)
         }
 
         //calculate depth of node for alpha sorting
-
-        LLVector3 at = camera.getAtAxis();
-
-        LLVector4a ata;
-        ata.load3(at.mV);
-
-        LLVector4a t = ata;
-        //front of bounding box
-        t.mul(0.25f);
-        t.mul(group->mObjectBounds[1]);
-        v.sub(t);
-
-        group->mDepth = v.dot3(ata).getF32();
+        group->mDepth = calcAlphaDepth(group->mObjectBounds, camera);
     }
     else
     {
@@ -710,6 +696,27 @@ F32 LLSpatialPartition::calcDistance(LLSpatialGroup* group, LLCamera& camera)
     }
 
     return dist;
+}
+
+//static
+F32 LLSpatialPartition::calcAlphaDepth(const LLVector4a* bounds, const LLCamera& camera)
+{
+    LLVector4a origin;
+    origin.load3(camera.getOrigin().mV);
+
+    LLVector4a ata;
+    ata.load3(camera.getAtAxis().mV);
+
+    LLVector4a v;
+    v.setSub(bounds[0], origin);
+
+    LLVector4a t = ata;
+    //front of bounding box
+    t.mul(0.25f);
+    t.mul(bounds[1]);
+    v.sub(t);
+
+    return v.dot3(ata).getF32();
 }
 
 F32 LLSpatialPartition::calcPixelArea(LLSpatialGroup* group, LLCamera& camera)
