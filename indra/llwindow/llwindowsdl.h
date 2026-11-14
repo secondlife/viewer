@@ -37,6 +37,8 @@
 #include "SDL3/SDL.h"
 #include "SDL3/SDL_endian.h"
 
+#include <functional>
+
 #ifdef LL_WAYLAND
 #include <wayland-client-protocol.h>
 #endif
@@ -122,7 +124,7 @@ public:
     void gatherInput(bool app_has_focus) override;
 
     // Keep native input responsive while yielding between frames.
-    void waitForInput(U32 milliseconds, bool app_has_focus);
+    void waitForInput(U32 milliseconds, const std::function<bool()>& app_has_focus);
 
     SDL_AppResult handleEvent(const SDL_Event& event, bool app_has_focus);
     static SDL_AppResult handleEvents(const SDL_Event& event, bool app_has_focus);

@@ -1666,7 +1666,8 @@ bool LLAppViewer::doFrame()
                         ? dynamic_cast<LLWindowSDL*>(gViewerWindow->getWindow()) : nullptr;
                     if (sdl_window)
                     {
-                        sdl_window->waitForInput(milliseconds_to_sleep, gFocusMgr.getAppHasFocus());
+                        sdl_window->waitForInput(milliseconds_to_sleep,
+                            []() { return gFocusMgr.getAppHasFocus(); });
                     }
                     else // Headless windows do not have an SDL event queue.
 #endif

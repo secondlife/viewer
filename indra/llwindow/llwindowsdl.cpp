@@ -1249,11 +1249,11 @@ void LLWindowSDL::gatherInput(bool app_has_focus)
     }
 }
 
-void LLWindowSDL::waitForInput(U32 milliseconds, bool app_has_focus)
+void LLWindowSDL::waitForInput(U32 milliseconds, const std::function<bool()>& app_has_focus)
 {
     LL_PROFILE_ZONE_SCOPED;
     LLSDL::waitForInput(std::chrono::milliseconds(milliseconds),
-        [this, app_has_focus](SDL_Event& event) { handleEvent(event, app_has_focus); },
+        [this, &app_has_focus](SDL_Event& event) { handleEvent(event, app_has_focus()); },
         [this]() { return mWindow && !LLApp::isExiting(); });
 }
 
