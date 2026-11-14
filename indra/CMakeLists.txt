@@ -84,6 +84,12 @@ endif ()
 
 add_subdirectory(cmake)
 
+if (LL_TESTS)
+  # GoogleTest and shared gtest helpers; must precede any library that
+  # declares tests with ll_add_gtest().
+  add_subdirectory(${LIBS_OPEN_PREFIX}gtest)
+endif ()
+
 # Velopack must be included before llfilesystem since filesystem
 # needs LL_VELOPACK compile definition for its portable-install detection.
 if (USE_VELOPACK)

@@ -474,29 +474,57 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     // The following thread helpers allow the
     // LLWebRTCPeerConnectionImpl class to post
     // tasks to the native webrtc threads.
-    void PostWorkerTask(absl::AnyInvocable<void() &&> task,
+    //
+    // Once terminate() has started they drop the task and return false.
+    // terminate() moves the thread members out to its shutdown thread, but a
+    // connection it hasn't closed yet can still get webrtc callbacks (e.g.
+    // OnConnectionChange on the signaling thread) that post work, and those
+    // would dereference a null thread.  This is race-free for callers on the
+    // signaling and worker threads: terminate() sets mTerminating, then does a
+    // BlockingCall on each of them, and only then moves the members.
+    bool PostWorkerTask(absl::AnyInvocable<void() &&> task,
                   const webrtc::Location& location = webrtc::Location::Current())
     {
+        if (mTerminating)
+        {
+            return false;
+        }
         mWorkerThread->PostTask(std::move(task), location);
+        return true;
     }
 
-    void PostSignalingTask(absl::AnyInvocable<void() &&> task,
+    bool PostSignalingTask(absl::AnyInvocable<void() &&> task,
                   const webrtc::Location& location = webrtc::Location::Current())
     {
+        if (mTerminating)
+        {
+            return false;
+        }
         mSignalingThread->PostTask(std::move(task), location);
+        return true;
     }
 
-    void PostDelayedSignalingTask(absl::AnyInvocable<void() &&> task,
+    bool PostDelayedSignalingTask(absl::AnyInvocable<void() &&> task,
                   webrtc::TimeDelta delay,
                   const webrtc::Location& location = webrtc::Location::Current())
     {
+        if (mTerminating)
+        {
+            return false;
+        }
         mSignalingThread->PostDelayedTask(std::move(task), delay, location);
+        return true;
     }
 
-    void PostNetworkTask(absl::AnyInvocable<void() &&> task,
+    bool PostNetworkTask(absl::AnyInvocable<void() &&> task,
                   const webrtc::Location& location = webrtc::Location::Current())
     {
+        if (mTerminating)
+        {
+            return false;
+        }
         mNetworkThread->PostTask(std::move(task), location);
+        return true;
     }
 
     void WorkerBlockingCall(webrtc::FunctionView<void()> functor,
@@ -630,6 +658,13 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
     // webrtc_terminate indicates we're shutting down the webrtc library,
     // if not, we'll be reusing the peer connection for a reconnection
     void closeOnSignalingThread(bool webrtc_terminate);
+
+    // Drops this connection's reference to the peer connection factory once
+    // it won't be used again.  Signaling thread only, while that thread is
+    // still running: LLWebRTCImpl::terminate() relies on holding the last
+    // reference, so that the factory (and the voice engine and audio device
+    // module it owns) is destroyed there, in order.  See the destructor.
+    void releaseFactory();
 
     virtual void AddRef() const override = 0;
     virtual webrtc::RefCountReleaseStatus Release() const override = 0;
