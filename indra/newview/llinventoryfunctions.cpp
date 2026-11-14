@@ -3673,13 +3673,19 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
         const LLUUID& parent_uuid = first_item->getParentUUID();
         // Never in Marketplace Listings: the plain move skips the marketplace bookkeeping
         const LLUUID marketplace_id = gInventory.getMarketplaceListingsUUID();
-        if (marketplace_id.notNull() && (parent_uuid == marketplace_id || gInventory.isObjectDescendentOf(parent_uuid, marketplace_id)))
+        if (gInventory.isObjectDescendentOf(parent_uuid, marketplace_id))
         {
             return;
         }
 
         for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
         {
+            // Nor the Marketplace Listings folder itself, which sits outside it
+            if (*it == marketplace_id)
+            {
+                return;
+            }
+
             LLInventoryObject *item = gInventory.getObject(*it);
             if (!item || item->getParentUUID() != parent_uuid)
             {
