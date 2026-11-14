@@ -481,6 +481,7 @@ public:
     void                resetVisualParams();
     void                applyDefaultParams();
     void                resetSkeleton(bool reset_animations);
+    void                reloadAvatar(); // viewer-side reload of another avatar's appearance (baked textures, attachments)
 
     LLVector3           mCurRootToHeadOffset;
     LLVector3           mTargetRootToHeadOffset;
