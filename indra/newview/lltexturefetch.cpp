@@ -1580,8 +1580,15 @@ bool LLTextureFetchWorker::doWork(S32 param)
                             {
                                 LL_INFOS(LOG_TXT) << "Texture capability expired or forbidden (403), retrying: " << mUrl << " mRetryAttempt " << mRetryAttempt << LL_ENDL;
                             }
-                            // cap failure / expired token? try on new region or refresh cap.
-                            mUrl.clear();
+                            // Release HTTP semaphore so we do not hold a global slot while waiting in INIT
+                            releaseHttpSemaphore();
+
+                            // Preserve URL for URL-backed types (server bakes and map tiles).
+                            // Only clear capability-backed default textures to force re-resolving the cap URL.
+                            if (mFTType != FTT_SERVER_BAKE && mFTType != FTT_MAP_TILE)
+                            {
+                                mUrl.clear();
+                            }
                             ++mRetryAttempt;
                             mLastRegionId.setNull();
                             setState(INIT);
