@@ -47,6 +47,7 @@
 								<button label="Dodaj [FRAME]" name="add_frame" />
 								<button label="Wczytaj [FRAME]" name="btn_load_frame" />
 								<button label="Usuń [FRAME]" name="delete_frame" />
+								<button label="Zapisz [FRAME] jako..." name="btn_save_frame" />
 							</layout_panel>
 						</layout_stack>
 					</panel>
