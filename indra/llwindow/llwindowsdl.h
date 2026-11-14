@@ -204,12 +204,14 @@ protected:
 
     bool SDLReallyCaptureInput(bool capture);
     U32 SDLCheckGrabbyKeys(U32 keysym, bool gain);
+    bool updatePointerGrab();
 
     //
     // Platform specific variables
     //
     U32 mGrabbyKeyFlags = 0;
     S32 mReallyCapturedCount = 0;
+    bool mMouseClipped = false;
     SDL_Window *mWindow = nullptr;
     SDL_GLContext mContext = nullptr;
     SDL_Cursor *mSDLCursors[UI_CURSOR_COUNT];
@@ -244,6 +246,9 @@ public:
         Display* xdisplay = nullptr;
         Window xwindow = 0;
         int xscreen = -1;
+        // XInput2 master pointer used for pointer grabs, or -1 when SDL isn't
+        // reading the mouse through XInput2 (then core grabs are used).
+        int xi_pointer = -1;
     };
     static X11_DATA sX11Data;
 #endif
