@@ -276,19 +276,23 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
     // Estimate the number of layers. This is consistent with what's done for j2c encoding in LLImageJ2CKDU::encodeImpl().
     constexpr S32 precision = 8; // assumed bitrate per component channel, might change in future for HDR support
     constexpr S32 max_components = 4; // assumed the file has four components; three color and alpha
+    S32 max_discards = 5 + (w > 1024) + (h > 1024);
     S32 nb_layers = 1;
     const S32 surface = w*h;
     S32 s = 64*64;
-    S32 totalbytes = (S32)(s * max_components * precision * rate); // first level computed before loop
+    S32 components = comp > 0 ? comp : max_components; // If a valid component value is given, use it otherwise use max.
+    S32 totalbytes = (S32)(s * components * precision * rate); // first level computed before loop
     while (surface > s)
     {
-        if (nb_layers <= (5 - discard_level))
-            totalbytes += (S32)(s * max_components * precision * rate);
+        if (nb_layers <= (max_discards - discard_level))
+            totalbytes += (S32)(s * components * precision * rate);
         nb_layers++;
         s *= 4;
     }
 
     totalbytes /= 8; // to bytes
+    // Double the totalbytes for discard 0 requests, since the last layer is about the same size as the rest of the file
+    totalbytes *= (1 + (discard_level == 0));
     totalbytes += calcHeaderSizeJ2C();  // header
 
     return totalbytes;
