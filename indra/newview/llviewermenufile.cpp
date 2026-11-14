@@ -511,10 +511,7 @@ void upload_single_file(
                 LLNotificationsUtil::add(error_msg, args);
                 return;
             }
-            else
-            {
-                LLFloaterReg::showInstance("upload_sound", args);
-            }
+            LLFloaterReg::showInstance("upload_sound", args);
         }
         if (type == LLFilePicker::FFLOAD_IMAGE)
         {

@@ -34,6 +34,8 @@
 #include "llkeyboardwin32.h"
 #include "llwindowcallbacks.h"
 #include "lldragdropwin32.h"
+#include <shellapi.h>
+#include <vector>
 
 class LLDragDropWin32Target:
     public IDropTarget
@@ -98,63 +100,80 @@ class LLDragDropWin32Target:
         //
         HRESULT __stdcall DragEnter( IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
         {
-            FORMATETC fmtetc = { CF_TEXT, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+            FORMATETC file_fmt = { CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+            FORMATETC text_fmt = { CF_TEXT, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+            mAllowDrop = false;
+            mDropUrl.clear();
+            mIsSlurl = false;
 
-            // support CF_TEXT using a HGLOBAL?
-            if ( S_OK == pDataObject->QueryGetData( &fmtetc ) )
+            if (S_OK == pDataObject->QueryGetData(&file_fmt))
             {
-                mAllowDrop = true;
-                mDropUrl = std::string();
-                mIsSlurl = false;
-
                 STGMEDIUM stgmed;
-                if( S_OK == pDataObject->GetData( &fmtetc, &stgmed ) )
+                if (S_OK == pDataObject->GetData(&file_fmt, &stgmed))
                 {
-                    PVOID data = GlobalLock( stgmed.hGlobal );
-                    mDropUrl = std::string( (char*)data );
-                    // XXX MAJOR MAJOR HACK!
-                    LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLongPtr( mAppWindowHandle, GWLP_USERDATA );
-                    if (NULL != window_imp)
+                    HDROP drop = reinterpret_cast<HDROP>(stgmed.hGlobal);
+                    const UINT file_count = DragQueryFileW(drop, 0xFFFFFFFF, nullptr, 0);
+                    if (file_count == 1)
                     {
-                        LLCoordGL gl_coord( 0, 0 );
-
-                        POINT pt2;
-                        pt2.x = pt.x;
-                        pt2.y = pt.y;
-                        ScreenToClient( mAppWindowHandle, &pt2 );
-
-                        LLCoordWindow cursor_coord_window( pt2.x, pt2.y );
-                        MASK mask = gKeyboard->currentMask(true);
-
-                        LLWindowCallbacks::DragNDropResult result = window_imp->completeDragNDropRequest( cursor_coord_window.convert(), mask,
-                            LLWindowCallbacks::DNDA_START_TRACKING, mDropUrl );
-
-                        switch (result)
+                        const UINT path_length = DragQueryFileW(drop, 0, nullptr, 0);
+                        std::vector<wchar_t> path(path_length + 1);
+                        if (DragQueryFileW(drop, 0, path.data(), path_length + 1) == path_length)
                         {
-                        case LLWindowCallbacks::DND_COPY:
-                            *pdwEffect = DROPEFFECT_COPY;
-                            break;
-                        case LLWindowCallbacks::DND_LINK:
-                            *pdwEffect = DROPEFFECT_LINK;
-                            break;
-                        case LLWindowCallbacks::DND_MOVE:
-                            *pdwEffect = DROPEFFECT_MOVE;
-                            break;
-                        case LLWindowCallbacks::DND_NONE:
-                        default:
-                            *pdwEffect = DROPEFFECT_NONE;
-                            break;
+                            mDropUrl = ll_convert_wide_to_string(path.data());
+                            mAllowDrop = true;
                         }
-                    };
-
-                    GlobalUnlock( stgmed.hGlobal );
-                    ReleaseStgMedium( &stgmed );
+                    }
+                    else if (file_count > 1)
+                    {
+                        mAllowDrop = true;
+                    }
+                    ReleaseStgMedium(&stgmed);
                 };
-                SetFocus( mAppWindowHandle );
+            }
+            else if (S_OK == pDataObject->QueryGetData(&text_fmt))
+            {
+                STGMEDIUM stgmed;
+                if (S_OK == pDataObject->GetData(&text_fmt, &stgmed))
+                {
+                    PVOID data = GlobalLock(stgmed.hGlobal);
+                    if (data)
+                    {
+                        mDropUrl = std::string((char*)data);
+                        mAllowDrop = true;
+                        GlobalUnlock(stgmed.hGlobal);
+                    }
+                    ReleaseStgMedium(&stgmed);
+                }
+            }
+
+            if (mAllowDrop)
+            {
+                LLWindowWin32* window_imp = (LLWindowWin32*)GetWindowLongPtr(mAppWindowHandle, GWLP_USERDATA);
+                if (window_imp)
+                {
+                    POINT client_pt = { pt.x, pt.y };
+                    ScreenToClient(mAppWindowHandle, &client_pt);
+                    LLCoordWindow cursor_coord_window(client_pt.x, client_pt.y);
+                    MASK mask = gKeyboard->currentMask(true);
+                    LLWindowCallbacks::DragNDropResult result = window_imp->completeDragNDropRequest(
+                        cursor_coord_window.convert(), mask, LLWindowCallbacks::DNDA_START_TRACKING, mDropUrl);
+
+                    switch (result)
+                    {
+                    case LLWindowCallbacks::DND_COPY: *pdwEffect = DROPEFFECT_COPY; break;
+                    case LLWindowCallbacks::DND_LINK: *pdwEffect = DROPEFFECT_LINK; break;
+                    case LLWindowCallbacks::DND_MOVE: *pdwEffect = DROPEFFECT_MOVE; break;
+                    default: *pdwEffect = DROPEFFECT_NONE; break;
+                    }
+                }
+                else
+                {
+                    *pdwEffect = DROPEFFECT_NONE;
+                }
+                SetFocus(mAppWindowHandle);
             }
             else
             {
-                mAllowDrop = false;
                 *pdwEffect = DROPEFFECT_NONE;
             };
 

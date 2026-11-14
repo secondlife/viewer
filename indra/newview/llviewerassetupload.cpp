@@ -33,6 +33,7 @@
 #include "lltrans.h"
 #include "lluuid.h"
 #include "llvorbisencode.h"
+#include "llfile.h"
 #include "lluploaddialog.h"
 #include "llnotificationsutil.h"
 #include "llagent.h"
@@ -394,6 +395,7 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
     std::string filename = gDirUtilp->getTempFilename();
 
     std::string exten = gDirUtilp->getExtension(getFileName());
+    LLStringUtil::toLower(exten);
 
     LLAssetType::EType assetType = LLAssetType::AT_NONE;
     U32 codec = IMG_CODEC_INVALID;
@@ -436,25 +438,20 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
     }
     else if (assetType == LLAssetType::AT_SOUND)
     {
-        S32 encodeResult = 0;
-
         LL_INFOS() << "Attempting to encode wav as an ogg file" << LL_ENDL;
 
-        encodeResult = encode_vorbis_file(getFileName(), filename);
-
+        S32 encodeResult = encode_vorbis_file(getFileName(), filename);
         if (LLVORBISENC_NOERR != encodeResult)
         {
-            switch (encodeResult)
+            if (encodeResult == LLVORBISENC_DEST_OPEN_ERR)
             {
-            case LLVORBISENC_DEST_OPEN_ERR:
                 errorMessage = llformat("Couldn't open temporary compressed sound file for writing: %s\n", filename.c_str());
                 errorLabel = "CannotOpenTemporarySoundFile";
-                break;
-
-            default:
+            }
+            else
+            {
                 errorMessage = llformat("Unknown vorbis encode failure on: %s\n", getFileName().c_str());
                 errorLabel = "UnknownVorbisEncodeFailure";
-                break;
             }
             error = true;
         }
