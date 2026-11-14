@@ -468,6 +468,8 @@ protected:
     bool mIsFetching;               // Fetch request is active
     bool mCanUseHTTP;              //This texture can be fetched through http if true.
     LLCore::HttpStatus mLastHttpGetStatus; // Result of the most recently completed http request for this texture.
+    U8 mHttpForbiddenRetryCount{ 0 };
+    LLFrameTimer mHttpForbiddenRetryTimer;
 
     FTType mFTType; // What category of image is this - map tile, server bake, etc?
     mutable bool mIsMissingAsset;       // True if we know that there is no image asset with this image id in the database.
