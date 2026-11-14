@@ -2532,6 +2532,8 @@ void LLWindowWin32::gatherInput(bool app_has_focus)
 
     updateCursor();
 
+    updateImeCache();
+
     LLGameControl::processEvents(app_has_focus);
 }
 
@@ -3123,7 +3125,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_IME_SETCONTEXT:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_SETCONTEXT");
-            if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+            if (LLWinImm::isAvailable() && window_imp->mHasPreeditor)
             {
                 l_param &= ~ISC_SHOWUICOMPOSITIONWINDOW;
                 // Invoke DefWinProc with the modified LPARAM.
@@ -3133,9 +3135,9 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_IME_STARTCOMPOSITION:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_STARTCOMPOSITION");
-            if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+            if (LLWinImm::isAvailable() && window_imp->mHasPreeditor)
             {
-                WINDOW_IMP_POST(window_imp->handleStartCompositionMessage());
+                window_imp->handleStartCompositionMessage(h_wnd);
                 return 0;
             }
             break;
@@ -3143,7 +3145,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_IME_ENDCOMPOSITION:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_ENDCOMPOSITION");
-            if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+            if (LLWinImm::isAvailable() && window_imp->mHasPreeditor)
             {
                 return 0;
             }
@@ -3152,7 +3154,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_IME_COMPOSITION:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_COMPOSITION");
-            if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+            if (LLWinImm::isAvailable() && window_imp->mHasPreeditor)
             {
                 LLImeCompositionSnapshot snapshot =
                     captureImeCompositionSnapshot(h_wnd, static_cast<U32>(l_param));
@@ -3167,11 +3169,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_IME_REQUEST:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_REQUEST");
-            if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+            // The cache tells whether there is an editor and what it holds, mPreeditor belongs to the main thread
+            if (LLWinImm::isAvailable())
             {
-                LRESULT result;
-                window_imp->handleImeRequests(w_param, l_param, &result);
-                return result;
+                // Unhandled requests go to DefWindowProc, result is only set when handled
+                LRESULT result = 0;
+                if (window_imp->handleImeRequests(w_param, l_param, &result))
+                {
+                    return result;
+                }
             }
             break;
         }
@@ -4578,6 +4584,15 @@ void LLWindowWin32::allowLanguageTextInput(LLPreeditor *preeditor, bool b)
             interruptLanguageTextInput();
         }
         mPreeditor = (b ? preeditor : NULL);
+
+        mHasPreeditor = (mPreeditor != NULL);
+
+        // Requests must not be answered with the old editor's data, the old cache is freed with empty after unlocking
+        ImeCache empty;
+        {
+            LLMutexLock lock(&mImeCacheMutex);
+            std::swap(mImeCache, empty);
+        }
     }
 
     sLanguageTextInputAllowed = b;
@@ -4650,13 +4665,11 @@ void LLWindowWin32::setLanguageTextInput( const LLCoordGL & position )
 {
     if (sLanguageTextInputAllowed && LLWinImm::isAvailable())
     {
-        HIMC himc = LLWinImm::getContext(mWindowHandle);
-
         LLCoordWindow win_pos;
         convertCoords( position, &win_pos );
 
         if ( win_pos.mX >= 0 && win_pos.mY >= 0 &&
-            (win_pos.mX != sWinIMEWindowPosition.mX) || (win_pos.mY != sWinIMEWindowPosition.mY) )
+            ((win_pos.mX != sWinIMEWindowPosition.mX) || (win_pos.mY != sWinIMEWindowPosition.mY)) )
         {
             COMPOSITIONFORM ime_form;
             memset( &ime_form, 0, sizeof(ime_form) );
@@ -4664,12 +4677,17 @@ void LLWindowWin32::setLanguageTextInput( const LLCoordGL & position )
             ime_form.ptCurrentPos.x = win_pos.mX;
             ime_form.ptCurrentPos.y = win_pos.mY;
 
-            LLWinImm::setCompositionWindow( himc, &ime_form );
+            // IMM only lets the thread owning the window change its input context.
+            // The window thread's own handle is used, the thread outlives its queue and this window may not.
+            mWindowThread->post([self = mWindowThread, ime_form]() mutable
+            {
+                HIMC himc = LLWinImm::getContext(self->mWindowHandleThrd);
+                LLWinImm::setCompositionWindow( himc, &ime_form );
+                LLWinImm::releaseContext(self->mWindowHandleThrd, himc);
+            });
 
             sWinIMEWindowPosition = win_pos;
         }
-
-        LLWinImm::releaseContext(mWindowHandle, himc);
     }
 }
 
@@ -4691,7 +4709,8 @@ void LLWindowWin32::fillCharPosition(const LLCoordGL& caret, const LLRect& bound
     char_position->rcDocument.bottom = bottom_right.mY;
 }
 
-void LLWindowWin32::fillCompositionLogfont(LOGFONT *logfont)
+// font_size is the editor's preedit font size, 0 when there is none
+void LLWindowWin32::fillCompositionLogfont(LOGFONT *logfont, S32 font_size)
 {
     // Our font is a list of FreeType recognized font files that may
     // not have a corresponding ones in Windows' fonts.  Hence, we
@@ -4737,9 +4756,9 @@ void LLWindowWin32::fillCompositionLogfont(LOGFONT *logfont)
         break;
     }
 
-    if (mPreeditor)
+    if (font_size > 0)
     {
-        logfont->lfHeight = mPreeditor->getPreeditFontSize();
+        logfont->lfHeight = font_size;
     }
     else
     {
@@ -4790,16 +4809,20 @@ void LLWindowWin32::updateLanguageTextInputArea()
         CANDIDATEFORM candidate_form;
         fillCandidateForm(caret_coord, preedit_bounds, &candidate_form);
 
-        HIMC himc = LLWinImm::getContext(mWindowHandle);
-        // Win32 document says there may be up to 4 candidate windows.
-        // This magic number 4 appears only in the document, and
-        // there are no constant/macro for the value...
-        for (int i = 3; i >= 0; --i)
+        // IMM only lets the thread owning the window change its input context, see setLanguageTextInput()
+        mWindowThread->post([self = mWindowThread, candidate_form]() mutable
         {
-            candidate_form.dwIndex = i;
-            LLWinImm::setCandidateWindow(himc, &candidate_form);
-        }
-        LLWinImm::releaseContext(mWindowHandle, himc);
+            HIMC himc = LLWinImm::getContext(self->mWindowHandleThrd);
+            // Win32 document says there may be up to 4 candidate windows.
+            // This magic number 4 appears only in the document, and
+            // there are no constant/macro for the value...
+            for (int i = 3; i >= 0; --i)
+            {
+                candidate_form.dwIndex = i;
+                LLWinImm::setCandidateWindow(himc, &candidate_form);
+            }
+            LLWinImm::releaseContext(self->mWindowHandleThrd, himc);
+        });
     }
 }
 
@@ -4814,14 +4837,24 @@ void LLWindowWin32::interruptLanguageTextInput()
     }
 }
 
-void LLWindowWin32::handleStartCompositionMessage()
+// On the window thread, which IMM requires to change the input context. The font size comes from the main thread's cache.
+void LLWindowWin32::handleStartCompositionMessage(HWND h_wnd)
 {
+    S32 font_size = 0;
+    {
+        LLMutexLock lock(&mImeCacheMutex);
+        if (mImeCache.mValid)
+        {
+            font_size = mImeCache.mFontSize;
+        }
+    }
+
     // Let IME know the font to use in feedback UI.
     LOGFONT logfont;
-    fillCompositionLogfont(&logfont);
-    HIMC himc = LLWinImm::getContext(mWindowHandle);
+    fillCompositionLogfont(&logfont, font_size);
+    HIMC himc = LLWinImm::getContext(h_wnd);
     LLWinImm::setCompositionFont(himc, &logfont);
-    LLWinImm::releaseContext(mWindowHandle, himc);
+    LLWinImm::releaseContext(h_wnd, himc);
 }
 
 // Handle WM_IME_COMPOSITION message.
@@ -4965,31 +4998,35 @@ void LLWindowWin32::handleCompositionMessage(const LLImeCompositionSnapshot& sna
     }
 }
 
-// Given a text and a focus range, find_context finds and returns a
-// surrounding context of the focused subtext.  A variable pointed
-// to by offset receives the offset in llwchars of the beginning of
-// the returned context string in the given wtext.
+// Given a text and a focus range, find_context_range finds the range of
+// a surrounding context of the focused subtext, in llwchars into wtext:
+// *start is its first character and *end one past its last.
 
-static LLWString find_context(const LLWString & wtext, S32 focus, S32 focus_length, S32 *offset)
+static void find_context_range(const LLWString & wtext, S32 focus, S32 focus_length, S32 *start, S32 *end)
 {
     static const S32 CONTEXT_EXCESS = 30;   // This value is by experiences.
 
     const S32 e = llmin((S32) wtext.length(), focus + focus_length + CONTEXT_EXCESS);
-    S32 end = focus + focus_length;
-    while (end < e && '\n' != wtext[end])
+    *end = focus + focus_length;
+    while (*end < e && '\n' != wtext[*end])
     {
-        end++;
+        ++*end;
     }
 
     const S32 s = llmax(0, focus - CONTEXT_EXCESS);
-    S32 start = focus;
-    while (start > s && '\n' != wtext[start - 1])
+    *start = focus;
+    while (*start > s && '\n' != wtext[*start - 1])
     {
-        --start;
+        --*start;
     }
+}
 
-    *offset = start;
-    return wtext.substr(start, end - start);
+// Returns the context find_context_range() finds, *offset receives its start in wtext
+static LLWString find_context(const LLWString & wtext, S32 focus, S32 focus_length, S32 *offset)
+{
+    S32 end;
+    find_context_range(wtext, focus, focus_length, offset, &end);
+    return wtext.substr(*offset, end - *offset);
 }
 
 // final stage of handling drop requests - both from WM_DROPFILES message
@@ -5000,6 +5037,141 @@ LLWindowCallbacks::DragNDropResult LLWindowWin32::completeDragNDropRequest( cons
     return mCallbacks->handleDragNDrop( this, gl_coord, mask, action, url );
 }
 
+// Gathers on the main thread what handleImeRequests() needs to answer from the window thread.
+// Only mImeCache's writer, the main thread, may read it without locking.
+void LLWindowWin32::updateImeCache()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
+    ASSERT_MAIN_THREAD();
+
+    if (!mPreeditor)
+    {
+        if (mImeCache.mValid)
+        {
+            // The old cache is freed with empty, after unlocking
+            ImeCache empty;
+            LLMutexLock lock(&mImeCacheMutex);
+            std::swap(mImeCache, empty);
+        }
+        return;
+    }
+
+    // Requests can come at any time and can't wait for a frame, so the caret is always measured
+    ImeLocation cursor;
+    cursor.mValid = mPreeditor->getPreeditLocation(-1, &cursor.mCaret, &cursor.mBounds, &cursor.mControl);
+
+    const LLWString& wtext = mPreeditor->getPreeditString();
+    const S32 text_length = (S32)wtext.length();
+    S32 preedit, preedit_length;
+    mPreeditor->getPreeditRange(&preedit, &preedit_length);
+    S32 select, select_length;
+    mPreeditor->getSelectionRange(&select, &select_length);
+
+    const bool preedit_valid = preedit >= 0 && preedit_length >= 0 && preedit + preedit_length <= text_length;
+    const bool select_valid = select >= 0 && select_length >= 0 && select + select_length <= text_length;
+
+    const S32 font_size = mPreeditor->getPreeditFontSize();
+    S32 text_generation = 0;
+    const bool has_text_generation = mPreeditor->getPreeditTextGeneration(&text_generation);
+
+    // Only the context strings hold text, the rest follows from positions and the caret location.
+    // An unchanged text generation means unchanged text, otherwise the cached context must still be
+    // the one find_context() gives, an edit can move its bounds. A selection context can be the
+    // whole text, so the generation saves comparing it every frame.
+    // Without a preedit, mFeedContext is the text at its offset as is.
+    auto same_context = [&wtext](bool valid, S32 focus, S32 focus_length, S32 offset, const LLWString& cached)
+    {
+        if (!valid)
+        {
+            return cached.empty();
+        }
+        S32 start, end;
+        find_context_range(wtext, focus, focus_length, &start, &end);
+        return start == offset && end - start == (S32)cached.length()
+            && wtext.compare(start, cached.length(), cached) == 0;
+    };
+
+    // Rebuilt every frame while composing
+    if (mImeCache.mValid
+        && preedit_length == 0
+        && mImeCache.mPreeditText.empty()
+        && mImeCache.mPreeditor == mPreeditor
+        && mImeCache.mTextLength == text_length
+        && mImeCache.mPreeditStart == preedit
+        && mImeCache.mSelect == select
+        && mImeCache.mSelectLength == select_length
+        && mImeCache.mFontSize == font_size
+        && mImeCache.mCursor == cursor
+        && ((has_text_generation && mImeCache.mTextGeneration == text_generation)
+            || (same_context(preedit_valid, preedit, preedit_length, mImeCache.mFeedContextOffset, mImeCache.mFeedContext)
+                && same_context(select_valid, select, select_length, mImeCache.mSelectionContextOffset, mImeCache.mSelectionContext))))
+    {
+        if (has_text_generation && mImeCache.mTextGeneration != text_generation)
+        {
+            // The contexts compared unchanged under a new generation, so the next frames need not compare again
+            LLMutexLock lock(&mImeCacheMutex);
+            mImeCache.mTextGeneration = text_generation;
+        }
+        return;
+    }
+
+    ImeCache cache;
+    cache.mValid = true;
+    cache.mPreeditor = mPreeditor;
+    cache.mTextLength = text_length;
+    cache.mTextGeneration = text_generation;
+    cache.mPreeditStart = preedit;
+    cache.mCursor = cursor;
+    cache.mSelect = select;
+    cache.mSelectLength = select_length;
+    cache.mFontSize = font_size;
+
+    if (preedit_valid)
+    {
+        cache.mPreeditText = wtext.substr(preedit, preedit_length);
+
+        // Same as wstring_wstring_length_from_utf16_length(mPreeditText, 0, n), characters
+        // past the Basic Multilingual Plane take two UTF-16 units
+        const llwchar FIRST_SURROGATE_PAIR_CHAR = 0x10000;
+        cache.mPreeditPositions.reserve(preedit_length * 2 + 1);
+        for (S32 i = 0; i < preedit_length; ++i)
+        {
+            cache.mPreeditPositions.push_back(i);
+            if (cache.mPreeditText[i] >= FIRST_SURROGATE_PAIR_CHAR)
+            {
+                cache.mPreeditPositions.push_back(i);
+            }
+        }
+        cache.mPreeditPositions.push_back(preedit_length);
+
+        mPreeditor->getPreeditLocations(cache.mPreeditLocations);
+
+        // IMR_DOCUMENTFEED may be called when we have an active preedit.
+        // We should pass the context string *excluding* the preedit string.
+        // Otherwise, some IME are confused.
+        S32 context_offset;
+        LLWString context = find_context(wtext, preedit, preedit_length, &context_offset);
+        S32 feed_preedit = preedit - context_offset;
+        const S32 feed_length = llmin(preedit_length, (S32)context.length() - feed_preedit);
+        if (feed_length > 0 && feed_preedit >= 0)
+        {
+            context.erase(feed_preedit, feed_length);
+        }
+        cache.mFeedContext = std::move(context);
+        cache.mFeedContextOffset = context_offset;
+        cache.mFeedPreedit = feed_preedit;
+    }
+
+    if (select_valid)
+    {
+        cache.mSelectionContext = find_context(wtext, select, select_length, &cache.mSelectionContextOffset);
+    }
+
+    // The old cache is freed with cache, after unlocking
+    LLMutexLock lock(&mImeCacheMutex);
+    std::swap(mImeCache, cache);
+}
+
 // Handle WM_IME_REQUEST message.
 // If it handled the message, returns true.  Otherwise, false.
 // When it handled the message, the value to be returned from
@@ -5007,15 +5179,26 @@ LLWindowCallbacks::DragNDropResult LLWindowWin32::completeDragNDropRequest( cons
 
 bool LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *result)
 {
-    if ( mPreeditor )
+    // mPreeditor belongs to the main thread, each request checks the cache for an editor instead.
+    // Only reconversion and document feed take a NULL param, asking for the size to allocate.
+    if (param || request == IMR_RECONVERTSTRING || request == IMR_DOCUMENTFEED)
     {
         switch (request)
         {
             case IMR_CANDIDATEWINDOW:       // http://msdn2.microsoft.com/en-us/library/ms776080.aspx
             {
-                LLCoordGL caret_coord;
-                LLRect preedit_bounds;
-                mPreeditor->getPreeditLocation(-1, &caret_coord, &preedit_bounds, NULL);
+                // Answered from the main thread's cache, see updateImeCache()
+                ImeLocation cursor;
+                {
+                    LLMutexLock lock(&mImeCacheMutex);
+                    if (!mImeCache.mValid)
+                    {
+                        return false;
+                    }
+                    cursor = mImeCache.mCursor;
+                }
+                const LLCoordGL& caret_coord = cursor.mCaret;
+                const LLRect& preedit_bounds = cursor.mBounds;
 
                 CANDIDATEFORM *const form = (CANDIDATEFORM *)param;
                 DWORD const dwIndex = form->dwIndex;
@@ -5033,18 +5216,31 @@ bool LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
                 // WCHARs, i.e., UTF-16 encoding units, so we can't simply pass the
                 // number to getPreeditLocation.
 
-                const LLWString & wtext = mPreeditor->getPreeditString();
-                S32 preedit, preedit_length;
-                mPreeditor->getPreeditRange(&preedit, &preedit_length);
-                LLCoordGL caret_coord;
-                LLRect preedit_bounds, text_control;
-                const S32 position = wstring_wstring_length_from_utf16_length(wtext, preedit, char_position->dwCharPos);
-
-                if (!mPreeditor->getPreeditLocation(position, &caret_coord, &preedit_bounds, &text_control))
+                // Answered from the main thread's cache, see updateImeCache()
+                ImeLocation location;
                 {
-                    LL_WARNS("Window") << "*** IMR_QUERYCHARPOSITON called but getPreeditLocation failed." << LL_ENDL;
+                    LLMutexLock lock(&mImeCacheMutex);
+                    // Positions past the preedit fail, the cache only holds the preedit
+                    const std::vector<S32>& positions = mImeCache.mPreeditPositions;
+                    if (!mImeCache.mValid || char_position->dwCharPos >= positions.size())
+                    {
+                        return false;
+                    }
+                    const S32 position = positions[char_position->dwCharPos];
+                    if (position >= (S32)mImeCache.mPreeditLocations.size())
+                    {
+                        return false;
+                    }
+                    location = mImeCache.mPreeditLocations[position];
+                }
+                if (!location.mValid)
+                {
+                    LL_DEBUGS("Window") << "IMR_QUERYCHARPOSITION: the cached preedit location is invalid." << LL_ENDL;
                     return false;
                 }
+                const LLCoordGL& caret_coord = location.mCaret;
+                const LLRect& preedit_bounds = location.mBounds;
+                const LLRect& text_control = location.mControl;
 
                 fillCharPosition(caret_coord, preedit_bounds, text_control, char_position);
 
@@ -5053,25 +5249,57 @@ bool LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
             }
             case IMR_COMPOSITIONFONT:
             {
-                fillCompositionLogfont((LOGFONT *)param);
+                // Answered from the main thread's cache, see updateImeCache()
+                S32 font_size = 0;
+                {
+                    LLMutexLock lock(&mImeCacheMutex);
+                    if (!mImeCache.mValid)
+                    {
+                        return false;
+                    }
+                    font_size = mImeCache.mFontSize;
+                }
+                fillCompositionLogfont((LOGFONT *)param, font_size);
 
                 *result = 1;
                 return true;
             }
             case IMR_RECONVERTSTRING:
             {
-                mPreeditor->resetPreedit();
-                const LLWString & wtext = mPreeditor->getPreeditString();
-                S32 select, select_length;
-                mPreeditor->getSelectionRange(&select, &select_length);
-
-                S32 context_offset;
-                const LLWString context = find_context(wtext, select, select_length, &context_offset);
+                // Answered from the main thread's cache, see updateImeCache().
+                LLWString context;
+                S32 context_offset = 0;
+                S32 select = 0;
+                S32 select_length = 0;
+                S32 text_length = 0;
+                LLPreeditor* preeditor = nullptr;
+                {
+                    LLMutexLock lock(&mImeCacheMutex);
+                    // Not while composing, the selection then overlaps the preedit
+                    if (!mImeCache.mValid || !mImeCache.mPreeditText.empty())
+                    {
+                        return false;
+                    }
+                    context = mImeCache.mSelectionContext;
+                    context_offset = mImeCache.mSelectionContextOffset;
+                    select = mImeCache.mSelect;
+                    select_length = mImeCache.mSelectLength;
+                    text_length = mImeCache.mTextLength;
+                    preeditor = mImeCache.mPreeditor;
+                }
+                const S32 cached_select = select;
+                const S32 cached_select_length = select_length;
 
                 RECONVERTSTRING * const reconvert_string = (RECONVERTSTRING *)param;
                 const U32 size = fillReconvertString(context, select - context_offset, select_length, reconvert_string);
                 if (reconvert_string)
                 {
+                    if (reconvert_string->dwSize < size)
+                    {
+                        // Not filled, the context grew since the IME asked for the size
+                        return false;
+                    }
+
                     if (select_length == 0)
                     {
                         // Let the IME to decide the reconversion range, and
@@ -5090,7 +5318,30 @@ bool LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
                             select += context_offset;
                         }
                     }
-                    mPreeditor->markAsPreedit(select, select_length);
+
+                    // The editor belongs to the main thread, only mark it if it is still the one the
+                    // context came from, and neither the context, the selection (the caret without one) nor the preedit changed since.
+                    // preeditor is only compared, never dereferenced.
+                    post([this, preeditor, context, context_offset, select, select_length, text_length, cached_select, cached_select_length]()
+                    {
+                        if (!mPreeditor || mPreeditor != preeditor)
+                        {
+                            return;
+                        }
+                        S32 current_select, current_select_length;
+                        mPreeditor->getSelectionRange(&current_select, &current_select_length);
+                        S32 current_preedit, current_preedit_length;
+                        mPreeditor->getPreeditRange(&current_preedit, &current_preedit_length);
+                        const LLWString& wtext = mPreeditor->getPreeditString();
+                        if (current_select == cached_select && current_select_length == cached_select_length
+                            && current_preedit_length == 0
+                            && (S32)wtext.length() == text_length
+                            && context_offset >= 0 && context_offset + (S32)context.length() <= text_length
+                            && wtext.compare(context_offset, context.length(), context) == 0)
+                        {
+                            mPreeditor->markAsPreedit(select, select_length);
+                        }
+                    });
                 }
 
                 *result = size;
@@ -5098,29 +5349,39 @@ bool LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
             }
             case IMR_CONFIRMRECONVERTSTRING:
             {
+                {
+                    LLMutexLock lock(&mImeCacheMutex);
+                    if (!mImeCache.mValid)
+                    {
+                        return false;
+                    }
+                }
                 *result = 0;
                 return true;
             }
             case IMR_DOCUMENTFEED:
             {
-                const LLWString & wtext = mPreeditor->getPreeditString();
-                S32 preedit, preedit_length;
-                mPreeditor->getPreeditRange(&preedit, &preedit_length);
-
-                S32 context_offset;
-                LLWString context = find_context(wtext, preedit, preedit_length, &context_offset);
-                preedit -= context_offset;
-                preedit_length = llmin(preedit_length, (S32)context.length() - preedit);
-                if (preedit_length > 0 && preedit >= 0)
+                // Answered from the main thread's cache, see updateImeCache()
+                LLWString context;
+                S32 preedit = 0;
                 {
-                    // IMR_DOCUMENTFEED may be called when we have an active preedit.
-                    // We should pass the context string *excluding* the preedit string.
-                    // Otherwise, some IME are confused.
-                    context.erase(preedit, preedit_length);
+                    LLMutexLock lock(&mImeCacheMutex);
+                    if (!mImeCache.mValid)
+                    {
+                        return false;
+                    }
+                    context = mImeCache.mFeedContext;
+                    preedit = mImeCache.mFeedPreedit;
                 }
 
                 RECONVERTSTRING *reconvert_string = (RECONVERTSTRING *)param;
-                *result = fillReconvertString(context, preedit, 0, reconvert_string);
+                const U32 size = fillReconvertString(context, preedit, 0, reconvert_string);
+                if (reconvert_string && reconvert_string->dwSize < size)
+                {
+                    // Not filled, the context grew since the IME asked for the size
+                    return false;
+                }
+                *result = size;
                 return true;
             }
             default:

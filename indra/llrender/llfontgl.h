@@ -35,6 +35,8 @@
 #include "llrect.h"
 #include "v2math.h"
 
+#include <vector>
+
 class LLColor4;
 // Key used to request a font.
 class LLFontDescriptor;
@@ -143,6 +145,9 @@ public:
     F32 getWidthF32(const llwchar* wchars) const;
     F32 getWidthF32(const std::string& text, S32 offset, S32 max_chars) const;
     F32 getWidthF32(const llwchar* wchars, S32 offset, S32 max_chars, bool no_padding = false) const;
+
+    // widths[n] is getWidth(wchars, begin_offset, n), from n = 0 to the number of characters measured
+    void getWidths(const llwchar* wchars, S32 begin_offset, S32 max_chars, std::vector<S32>& widths) const;
 
     // The following are called often, frequently with large buffers, so do not use a string interface
 
