@@ -85,6 +85,7 @@ uniform int cube_snapshot;
 uniform float sky_hdr_scale;
 
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
+float calcLegacySpecular(float nh, float nl, float nv, float vh, float lightfunc);
 void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor);
 
 vec3 pbrBaseLight(vec3 diffuseColor,
@@ -253,12 +254,7 @@ void main()
             {
                 float lit = min(nl*6.0, 1.0);
 
-                float sa = nh;
-                float fres = pow(1 - vh, 5) * 0.4+0.5;
-                float gtdenom = 2 * nh;
-                float gt = max(0,(min(gtdenom * nv / vh, gtdenom * nl / vh)));
-
-                scol *= fres*texture(lightFunc, vec2(nh, spec.a)).r*gt/(nh*nl);
+                scol *= calcLegacySpecular(nh, nl, nv, vh, texture(lightFunc, vec2(nh, spec.a)).r);
                 color.rgb += lit*scol*sunlit_linear.rgb*spec.rgb;
             }
 

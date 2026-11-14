@@ -363,6 +363,11 @@ public:
 
     void calcNearbyLights(LLCamera& camera);
     void setupHWLights();
+    // per-group local light selection for the alpha pass: refit HW light
+    // slots 2-7 to the lights reaching each alpha group (see pipeline.cpp)
+    bool beginAlphaLocalLights(); // false when per-group selection is off for this pass
+    void selectAlphaLocalLights(const LLVector4a* extents);
+    void endAlphaLocalLights();
     void setupAvatarLights(bool for_edit = false);
     void enableLights(U32 mask);
     void enableLightsDynamic();
@@ -860,6 +865,52 @@ protected:
     LLDrawable::ordered_drawable_set_t  mLights;
     light_set_t                     mNearbyLights; // lights near camera
     LLColor4                        mHWLightColors[8];
+
+    // A local light resolved once into the values every consumer shares:
+    // the deferred light volumes' parameters, plus what a forward-lit HW
+    // light slot needs on top of them
+    struct LocalLight
+    {
+        LLPointer<LLDrawable> drawable;
+        LLVector3 pos;       // agent space center (the deferred light volume's center)
+        LLVector3 axis;      // projector beam direction, agent space (only valid when spot)
+        LLColor4 color;      // linear, probe-scaled, alpha 0
+        F32 size;            // influence radius (light radius * 1.5)
+        F32 falloff;         // DEFERRED_LIGHT_FALLOFF-adjusted falloff
+        F32 linear_atten;    // fixed-function linear attenuation (legacy sumLights shaders)
+        F32 cone_cos_outer;  // projector frustum as a cone, see resolveLocalLight()
+        F32 cone_cos_inner;
+        F32 apex_offset;     // projector frustum apex, along axis from pos (see setupSpotLight())
+        F32 near_clip;       // projector near clip plane (the prim's front face), along axis from pos
+        F32 ambiance;        // projector ambiance
+        bool spot;           // projector: forward shaders weight it by beam direction
+    };
+
+    // true when local lights contribute to this render at all (same gate as
+    // the deferred light volumes)
+    bool localLightsEnabled() const;
+    bool resolveLocalLight(LLDrawable* drawable, F32 light_scale, LocalLight& light) const;
+    // fill one local light HW slot / clear a slot so forward shaders skip it
+    // (shared between setupHWLights and the per-group alpha selection)
+    void setHWLightSlot(S32 slot, const LocalLight& light);
+    void clearHWLightSlot(S32 slot);
+
+    // per-group alpha light selection state, valid between
+    // beginAlphaLocalLights() and endAlphaLocalLights()
+    struct AlphaLightCandidate
+    {
+        LocalLight light;  // unfaded (parity with the deferred light volumes)
+        F32 luma;          // luminance of the linear color, for contribution ranking
+    };
+    std::vector<AlphaLightCandidate> mAlphaLightCandidates;
+
+    // slot 2-7 assignments last made by setupHWLights(), with the proximity
+    // fade applied to their colors, so endAlphaLocalLights() can restore them
+    // exactly
+    std::vector<LocalLight>          mHWLightPicks;
+    std::vector<LLDrawable*>         mAlphaLightSet;     // set applied for the current group
+    bool                             mAlphaLightsActive = false;
+    bool                             mAlphaLightSetValid = false;
 
     /////////////////////////////////////////////
     //

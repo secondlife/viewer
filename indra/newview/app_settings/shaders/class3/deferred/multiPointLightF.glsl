@@ -44,6 +44,7 @@ in vec4 vary_fragcoord;
 
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
 float calcLegacyDistanceAttenuation(float distance, float falloff);
+float calcLegacySpecular(float nh, float nl, float nv, float vh, float lightfunc);
 vec4 getPosition(vec2 pos_screen);
 vec4 getNorm(vec2 screenpos);
 vec2 getScreenXY(vec4 clip);
@@ -152,15 +153,11 @@ void main()
 
                     if (spec.a > 0.0)
                     {
-                        lit        = min(nl * 6.0, 1.0) * dist_atten;
-                        float fres = pow(1 - vh, 5) * 0.4 + 0.5;
-
-                        float gtdenom = 2 * nh;
-                        float gt      = max(0, min(gtdenom * nv / vh, gtdenom * nl / vh));
+                        lit = min(nl * 6.0, 1.0) * dist_atten;
 
                         if (nh > 0.0)
                         {
-                            float scol = fres * texture(lightFunc, vec2(nh, spec.a)).r * gt / (nh * nl);
+                            float scol = calcLegacySpecular(nh, nl, nv, vh, texture(lightFunc, vec2(nh, spec.a)).r);
                             col += lit * scol * light_col[i].rgb * spec.rgb;
                         }
                     }
