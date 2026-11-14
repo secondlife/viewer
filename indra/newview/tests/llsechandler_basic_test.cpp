@@ -128,7 +128,7 @@ S32 LLMachineID::getLegacyID(unsigned char *unique_id, size_t len)
 S32 LLMachineID::init() { return 1; }
 
 
-LLCertException::LLCertException(const LLSD& cert_data, const std::string& msg)
+LLCertException::LLCertException(const LLSD& cert_data, const std::string& msg, bool suppress_warning)
     : LLException(msg),
     mCertData(cert_data)
 {
@@ -354,7 +354,6 @@ namespace tut
         "zkSr+fakyHutqLzJBHzVTKTSi1QjiWiGTgc22bw=\n"
         "-----END CERTIFICATE-----\n"
     );
-
 
     const std::string mPemIntermediateCert(
         "Certificate:\n"
@@ -1070,8 +1069,12 @@ namespace tut
         X509_free(found_x509);
 
         find_info["subjectKeyIdentifier"] = "00:00:00:00"; // bogus
-        current_cert =test_vector->find(find_info);
+        current_cert = test_vector->find(find_info);
         ensure("didn't find cert", current_cert == test_vector->end());
+
+        // try to instantiate a vector from the OS system store
+        test_vector = new LLSystemCertificateVector(false);
+        ensure("found certs from system store", test_vector->size() > 0);
     }
 
     // test cert store
@@ -1124,7 +1127,6 @@ namespace tut
         X509_free(test_cert);
         current_cert++;
         ensure("end of cert store", current_cert == test_store->end());
-
     }
 
     // cert name wildcard matching

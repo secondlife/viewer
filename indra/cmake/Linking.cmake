@@ -65,6 +65,7 @@ elseif (WINDOWS)
           ole32
           dbghelp
           rpcrt4.lib
+          crypt32.lib
           legacy_stdio_definitions
           )
 else()
@@ -77,6 +78,7 @@ else()
   find_library(COREAUDIO_LIBRARY CoreAudio)
   find_library(COREGRAPHICS_LIBRARY CoreGraphics)
   find_library(AUDIOTOOLBOX_LIBRARY AudioToolbox)
+  find_library(SECURITY_LIBRARY Security)
   find_library(UNIFORMTYPEIDENTIFIERS_LIBRARY UniformTypeIdentifiers)
 
   target_link_libraries( ll::oslibraries INTERFACE
@@ -88,6 +90,7 @@ else()
           ${COREAUDIO_LIBRARY}
           ${AUDIOTOOLBOX_LIBRARY}
           ${COREGRAPHICS_LIBRARY}
+          ${SECURITY_LIBRARY}
           ${UNIFORMTYPEIDENTIFIERS_LIBRARY}
           )
 endif()
