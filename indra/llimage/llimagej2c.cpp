@@ -276,24 +276,23 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
     // Estimate the number of layers. This is consistent with what's done for j2c encoding in LLImageJ2CKDU::encodeImpl().
     constexpr S32 precision = 8; // assumed bitrate per component channel, might change in future for HDR support
     constexpr S32 max_components = 4; // assumed the file has four components; three color and alpha
-    // Use MAX_IMAGE_SIZE_DEFAULT (currently 2048) if either dimension is unknown (zero)
-    S32 width  = (w > 0) ? w : 2048;
-    S32 height = (h > 0) ? h : 2048;
-    S32 max_dimension = llmax(width, height); // Find largest dimension
-    S32 block_area = MAX_BLOCK_SIZE * MAX_BLOCK_SIZE; // Calculated initial block area from established max block size (currently 64)
-    S32 max_layers = (S32)llmax(llround(log2f((float)max_dimension) - log2f((float)MAX_BLOCK_SIZE)), 4); // Find number of powers of two between extents and block size to a minimum of 4
-    block_area *= llmax(max_layers, 1); // Adjust initial block area by max number of layers
-    S32 totalbytes = (S32) (MIN_LAYER_SIZE * max_components * precision); // Start estimation with a minimum reasonable size
-    S32 block_layers = 0;
-    while (block_layers <= max_layers) // Walk the layers
+    S32 max_discards = 5 + (w > 1024) + (h > 1024);
+    S32 nb_layers = 1;
+    S32 width = (w > 0 && w <= MAX_IMAGE_SIZE) ? w : MAX_IMAGE_SIZE;
+    S32 height = (h > 0 && h <= MAX_IMAGE_SIZE) ? h : MAX_IMAGE_SIZE;
+    const S32 surface = width*height;
+    S32 s = 64*64;
+    S32 totalbytes = (S32)(s * max_components * precision * rate); // first level computed before loop
+    while (surface > s && nb_layers <= (max_discards - discard_level))
     {
-        if (block_layers <= (5 - discard_level))  // Walk backwards from discard 5 to required discard layer.
-            totalbytes += (S32) (block_area * max_components * precision * rate); // Add each block layer reduced by assumed compression rate
-        block_layers++; // Move to next layer
-        block_area *= 4; // Increase block area by power of four
+        totalbytes += (S32)(s * max_components * precision * rate);
+        nb_layers++;
+        s *= 4;
     }
 
     totalbytes /= 8; // to bytes
+    // Double the totalbytes for discard 0 requests, since the last layer is about the same size as the rest of the file
+    totalbytes *= (1 + (discard_level == 0));
     totalbytes += calcHeaderSizeJ2C();  // header
 
     return totalbytes;
