@@ -278,14 +278,14 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
     constexpr S32 max_components = 4; // assumed the file has four components; three color and alpha
     S32 max_discards = 5 + (w > 1024) + (h > 1024);
     S32 nb_layers = 1;
-    const S32 surface = w*h;
+    S32 width = (w > 0 && w <= MAX_IMAGE_SIZE) ? w : MAX_IMAGE_SIZE;
+    S32 height = (h > 0 && h <= MAX_IMAGE_SIZE) ? h : MAX_IMAGE_SIZE;
+    const S32 surface = width*height;
     S32 s = 64*64;
-    S32 components = comp > 0 ? comp : max_components; // If a valid component value is given, use it otherwise use max.
-    S32 totalbytes = (S32)(s * components * precision * rate); // first level computed before loop
-    while (surface > s)
+    S32 totalbytes = (S32)(s * max_components * precision * rate); // first level computed before loop
+    while (surface > s && nb_layers <= (max_discards - discard_level))
     {
-        if (nb_layers <= (max_discards - discard_level))
-            totalbytes += (S32)(s * components * precision * rate);
+        totalbytes += (S32)(s * max_components * precision * rate);
         nb_layers++;
         s *= 4;
     }
