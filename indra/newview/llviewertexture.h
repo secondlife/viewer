@@ -582,6 +582,10 @@ public:
 
     /*virtual*/ F32  getMaxVirtualSize();
 
+    // Sample the live media pixel buffer so picks pass through fully
+    // transparent areas of the media.
+    /*virtual*/ bool getMask(const LLVector2 &tc);
+
 private:
     void switchTexture(U32 ch, LLFace* facep) ;
     bool findFaces() ;

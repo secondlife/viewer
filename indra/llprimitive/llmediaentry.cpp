@@ -53,6 +53,9 @@
 #define MEDIA_PERMS_INTERACT_KEY_STR     "perms_interact"
 #define MEDIA_PERMS_CONTROL_KEY_STR      "perms_control"
 
+// "display" fields
+#define MEDIA_TRANSPARENT_BACKGROUND_KEY_STR "transparent_background"
+
 // "general" fields
 const char* LLMediaEntry::ALT_IMAGE_ENABLE_KEY  = MEDIA_ALT_IMAGE_ENABLE_KEY_STR;
 const char* LLMediaEntry::CONTROLS_KEY          = MEDIA_CONTROLS_KEY_STR;
@@ -74,6 +77,9 @@ const char* LLMediaEntry::WHITELIST_KEY         = MEDIA_WHITELIST_KEY_STR;
 const char* LLMediaEntry::PERMS_INTERACT_KEY    = MEDIA_PERMS_INTERACT_KEY_STR;
 const char* LLMediaEntry::PERMS_CONTROL_KEY     = MEDIA_PERMS_CONTROL_KEY_STR;
 
+// "display" fields
+const char* LLMediaEntry::TRANSPARENT_BACKGROUND_KEY = MEDIA_TRANSPARENT_BACKGROUND_KEY_STR;
+
 #define DEFAULT_URL_PREFIX  "https://"
 
 // Constructor(s)
@@ -93,6 +99,7 @@ LLMediaEntry::LLMediaEntry() :
     // mWhiteList
     mPermsInteract(PERM_ALL),
     mPermsControl(PERM_ALL),
+    mTransparentBackground(false),
     mMediaIDp(NULL)
 {
 }
@@ -120,6 +127,9 @@ LLMediaEntry::LLMediaEntry(const LLMediaEntry &rhs) :
     // "permissions" fields
     mPermsInteract = rhs.mPermsInteract;
     mPermsControl = rhs.mPermsControl;
+
+    // "display" fields
+    mTransparentBackground = rhs.mTransparentBackground;
 }
 
 LLMediaEntry::~LLMediaEntry()
@@ -166,6 +176,9 @@ void LLMediaEntry::asLLSD(LLSD& sd) const
     // "permissions" fields
     sd[PERMS_INTERACT_KEY] = mPermsInteract;
     sd[PERMS_CONTROL_KEY] = mPermsControl;
+
+    // "display" fields
+    sd[TRANSPARENT_BACKGROUND_KEY] = mTransparentBackground;
 }
 
 // static
@@ -263,6 +276,16 @@ bool LLMediaEntry::fromLLSDInternal(const LLSD& sd, bool overwrite)
         status |= setPermsControl( 0xff & (LLSD::Integer)sd[PERMS_CONTROL_KEY] );
     }
 
+    // "display" fields
+    // TODO: When the simulator adds "transparent_background" to ObjectMedia
+    // Change this block to match all other fields:
+    //   if ( overwrite || sd.has(TRANSPARENT_BACKGROUND_KEY) )
+    // Until then leave it session based.
+    if ( sd.has(TRANSPARENT_BACKGROUND_KEY) )
+    {
+        status |= setTransparentBackground( sd[TRANSPARENT_BACKGROUND_KEY] );
+    }
+
     return LSL_STATUS_OK == status;
 }
 
@@ -290,6 +313,9 @@ LLMediaEntry& LLMediaEntry::operator=(const LLMediaEntry &rhs)
         // "permissions" fields
         mPermsInteract = rhs.mPermsInteract;
         mPermsControl = rhs.mPermsControl;
+
+        // "display" fields
+        mTransparentBackground = rhs.mTransparentBackground;
     }
 
     return *this;
@@ -317,7 +343,10 @@ bool LLMediaEntry::operator==(const LLMediaEntry &rhs) const
 
         // "permissions" fields
         mPermsInteract == rhs.mPermsInteract &&
-        mPermsControl == rhs.mPermsControl
+        mPermsControl == rhs.mPermsControl &&
+
+        // "display" fields
+        mTransparentBackground == rhs.mTransparentBackground
 
         );
 }
@@ -344,7 +373,10 @@ bool LLMediaEntry::operator!=(const LLMediaEntry &rhs) const
 
         // "permissions" fields
         mPermsInteract != rhs.mPermsInteract ||
-        mPermsControl != rhs.mPermsControl
+        mPermsControl != rhs.mPermsControl ||
+
+        // "display" fields
+        mTransparentBackground != rhs.mTransparentBackground
 
         );
 }
