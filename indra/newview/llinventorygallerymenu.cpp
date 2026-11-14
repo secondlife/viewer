@@ -1028,7 +1028,10 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
             disabled_items.push_back(std::string("create_new"));
         }
 
-        if (is_agent_inventory && !mRootFolder)
+        // Not in Marketplace Listings, same reason as the inventory panel menu
+        const LLUUID marketplace_id = gInventory.getMarketplaceListingsUUID();
+        const bool is_in_marketplace = marketplace_id.notNull() && gInventory.isObjectDescendentOf(selected_id, marketplace_id);
+        if (is_agent_inventory && !mRootFolder && !is_in_marketplace)
         {
             items.push_back(std::string("New folder from selected"));
             items.push_back(std::string("Subfolder Separator"));

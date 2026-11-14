@@ -862,7 +862,9 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
         }
 
         bool is_agent_inventory = isAgentInventory();
-        if (is_agent_inventory && !single_folder_root && !is_cof && !is_inbox)
+        // Not in Marketplace Listings: the move skips the marketplace bookkeeping, and a new
+        // level breaks the listing, version and stock folder structure, so purchases stop delivering
+        if (is_agent_inventory && !single_folder_root && !is_cof && !is_inbox && !isMarketplaceListingsFolder())
         {
             items.push_back(std::string("New folder from selected"));
             items.push_back(std::string("Subfolder Separator"));
