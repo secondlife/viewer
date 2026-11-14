@@ -148,22 +148,12 @@ LLKeyboardWin32::LLKeyboardWin32()
 // Note: this does not generate edges.
 void LLKeyboardWin32::resetMaskKeys()
 {
-    // GetAsyncKeyState returns a short and uses the most significant
-    // bit to indicate that the key is down.
-    if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
-    {
-        mKeyLevel[KEY_SHIFT] = true;
-    }
-
-    if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
-    {
-        mKeyLevel[KEY_CONTROL] = true;
-    }
-
-    if (GetAsyncKeyState(VK_MENU) & 0x8000)
-    {
-        mKeyLevel[KEY_ALT] = true;
-    }
+    // Re-sync modifier levels to match authoritative hardware state.
+    // Assigning the boolean state clears modifiers released while unfocused
+    // or during transition stalls, preventing stuck modifier keys.
+    mKeyLevel[KEY_SHIFT]   = (GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
+    mKeyLevel[KEY_CONTROL] = (GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0;
+    mKeyLevel[KEY_ALT]     = (GetAsyncKeyState(VK_MENU) & 0x8000) != 0;
 }
 
 
