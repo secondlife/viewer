@@ -42,6 +42,7 @@
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llanimationstates.h"
+#include "llappviewer.h"
 #include "llavatarnamecache.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llavatarrendernotifier.h"
@@ -80,6 +81,7 @@
 #include "llselectmgr.h"
 #include "llsprite.h"
 #include "lltargetingmotion.h"
+#include "lltexturefetch.h"
 #include "lltoolmgr.h"
 #include "lltoolmorph.h"
 #include "llviewercamera.h"
@@ -2376,8 +2378,9 @@ namespace
             return;
         }
 
-        // Discard level -1: still queued for its first download, nothing to restart
-        if (tex->getDiscardLevel() == -1)
+        // Discard level -1: the first download is still pending, nothing to restart.
+        // A failed first fetch also leaves -1 but is flagged as missing: retry that one.
+        if (tex->getDiscardLevel() == -1 && !tex->isMissingAsset())
         {
             return;
         }
@@ -2387,11 +2390,19 @@ namespace
             tex->setIsMissingAsset(false);
         }
 
-        // Drop any request in flight and reset the stats, then release the GL image.
+        // forceToDeleteRequest() only resets the texture's own fetch flags: cancel the
+        // worker in LLTextureFetch first, or a request still in flight would collide
+        // with the new one (same as LLViewerTextureList::clearFetchingRequests()).
+        LLTextureFetch* fetchp = LLAppViewer::getTextureFetch();
+        if (fetchp && tex->hasFetcher())
+        {
+            fetchp->deleteRequest(id, true);
+        }
+        tex->forceToDeleteRequest();
+
         // updateFetch() only requests a texture again when its current discard level
         // is above the desired one, so a fully loaded texture (discard 0) would
-        // otherwise never be fetched again.
-        tex->forceToDeleteRequest();
+        // otherwise never be fetched again: release the GL image as well.
         tex->destroyTexture();
     }
 
@@ -2455,6 +2466,13 @@ void LLVOAvatar::reloadAvatar()
     for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
     {
         restart_texture_fetch(getImage(mBakedTextureDatas[i].mTextureIndex, 0));
+    }
+
+    // Without a baked hair texture (older viewers), updateMeshTextures() renders the
+    // plain hair texture instead, so restart that one too.
+    if (!isTextureDefined(mBakedTextureDatas[BAKED_HAIR].mTextureIndex))
+    {
+        restart_texture_fetch(getImage(TEX_HAIR, 0));
     }
 
     // Attachments
