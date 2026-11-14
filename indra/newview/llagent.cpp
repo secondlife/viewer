@@ -57,6 +57,7 @@
 #include "llgroupmgr.h"
 #include "llhudmanager.h"
 #include "lljoystickbutton.h"
+#include "llkeyboard.h"
 #include "lllandmarkactions.h"
 #include "llmorphview.h"
 #include "llmoveview.h"
@@ -4218,6 +4219,14 @@ void LLAgent::handleTeleportFinished()
         LLEnvironment::instance().setSharedEnvironment();
     }
     LLPerfStats::tunables.autoTuneTimeout = true;
+
+    // Reset pressed keys and re-synchronize modifier keys upon arrival to
+    // prevent stuck keys or phantom modifiers carried over from the transition.
+    if (gKeyboard)
+    {
+        gKeyboard->resetKeys();
+        gKeyboard->resetMaskKeys();
+    }
 }
 
 void LLAgent::handleTeleportFailed()
@@ -4251,6 +4260,12 @@ void LLAgent::handleTeleportFailed()
     mTPNeedsNeabyChatSeparator = false;
 
     LLPerfStats::tunables.autoTuneTimeout = true;
+
+    if (gKeyboard)
+    {
+        gKeyboard->resetKeys();
+        gKeyboard->resetMaskKeys();
+    }
 }
 
 /*static*/
