@@ -86,9 +86,6 @@
 // Third party library includes
 #include <boost/algorithm/string.hpp>
 
-#ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-bool                gHackGodmode = false;
-#endif
 
 // Should you contemplate changing the name "Global", please first grep for
 // that string literal. There are at least a couple other places in the C++
