@@ -43,6 +43,8 @@
 
 namespace
 {
+    S32 sQueriesInFlight = 0;
+
     std::string get_platform_string()
     {
 #if LL_WINDOWS
@@ -73,6 +75,12 @@ namespace
 
     void query_vvm_coro()
     {
+        struct InFlightGuard
+        {
+            InFlightGuard() { sQueriesInFlight++; }
+            ~InFlightGuard() { sQueriesInFlight--; }
+        } vvm_in_flight_guard;
+
         // Get base URL from grid manager
         std::string base_url = LLGridManager::getInstance()->getUpdateServiceURL();
 
@@ -82,6 +90,7 @@ namespace
         if (base_url.empty())
         {
             LL_WARNS("VVM") << "No update service URL configured" << LL_ENDL;
+            velopack_dismiss_downloading_progress_view();
             return;
         }
 
@@ -122,6 +131,10 @@ namespace
 
         if (!status)
         {
+            // Progress view could have been triggered ahead of time
+            // by a 'required update' login.cgi callback.
+            velopack_dismiss_downloading_progress_view();
+
             if (status.getType() == 404)
             {
                 LL_INFOS("VVM") << "Unmanaged channel, no updates available" << LL_ENDL;
@@ -137,6 +150,7 @@ namespace
 
         // Extract update URL for current platform
         LLSD platforms = result["platforms"];
+        bool check_started = false;
         if (platforms.has(platform))
         {
             std::string update_url = platforms[platform]["url"].asString();
@@ -150,10 +164,12 @@ namespace
                 LL_INFOS("VVM") << "Velopack feed URL: " << velopack_url
                                 << " required_version: " << required_version << LL_ENDL;
                 velopack_set_update_url(velopack_url);
+                check_started = true;
 
                 LLCoros::instance().launch("VelopackUpdateCheck",
                     [required_version, relnotes]()
                     {
+                        InFlightGuard check_in_flight_guard;
                         velopack_check_for_updates(required_version, relnotes);
                     });
             }
@@ -173,6 +189,11 @@ namespace
             LL_INFOS("VVM") << "No update available for platform: " << platform << LL_ENDL;
         }
 
+        if (!check_started)
+        {
+            velopack_dismiss_downloading_progress_view();
+        }
+
         // Post release notes URL to the relnotes event pump
         if (!relnotes.empty())
         {
@@ -184,6 +205,16 @@ namespace
 
 void initVVMUpdateCheck()
 {
+    if (sQueriesInFlight != 0)
+    {
+        LL_DEBUGS("VVM") << "VVM update check already in progress" << LL_ENDL;
+        return;
+    }
     LL_INFOS("VVM") << "Initializing VVM update check" << LL_ENDL;
     LLCoros::instance().launch("VVMUpdateCheck", &query_vvm_coro);
+}
+
+bool hasPendingVVMUpdateCheck()
+{
+    return sQueriesInFlight > 0;
 }
