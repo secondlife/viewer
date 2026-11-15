@@ -2432,7 +2432,7 @@ void LLTextureFetchWorker::recordTextureDone(bool is_http, F64 byte_count)
 
 std::string LLTextureFetch::getStateString(S32 state)
 {
-    if (state < 0 || state > sizeof(e_state_name) / sizeof(char*))
+    if (state < 0 || (size_t)state >= sizeof(e_state_name) / sizeof(char*))
     {
         return llformat("%d", state);
     }
