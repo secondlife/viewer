@@ -1298,13 +1298,13 @@ void LLWebRTCImpl::freePeerConnection(LLWebRTCPeerConnectionInterface* peer_conn
     std::find(mPeerConnections.begin(), mPeerConnections.end(), peer_connection);
     if (it != mPeerConnections.end())
     {
-        // Release the connection's factory reference on the signaling thread.
-        // Posted, so it runs after any work the connection has already queued
-        // there (which may still use the factory), and terminate() drains the
-        // signaling thread before it takes the factory down.  The task holds
-        // the connection alive until then.
+        // Close the connection and release its factory reference on the
+        // signaling thread.  Posted, so it runs after any work the connection
+        // has already queued there (which may still use the factory), and
+        // terminate() drains the signaling thread before it takes the factory
+        // down.  The task holds the connection alive until then.
         webrtc::scoped_refptr<LLWebRTCPeerConnectionImpl> connection = *it;
-        PostSignalingTask([connection]() { connection->releaseFactory(); });
+        PostSignalingTask([connection]() { connection->closeOnSignalingThreadForFree(); });
 
         // Todo: make sure conection had no jobs in workers
         mPeerConnections.erase(it);
@@ -1503,6 +1503,20 @@ void LLWebRTCPeerConnectionImpl::closeOnSignalingThread(bool webrtc_terminate)
         // Not reused after a terminate() close.
         releaseFactory();
     }
+}
+
+// Signaling thread only.
+void LLWebRTCPeerConnectionImpl::closeOnSignalingThreadForFree()
+{
+    // Clear the observers first so the close below doesn't report
+    // OnPeerConnectionClosed() to a viewer that has already let go of this
+    // connection -- for one that was shut down normally it's already been
+    // reported once.  With the lists empty, closeOnSignalingThread() only does
+    // the webrtc teardown (a no-op if the peer connection is already closed)
+    // and releases the factory.
+    mSignalingObserverList.clear();
+    mDataObserverList.clear();
+    closeOnSignalingThread(true);
 }
 
 // Signaling thread only.
