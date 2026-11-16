@@ -292,6 +292,7 @@ void LLImageGL::cleanupClass()
     }
 
     delete[] sManualScratch;
+    sManualScratch = nullptr;
 }
 
 
@@ -1312,6 +1313,56 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
     if (LLRender::sGLCoreProfile)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
+#if LL_DARWIN
+        // Explicitly strip the alpha channel from BGRA/RGBA source data when the
+        // requested internal storage format has no alpha channel (e.g. GL_RGB).
+        // This avoids relying on the GL driver/OS to perform this conversion
+        // implicitly.
+        if ((pixformat == GL_BGRA || pixformat == GL_RGBA)
+            && pixtype == GL_UNSIGNED_BYTE
+            && (intformat == GL_RGB || intformat == GL_RGB8)
+            && pixels != nullptr)
+        {
+            static thread_local std::vector<U32> media_scratch;
+            try
+            {
+                media_scratch.resize((U32)(width * height));
+            }
+            catch (std::bad_alloc&)
+            {
+                LLError::LLUserWarningMsg::showOutOfMemory();
+                LL_ERRS() << "Failed to allocate media conversion scratch buffer" << LL_ENDL;
+            }
+
+            U32 pixel_count = (U32)(width * height);
+            const U8* src = (const U8*)pixels;
+            U8* dst = (U8*)media_scratch.data();
+
+            if (pixformat == GL_BGRA)
+            {
+                for (U32 i = 0; i < pixel_count; i++)
+                {
+                    dst[i * 3 + 0] = src[i * 4 + 2]; // R
+                    dst[i * 3 + 1] = src[i * 4 + 1]; // G
+                    dst[i * 3 + 2] = src[i * 4 + 0]; // B
+                }
+            }
+            else // GL_RGBA
+            {
+                for (U32 i = 0; i < pixel_count; i++)
+                {
+                    dst[i * 3 + 0] = src[i * 4 + 0]; // R
+                    dst[i * 3 + 1] = src[i * 4 + 1]; // G
+                    dst[i * 3 + 2] = src[i * 4 + 2]; // B
+                }
+            }
+
+            pixels = media_scratch.data();
+            pixformat = GL_RGB;
+        }
+#endif
+
         if (gGLManager.mGLVersion >= CONVERSION_SCRATCH_BUFFER_GL_VERSION)
         {
             if (pixformat == GL_ALPHA)
