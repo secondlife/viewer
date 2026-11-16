@@ -2069,11 +2069,6 @@ bool LLViewerFetchedTexture::updateFetch()
         llassert(!mHasFetcher);
         return false; // skip
     }
-    if (!mIsFetching && mHttpForbiddenRetryCount > 0 && !mHttpForbiddenRetryTimer.hasExpired())
-    {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - 403 cooldown");
-        return false;
-    }
     if (!mLoadedCallbackList.empty() && mRawImage.notNull())
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - callback pending");

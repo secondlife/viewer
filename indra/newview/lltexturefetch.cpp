@@ -1574,7 +1574,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
                     if (mCanUseHTTP && !mUrl.empty() && cur_size <= 0)
                     {
                         LLViewerRegion* region = getRegion();
-                        if (!region || mLastRegionId != region->getRegionID() || mRetryAttempt == 0)
+                        bool is_url_backed = (mFTType == FTT_SERVER_BAKE || mFTType == FTT_MAP_TILE);
+                        bool should_retry = (mRetryAttempt == 0) || (!is_url_backed && (!region || mLastRegionId != region->getRegionID()));
+
+                        if (should_retry)
                         {
                             if (mFTType != FTT_MAP_TILE)
                             {
@@ -1585,12 +1588,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
                             // Preserve URL for URL-backed types (server bakes and map tiles).
                             // Only clear capability-backed default textures to force re-resolving the cap URL.
-                            if (mFTType != FTT_SERVER_BAKE && mFTType != FTT_MAP_TILE)
+                            if (!is_url_backed)
                             {
                                 mUrl.clear();
+                                mLastRegionId.setNull();
                             }
                             ++mRetryAttempt;
-                            mLastRegionId.setNull();
                             setState(INIT);
                             return false;
                         }
