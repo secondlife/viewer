@@ -101,6 +101,9 @@ bool LLFloaterGestureAutocompletePicker::handleKey(KEY key, MASK mask, bool call
                 mGestureList->scrollToShowSelected();
                 return true;
             case KEY_RETURN:
+                // Fill in the highlighted gesture and let the chat input send it in the same keypress
+                commitSelected();
+                return false;
             case KEY_TAB:
                 commitSelected();
                 return true;
