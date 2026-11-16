@@ -90,7 +90,9 @@ namespace
         if (base_url.empty())
         {
             LL_WARNS("VVM") << "No update service URL configured" << LL_ENDL;
+#if LL_VELOPACK
             velopack_dismiss_downloading_progress_view();
+#endif
             return;
         }
 
@@ -125,15 +127,19 @@ namespace
 
         LLSD result = adapter->getAndSuspend(request, url);
 
+        LLCoros::checkStop();
+
         // Check HTTP status
         LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
         LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
         if (!status)
         {
+#if LL_VELOPACK
             // Progress view could have been triggered ahead of time
             // by a 'required update' login.cgi callback.
             velopack_dismiss_downloading_progress_view();
+#endif
 
             if (status.getType() == 404)
             {
@@ -189,10 +195,12 @@ namespace
             LL_INFOS("VVM") << "No update available for platform: " << platform << LL_ENDL;
         }
 
+#if LL_VELOPACK
         if (!check_started)
         {
             velopack_dismiss_downloading_progress_view();
         }
+#endif
 
         // Post release notes URL to the relnotes event pump
         if (!relnotes.empty())
@@ -210,6 +218,13 @@ void initVVMUpdateCheck()
         LL_DEBUGS("VVM") << "VVM update check already in progress" << LL_ENDL;
         return;
     }
+#if LL_VELOPACK
+    if (velopack_is_download_in_progress())
+    {
+        LL_DEBUGS("VVM") << "Velopack update download already in progress, skipping VVM re-check" << LL_ENDL;
+        return;
+    }
+#endif
     LL_INFOS("VVM") << "Initializing VVM update check" << LL_ENDL;
     LLCoros::instance().launch("VVMUpdateCheck", &query_vvm_coro);
 }

@@ -83,6 +83,7 @@ static std::string sTargetVersion;                           // Velopack's actua
 static bool sShowingDownloadProgress = false;
 static bool sSilentRequiredUpdate = false;                    // Suppress PauseForUpdate prompt / progress view on next required check
 static bool sRequiredDownloadPendingReveal = false;
+static bool sDownloadInProgress = false;
 
 // Forward declarations
 static void show_required_update_prompt();
@@ -292,6 +293,11 @@ void velopack_dismiss_downloading_progress_view()
     }
 }
 
+bool velopack_is_download_in_progress()
+{
+    return sDownloadInProgress;
+}
+
 
 static void update_failed_dialog_callback(const LLSD& notification, const LLSD& response)
 {
@@ -308,7 +314,10 @@ static void show_update_download_failed_notification()
 {
     LLSD args;
     args["URL"] = LLTrans::getString("ViewerDownloadURL");
-    LLNotificationsUtil::add("UpdateDownloadFailed", args, LLSD(), update_failed_dialog_callback);
+    if (!LLAppViewer::instance()->quitRequested())
+    {
+        LLNotificationsUtil::add("UpdateDownloadFailed", args, LLSD(), update_failed_dialog_callback);
+    }
 }
 
 void velopack_set_silent(bool silent)
@@ -319,6 +328,7 @@ void velopack_set_silent(bool silent)
         // no progress should be visible, just quit
         return;
     }
+
     if (velopack_is_update_pending())
     {
         // Already have an update, no point to show progress.
@@ -341,7 +351,7 @@ void velopack_set_silent(bool silent)
 
     if (hasPendingVVMUpdateCheck() && !sShowingDownloadProgress)
     {
-        if (!gViewerWindow && STATE_STARTED == LLStartUp::getStartupState())
+        if (!gViewerWindow || STATE_STARTED == LLStartUp::getStartupState())
         {
             // Shouldn't happen at this point, just a sanity check.
             llassert(false);
@@ -491,12 +501,17 @@ static bool download_url_to_file(const std::string& url, const std::string& loca
     size_t offset = 0;
     size_t total_size = 0; // discovered from first response's Content-Range header; 0 = unknown
     bool first_chunk = true;
+    std::error_code ec;
 
     for (;;)
     {
         LLSD result = httpAdapter->getRawRangeAndSuspend(httpRequest, url, offset, CHUNK_SIZE, httpOpts);
         LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
         LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+        // In case user quits during download.
+        LLCoros::checkStop();
+
         if (!status)
         {
             if (status.getType() == 416 && offset > 0 && total_size == 0)
@@ -520,7 +535,7 @@ static bool download_url_to_file(const std::string& url, const std::string& loca
         {
             first_chunk = false;
 
-            S32 http_status = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_STATUS].asInteger();
+            S32 http_status = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_TYPE].asInteger();
             if (http_status != 206)
             {
                 // Server ignored (or doesn't support) our Range request and
@@ -533,6 +548,12 @@ static bool download_url_to_file(const std::string& url, const std::string& loca
                     << " bytes)" << LL_ENDL;
 
                 outFile.write(reinterpret_cast<const char*>(rawBody.data()), rawBody.size());
+                if (outFile.fail() || outFile.bad())
+                {
+                    LL_WARNS("Velopack") << "Failed to write to file: " << local_path << LL_ENDL;
+                    outFile.close();
+                    return false;
+                }
                 outFile.close();
 
                 // Treat range as 0-95% of progress bar, leaving 5% for final file copy operation
@@ -559,12 +580,28 @@ static bool download_url_to_file(const std::string& url, const std::string& loca
                     total_size = parsed_total;
                 }
             }
+
+            if (rawBody.empty())
+            {
+                // No data from first packet, treat as a failure.
+                outFile.close();
+                return false;
+            }
         }
 
         if (rawBody.empty())
+        {
             break; // no more data
+        }
 
         outFile.write(reinterpret_cast<const char*>(rawBody.data()), rawBody.size());
+        if (outFile.fail() || outFile.bad())
+        {
+            LL_WARNS("Velopack") << "Failed to write to file: " << local_path << LL_ENDL;
+            outFile.close();
+            return false;
+        }
+
         offset += rawBody.size();
 
         if (total_size > 0)
@@ -1605,8 +1642,6 @@ bool velopack_initialize()
     return true;
 }
 
-// Downloads the update that was found during the check phase.
-// Operates on sPendingCheckInfo which was set by velopack_check_for_updates.
 static void clear_failed_required_update()
 {
     if (!sIsRequired)
@@ -1620,6 +1655,8 @@ static void clear_failed_required_update()
     sIsRequired = false;
 }
 
+// Downloads the update that was found during the check phase.
+// Operates on sPendingCheckInfo which was set by velopack_check_for_updates.
 static bool velopack_download_pending_update()
 {
     if (!sUpdateManager || !sPendingCheckInfo)
@@ -1802,6 +1839,7 @@ static void show_required_update_prompt()
             << sTargetVersion << LL_ENDL;
         LLCoros::instance().launch("VelopackRequiredUpdateSilent", []()
         {
+            sDownloadInProgress = true;
             bool downloaded = velopack_download_pending_update();
             if (sRequiredDownloadPendingReveal && sSilentRequiredUpdate)
             {
@@ -1826,6 +1864,7 @@ static void show_required_update_prompt()
             {
                 offer_install_downloaded_update();
             }
+            sDownloadInProgress = false;
         });
         return;
     }
@@ -1838,6 +1877,12 @@ static void show_required_update_prompt()
 
 void velopack_check_for_updates(const std::string& required_version, const std::string& relnotes_url)
 {
+    if (sDownloadInProgress)
+    {
+        LL_INFOS("Velopack") << "Update download already in progress, skipping redundant check" << LL_ENDL;
+        return;
+    }
+
     if (sUpdateUrl.empty())
     {
         LL_DEBUGS("Velopack") << "No update URL set, skipping update check" << LL_ENDL;

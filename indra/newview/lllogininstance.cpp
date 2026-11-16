@@ -415,7 +415,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         // while (or the user disabled/deferred an earlier optional-update
         // prompt) such that Velopack's view of "is there an update" is
         // stale. Rerequest.
-        velopack_set_silent(true); // suppress progress view untill user dismissed the notification
+        velopack_set_silent(true); // suppress progress view until user dismisses the notification
         initVVMUpdateCheck();
 #endif
     }

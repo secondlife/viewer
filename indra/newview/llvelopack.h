@@ -46,6 +46,7 @@ void velopack_set_progress_callback(std::function<void(int)> callback);
 void velopack_cleanup();
 void velopack_set_silent(bool silent); // suppress or allow progress view and prompt for required updates (default: false)
 void velopack_dismiss_downloading_progress_view();
+bool velopack_is_download_in_progress();
 
 #if LL_WINDOWS
 void clear_nsis_links(const std::string& nsis_folder_path);
