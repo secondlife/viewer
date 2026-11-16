@@ -3689,6 +3689,10 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
                         LL_INFOS("Avatar") << "Ignoring vehicle kill from outgoing region " << regionp->getName()
                             << " for seated root object " << rootp->getID() << LL_ENDL;
                     }
+                    if (delete_object)
+                    {
+                        regionp->killCacheEntry(local_id);
+                    }
                     continue;
                 }
             }
