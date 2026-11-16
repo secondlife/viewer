@@ -132,7 +132,7 @@ bool LLWebsocketMgr::removeServer(const std::string& name)
         LL_WARNS("WebSocket") << "No server found with name " << name << " to remove" << LL_ENDL;
         return false;
     }
-    if (it->second && it->second->isRunning())
+    if (it->second)
         it->second->stop();
     mServers.erase(it);
     LL_INFOS("WebSocket") << "Removed WebSocket server: " << name << LL_ENDL;
@@ -164,11 +164,6 @@ void LLWebsocketMgr::stopServer(const std::string& name) const
         LL_WARNS("WebSocket") << "No server found with name " << name << " to stop" << LL_ENDL;
         return;
     }
-    if (!server->isRunning())
-    {
-        LL_WARNS("WebSocket") << "Server " << name << " is not running" << LL_ENDL;
-        return;
-    }
     server->stop();
 }
 
@@ -176,7 +171,7 @@ void LLWebsocketMgr::stopAllServers()
 {
     for (auto &[name, server] : mServers)
     {
-        if (server && server->isRunning())
+        if (server)
         {
             LL_INFOS("WebSocket") << "Stopping server: " << name << LL_ENDL;
             server->stop();
@@ -439,6 +434,9 @@ bool LLWebsocketMgr::WSServer::start()
         return false;
     }
 
+    // A failed worker is no longer running, but still needs to be joined.
+    stop();
+
     // Reset the stop flag
     mShouldStop = false;
     mRunning = true;
@@ -473,8 +471,8 @@ void LLWebsocketMgr::WSServer::stop()
     {
         LLMutexLock lock(&mThreadMutex);
 
-        // Check if already stopped
-        if (!isRunning())
+        // Even a worker that exited on its own must be joined before reuse or destruction.
+        if (!mServerThread.joinable())
         {
             return;
         }
