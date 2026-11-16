@@ -368,7 +368,7 @@ public:
 
     /*virtual*/ void    setNumTEs(const U8 num_tes);
     /*virtual*/ void    setTE(const U8 te, const LLTextureEntry &texture_entry);
-    void updateTEMaterialTextures(U8 te);
+    bool updateTEMaterialTextures(U8 te);
     /*virtual*/ S32     setTETexture(const U8 te, const LLUUID &uuid);
     /*virtual*/ S32     setTENormalMap(const U8 te, const LLUUID &uuid);
     /*virtual*/ S32     setTESpecularMap(const U8 te, const LLUUID &uuid);
