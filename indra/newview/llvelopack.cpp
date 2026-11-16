@@ -35,6 +35,7 @@
 
 #include <boost/json.hpp>
 #include <fstream>
+#include <limits>
 #include <unordered_map>
 #include "llnotificationsutil.h"
 #include "llappviewer.h"
@@ -455,6 +456,13 @@ static bool parse_content_range_total(const std::string& content_range, size_t& 
     if (end == total_str.c_str() || total == 0)
         return false;
 
+    while (*end == ' ' || *end == '\t')
+    {
+        ++end;
+    }
+    if (*end != '\0' || total > (std::numeric_limits<size_t>::max)())
+        return false;
+
     out_total = static_cast<size_t>(total);
     return true;
 }
@@ -491,6 +499,15 @@ static bool download_url_to_file(const std::string& url, const std::string& loca
         LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
         if (!status)
         {
+            if (status.getType() == 416 && offset > 0 && total_size == 0)
+            {
+                // With no advertised total, an exact-size final range is
+                // followed by an unsatisfiable request at EOF.
+                outFile.close();
+                LL_INFOS("Velopack") << "Downloaded " << offset << " bytes to " << local_path << LL_ENDL;
+                return true;
+            }
+
             LL_WARNS("Velopack") << "Chunk download failed for " << url
                 << " at offset " << offset << ": " << status.toString() << LL_ENDL;
             outFile.close();
@@ -1590,6 +1607,19 @@ bool velopack_initialize()
 
 // Downloads the update that was found during the check phase.
 // Operates on sPendingCheckInfo which was set by velopack_check_for_updates.
+static void clear_failed_required_update()
+{
+    if (!sIsRequired)
+        return;
+
+    if (sPendingCheckInfo)
+    {
+        vpkc_free_update_info(sPendingCheckInfo);
+        sPendingCheckInfo = nullptr;
+    }
+    sIsRequired = false;
+}
+
 static bool velopack_download_pending_update()
 {
     if (!sUpdateManager || !sPendingCheckInfo)
@@ -1629,6 +1659,7 @@ static bool velopack_download_pending_update()
     {
         LL_WARNS("Velopack") << "Failed to pre-download update asset" << LL_ENDL;
         sPreDownloadedAssetPath.clear();
+        clear_failed_required_update();
         return false;
     }
 
@@ -1649,23 +1680,7 @@ static bool velopack_download_pending_update()
     vpkc_get_last_error(descr, sizeof(descr));
     LL_WARNS("Velopack") << "Failed to download update: " << ll_safe_string((const char*)descr) << LL_ENDL;
 
-    if (sIsRequired)
-    {
-        // Don't leave the user stuck: free the stale check info and clear
-        // sIsRequired so velopack_is_required_update_in_progress() reports
-        // false again. A subsequent VVM/required-update check will
-        // re-populate sPendingCheckInfo from scratch if still needed.
-        if (sPendingCheckInfo)
-        {
-            vpkc_free_update_info(sPendingCheckInfo);
-            sPendingCheckInfo = nullptr;
-        }
-        sIsRequired = false;
-        // Todo: else keeping sPendingCheckInfo since it was that way
-        // originally and it has up to date data, but consider either
-        // always clearing it or reusing data from sPendingCheckInfo
-        // via some 'retry' button.
-    }
+    clear_failed_required_update();
     return false;
 }
 
