@@ -241,8 +241,10 @@ void LLPluginProcessChild::idle(void)
 
         case STATE_UNLOADED:
             killSockets();
-            delete mInstance;
-            mInstance = NULL;
+            // Deleting mInstance here causes apr_dso_unload() to trigger a fault on SLPlugin when it unloads libcef
+            // Instead, let the process exit on its own and allow the OS reclaim the memory to prevent the error
+            //delete mInstance;
+            //mInstance = NULL;
             setState(STATE_DONE);
             break;
 

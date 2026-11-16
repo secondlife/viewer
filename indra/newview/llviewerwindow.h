@@ -230,7 +230,9 @@ public:
     /*virtual*/ bool handlePaint(LLWindow *window,  S32 x,  S32 y,  S32 width,  S32 height);
     /*virtual*/ void handleScrollWheel(LLWindow *window,  S32 clicks);
     /*virtual*/ void handleScrollHWheel(LLWindow *window,  S32 clicks);
-    /*virtual*/ bool handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleLeftMouseDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleRightMouseDoubleClick(LLWindow* window, LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleMiddleMouseDoubleClick(LLWindow* window, LLCoordGL pos, MASK mask);
     /*virtual*/ void handleWindowBlock(LLWindow *window);
     /*virtual*/ void handleWindowUnblock(LLWindow *window);
     /*virtual*/ void handleDataCopy(LLWindow *window, S32 data_type, void *data);
@@ -324,6 +326,7 @@ public:
     void            hideCursor();
     bool            getCursorHidden() { return mCursorHidden; }
     void            moveCursorToCenter();                               // move to center of window
+    void            moveCursorTo(S32 x, S32 y);                         // move to an arbitrary screen-space (GL) position, clamped to the world view
 
     void            initTextures(S32 location_id);
     void            setShowProgress(const bool show);

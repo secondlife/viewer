@@ -41,7 +41,6 @@ public:
 
     virtual bool postBuild();
     virtual void refresh();
-    virtual void apply();   // Apply the changed values.
     virtual void cancel();  // Cancel the changed values.
     virtual void draw();
     static  void setSNDefaults();

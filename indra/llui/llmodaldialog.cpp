@@ -29,6 +29,7 @@
 #include "llmodaldialog.h"
 
 #include "llemojihelper.h"
+#include "llfloater.h"
 #include "llfocusmgr.h"
 #include "v4color.h"
 #include "v2math.h"
@@ -40,9 +41,10 @@
 // static
 std::list<LLModalDialog*> LLModalDialog::sModalStack;
 
-LLModalDialog::LLModalDialog( const LLSD& key, bool modal )
+LLModalDialog::LLModalDialog( const LLSD& key, bool modal, bool hide_others )
     : LLFloater(key),
-      mModal( modal )
+      mModal( modal ),
+      mHideOthers( hide_others )
 {
     if (modal)
     {
@@ -101,7 +103,7 @@ void LLModalDialog::onOpen(const LLSD& key)
     if (mModal)
     {
         // If Modal, hide the active modal dialog
-        if (!sModalStack.empty())
+        if (mHideOthers && !sModalStack.empty())
         {
             LLModalDialog* front = sModalStack.front();
             if (front != this)
@@ -305,8 +307,10 @@ void LLModalDialog::draw()
 
 void LLModalDialog::centerOnScreen()
 {
-    LLVector2 window_size = LLUI::getInstance()->getWindowSize();
-    centerWithin(LLRect(0, 0, ll_round(window_size.mV[VX]), ll_round(window_size.mV[VY])));
+    // Use the floater view's rect (same as LLFloater::center()) rather than the raw
+    // window size, otherwise a reshape after the initial centering (e.g. triggered by embedded
+    // media content settling) re-centers the dialog against a different rect.
+    centerWithin(gFloaterView->getRect());
 }
 
 // static

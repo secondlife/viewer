@@ -1013,7 +1013,7 @@
                     <text
                       follows="top|left"
                       height="15"
-                      name="quality_label"
+                      name="resolution_label"
                       layout="topleft"
                       left_pad="5"
                       width="85">
@@ -1022,7 +1022,7 @@
                     <text
                       follows="top|left"
                       height="15"
-                      name="quality_label"
+                      name="hulls_label"
                       layout="topleft"
                       left_pad="25"
                       width="95">

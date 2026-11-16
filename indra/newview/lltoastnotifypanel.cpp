@@ -58,7 +58,7 @@ LLToastNotifyPanel::button_click_signal_t LLToastNotifyPanel::sButtonClickSignal
 
 LLToastNotifyPanel::LLToastNotifyPanel(const LLNotificationPtr& notification, const LLRect& rect, bool show_images)
 :   LLCheckBoxToastPanel(notification)
-,   LLInstanceTracker<LLToastNotifyPanel, LLUUID, LLInstanceTrackerReplaceOnCollision>(notification->getID())
+,   LLInstanceTracker<LLToastNotifyPanel>()
 ,   mTextBox(NULL),
     mButtonWidth(BUTTON_WIDTH)
 {

@@ -51,6 +51,8 @@
 #include "llfloatertools.h"
 #include "lldebugview.h"
 #include "llfasttimerview.h"
+#include "llgamecontrol.h"
+#include "llviewerjoystick.h"
 #include "llviewerregion.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
@@ -781,6 +783,17 @@ void send_viewer_stats(bool include_preferences)
 
 
     system["shader_level"] = shader_level;
+
+    LLSD game_control = LLGameControl::getSessionStatsAsLLSD();
+    if (game_control["devices"].size() > 0)
+    {
+        body["game_control"] = game_control;
+    }
+    LLSD ndof = LLViewerJoystick::instance().getSessionStatsAsLLSD();
+    if (ndof["devices"].size() > 0)
+    {
+        body["3DConnexion"] = ndof;
+    }
 
     LLSD &download = body["downloads"];
 

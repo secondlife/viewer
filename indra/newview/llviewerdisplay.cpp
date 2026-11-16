@@ -1778,13 +1778,15 @@ void render_ui_2d()
         S32 width = gViewerWindow->getWindowWidthScaled();
         S32 height = gViewerWindow->getWindowHeightScaled();
         gGL.getTexUnit(0)->bind(&gPipeline.mUIScreen);
+        gUIProgram.bind();
         gGL.begin(LLRender::TRIANGLE_STRIP);
         gGL.color4f(1.f,1.f,1.f,1.f);
-        gGL.texCoord2f(0.f, 0.f);                 gGL.vertex2i(0, 0);
-        gGL.texCoord2f((F32)width, 0.f);          gGL.vertex2i(width, 0);
-        gGL.texCoord2f(0.f, (F32)height);         gGL.vertex2i(0, height);
-        gGL.texCoord2f((F32)width, (F32)height);  gGL.vertex2i(width, height);
+        gGL.texCoord2f(0.f, 0.f);         gGL.vertex2i(0, 0);
+        gGL.texCoord2f(1.f, 0.f);         gGL.vertex2i(width, 0);
+        gGL.texCoord2f(0.f, 1.f);         gGL.vertex2i(0, height);
+        gGL.texCoord2f(1.f, 1.f);         gGL.vertex2i(width, height);
         gGL.end();
+        gUIProgram.unbind();
     }
     else
     {

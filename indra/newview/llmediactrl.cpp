@@ -1199,6 +1199,11 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
         };
         break;
 
+        case MEDIA_EVENT_FILE_DOWNLOAD_PROGRESS:
+        {
+        }
+        break;
+
         case MEDIA_EVENT_DEBUG_MESSAGE:
         {
             LL_INFOS("media") << self->getDebugMessageText() << LL_ENDL;

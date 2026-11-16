@@ -1087,7 +1087,11 @@ void LLVOAvatarSelf::updateAttachmentVisibility(U32 camera_mode)
             switch (camera_mode)
             {
                 case CAMERA_MODE_MOUSELOOK:
-                    if ((LLVOAvatar::sVisibleInFirstPerson && attachment->getVisibleInFirstPerson()) || gPipeline.mHeroProbeManager.isMirrorPass())
+                    // Flycam entered from mouselook stops hiding the avatar once
+                    // it's out of view (see LLAgentCamera::mFlycamHidingAvatar).
+                    if (!gAgentCamera.isHidingAvatarForFirstPerson()
+                        || (LLVOAvatar::sVisibleInFirstPerson && attachment->getVisibleInFirstPerson())
+                        || gPipeline.mHeroProbeManager.isMirrorPass())
                     {
                         attachment->setAttachmentVisibility(true);
                     }

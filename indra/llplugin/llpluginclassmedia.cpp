@@ -1309,7 +1309,15 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
         else if (message_name == "file_download")
         {
             mFileDownloadFilename = message.getValue("filename");
+            mFileDownloadProgressPercent = 0;
+            mFileDownloadProgressComplete = false;
             mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_FILE_DOWNLOAD);
+        }
+        else if (message_name == "file_download_progress")
+        {
+            mFileDownloadProgressPercent = message.getValueS32("percent");
+            mFileDownloadProgressComplete = message.getValueBoolean("complete");
+            mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_FILE_DOWNLOAD_PROGRESS);
         }
         else if(message_name == "debug_message")
         {

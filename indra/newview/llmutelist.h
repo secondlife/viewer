@@ -93,6 +93,14 @@ class LLMuteList : public LLSingleton<LLMuteList>
         MLS_SERVER_CACHE,
         MLS_FALLBACK_CACHE,
     };
+
+    // UseCachedMuteList is an authoritative server response even though its bytes
+    // come from the viewer's CRC-matched local cache.
+    static bool isServerAuthoritativeSource(EMuteListSource source)
+    {
+        return source == MLS_SERVER || source == MLS_SERVER_EMPTY || source == MLS_SERVER_CACHE;
+    }
+
 public:
     // reasons for auto-unmuting a resident
     enum EAutoReason
@@ -130,9 +138,10 @@ public:
     bool isLoaded() const { return mLoadState == ML_LOADED; } // Loaded, but not necessarily from server.
     bool isFailed() const { return mLoadState == ML_FAILED; } // Unable to load any mute list. Server did not reply.
     // Loaded from an authoritative server response, including when the server directs us to use our cached copy.
-    bool isLoadedFromServer() const { return isLoaded() && (mLoadSource == MLS_SERVER || mLoadSource == MLS_SERVER_EMPTY || mLoadSource == MLS_SERVER_CACHE); }
+    bool isLoadedFromServer() const { return isLoaded() && isServerAuthoritativeSource(mLoadSource); }
     // Loaded without an authoritative server response. Would be nice to upgrade to a server load from here if possible.
     bool isLoadedDegraded() const { return isLoaded() && !isLoadedFromServer(); }
+    const char* getLoadSourceName() const { return sourceToString(mLoadSource); }
 
     // Advance the load state machine, trying cache fallback if necessary.
     // Return value indicates mute list consumption readiness.
@@ -212,6 +221,7 @@ private:
     boost::signals2::connection mRegionChangedCallback;
 
     friend class LLDispatchEmptyMuteList;
+    friend struct LLMuteListTestAccess;
 };
 
 class LLMuteListObserver
