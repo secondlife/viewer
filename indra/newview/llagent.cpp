@@ -4220,10 +4220,11 @@ void LLAgent::handleTeleportFinished()
     }
     LLPerfStats::tunables.autoTuneTimeout = true;
 
-    // Reset pressed keys and re-synchronize modifier keys upon arrival to
-    // prevent stuck keys or phantom modifiers carried over from the transition.
+    // Release held keys, reset key states, and re-synchronize modifier keys
+    // upon arrival to prevent stuck keys, orphan PTT mic states, or phantom modifiers.
     if (gKeyboard)
     {
+        gKeyboard->resetKeyDownAndHandle();
         gKeyboard->resetKeys();
         gKeyboard->resetMaskKeys();
     }
@@ -4263,6 +4264,7 @@ void LLAgent::handleTeleportFailed()
 
     if (gKeyboard)
     {
+        gKeyboard->resetKeyDownAndHandle();
         gKeyboard->resetKeys();
         gKeyboard->resetMaskKeys();
     }

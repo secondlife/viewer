@@ -867,11 +867,6 @@ bool LLFloaterIMNearbyChat::isWordsName(const std::string& name)
 // static
 void LLFloaterIMNearbyChat::startChat(const char* line)
 {
-    if (gKeyboard)
-    {
-        gKeyboard->resetMaskKeys();
-    }
-
     LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
     if (nearby_chat)
     {
