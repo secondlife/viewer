@@ -33,6 +33,7 @@
 #include "llevents.h"
 #include "llexception.h"
 #include "stringize.h"
+#include "fsyspath.h"
 
 #include <boost/process/v2/process.hpp>
 #include <boost/process/v2/environment.hpp>
@@ -722,7 +723,7 @@ void LLProcess::launch(const LLSDOrParams& params)
         // Build executable path.
         // Resolve bare executable names (i.e. "outleap-agent") through the
         // environment's PATH
-        boost::filesystem::path executable_path(params.executable());
+        boost::filesystem::path executable_path(fsyspath(params.executable()).native());
         if (!executable_path.has_parent_path())
         {
             boost::filesystem::path resolved =
@@ -749,7 +750,7 @@ void LLProcess::launch(const LLSDOrParams& params)
                     mIOContext,
                     executable_path,
                     args,
-                    bp::process_start_dir(params.cwd()),
+                    bp::process_start_dir(fsyspath(params.cwd()).native()),
                     stdio
                 );
             }
