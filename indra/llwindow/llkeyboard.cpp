@@ -278,6 +278,32 @@ bool LLKeyboard::handleTranslatedKeyUp(KEY translated_key, MASK translated_mask)
 }
 
 
+bool LLKeyboard::handleKeyDown(const NATIVE_KEY_TYPE key, const MASK mask)
+{
+    MASK translated_mask = updateModifiers(mask);
+    KEY     translated_key = 0;
+    bool    handled = false;
+    if(translateKey(key, &translated_key))
+    {
+        handled = handleTranslatedKeyDown(translated_key, translated_mask);
+    }
+    return handled;
+}
+
+
+bool LLKeyboard::handleKeyUp(const NATIVE_KEY_TYPE key, const MASK mask)
+{
+    MASK translated_mask = updateModifiers(mask);
+    KEY     translated_key = 0;
+    bool    handled = false;
+    if(translateKey(key, &translated_key))
+    {
+        handled = handleTranslatedKeyUp(translated_key, translated_mask);
+    }
+    return handled;
+}
+
+
 void LLKeyboard::toggleInsertMode()
 {
     if (LL_KIM_INSERT == mInsertMode)

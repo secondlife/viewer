@@ -2031,17 +2031,18 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
     LL_DEBUGS(LOG_INV) << "Deleting inventory object " << id << LL_ENDL;
     mLastItem = NULL;
     LLUUID parent_id = obj->getParentUUID();
+    const bool is_category = getCategory(id) != nullptr;
     mCategoryMap.erase(id);
     mItemMap.erase(id);
     //mInventory.erase(id);
     item_array_t* item_list = getUnlockedItemArray(parent_id);
-    if(item_list)
+    if (item_list && !is_category)
     {
         LLPointer<LLViewerInventoryItem> item = (LLViewerInventoryItem*)((LLInventoryObject*)obj);
         vector_replace_with_last(*item_list, item);
     }
     cat_array_t* cat_list = getUnlockedCatArray(parent_id);
-    if(cat_list)
+    if (cat_list && is_category)
     {
         LLPointer<LLViewerInventoryCategory> cat = (LLViewerInventoryCategory*)((LLInventoryObject*)obj);
         vector_replace_with_last(*cat_list, cat);
@@ -2052,7 +2053,7 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
     gInventory.notifyObservers();
 
     item_list = getUnlockedItemArray(id);
-    if(item_list)
+    if (item_list)
     {
         if (item_list->size())
         {
@@ -2062,7 +2063,7 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
         mParentChildItemTree.erase(id);
     }
     cat_list = getUnlockedCatArray(id);
-    if(cat_list)
+    if (cat_list)
     {
         if (cat_list->size())
         {

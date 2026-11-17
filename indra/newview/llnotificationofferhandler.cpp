@@ -175,8 +175,7 @@ bool LLOfferHandler::processNotification(const LLNotificationPtr& notification, 
 {
     bool has_toast_panel = false;
 
-    // Deferred panel deletion can briefly overlap old and replacement views.
-    // Prefer the live IM projection for this notification; otherwise close its toast.
+    // An IM projection and a toast can coexist for one notification; refresh the former and still close the latter.
     for (LLToastNotifyPanel& panel : LLToastNotifyPanel::instance_snapshot())
     {
         if (panel.isDead() || panel.getID() != p->getID())
@@ -187,10 +186,11 @@ bool LLOfferHandler::processNotification(const LLNotificationPtr& notification, 
         if (LLIMToastNotifyPanel* im_panel = dynamic_cast<LLIMToastNotifyPanel*>(&panel))
         {
             im_panel->updateNotification();
-            return;
         }
-
-        has_toast_panel = true;
+        else
+        {
+            has_toast_panel = true;
+        }
     }
 
     if (has_toast_panel)

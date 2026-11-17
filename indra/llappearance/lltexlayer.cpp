@@ -1821,20 +1821,24 @@ LLTexLayerInterface*  LLTexLayerSet::findLayerByName(const std::string& name)
 void LLTexLayerSet::cloneTemplates(LLLocalTextureObject *lto, LLAvatarAppearanceDefines::ETextureIndex tex_index, LLWearable *wearable)
 {
     // initialize all texlayers with this texture type for this LTO
-    for(LLTexLayerInterface* layer : mLayerList)
+    for (LLTexLayerInterface* layer : mLayerList)
     {
-        LLTexLayerTemplate* layer_template = (LLTexLayerTemplate*)layer;
-        if (layer_template->getInfo()->getLocalTexture() == (S32)tex_index)
+        if (layer->getInfo()->getLocalTexture() == (S32)tex_index)
         {
-            lto->addTexLayer(layer_template, wearable);
+            if (LLTexLayerTemplate* layer_template = dynamic_cast<LLTexLayerTemplate*>(layer))
+            {
+                lto->addTexLayer(layer_template, wearable);
+            }
         }
     }
-    for(LLTexLayerInterface* layer : mMaskLayerList)
+    for (LLTexLayerInterface* layer : mMaskLayerList)
     {
-        LLTexLayerTemplate* layer_template = (LLTexLayerTemplate*)layer;
-        if (layer_template->getInfo()->getLocalTexture() == (S32)tex_index)
+        if (layer->getInfo()->getLocalTexture() == (S32)tex_index)
         {
-            lto->addTexLayer(layer_template, wearable);
+            if (LLTexLayerTemplate* layer_template = dynamic_cast<LLTexLayerTemplate*>(layer))
+            {
+                lto->addTexLayer(layer_template, wearable);
+            }
         }
     }
 }

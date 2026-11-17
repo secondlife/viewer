@@ -78,7 +78,7 @@ bool LLObservable::setDispatcher(LLPointer<LLEventDispatcher> dispatcher)
         mDispatcher->disengage(this);
         mDispatcher = NULL;
     }
-    if (dispatcher.notNull() || dispatcher->engage(this))
+    if (dispatcher.isNull() || dispatcher->engage(this))
     {
         mDispatcher = dispatcher;
         return true;

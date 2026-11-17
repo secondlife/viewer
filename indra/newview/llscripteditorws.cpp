@@ -69,8 +69,15 @@
 #include "llviewertexteditor.h"
 #include "llvoinventorylistener.h"
 #include "roles_constants.h"
+#include "workqueue.h"
 
 #include <array>
+
+#include <openssl/rand.h>
+
+#if LL_WINDOWS
+#include <aclapi.h>
+#endif
 
 namespace
 {
@@ -79,6 +86,11 @@ namespace
     constexpr F32 SCRIPT_UPLOAD_TIMEOUT   = 60.0f;
     constexpr F32 NOTECARD_UPLOAD_TIMEOUT = 30.0f;
     constexpr F32 ITEM_CREATE_TIMEOUT     = 30.0f;
+
+    // Seconds a client has to answer the handshake: plenty to read a
+    // file, and no longer than that is a connection kept that has not
+    // proven itself.
+    constexpr F64 HANDSHAKE_TIMEOUT = 30.0;
 
     // Linkset flush coalescing delays (seconds).
     constexpr F32 LINKSET_ADD_FLUSH_DELAY    = 5.0f;
@@ -453,7 +465,10 @@ void LLScriptEditorWSServer::onStopped()
 
     LL_INFOS("ScriptEditorWS") << "Script editor WebSocket server stopped, all state cleaned up" << LL_ENDL;
 
-    LLNotificationsUtil::add("ExternalEditorServerStopped");
+    if (!LLApp::isExiting())
+    {
+        LLNotificationsUtil::add("ExternalEditorServerStopped");
+    }
 }
 
 void LLScriptEditorWSServer::onConnectionOpened(const LLWebsocketMgr::WSConnection::ptr_t& connection)
@@ -627,27 +642,27 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
         LL_DEBUGS("ScriptEditorWS") << "Setting up script editor connection methods" << LL_ENDL;
         U32 connection_id = script_connection->getConnectionID();
 
-        // Sync methods (run on the WebSocket I/O thread; must not touch
-        // main-thread-only viewer state).
-        script_connection->registerMethod("language.syntax.id",
+        // All per-connection methods dispatch to the main thread inside a
+        // coroutine (see LLJSONRPCConnection::processRequest).
+        script_connection->registerAsyncMethod("language.syntax.id",
             bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, auto&)
             {
                 return s.handleLanguageIdRequest();
             }));
 
-        script_connection->registerMethod("language.syntax",
+        script_connection->registerAsyncMethod("language.syntax",
             bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
             {
                 return s.handleSyntaxRequest(params);
             }));
 
-        script_connection->registerMethod("language.syntax.cache",
+        script_connection->registerAsyncMethod("language.syntax.cache",
             bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, auto&)
             {
                 return s.handleSyntaxCacheRequest();
             }));
 
-        script_connection->registerMethod("language.syntax.get",
+        script_connection->registerAsyncMethod("language.syntax.get",
             bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
             {
                 return s.handleSyntaxCacheFileRequest(params);
@@ -659,7 +674,7 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
                 return s.handleScriptSubscribe(connection_id, params);
             }));
 
-        script_connection->registerMethod("script.list",
+        script_connection->registerAsyncMethod("script.list",
             bindHandler([](LLScriptEditorWSServer& s, auto&, auto&, auto&)
             {
                 return s.handleFileWatcherFileListRequest();
@@ -671,7 +686,6 @@ void LLScriptEditorWSServer::setupConnectionMethods(LLJSONRPCConnection::ptr_t c
                 return s.handleObjectUnpublish(connection_id, params);
             }));
 
-        // Async methods (dispatched to the main thread inside a coroutine).
         script_connection->registerAsyncMethod("script.unsubscribe",
             bindHandler([connection_id](LLScriptEditorWSServer& s, auto&, auto&, const LLSD& params)
             {
@@ -1060,6 +1074,9 @@ LLSD LLScriptEditorWSServer::handleObjectModify(U32 connection_id, const LLSD& p
         msg->sendReliable(host);
     }
 
+    // Force a properties reply so the editor sees the change without an in-world selection.
+    LLSelectMgr::instance().requestObjectPropertiesFamily(prim);
+
     // Step 4: Return Success Response
     LLSD response;
     response["success"] = true;
@@ -1253,7 +1270,7 @@ void LLScriptEditorWSServer::broadcastLanguageChange()
 
         if (isRunning())
         {
-            broadcastNotification("language.syntax.change", params);
+            notifyAll("language.syntax.change", params);
         }
     }
 }
@@ -2296,7 +2313,6 @@ void LLScriptEditorWSServer::forwardChatToIDE(
 void LLScriptEditorWSServer::sendRuntimeEvent(
     const LLPublishedObjectMgr::RuntimeChatEvent& event) const
 {
-
     std::string script_id;
     if (event.mItemID.notNull())
     {
@@ -2363,7 +2379,7 @@ void LLScriptEditorWSServer::notifyConnection(U32 connection_id, const std::stri
     if (it != mActiveConnections.end())
     {
         auto connection = it->second.lock();
-        if (connection)
+        if (connection && connection->isAuthenticated())
         {
             connection->notify(method, params);
         }
@@ -2383,7 +2399,7 @@ void LLScriptEditorWSServer::notifyAll(const std::string& method, const LLSD& pa
     for (const auto& pair : mActiveConnections)
     {
         auto connection = pair.second.lock();
-        if (connection)
+        if (connection && connection->isAuthenticated())
         {
             connection->sendMessage(payload);
         }
@@ -2392,7 +2408,7 @@ void LLScriptEditorWSServer::notifyAll(const std::string& method, const LLSD& pa
 
 
 // static
-std::string LLScriptEditorWSServer::getPrimName(LLViewerObject* obj)
+std::string LLScriptEditorWSServer::getPrimName(LLViewerObject* obj, S32 link_number)
 {
     std::string name = nv_string(obj, "Name");
     if (!name.empty())
@@ -2411,8 +2427,8 @@ std::string LLScriptEditorWSServer::getPrimName(LLViewerObject* obj)
         return node->mName;
     }
 
-    // Never emit an empty prim/object name to downstream tooling.
-    return obj->getID().asString();
+    // Real prim names need a full ObjectProperties reply, which requires selection.
+    return (link_number > 1) ? llformat("Link #%d", link_number) : std::string("Object");
 }
 
 bool LLScriptEditorWSServer::publishObject(const LLUUID& object_id)
@@ -2440,12 +2456,8 @@ bool LLScriptEditorWSServer::publishObject(const LLUUID& object_id)
     // Collect root + all children
     std::vector<LLViewerObject*> prims = collect_linkset(root);
 
-    // Request object properties for each prim in the linkset (root + children),
-    // matching the hover path so name/description metadata is refreshed.
-    for (LLViewerObject* prim : prims)
-    {
-        LLSelectMgr::instance().requestObjectPropertiesFamily(prim);
-    }
+    // The sim coalesces properties-family requests to the root, so one request covers the linkset.
+    LLSelectMgr::instance().requestObjectPropertiesFamily(root);
 
     // Set up a PendingPublish to coordinate inventory loading across all prims.
     // We register a listener and call requestInventory() on every prim.
@@ -2510,24 +2522,14 @@ void LLScriptEditorWSServer::buildAndSendPublish(const LLUUID& object_id)
     info.mOwnerID           = root->mOwnerID;
     info.mObjectName        = pub["object_name"].asString();
     info.mObjectDescription = pub["object_description"].asString();
+    info.mPermissions       = LLPublishedObjectMgr::getObjectPermissionsLLSD(root);
     if (root->getRegion())
     {
         info.mRegionName = root->getRegion()->getName();
     }
-    LLSelectNode* root_select_node = LLSelectMgr::instance().getSelection()->findNode(root);
-    if (root_select_node
-        && root_select_node->mValid
-        && !root_select_node->mFromTaskID.isNull()
-        && !root->isAttachment())
-    {
-        info.mCanSaveBackToContents = true;
-        info.mSourceTaskID = root_select_node->mFromTaskID;
-    }
-    else
-    {
-        info.mCanSaveBackToContents = false;
-        info.mSourceTaskID.setNull();
-    }
+    LLUUID source_task_id;
+    info.mCanSaveBackToContents = LLPublishedObjectMgr::computeCanSaveBack(root, source_task_id);
+    info.mSourceTaskID          = source_task_id;
 
     S32 link_num = 1;
     std::vector<LLViewerObject*> prims = collect_linkset(root);
@@ -2535,9 +2537,10 @@ void LLScriptEditorWSServer::buildAndSendPublish(const LLUUID& object_id)
     {
         LLPublishedObjectMgr::PublishedPrimInfo prim_info;
         prim_info.mPrimID          = prim->getID();
-        prim_info.mPrimName        = getPrimName(prim);  // Use helper with selection fallback
         prim_info.mLinkNumber      = link_num++;
+        prim_info.mPrimName        = getPrimName(prim, prim_info.mLinkNumber);
         prim_info.mInventorySerial = static_cast<S16>(prim->getInventorySerial());
+        prim_info.mPermissions     = LLPublishedObjectMgr::getObjectPermissionsLLSD(prim);
         info.mPrims.push_back(prim_info);
     }
 
@@ -2578,12 +2581,9 @@ void LLScriptEditorWSServer::buildAndSendPublish(const LLUUID& object_id)
         << " (" << pub["object_name"].asString() << ") with "
         << (prims.size() - 1) << " linked prim(s)" << LL_ENDL;
 
-    // Re-request object properties now that the object is published so
-    // onObjectPropertyChanged can emit object.update for root and linked prims.
-    for (LLViewerObject* prim : prims)
-    {
-        LLSelectMgr::instance().requestObjectPropertiesFamily(prim);
-    }
+    // Re-request now that the object is published so onObjectPropertyChanged can emit
+    // object.update. The sim answers per linkset, so only the root needs asking.
+    LLSelectMgr::instance().requestObjectPropertiesFamily(root);
 }
 
 void LLScriptEditorWSServer::onLinksetChildAdded(const LLUUID& root_id, LLViewerObject* child)
@@ -2745,6 +2745,24 @@ void LLScriptEditorWSServer::onObjectPropertyChanged(
     }
 }
 
+void LLScriptEditorWSServer::onObjectPermissionsReceived(
+    const LLUUID& prim_id, const LLUUID& owner_id, U32 owner_mask, U32 next_owner_mask)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
+    LLViewerObject* prim = gObjectList.findObject(prim_id);
+    if (!prim)
+    {
+        return;
+    }
+
+    LLSD update;
+    if (mPublishedObjectManager.applyPermissionsChange(
+            prim->getRootEdit()->getID(), prim_id, owner_id, owner_mask, next_owner_mask, update))
+    {
+        notifyAll("object.update", update);
+    }
+}
+
 void LLScriptEditorWSServer::unpublishObject(const LLUUID& object_id, const std::string& reason)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
@@ -2782,6 +2800,26 @@ void LLScriptEditorWSConnection::onOpen()
 
     LL_INFOS("ScriptEditorWS") << "Script editor JSON-RPC connection opened" << LL_ENDL;
 
+    // gAgent, LLVersionInfo, LLSyntaxDefCache, and challenge file I/O below
+    // are main-thread only; this callback runs on the WS I/O thread.
+    wptr_t that = weak_from_this();
+    if (!LL::WorkQueue::postToMainLoop([that]()
+        {
+            auto self = that.lock();
+            if (self)
+            {
+                self->sendHandshake();
+            }
+        }))
+    {
+        LL_WARNS("ScriptEditorWS") << "Main loop unavailable; dropping handshake for new connection" << LL_ENDL;
+    }
+}
+
+void LLScriptEditorWSConnection::sendHandshake()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
+
     // Build hello data
     LLSD handshake;
     handshake["server_version"]   = "1.0.0";
@@ -2792,11 +2830,14 @@ void LLScriptEditorWSConnection::onOpen()
     handshake["agent_id"] = gAgent.getID();
     handshake["agent_name"] = gAgentUsername;
 
-    std::string challenge_file = generateChallenge();
-    if (!challenge_file.empty())
+    const Challenge challenge = writeChallenge();
+    if (challenge.mFile.empty())
     {
-        handshake["challenge"] = challenge_file;
+        // Nothing to prove itself by, so nothing it may do.
+        sendDisconnect(DisconnectReason::INTERNAL_ERROR, "Unable to issue a challenge");
+        return;
     }
+    handshake["challenge"] = challenge.mFile;
 
     LLSD languages = LLSD::emptyArray();
     languages.append("lsl");
@@ -2815,22 +2856,33 @@ void LLScriptEditorWSConnection::onOpen()
 
     wptr_t that = weak_from_this();
 
-    // Send session.handshake method call and the response
-    call("session.handshake", handshake, [that](const LLSD& result, const LLSD& error) {
-        if (error.isUndefined())
+    // The answer comes once, whichever way: from the client, as the
+    // time runs out, or as the connection closes.
+    const LLSD sent = call(
+        "session.handshake", handshake,
+        [that, challenge](const LLSD& result, const LLSD& error)
         {
+            // Whatever the answer, the file has done its work.
+            LLFile::remove(challenge.mFile);
             auto self = that.lock();
-            if (self)
+            if (!self)
             {
-                self->handleHandshakeResponse(result);
+                return;
             }
-        }
-        else
-        {
-            LL_WARNS("ScriptEditorWS") << "Handshake failed: "
-                                       << error["message"].asString() << LL_ENDL;
-        }
-    });
+            if (error.isDefined())
+            {
+                self->handleHandshakeError(error);
+                return;
+            }
+            self->handleHandshakeResponse(result, challenge.mSecret);
+        },
+        HANDSHAKE_TIMEOUT);
+    if (sent.isUndefined())
+    {
+        LLFile::remove(challenge.mFile);
+        handleHandshakeError(LLSD().with("code", LLJSONRPCConnection::RPCError::INTERNAL_ERROR).with("message", "Handshake not sent"));
+        return;
+    }
 
     LL_INFOS("ScriptEditorWS") << "Sent handshake call to new editor client" << LL_ENDL;
 }
@@ -2862,39 +2914,35 @@ void LLScriptEditorWSConnection::sendDisconnect(DisconnectReason reason, const s
     closeConnection(1000, message);
 }
 
-void LLScriptEditorWSConnection::handleHandshakeResponse(const LLSD& result)
+void LLScriptEditorWSConnection::handleHandshakeError(const LLSD& error)
+{
+    const S32 code = error["code"].asInteger();
+    if (code == LLJSONRPCConnection::RPCError::CONNECTION_CLOSED)
+    {
+        // Gone already.
+        return;
+    }
+    LL_WARNS("ScriptEditorWS") << "Handshake failed: " << error["message"].asString() << LL_ENDL;
+    sendDisconnect(code == LLJSONRPCConnection::RPCError::REQUEST_TIMEOUT ? DisconnectReason::TIMEOUT : DisconnectReason::PROTOCOL_ERROR,
+                   "Handshake failed");
+}
+
+void LLScriptEditorWSConnection::handleHandshakeResponse(const LLSD& result, const LLUUID& secret)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SCRIPTDEV;
     LL_INFOS("ScriptEditorWS") << "Processing handshake response from client" << LL_ENDL;
 
-    mClientName      = result["client_name"].asString();
-    mClientVersion   = result["client_version"].asString();
-    mProtocolVersion = result["protocol_version"].asString();
-
-    // Validate challenge response (if a challenge was issued).
-    const bool challenge_issued = mChallenge.notNull();
-    bool       valid_response   = true;
-    if (challenge_issued)
-    {
-        valid_response = result.has("challenge_response") &&
-            (result["challenge_response"].asUUID() == mChallenge);
-        mChallenge.setNull();
-    }
-
-    // Always clean up the temporary challenge file if one was created,
-    // regardless of validation outcome.
-    if (!mChallengeFile.empty())
-    {
-        LLFile::remove(mChallengeFile);
-        mChallengeFile.clear();
-    }
-
-    if (challenge_issued && !valid_response)
+    // Only something that could read the file knows what it says.
+    if (!result.isMap() || result["challenge_response"].asUUID() != secret)
     {
         LL_WARNS("ScriptEditorWS") << "Invalid or missing challenge response from client" << LL_ENDL;
         sendDisconnect(DisconnectReason::PROTOCOL_ERROR, "Invalid challenge response");
         return;
     }
+
+    mClientName      = result["client_name"].asString();
+    mClientVersion   = result["client_version"].asString();
+    mProtocolVersion = result["protocol_version"].asString();
 
     if (mProtocolVersion != "1.0")
     {
@@ -2921,29 +2969,134 @@ void LLScriptEditorWSConnection::handleHandshakeResponse(const LLSD& result)
         }
     }
 
+    // Let in before it is told so: what it asks on hearing it must be
+    // answered.
+    setAuthenticated(true);
     notify("session.ok");
 
     LL_INFOS("ScriptEditorWS") << "Handshake completed successfully." << LL_ENDL;
 }
 
-std::string LLScriptEditorWSConnection::generateChallenge()
+// static
+LLScriptEditorWSConnection::Challenge LLScriptEditorWSConnection::writeChallenge()
 {
-    mChallenge.generate();
-
-    mChallengeFile = std::string(LLFile::tmpdir()) + "sl_script_challenge_" + mChallenge.asString() + ".tmp";
-
-    llofstream file(mChallengeFile.c_str());
-    if (!file.is_open())
+    // A secret nobody could work out: a new id is made of the time and
+    // the network card's address, which are anybody's to know.
+    Challenge challenge;
+    if (RAND_bytes(challenge.mSecret.mData, UUID_BYTES) != 1)
     {
-        LL_WARNS("ScriptEditorWS") << "Unable to open challenge file: " << mChallengeFile << LL_ENDL;
-        mChallenge.setNull();
-        mChallengeFile.clear();
-        return std::string();
+        LL_WARNS("ScriptEditorWS") << "Unable to make a challenge secret" << LL_ENDL;
+        return {};
     }
 
-    file << mChallenge;
-    file.close();
+    // Named for nothing it holds, made new rather than written over
+    // anything, or through a link, already by that name, and readable by
+    // the user alone: the name goes to whoever connects, and the temp
+    // folder can be everyone's.
+    const std::string file = LLFile::tmpdir() + "sl_script_challenge_" + LLUUID::generateNewID().asString() + ".tmp";
+    const std::string text = challenge.mSecret.asString();
+    if (!writeUserOnlyFile(file, text))
+    {
+        LL_WARNS("ScriptEditorWS") << "Unable to write challenge file " << file << LL_ENDL;
+        return {};
+    }
 
-    return mChallengeFile;
+    challenge.mFile = file;
+    return challenge;
+}
+
+// static
+bool LLScriptEditorWSConnection::writeUserOnlyFile(const std::string& file, const std::string& text)
+{
+#if LL_WINDOWS
+    // LLFile::open() ignores the POSIX permission bits on Windows -- its
+    // decode_attributes() only maps them to a normal/read-only file
+    // attribute, never to an ACL -- so a mode like 0600 there does not
+    // keep other local accounts from reading the file. Build a DACL
+    // explicitly, granting only the current user's SID access.
+    HANDLE token = nullptr;
+    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token))
+    {
+        LL_WARNS("ScriptEditorWS") << "Unable to open the process token for the challenge file's ACL" << LL_ENDL;
+        return false;
+    }
+
+    DWORD needed = 0;
+    GetTokenInformation(token, TokenUser, nullptr, 0, &needed);
+    std::vector<BYTE> user_info(needed);
+    const bool got_user = needed != 0 && GetTokenInformation(token, TokenUser, user_info.data(), needed, &needed);
+    CloseHandle(token);
+    if (!got_user)
+    {
+        LL_WARNS("ScriptEditorWS") << "Unable to read the current user's SID for the challenge file's ACL" << LL_ENDL;
+        return false;
+    }
+    PSID user_sid = reinterpret_cast<PTOKEN_USER>(user_info.data())->User.Sid;
+
+    EXPLICIT_ACCESSW ea = {};
+    ea.grfAccessPermissions = GENERIC_READ | GENERIC_WRITE | DELETE;
+    ea.grfAccessMode        = SET_ACCESS;
+    ea.grfInheritance       = NO_INHERITANCE;
+    ea.Trustee.TrusteeForm  = TRUSTEE_IS_SID;
+    ea.Trustee.TrusteeType  = TRUSTEE_IS_USER;
+    ea.Trustee.ptstrName    = reinterpret_cast<LPWSTR>(user_sid);
+
+    PACL dacl = nullptr;
+    if (SetEntriesInAclW(1, &ea, nullptr, &dacl) != ERROR_SUCCESS)
+    {
+        LL_WARNS("ScriptEditorWS") << "Unable to build an ACL for the challenge file" << LL_ENDL;
+        return false;
+    }
+
+    SECURITY_DESCRIPTOR sd;
+    const bool sd_ok = InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION) &&
+                       SetSecurityDescriptorDacl(&sd, TRUE, dacl, FALSE);
+    if (!sd_ok)
+    {
+        LL_WARNS("ScriptEditorWS") << "Unable to build a security descriptor for the challenge file" << LL_ENDL;
+        LocalFree(dacl);
+        return false;
+    }
+
+    SECURITY_ATTRIBUTES sa = {};
+    sa.nLength              = sizeof(sa);
+    sa.lpSecurityDescriptor = &sd;
+    sa.bInheritHandle       = FALSE;
+
+    const std::wstring wfile = ll_convert<std::wstring>(file);
+    // CREATE_NEW: fails if the file already exists, matching LLFile::noreplace.
+    HANDLE handle = CreateFileW(wfile.c_str(), GENERIC_WRITE, 0, &sa, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
+    LocalFree(dacl);
+    if (handle == INVALID_HANDLE_VALUE)
+    {
+        return false;
+    }
+
+    DWORD      written = 0;
+    const bool ok = WriteFile(handle, text.data(), static_cast<DWORD>(text.size()), &written, nullptr) &&
+                    written == text.size();
+    CloseHandle(handle);
+    if (!ok)
+    {
+        LLFile::remove(file);
+    }
+    return ok;
+#else
+    // POSIX open() honors the mode bits directly.
+    std::error_code ec;
+    LLFile          out(file, LLFile::out | LLFile::noreplace, ec, 0600);
+    if (ec)
+    {
+        return false;
+    }
+    const bool written = out.write(text.data(), static_cast<S64>(text.size()), ec) == static_cast<S64>(text.size()) && !ec;
+    const bool closed  = out.close(ec) == 0;
+    if (!written || !closed)
+    {
+        LLFile::remove(file);
+        return false;
+    }
+    return true;
+#endif
 }
 

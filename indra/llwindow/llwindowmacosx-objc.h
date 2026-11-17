@@ -108,7 +108,7 @@ NSWindowRef createNSWindow(int x, int y, int width, int height);
 #include <OpenGL/OpenGL.h>
 
 GLViewRef createOpenGLView(NSWindowRef window, unsigned int samples, bool vsync);
-void glSwapBuffers(void* context);
+void glSwapBuffers(GLViewRef view);
 CGLContextObj getCGLContextObj(GLViewRef view);
 unsigned long getVramSize(GLViewRef view);
 float getDeviceUnitSize(GLViewRef view);
@@ -134,6 +134,7 @@ bool callKeyUp(NSKeyEventRef event, unsigned short key, unsigned int mask);
 bool callKeyDown(NSKeyEventRef event, unsigned short key, unsigned int mask, wchar_t character);
 void callResetKeys();
 bool callUnicodeCallback(wchar_t character, unsigned int mask);
+bool callKeyboardFocusAcceptsText();
 void callRightMouseDown(float *pos, unsigned int mask);
 void callRightMouseUp(float *pos, unsigned int mask);
 void callLeftMouseDown(float *pos, unsigned int mask);

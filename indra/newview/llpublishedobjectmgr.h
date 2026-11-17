@@ -55,6 +55,7 @@ public:
         S32         mLinkNumber;
         std::string mPrimDescription;
         S16         mInventorySerial;
+        LLSD        mPermissions;
     };
 
     struct PublishedObjectInfo
@@ -73,6 +74,7 @@ public:
         std::string mRegionName;
         bool        mCanSaveBackToContents{ false };
         LLUUID      mSourceTaskID;
+        LLSD        mPermissions;
         std::vector<PublishedPrimInfo> mPrims;
         std::vector<std::unique_ptr<LLPublishedPrimListener>> mListeners;
     };
@@ -256,6 +258,12 @@ public:
     LLSD buildPrimInventoryLLSD(LLViewerObject* object) const;
     LLSD buildPublishedObjectLLSD(LLViewerObject* root) const;
     LLSD buildObjectListLLSD() const;
+
+    // Both depend on a valid LLSelectNode, so they yield nothing until ObjectProperties arrives.
+    static LLSD getObjectPermissionsLLSD(LLViewerObject* object);
+    static bool computeCanSaveBack(LLViewerObject* root, LLUUID& source_task_id);
+    static LLSD makePermissionsLLSD(U32 owner_mask, U32 next_owner_mask);
+
     bool buildLinksetUpdateLLSD(const LLUUID& root_id, LLSD& update) const;
     bool reconcileLinksetChildAdded(const LLUUID& root_id, LLViewerObject* child, F64 request_start_sec);
     bool reconcileLinksetChildRemoved(const LLUUID& root_id, const LLUUID& child_id);
@@ -274,6 +282,13 @@ public:
         const LLUUID& prim_id,
         const std::string& name,
         const std::string& desc,
+        LLSD& update);
+    bool applyPermissionsChange(
+        const LLUUID& root_id,
+        const LLUUID& prim_id,
+        const LLUUID& owner_id,
+        U32 owner_mask,
+        U32 next_owner_mask,
         LLSD& update);
 
     void beginPendingPublish(const LLUUID& object_id, const std::vector<LLViewerObject*>& prims);

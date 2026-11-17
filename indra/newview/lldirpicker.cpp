@@ -212,7 +212,7 @@ bool LLDirPicker::getDir(std::string* filename, bool blocking)
     else if (!mEventListener.connected())
     {
         mEventListener = LLEventPumps::instance().obtain("LLApp").listen(
-            "DirPicker",
+            LLEventPump::inventName("DirPicker"), // several picker threads can run concurrently
             [this](const LLSD& stat)
             {
                 std::string status(stat["status"]);

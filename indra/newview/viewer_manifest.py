@@ -79,6 +79,7 @@ class ViewerManifest(LLManifest):
                 self.exclude("logcontrol.xml")
                 self.exclude("logcontrol-dev.xml")
                 self.path("*.ini")
+                self.path("*.txt")
                 self.path("*.xml")
 
                 # include the entire shaders directory recursively
@@ -143,6 +144,9 @@ class ViewerManifest(LLManifest):
                                  "settings_install.xml",
                                  src="environment")
 
+            # Include the full Luau license in the packaged viewer.
+            with self.prefix(src=pkgdir):
+                self.path("LICENSES/luau.txt")
 
             with self.prefix(src_dst="character"):
                 self.path("*.llm")
@@ -589,6 +593,9 @@ class Windows_x86_64_Manifest(ViewerManifest):
             self.path_optional("vcruntime140_1.dll")
             self.path_optional("vcruntime140_threads.dll")
 
+            # SDL3
+            self.path("SDL3.dll")
+
             # BugSplat
             if self.args.get('bugsplat'):
                 self.path("BsSndRpt64.exe")
@@ -1004,6 +1011,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 # links libvlc at all as of Phase 2 of the licensing split (2026-10-01).
                 # LLStreamingAudio_LibVLC (llstreamingaudio_libvlc.cpp) is an IPC client
                 # of SLVlcProducer now; see that process's own libvlc*.dylib* copy below.
+                self.path("libSDL3.dylib") # gamecontrol
 
                 if self.args.get('bugsplat'):
                     self.path2basename(relpkgdir, "BugsplatMac.framework")

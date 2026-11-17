@@ -93,16 +93,16 @@
     <key>AFKTimeout</key>
     <map>
       <key>Comment</key>
-            <string>
-                Time before automatically setting AFK (away from keyboard) mode (seconds, 0=never).
-                Valid values are: 0, 120, 300, 600, 1800
-</string>
+      <string>
+        Time before automatically setting AFK (away from keyboard) mode (seconds, 0=never).
+        Valid values are: 0, 120, 300, 600, 1800
+      </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <real>300</real>
+      <integer>300</integer>
     </map>
     <key>AckCollectTime</key>
     <map>
@@ -280,6 +280,17 @@
       <key>Value</key>
       <real>0.5</real>
     </map>
+    <key>AudioLevelDoppler</key>
+    <map>
+      <key>Comment</key>
+      <string>Scale of the Doppler effect on moving sounds (1.0 = normal, 0 = off, higher = stronger)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
     <key>AudioLevelMaster</key>
     <map>
       <key>Comment</key>
@@ -294,7 +305,7 @@
     <key>AudioLevelMedia</key>
     <map>
       <key>Comment</key>
-      <string>Audio level of Quicktime movies</string>
+      <string>Audio level of parcel Media</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -324,6 +335,17 @@
       <key>Value</key>
       <real>0.3</real>
     </map>
+    <key>AudioLevelRolloff</key>
+    <map>
+      <key>Comment</key>
+      <string>Scale of the distance fall-off of sounds (1.0 = normal, 0 = none, higher = faster)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
     <key>AudioLevelSFX</key>
     <map>
       <key>Comment</key>
@@ -345,6 +367,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.5</real>
+    </map>
+    <key>AudioLevelUnderwaterRolloff</key>
+    <map>
+      <key>Comment</key>
+      <string>Same as AudioLevelRolloff, while the camera is underwater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>5.0</real>
     </map>
     <key>AudioLevelVoice</key>
     <map>
@@ -401,7 +434,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  <key>AutoAcceptNewInventory</key>
+    <key>AutoAcceptNewInventory</key>
     <map>
       <key>Comment</key>
       <string>Automatically accept new notecards/textures/landmarks</string>
@@ -1193,6 +1226,39 @@
       <string>String</string>
       <key>Value</key>
       <string>https://accounts.secondlife.com/packs/floater?lang=[LANGUAGE]&amp;shortfall=[SHORTFALL]</string>
+    </map>
+    <key>BuyCurrencyAddPaymentURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL the viewer probes at login; a 200 means the L$ packs floater handles residents without a payment method</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://accounts.secondlife.com/packs/floater/add-payment-enabled</string>
+    </map>
+    <key>PaymentMethodURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL for adding a payment method</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://secondlife.com/my/lindex/buy.php?associate_for_viewer=1</string>
+    </map>
+    <key>PaymentMethodStagingURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL for adding a payment method on the Damballah</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>https://secondlife-staging.com/my/lindex/buy.php?associate_for_viewer=1</string>
     </map>
     <key>EnableButtonFlashing</key>
     <map>
@@ -2645,7 +2711,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>DoubleClickTeleport</key> 
+    <key>DoubleClickTeleport</key>
     <map>
       <key>Comment</key>
       <string>Enable double-click to teleport where allowed (afects minimap and people panel)</string>
@@ -2743,6 +2809,28 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>DebugShowControllerState</key>
+    <map>
+      <key>Comment</key>
+      <string>Display internal controller state values</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>GameControl</key>
+    <map>
+        <key>Comment</key>
+        <string>Game controller settings: global per-mode action mappings plus per-device hardware config. Empty means use built-in defaults.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>LLSD</string>
+        <key>Value</key>
+        <map/>
     </map>
     <key>EnableGestureSounds</key>
     <map>
@@ -9427,7 +9515,7 @@
     <key>Value</key>
     <real>1.0</real>
   </map>
-  
+
   <key>RenderReflectionProbeDrawDistance</key>
   <map>
     <key>Comment</key>
@@ -9437,7 +9525,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <integer>64</integer>
+    <real>64.0</real>
   </map>
   <key>RenderReflectionProbeAmbiance</key>
   <map>
@@ -9626,7 +9714,7 @@
     <key>Value</key>
     <real>1.0</real>
   </map>
-  
+
   <key>RenderReflectionProbeMaxLocalLightAmbiance</key>
   <map>
     <key>Comment</key>
@@ -10012,7 +10100,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>10</integer>
+    <integer>0</integer>
   </map>
   <key>MaxAttachmentComplexity</key>
   <map>
@@ -11183,7 +11271,7 @@
             <string>Boolean</string>
         <key>Value</key>
             <integer>0</integer>
-    </map> 
+    </map>
     <key>NearbyListShowMap</key>
     <map>
       <key>Comment</key>
@@ -13513,7 +13601,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>PreferredBrowserBehavior</key>
     <map>
@@ -14698,17 +14786,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>180</integer>
-    </map>
-    <key>OSHibernationMode</key>
-    <map>
-        <key>Comment</key>
-        <string>Whether to prevent OS from hibernating. 0 - can hibernate; 1 - can't hibernate, can turn screen off; 2 - can't hibernate, can't turn screen off </string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>S32</string>
-        <key>Value</key>
-        <integer>0</integer>
     </map>
     <key>HeightUnits</key>
     <map>
@@ -16515,7 +16592,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>1</integer>        
+    <integer>1</integer>
   </map>
   <key>UpdateAppWindowTitleBar</key>
   <map>
@@ -16846,6 +16923,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>StopMicCaptureWhenMuted</key>
+    <map>
+      <key>Comment</key>
+      <string>Check to stop microphone capture while muted. May cause a hiss on unmute but prevents bluetooth devices always being in voice mode.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
 </map>
 </llsd>

@@ -65,9 +65,14 @@ This document describes all the message interfaces defined for WebSocket communi
 
 1. **Connection Establishment:**
 
+   - The viewer refuses a WebSocket upgrade request that carries an `Origin` header (HTTP 403):
+     browsers send one with every socket a page opens, and a program connecting need not
    - Viewer sends `session.handshake` call with `SessionHandshake` data
-   - Extension responds with `SessionHandshakeResponse`
+   - Extension responds with `SessionHandshakeResponse`, answering the challenge
    - Viewer confirms with `session.ok` notification
+   - Until `session.ok`, every request the extension makes is refused with `-32002`
+     (Authentication required) and the viewer sends it no notifications. A wrong challenge
+     response, an error in place of one, or no response within 30 seconds closes the connection.
 
 2. **Language Information Exchange:**
 
@@ -291,7 +296,7 @@ interface SessionHandshake {
   viewer_version: string;
   agent_id: string;
   agent_name: string;
-  challenge?: string;
+  challenge: string;
   languages: string[];
   syntax_id: string;
   features: { [feature: string]: boolean };
@@ -306,7 +311,7 @@ interface SessionHandshake {
 - `viewer_version`: Version string of the viewer
 - `agent_id`: Unique identifier for the user/agent
 - `agent_name`: Human-readable name of the agent
-- `challenge` (optional): Path to a temporary file on the local filesystem containing a UUID. The client must read this file and return the UUID as `challenge_response` to authenticate the connection.
+- `challenge`: Path to a temporary file on the local filesystem containing a UUID, and nothing else. The client must read this file and return its contents as `challenge_response` to authenticate the connection. The file is named at random, readable only by the user running the viewer, and deleted once the handshake is answered or abandoned, so only a client running as that user can answer.
 - `languages`: Array of supported scripting languages (e.g., `["lsl", "luau"]`)
 - `syntax_id`: Current active syntax identifier as a UUID string
 - `features`: Dictionary of feature flags indicating viewer capabilities. Known flags:
@@ -327,7 +332,7 @@ interface SessionHandshakeResponse {
   client_name: string;
   client_version: "1.0";
   protocol_version: string;
-  challenge_response?: string;
+  challenge_response: string;
   languages: string[];
   features: { [feature: string]: boolean };
   script_name?: string;
@@ -340,7 +345,7 @@ interface SessionHandshakeResponse {
 - `client_name`: Name of the client (VS Code extension)
 - `client_version`: Fixed version "1.0" of the client
 - `protocol_version`: Protocol version the client supports
-- `challenge_response` (optional): The UUID read from the temporary file identified by the `challenge` field in the handshake. Must be provided if `challenge` was present, otherwise the connection will be closed.
+- `challenge_response`: The UUID read from the temporary file identified by the `challenge` field in the handshake. Without it, or with any other value, the connection is closed.
 - `languages`: Array of languages supported by the client
 - `features`: Dictionary of features supported by the client. Known flags:
   - `live_sync`: Client supports live script synchronisation
@@ -1084,7 +1089,7 @@ interface LinkedObject {
 
 interface ObjectPermissions {
   owner: number;
-  next_owner: number;
+  next_owner?: number;   // Absent until the viewer receives ObjectProperties for the prim
 }
 
 /** Root of a linkset, as published to the extension */
@@ -1235,19 +1240,30 @@ Sent when an explored object's inventory, properties, or linkset membership chan
 | ------- | ------- |
 | Root prim inventory changed | `object_id`, `inventory` (complete replacement array) |
 | Child prim inventory changed | `object_id`, `changes.linked_objects.modified[]` with `link_id` and `inventory` (complete replacement array for that child) |
-| Root prim name/description changed | `object_id`, `object_name` and/or `object_description` |
-| Child prim name/description changed | `object_id`, `changes.linked_objects.modified[]` with `link_id` and `link_name` and/or `link_description` |
+| Root prim properties changed | `object_id`, plus any changed subset of `object_name`, `object_description`, `owner_id`, `permissions`, `can_save_back` |
+| Child prim properties changed | `object_id`, `changes.linked_objects.modified[]` with `link_id` plus any changed subset of `link_name`, `link_description`, `permissions` |
 | Linkset membership changed | `object_id`, `linked_objects` (complete replacement array covering every child prim) |
 
 `inventory` and `linked_objects` are always complete replacements of the prior state, never
 increments. Linkset membership changes are coalesced behind a short flush delay, so several
 rapid link or unlink operations may arrive as a single update.
 
+**Deferred permission fields.** `object.publish` is gated on inventory loading, which can finish
+before the `ObjectProperties` reply arrives. Until it does the viewer derives `permissions.owner`
+from the object's update flags, which describe the current agent's rights, and omits `next_owner`.
+`owner_id` may be absent or the null UUID, and `can_save_back` may be `false` because it depends on
+selection state. Once properties arrive the viewer sends an `object.update` carrying the full
+`owner`/`next_owner` block and the real `owner_id`, so clients must merge these fields on update
+rather than assuming the publish payload is final.
+
 ```typescript
 interface ObjectUpdateMessage {
   object_id: string;
   object_name?: string;
   object_description?: string;
+  owner_id?: string;
+  permissions?: ObjectPermissions;
+  can_save_back?: boolean;
   // Full replacement
   inventory?: ObjectInventoryItem[];
   linked_objects?: LinkedObject[];
@@ -1264,6 +1280,7 @@ interface LinkedObjectChanges {
     link_id: string;
     link_name?: string;
     link_description?: string;
+    permissions?: ObjectPermissions;
     inventory?: ObjectInventoryItem[];   // Complete replacement array, not a delta
   }[];
 }

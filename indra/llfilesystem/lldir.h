@@ -198,6 +198,7 @@ class LLDir
     virtual bool setCacheDir(const std::string &path);
     virtual void updatePerAccountChatLogsDir();
 
+    const std::string& getRunContextDescription() const { return mRunContextDescription; }
     virtual void dumpCurrentDirectories(LLError::ELevel level = LLError::LEVEL_DEBUG);
 
     // Open the system file browser to reveal a file or directory
@@ -288,6 +289,10 @@ protected:
     static std::string sDumpDir;            // Per-run crash report subdir of log directory.
     static LLUUID sDumpDirSessionID;   // UUID of the current dump dir.
     std::string mUserName;              // Current user name
+
+    // A short, human readable description of how/where the executable is
+    // currently running from
+    std::string mRunContextDescription;
 };
 
 void dir_exists_or_crash(const std::string &dir_name);

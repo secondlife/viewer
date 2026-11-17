@@ -234,7 +234,11 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 // Destroys the object
 LLFolderViewItem::~LLFolderViewItem()
 {
-    mViewModelItem = NULL;
+    if (mViewModelItem)
+    {
+        mViewModelItem->setFolderViewItem(nullptr);
+        mViewModelItem = nullptr;
+    }
     gFocusMgr.removeKeyboardFocusWithoutCallback(this);
 }
 
@@ -356,7 +360,12 @@ bool LLFolderViewItem::isPotentiallyVisible(S32 filter_generation)
 
 void LLFolderViewItem::refresh()
 {
-    LLFolderViewModelItem& vmi = *getViewModelItem();
+    LLFolderViewModelItem* vmi_ptr = getViewModelItem();
+    if (!vmi_ptr)
+    {
+        return;
+    }
+    LLFolderViewModelItem& vmi = *vmi_ptr;
 
     mLabel = utf8str_to_wstring(vmi.getDisplayName());
     mLabelFontBuffer.reset();
@@ -387,6 +396,10 @@ void LLFolderViewItem::refresh()
 void LLFolderViewItem::refreshSuffix()
 {
     LLFolderViewModelItem const* vmi = getViewModelItem();
+    if (!vmi)
+    {
+        return;
+    }
 
     // icons are slightly expensive to get, can be optimized
     // see LLInventoryIcon::getIcon()
@@ -1835,12 +1848,8 @@ void LLFolderViewFolder::extractItem( LLFolderViewItem* item, bool deparent_mode
     items_t::iterator it = std::find(mItems.begin(), mItems.end(), item);
     if(it == mItems.end())
     {
-        // This is an evil downcast. However, it's only doing
-        // pointer comparison to find if (which it should be ) the
-        // item is in the container, so it's pretty safe.
-        LLFolderViewFolder* f = static_cast<LLFolderViewFolder*>(item);
         folders_t::iterator ft;
-        ft = std::find(mFolders.begin(), mFolders.end(), f);
+        ft = std::find(mFolders.begin(), mFolders.end(), item);
         if (ft != mFolders.end())
         {
             mFolders.erase(ft);

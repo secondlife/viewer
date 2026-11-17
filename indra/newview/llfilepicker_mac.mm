@@ -292,7 +292,7 @@ void doSaveDialogModeless(const std::string* file,
             [panel setDirectoryURL:downloads_url];
         }
 
-        [panel beginWithCompletionHandler:^(NSModalResponse result)
+        auto completion = ^(NSModalResponse result)
         {
             if (result == NSModalResponseOK)
             {
@@ -307,7 +307,18 @@ void doSaveDialogModeless(const std::string* file,
                 std::string outfile;
                 callback(false, outfile, userdata);
             }
-        }];
+        };
+
+        // Show Save panel as a sheet to block interaction with Viewer until the user picks a path or cancels.
+        NSWindow *mainWindow = [NSApp mainWindow];
+        if (mainWindow)
+        {
+            [panel beginSheetModalForWindow:mainWindow completionHandler:completion];
+        }
+        else
+        {
+            [panel beginWithCompletionHandler:completion];
+        }
     }
 }
 

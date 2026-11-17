@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- preinitialize_views="false" will require explicitly building views elsewhere anyway, see viewer #6348 -->
 <inbox_inventory_panel
     accepts_drag_and_drop="false"
     name="inventory_inbox"
@@ -13,7 +14,7 @@
     border="false"
     bevel_style="none"
     show_item_link_overlays="true"
-    preinitialize_views="false"
+    preinitialize_views="true"
     >
     <scroll reserve_scroll_corner="false" />
 </inbox_inventory_panel>

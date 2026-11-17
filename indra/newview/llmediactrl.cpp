@@ -995,7 +995,8 @@ void LLMediaCtrl::calcOffsetsAndSize(S32 *x_offset, S32 *y_offset, S32 *width, S
         // (e.g. the producer hasn't caught up yet) -- always fill the rect instead and
         // let the already-in-flight resize converge the actual browser size to match.
         if (mMaintainAspectRatio && mMediaSource && !mMediaSource->isUsingEmbeddedBrowser() &&
-            mMediaSource->getMediaWidth() > 0 && mMediaSource->getMediaHeight() > 0)
+            mMediaSource->getMediaWidth() > 0 && mMediaSource->getMediaHeight() > 0 &&
+            r.getWidth() > 0 && r.getHeight() > 0)
         {
             F32 media_aspect = (F32)(mMediaSource->getMediaWidth()) / (F32)(mMediaSource->getMediaHeight());
             F32 view_aspect = (F32)(r.getWidth()) / (F32)(r.getHeight());

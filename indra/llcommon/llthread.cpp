@@ -339,6 +339,8 @@ void LLThread::shutdown()
             // Put a stake in its heart. (A very hostile method to force a thread to quit)
 #if     LL_WINDOWS
             TerminateThread(mNativeHandle, 0);
+            // TerminateThread is asynchronous, wait a bit, if handle doesn't die, keep going.
+            WaitForSingleObject(mNativeHandle, 10);
 #else
             pthread_cancel(mNativeHandle);
 #endif

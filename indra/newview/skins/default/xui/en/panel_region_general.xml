@@ -156,21 +156,14 @@
      tool_tip="Extend access checks upwards to prevent flying over a parcel"
      top="110"
      width="90" />
-  <check_box
-     height="20"
-     label="Allow Damage"
-     layout="topleft"
-     left="10"
-     name="allow_damage_check"
-     top="130"
-     width="80" />
+
     <check_box
      height="20"
      label="Restrict Pushing"
      layout="topleft"
      left="10"
      name="restrict_pushobject"
-     top="150"
+     top="130"
      width="80" />
     <check_box
      height="20"
@@ -178,7 +171,7 @@
      layout="topleft"
      left="10"
      name="allow_land_resell_check"
-     top="170"
+     top="150"
      width="80" />
     <check_box
      height="20"
@@ -186,7 +179,7 @@
      layout="topleft"
      left="10"
      name="allow_parcel_changes_check"
-     top="190"
+     top="170"
      width="80" />
     <check_box
      height="20"
@@ -195,7 +188,7 @@
      left="10"
      name="block_parcel_search_check"
      tool_tip="Let people see this region and its parcels in search results"
-     top="210"
+     top="190"
      width="80" />
 	<spinner
      decimal_digits="0"
@@ -341,4 +334,30 @@
         <button.commit_callback
          function="RegionInfo.ManageRestart" />
     </button>
+    <text
+     follows="left|top"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     left="250"
+     name="combat_status_text"
+     top="160"
+     width="220">
+        Combat is disabled
+    </text>
+    <button
+     follows="left|top"
+     height="20"
+     label="Combat settings..."
+     layout="topleft"
+     left_delta="0"
+     name="combat_settings_btn"
+     top_pad="5"
+     width="160" />
+    <string name="combat_enabled_text">
+        Combat is enabled
+    </string>
+    <string name="combat_disabled_text">
+        Combat is disabled
+    </string>
 </panel>

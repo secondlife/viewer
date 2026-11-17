@@ -60,8 +60,6 @@ class LLVolumeOctree;
 #include "llalignedarray.h"
 #include "llrigginginfo.h"
 
-#include <array>
-
 //============================================================================
 
 constexpr S32 MIN_DETAIL_FACES = 6;
@@ -1042,7 +1040,7 @@ public:
     const LLVector4a& getMeshPt(const U32 i) const          { return mMesh[i]; }
 
 
-    void setDirty();
+    void setDirty() { mPathp->setDirty(); mProfilep->setDirty(); }
 
     void regen();
     void genTangents(S32 face);
@@ -1132,11 +1130,6 @@ public:
     F32 mSurfaceArea; //unscaled surface area
     bool mIsMeshAssetLoaded;
     bool mIsMeshAssetUnavaliable;
-
-    // Cache for sculpt geometry validation results
-    static constexpr S32 SCULPT_CACHE_SIZE = 6;  // 0 to 5 inclusive
-    enum class LLSculptValidationState : S8 { Unvalidated, Valid, Invalid };
-    std::array<LLSculptValidationState, SCULPT_CACHE_SIZE> mSculptValidationCache;
 
     const LLVolumeParams mParams;
     LLPath *mPathp;

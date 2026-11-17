@@ -33,6 +33,7 @@ set(cmake_SOURCE_FILES
         Havok.cmake
         Hunspell.cmake
         LLAddBuildTest.cmake
+        LLAddGTest.cmake
         LLAppearance.cmake
         LLAudio.cmake
         LLCommon.cmake

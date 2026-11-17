@@ -1407,5 +1407,19 @@ extern char const* const _PREHASH_Experience;
 extern char const* const _PREHASH_ExperienceID;
 extern char const* const _PREHASH_LargeGenericMessage;
 extern char const* const _PREHASH_MetaData;
+extern char const* const _PREHASH_GameControlInput;
+extern char const* const _PREHASH_AxisData;
+extern char const* const _PREHASH_GameControlData;
+extern char const* const _PREHASH_ActionMode;
+extern char const* const _PREHASH_Axes;
+extern char const* const _PREHASH_ModeAxes;
+extern char const* const _PREHASH_ModeButtons;
+extern char const* const _PREHASH_CombatSettings;
+extern char const* const _PREHASH_CombatFlags;
+extern char const* const _PREHASH_OnDeath;
+extern char const* const _PREHASH_DamageThrottle;
+extern char const* const _PREHASH_RegenerationRate;
+extern char const* const _PREHASH_InvulnerabilyTime;
+extern char const* const _PREHASH_DamageLimit;
 
 #endif

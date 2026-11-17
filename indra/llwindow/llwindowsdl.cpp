@@ -40,6 +40,7 @@
 #include "llpreeditor.h"
 #include "llsdl.h"
 #include "llsdutil.h"
+#include "llgamecontrol.h"
 
 #if LL_LINUX
 #ifdef LL_GLIB
@@ -98,8 +99,6 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
         : LLWindow(callbacks, fullscreen, flags),
         mGamma(1.0f), mFlashing(false)
 {
-    SDL_GL_LoadLibrary(nullptr);
-
     // Initialize the keyboard
     gKeyboard = new LLKeyboardSDL();
     gKeyboard->setCallbacks(callbacks);
@@ -212,7 +211,7 @@ bool LLWindowSDL::createContext(int x, int y, int width, int height, int bits, b
     if (width == 0)
         width = 1024;
     if (height == 0)
-        width = 768;
+        height = 768;
     if (x == 0)
         x = SDL_WINDOWPOS_UNDEFINED;
     if (y == 0)
@@ -639,7 +638,7 @@ bool LLWindowSDL::isValid()
     return mWindow != nullptr;
 }
 
-bool LLWindowSDL::getVisible()
+bool LLWindowSDL::getVisible() const
 {
     bool result = true;
     if (mWindow)
@@ -653,7 +652,7 @@ bool LLWindowSDL::getVisible()
     return result;
 }
 
-bool LLWindowSDL::getMinimized()
+bool LLWindowSDL::getMinimized() const
 {
     bool result = false;
     if (mWindow)
@@ -667,7 +666,7 @@ bool LLWindowSDL::getMinimized()
     return result;
 }
 
-bool LLWindowSDL::getMaximized()
+bool LLWindowSDL::getMaximized() const
 {
     bool result = false;
     if (mWindow)
@@ -692,7 +691,7 @@ bool LLWindowSDL::maximize()
     return false;
 }
 
-bool LLWindowSDL::getPosition(LLCoordScreen *position)
+bool LLWindowSDL::getPosition(LLCoordScreen *position) const
 {
     if (mWindow)
     {
@@ -702,7 +701,7 @@ bool LLWindowSDL::getPosition(LLCoordScreen *position)
     return false;
 }
 
-bool LLWindowSDL::getSize(LLCoordScreen *size)
+bool LLWindowSDL::getSize(LLCoordScreen *size) const
 {
     if (mWindow)
     {
@@ -713,7 +712,7 @@ bool LLWindowSDL::getSize(LLCoordScreen *size)
     return false;
 }
 
-bool LLWindowSDL::getSize(LLCoordWindow *size)
+bool LLWindowSDL::getSize(LLCoordWindow *size) const
 {
     if (mWindow)
     {
@@ -769,7 +768,7 @@ void LLWindowSDL::swapBuffers()
     LL_PROFILER_GPU_COLLECT;
 }
 
-U32 LLWindowSDL::getFSAASamples()
+U32 LLWindowSDL::getFSAASamples() const
 {
     return mFSAASamples;
 }
@@ -779,7 +778,7 @@ void LLWindowSDL::setFSAASamples(const U32 samples)
     mFSAASamples = samples;
 }
 
-F32 LLWindowSDL::getGamma()
+F32 LLWindowSDL::getGamma() const
 {
     return 1.f / mGamma;
 }
@@ -998,9 +997,11 @@ LLWindow::LLWindowResolution* LLWindowSDL::getSupportedResolutions(S32 &num_reso
                 if ((w >= 800) && (h >= 600))
                 {
                     // make sure we don't add the same resolution multiple times!
+                    // A row is "the same" only when both width AND height match the previous row;
+                    // if either dimension differs we keep it.
                     if ( (mNumSupportedResolutions == 0) ||
-                        ((mSupportedResolutions[mNumSupportedResolutions-1].mWidth != w) &&
-                         (mSupportedResolutions[mNumSupportedResolutions-1].mHeight != h)) )
+                        (mSupportedResolutions[mNumSupportedResolutions-1].mWidth != w) ||
+                         (mSupportedResolutions[mNumSupportedResolutions-1].mHeight != h) )
                     {
                         mSupportedResolutions[mNumSupportedResolutions].mWidth = w;
                         mSupportedResolutions[mNumSupportedResolutions].mHeight = h;
@@ -1036,8 +1037,7 @@ std::vector<std::string> LLWindowSDL::getDisplaysResolutionList()
     return ret;
 }
 
-
-bool LLWindowSDL::convertCoords(LLCoordGL from, LLCoordWindow *to)
+bool LLWindowSDL::convertCoords(LLCoordGL from, LLCoordWindow *to) const
 {
     if (!to)
         return false;
@@ -1056,7 +1056,7 @@ bool LLWindowSDL::convertCoords(LLCoordGL from, LLCoordWindow *to)
     return true;
 }
 
-bool LLWindowSDL::convertCoords(LLCoordWindow from, LLCoordGL* to)
+bool LLWindowSDL::convertCoords(LLCoordWindow from, LLCoordGL* to) const
 {
     if (!to)
         return false;
@@ -1074,7 +1074,7 @@ bool LLWindowSDL::convertCoords(LLCoordWindow from, LLCoordGL* to)
     return true;
 }
 
-bool LLWindowSDL::convertCoords(LLCoordScreen from, LLCoordWindow* to)
+bool LLWindowSDL::convertCoords(LLCoordScreen from, LLCoordWindow* to) const
 {
     if (!to)
         return false;
@@ -1085,7 +1085,7 @@ bool LLWindowSDL::convertCoords(LLCoordScreen from, LLCoordWindow* to)
     return true;
 }
 
-bool LLWindowSDL::convertCoords(LLCoordWindow from, LLCoordScreen *to)
+bool LLWindowSDL::convertCoords(LLCoordWindow from, LLCoordScreen *to) const
 {
     if (!to)
         return false;
@@ -1096,14 +1096,14 @@ bool LLWindowSDL::convertCoords(LLCoordWindow from, LLCoordScreen *to)
     return true;
 }
 
-bool LLWindowSDL::convertCoords(LLCoordScreen from, LLCoordGL *to)
+bool LLWindowSDL::convertCoords(LLCoordScreen from, LLCoordGL *to) const
 {
     LLCoordWindow window_coord;
 
     return convertCoords(from, &window_coord) && convertCoords(window_coord, to);
 }
 
-bool LLWindowSDL::convertCoords(LLCoordGL from, LLCoordScreen *to)
+bool LLWindowSDL::convertCoords(LLCoordGL from, LLCoordScreen *to) const
 {
     LLCoordWindow window_coord;
 
@@ -1221,7 +1221,7 @@ void LLWindowSDL::processMiscNativeEvents()
     }
 }
 
-void LLWindowSDL::gatherInput()
+void LLWindowSDL::gatherInput(bool app_has_focus)
 {
     // This is for the case where SDL is not driving the main event loop
     if(!gSDLMainHandled)
@@ -1231,11 +1231,13 @@ void LLWindowSDL::gatherInput()
         // Handle all outstanding SDL events
         while (SDL_PollEvent(&event))
         {
-            handleEvent(event);
+            handleEvent(event, app_has_focus);
         }
     }
 
     updateCursor();
+
+    LLGameControl::processEvents(app_has_focus);
 
     // This is a good time to stop flashing the icon if our mFlashTimer has
     // expired.
@@ -1246,7 +1248,7 @@ void LLWindowSDL::gatherInput()
     }
 }
 
-SDL_AppResult LLWindowSDL::handleEvent(const SDL_Event& event)
+SDL_AppResult LLWindowSDL::handleEvent(const SDL_Event& event, bool app_has_focus)
 {
     switch(event.type)
     {
@@ -1468,6 +1470,7 @@ SDL_AppResult LLWindowSDL::handleEvent(const SDL_Event& event)
             break;
         }
         default:
+            LLGameControl::handleEvent(event, app_has_focus);
             break;
     }
 
@@ -1475,11 +1478,11 @@ SDL_AppResult LLWindowSDL::handleEvent(const SDL_Event& event)
 }
 
 // static
-SDL_AppResult LLWindowSDL::handleEvents(const SDL_Event& event)
+SDL_AppResult LLWindowSDL::handleEvents(const SDL_Event& event, bool app_has_focus)
 {
     if(!gWindowImplementation) return SDL_APP_CONTINUE;
 
-    return gWindowImplementation->handleEvent(event);
+    return gWindowImplementation->handleEvent(event, app_has_focus);
 }
 
 static SDL_Cursor *makeSDLCursorFromBMP(const char *filename, int hotx, int hoty)
@@ -1868,7 +1871,7 @@ namespace
         Make the raw keyboard data available - used to poke through to LLQtWebKit so
         that Qt/Webkit has access to the virtual keycodes etc. that it needs
 */
-LLSD LLWindowSDL::getNativeKeyData()
+LLSD LLWindowSDL::getNativeKeyData() const
 {
     LLSD result = LLSD::emptyMap();
 
@@ -1945,7 +1948,7 @@ void LLWindowSDL::spawnWebBrowser(const std::string& escaped_url, bool async)
     LL_INFOS() << "spawn_web_browser returning." << LL_ENDL;
 }
 
-void* LLWindowSDL::getPlatformWindow()
+void* LLWindowSDL::getPlatformWindow() const
 {
     void* ret = nullptr;
     if (mWindow)
@@ -2047,7 +2050,7 @@ void LLWindowSDL::setLanguageTextInput(const LLCoordGL& position)
     SDL_SetTextInputArea(mWindow, &r, 0);
 }
 
-F32 LLWindowSDL::getSystemUISize()
+F32 LLWindowSDL::getSystemUISize() const
 {
     if(mWindow)
     {

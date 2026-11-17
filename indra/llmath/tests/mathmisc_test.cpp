@@ -29,6 +29,7 @@
 #include "linden_common.h"
 #include "../test/lltut.h"
 
+#include <bit>
 #include "llcrc.h"
 #include "llrand.h"
 #include "lluuid.h"
@@ -166,6 +167,107 @@ namespace tut
         angle = -431.f;
         angle =  llsimple_angle(angle);
         ensure("llsimple_angle  value 1", (angle <=F_PI && angle >= -F_PI));
+    }
+
+    template<> template<>
+    void math_object::test<12>()
+    {
+        ensure("is_zero +0", is_zero(0.f));
+        ensure("is_zero -0", is_zero(-0.f));
+        ensure("is_zero smallest denormal", !is_zero(std::numeric_limits<F32>::denorm_min()));
+        ensure("is_zero 1", !is_zero(1.f));
+        ensure("is_zero -1", !is_zero(-1.f));
+        ensure("is_zero infinity", !is_zero(std::numeric_limits<F32>::infinity()));
+        ensure("is_zero NaN", !is_zero(std::numeric_limits<F32>::quiet_NaN()));
+
+        static_assert(is_zero(-0.f));
+        static_assert(is_approx_equal(1.f, 1.f));
+        static_assert(is_approx_equal(1.0, 1.0));
+    }
+
+    template<> template<>
+    void math_object::test<13>()
+    {
+        auto f32_add_ulps = [](F32 v, U32 n)
+        {
+            return std::bit_cast<F32>(std::bit_cast<U32>(v) + n);
+        };
+
+        constexpr F32 inf   = std::numeric_limits<F32>::infinity();
+        constexpr F32 nan   = std::numeric_limits<F32>::quiet_NaN();
+        constexpr F32 d_min = std::numeric_limits<F32>::denorm_min();
+        constexpr F32 f_max = std::numeric_limits<F32>::max();
+        constexpr F32 f_low = std::numeric_limits<F32>::lowest();
+
+        ensure("f32 identical", is_approx_equal(1.f, 1.f));
+        ensure("f32 +1 ulp", is_approx_equal(1.f, f32_add_ulps(1.f, 1)));
+        ensure("f32 -1 ulp", is_approx_equal(f32_add_ulps(1.f, 1), 1.f));
+        ensure("f32 +2 ulp", !is_approx_equal(1.f, f32_add_ulps(1.f, 2)));
+        ensure("f32 negative +1 ulp", is_approx_equal(-1.f, f32_add_ulps(-1.f, 1)));
+        ensure("f32 negative +2 ulp", !is_approx_equal(-1.f, f32_add_ulps(-1.f, 2)));
+        ensure("f32 exponent boundary", is_approx_equal(1.f, std::nextafter(1.f, 0.f)));
+        ensure("f32 opposite sign", !is_approx_equal(1.f, -1.f));
+        ensure("f32 unrelated", !is_approx_equal(1.f, 2.f));
+
+        ensure("f32 +0 vs -0", is_approx_equal(0.f, -0.f));
+        ensure("f32 +denorm vs +0", is_approx_equal(d_min, 0.f));
+        ensure("f32 -denorm vs +0", is_approx_equal(-d_min, 0.f));
+        ensure("f32 -denorm vs -0", is_approx_equal(-d_min, -0.f));
+        ensure("f32 +denorm vs -denorm is 2 ulp", !is_approx_equal(d_min, -d_min));
+
+        ensure("f32 NaN vs NaN", !is_approx_equal(nan, nan));
+        ensure("f32 NaN vs 1", !is_approx_equal(nan, 1.f));
+        ensure("f32 1 vs NaN", !is_approx_equal(1.f, nan));
+        ensure("f32 NaN vs inf", !is_approx_equal(nan, inf));
+
+        ensure("f32 +inf vs +inf", is_approx_equal(inf, inf));
+        ensure("f32 -inf vs -inf", is_approx_equal(-inf, -inf));
+        ensure("f32 +inf vs -inf", !is_approx_equal(inf, -inf));
+        ensure("f32 +inf vs max", !is_approx_equal(inf, f_max));
+        ensure("f32 -inf vs lowest", !is_approx_equal(-inf, f_low));
+    }
+
+    template<> template<>
+    void math_object::test<14>()
+    {
+        auto f64_add_ulps = [](F64 v, U64 n)
+        {
+            return std::bit_cast<F64>(std::bit_cast<U64>(v) + n);
+        };
+
+        constexpr F64 inf   = std::numeric_limits<F64>::infinity();
+        constexpr F64 nan   = std::numeric_limits<F64>::quiet_NaN();
+        constexpr F64 d_min = std::numeric_limits<F64>::denorm_min();
+        constexpr F64 f_max = std::numeric_limits<F64>::max();
+        constexpr F64 f_low = std::numeric_limits<F64>::lowest();
+
+        ensure("f64 identical", is_approx_equal(1.0, 1.0));
+        ensure("f64 +1 ulp", is_approx_equal(1.0, f64_add_ulps(1.0, 1)));
+        ensure("f64 -1 ulp", is_approx_equal(f64_add_ulps(1.0, 1), 1.0));
+        ensure("f64 +2 ulp", !is_approx_equal(1.0, f64_add_ulps(1.0, 2)));
+        ensure("f64 negative +1 ulp", is_approx_equal(-1.0, f64_add_ulps(-1.0, 1)));
+        ensure("f64 negative +2 ulp", !is_approx_equal(-1.0, f64_add_ulps(-1.0, 2)));
+        ensure("f64 opposite sign", !is_approx_equal(1.0, -1.0));
+
+        ensure("f64 2^32 ulp apart", !is_approx_equal(1.0, f64_add_ulps(1.0, U64(1) << 32)));
+        ensure("f64 2^32+1 ulp apart", !is_approx_equal(1.0, f64_add_ulps(1.0, (U64(1) << 32) + 1)));
+
+        ensure("f64 +0 vs -0", is_approx_equal(0.0, -0.0));
+        ensure("f64 +denorm vs +0", is_approx_equal(d_min, 0.0));
+        ensure("f64 -denorm vs +0", is_approx_equal(-d_min, 0.0));
+        ensure("f64 -denorm vs -0", is_approx_equal(-d_min, -0.0));
+        ensure("f64 +denorm vs -denorm is 2 ulp", !is_approx_equal(d_min, -d_min));
+
+        ensure("f64 NaN vs NaN", !is_approx_equal(nan, nan));
+        ensure("f64 NaN vs 1", !is_approx_equal(nan, 1.0));
+        ensure("f64 1 vs NaN", !is_approx_equal(1.0, nan));
+        ensure("f64 NaN vs inf", !is_approx_equal(nan, inf));
+
+        ensure("f64 +inf vs +inf", is_approx_equal(inf, inf));
+        ensure("f64 -inf vs -inf", is_approx_equal(-inf, -inf));
+        ensure("f64 +inf vs -inf", !is_approx_equal(inf, -inf));
+        ensure("f64 +inf vs max", !is_approx_equal(inf, f_max));
+        ensure("f64 -inf vs lowest", !is_approx_equal(-inf, f_low));
     }
 }
 

@@ -52,6 +52,11 @@ bool LLWindowCallbacks::handleUnicodeChar(llwchar uni_char, MASK mask)
     return false;
 }
 
+bool LLWindowCallbacks::keyboardFocusAcceptsText()
+{
+    return false;
+}
+
 
 bool LLWindowCallbacks::handleMouseDown(LLWindow *window, const LLCoordGL pos, MASK mask)
 {

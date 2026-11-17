@@ -141,6 +141,8 @@ private:
 
     class Impl;
     Impl& impl;
+
+    static bool sShuttingDown;
 };
 
 

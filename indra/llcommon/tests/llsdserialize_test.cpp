@@ -187,6 +187,11 @@ namespace tut
         mSD = 3287.4387;
         expected = "<llsd><real>3287</real></llsd>\n";
         xml_test("no decimal real number", expected);
+
+        mFormatter->realFormat("%0300.2f");
+        mSD = 1.0;
+        expected = "<llsd><real>" + std::string(296, '0') + "1.00</real></llsd>\n";
+        xml_test("long real format", expected);
     }
 
     template<> template<>

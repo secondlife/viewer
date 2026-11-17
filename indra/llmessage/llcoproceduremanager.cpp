@@ -123,6 +123,7 @@ private:
 
     std::string     mPoolName;
     size_t          mPoolSize, mQueueSize, mActiveCoprocsCount, mPending;
+    static size_t   sActiveCoprocsCount, sPending;
     CoprocQueuePtr  mPendingCoprocs;
     LLTempBoundListener mStatusListener;
 
@@ -134,6 +135,10 @@ private:
     void coprocedureInvokerCoro(CoprocQueuePtr pendingCoprocs,
                                 LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter);
 };
+
+
+size_t LLCoprocedurePool::sActiveCoprocsCount = 0;
+size_t LLCoprocedurePool::sPending = 0;
 
 //=========================================================================
 LLCoprocedureManager::LLCoprocedureManager()
@@ -400,6 +405,16 @@ LLCoprocedurePool::~LLCoprocedurePool()
         // Shutting down, just log it
         LL_WARNS() << "Exception " << e.what() << " during ~LLCoprocedurePool() in " << mPoolName << LL_ENDL;
     }
+    if (mPending > 0)
+    {
+        sPending -= mPending;
+        LL_PROFILE_PLOT("CoprocPending", (int64_t)sPending);
+    }
+    if (mActiveCoprocsCount > 0)
+    {
+        sActiveCoprocsCount -= mActiveCoprocsCount;
+        LL_PROFILE_PLOT("CoprocActive", (int64_t)sActiveCoprocsCount);
+    }
 }
 
 //-------------------------------------------------------------------------
@@ -431,6 +446,7 @@ LLUUID LLCoprocedurePool::enqueueCoprocedure(const std::string &name, LLCoproced
     if (pushed == boost::fibers::channel_op_status::success)
     {
         ++mPending;
+        LL_PROFILE_PLOT("CoprocPending", (int64_t)++sPending);
         return id;
     }
 
@@ -489,6 +505,8 @@ void LLCoprocedurePool::coprocedureInvokerCoro(
         // we actually popped an item
         --mPending;
         mActiveCoprocsCount++;
+        LL_PROFILE_PLOT("CoprocPending", (int64_t)--sPending);
+        LL_PROFILE_PLOT("CoprocActive", (int64_t)++sActiveCoprocsCount);
 
         LL_DEBUGS("CoProcMgr") << "Dequeued and invoking coprocedure(" << coproc->mName << ") with id=" << coproc->mId.asString() << " in pool \"" << mPoolName << "\" (" << mPending << " left)" << LL_ENDL;
 
@@ -509,12 +527,14 @@ void LLCoprocedurePool::coprocedureInvokerCoro(
                                               << ") in pool '" << mPoolName << "'"));
             // must NOT omit this or we deplete the pool
             mActiveCoprocsCount--;
+            LL_PROFILE_PLOT("CoprocActive", (int64_t)--sActiveCoprocsCount);
             continue;
         }
 
         LL_DEBUGS("CoProcMgr") << "Finished coprocedure(" << coproc->mName << ")" << " in pool \"" << mPoolName << "\"" << LL_ENDL;
 
         mActiveCoprocsCount--;
+        LL_PROFILE_PLOT("CoprocActive", (int64_t)--sActiveCoprocsCount);
     }
 }
 

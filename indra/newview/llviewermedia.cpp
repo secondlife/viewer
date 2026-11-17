@@ -2507,6 +2507,9 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 //////////////////////////////////////////////////////////////////////////////////////////
 bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 {
+    // Allows a suspended initialization to detect whether a newer one has superseded it.
+    const U32 init_generation = ++mPluginInitGeneration;
+
     if(mMediaSource)
     {
         // Save the previous media source's last set size before destroying it.
@@ -2536,6 +2539,16 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
     mCurrentMimeType = mMimeType;
 
     LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight, mZoomFactor, mTarget, mCleanBrowser);
+
+    // Plugin creation can yield while acquiring the plugin-process mutex. Another
+    // initializePlugin() call may then install a newer source; discard this stale
+    // source rather than replacing and deleting the newer one.
+    if (init_generation != mPluginInitGeneration)
+    {
+        LL_WARNS("Media") << "Plugin initialization superseded by a newer one, discarding plugin for mime type " << media_type << LL_ENDL;
+        delete media_source;
+        return (mMediaSource != nullptr);
+    }
 
     if (media_source)
     {
@@ -4067,6 +4080,13 @@ void LLViewerMediaImpl::update()
     }
     else
     {
+        // A pending texture update on the worker thread reads from the plugin's shared memory.
+        // Don't process plugin messages until it's done, they can resize or unmap that memory.
+        if (mTextureUpdatePending)
+        {
+            return;
+        }
+
         // Make sure a navigate doesn't happen during the idle -- it can cause mMediaSource to get destroyed, which can cause a crash.
         setNavigateSuspended(true);
 
@@ -4121,6 +4141,8 @@ void LLViewerMediaImpl::update()
             mTextureUpdatePending = true;
             ref();  // protect texture from deletion while active on bg queue
             media_tex->ref();
+            // data points into the plugin's shared memory, keep the plugin alive until the update is done
+            std::shared_ptr<LLPluginClassMedia> media_source = mMediaSource;
             main_queue->postTo(
                 mTexUpdateQueue, // Worker thread queue
                 [=, this]() // work done on update worker thread
@@ -4130,7 +4152,7 @@ void LLViewerMediaImpl::update()
 #endif
                     doMediaTexUpdate(media_tex, data, data_width, data_height, x_pos, y_pos, width, height, true);
                 },
-                [=, this]() // callback to main thread
+                [=, this, media_source = std::move(media_source)]() // callback to main thread
                 {
 #if LL_IMAGEGL_THREAD_CHECK
                     media_tex->getGLTexture()->mActiveThread = LLThread::currentID();

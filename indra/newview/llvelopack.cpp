@@ -40,6 +40,7 @@
 #include "llviewercontrol.h"
 #include "llappviewer.h"
 #include "llcoros.h"
+#include "llsdserialize.h"
 
 #include "Velopack.h"
 
@@ -80,6 +81,157 @@ static void show_downloading_notification(const std::string& version);
 static void ensure_update_manager(bool allow_downgrade);
 static void velopack_download_pending_update();
 static std::unordered_map<std::string, std::string> sAssetUrlMap; // basename -> original absolute URL
+
+//
+// Version comparison helper
+//
+
+// Compare running version against a VVM version string "major.minor.patch.build".
+// Returns -1 if running < vvm, 0 if equal, 1 if running > vvm.
+static int compare_running_version(const std::string& vvm_version)
+{
+    S32 major = 0, minor = 0, patch = 0;
+    U64 build = 0;
+    sscanf(vvm_version.c_str(), "%d.%d.%d.%llu", &major, &minor, &patch, &build);
+
+    const LLVersionInfo& vi = LLVersionInfo::instance();
+    S32 cur_major = vi.getMajor();
+    S32 cur_minor = vi.getMinor();
+    S32 cur_patch = vi.getPatch();
+    U64 cur_build = vi.getBuild();
+
+    if (cur_major != major) return cur_major < major ? -1 : 1;
+    if (cur_minor != minor) return cur_minor < minor ? -1 : 1;
+    if (cur_patch != patch) return cur_patch < patch ? -1 : 1;
+    if (cur_build != build) return cur_build < build ? -1 : 1;
+    return 0;
+}
+
+//
+// 'skip version' support helpers
+//
+
+static std::string get_skip_file_path()
+{
+    return gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "velopack_skip.xml");
+}
+
+static void load_skip_map(LLSD& skip_map_out)
+{
+    std::string path = get_skip_file_path();
+    llifstream in_file(path, std::ios::binary);
+    if (!in_file.is_open())
+    {
+        return;
+    }
+    LLSDSerialize::fromXML(skip_map_out, in_file);
+    in_file.close();
+}
+
+static void save_skip_map(const LLSD& skip_map)
+{
+    std::string path = get_skip_file_path();
+    llofstream out_file(path, std::ios::binary | std::ios::trunc);
+    if (!out_file.is_open())
+    {
+        LL_WARNS("Velopack") << "Failed to write skip file: " << path << LL_ENDL;
+        return;
+    }
+
+    LLSDSerialize::toPrettyXML(skip_map, out_file);
+    out_file.close();
+}
+
+// Returns true if 'version' was previously skipped on the current channel.
+static bool is_version_skipped(const std::string& channel, const std::string& skip_version)
+{
+    LLSD skip_map;
+    load_skip_map(skip_map);
+    if (!skip_map.isMap())
+    {
+        return false;
+    }
+
+    // Might be better to use path instead of channel,
+    // but channels can be used to get different update sources.
+    LLSD& channel_array = skip_map[channel];
+    if (!channel_array.isArray() || channel_array.isEmpty())
+    {
+        return false;
+    }
+    LLSD::array_const_iterator end = channel_array.endArray();
+    LLSD::array_const_iterator i = channel_array.beginArray();
+
+    // first value is always the version used for creating the record.
+    std::string version = (*i).asString();
+    if (compare_running_version(version))
+    {
+        // Version has changed, the list is obsolete (don't change it just in case).
+        return false;
+    }
+    i++;
+
+    for (; i != end; ++i)
+    {
+        if (*i == skip_version)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Records that 'version' should be skipped on the current channel.
+// Overwrites any prior entry for this channel (self-clearing on version change).
+static void set_skipped_version(const std::string& channel, const std::string& skip_version)
+{
+    bool reset_array = false;
+    LLSD skip_map;
+    load_skip_map(skip_map);
+    if (skip_map.isMap())
+    {
+        LLSD& channel_array = skip_map[channel];
+        if (channel_array.isArray() && !channel_array.isEmpty())
+        {
+            // first record should be the version used for creating the record.
+            std::string version = channel_array[0].asString();
+            if (compare_running_version(version))
+            {
+                // Version has changed, clear the list.
+                reset_array = true;
+            }
+        }
+        else
+        {
+            reset_array = true;
+        }
+    }
+    else
+    {
+        skip_map = LLSD::emptyMap();
+        reset_array = true;
+    }
+
+    if (reset_array)
+    {
+        LLSD channel_array = LLSD::emptyArray();
+
+        const LLVersionInfo& vi = LLVersionInfo::instance();
+        S32 cur_major = vi.getMajor();
+        S32 cur_minor = vi.getMinor();
+        S32 cur_patch = vi.getPatch();
+        U64 cur_build = vi.getBuild();
+        std::string cur_version = llformat("%d.%d.%d.%llu", cur_major, cur_minor, cur_patch, cur_build);
+        channel_array.append(cur_version);
+        channel_array.append(skip_version);
+        skip_map[channel] = channel_array;
+    }
+    else
+    {
+        skip_map[channel].append(skip_version);
+    }
+    save_skip_map(skip_map);
+}
 
 //
 // Custom update source helpers
@@ -1047,31 +1199,6 @@ static void on_vpk_log(void* p_user_data,
 }
 
 //
-// Version comparison helper
-//
-
-// Compare running version against a VVM version string "major.minor.patch.build".
-// Returns -1 if running < vvm, 0 if equal, 1 if running > vvm.
-static int compare_running_version(const std::string& vvm_version)
-{
-    S32 major = 0, minor = 0, patch = 0;
-    U64 build = 0;
-    sscanf(vvm_version.c_str(), "%d.%d.%d.%llu", &major, &minor, &patch, &build);
-
-    const LLVersionInfo& vi = LLVersionInfo::instance();
-    S32 cur_major = vi.getMajor();
-    S32 cur_minor = vi.getMinor();
-    S32 cur_patch = vi.getPatch();
-    U64 cur_build = vi.getBuild();
-
-    if (cur_major != major) return cur_major < major ? -1 : 1;
-    if (cur_minor != minor) return cur_minor < minor ? -1 : 1;
-    if (cur_patch != patch) return cur_patch < patch ? -1 : 1;
-    if (cur_build != build) return cur_build < build ? -1 : 1;
-    return 0;
-}
-
-//
 // Update manager lifecycle
 //
 
@@ -1319,6 +1446,8 @@ static void on_required_update_response(const LLSD& notification, const LLSD& re
 static void on_optional_update_response(const LLSD& notification, const LLSD& response)
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    // yesnocancelbuttons
+    // Yes(0) = "Install", No(1) = "Skip this version", Cancel(2) = "Cancel"
     if (option == 0) // "Install"
     {
         LL_INFOS("Velopack") << "User accepted optional update, starting download" << LL_ENDL;
@@ -1335,7 +1464,19 @@ static void on_optional_update_response(const LLSD& notification, const LLSD& re
             }
         });
     }
-    else
+    else if (option == 1) // "Skip this version"
+    {
+        LL_INFOS("Velopack") << "Skipping version " << sTargetVersion
+            << " on channel '" << LLVersionInfo::instance().getChannel() << "'" << LL_ENDL;
+        set_skipped_version(LLVersionInfo::instance().getChannel(), sTargetVersion);
+        // Free the check info since user declined
+        if (sPendingCheckInfo)
+        {
+            vpkc_free_update_info(sPendingCheckInfo);
+            sPendingCheckInfo = nullptr;
+        }
+    }
+    else // Cancel
     {
         LL_INFOS("Velopack") << "User declined optional update (option=" << option << ")" << LL_ENDL;
         // Free the check info since user declined
@@ -1418,6 +1559,14 @@ void velopack_check_for_updates(const std::string& required_version, const std::
         LL_INFOS("Velopack") << "Optional update to " << target_version
                              << ", downloading automatically (UpdaterServiceSetting=3)" << LL_ENDL;
         velopack_download_pending_update();
+        return;
+    }
+
+    std::string channel = LLVersionInfo::instance().getChannel();
+    if (is_version_skipped(channel, target_version))
+    {
+        LL_INFOS("Velopack") << "Version " << target_version << " was previously skipped on channel '"
+            << channel << "', not prompting" << LL_ENDL;
         return;
     }
 

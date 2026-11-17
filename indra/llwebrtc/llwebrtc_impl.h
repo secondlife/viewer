@@ -234,7 +234,7 @@ public:
     int32_t SetRecordingDevice(WindowsDeviceType type) override { return inner_->SetRecordingDevice(type); }
 
     // --- Init/start/stop (forward) ---
-    int32_t InitPlayout() override { return inner_->InitPlayout(); }
+    int32_t InitPlayout(AudioCategory category = AudioCategory::kMedia) override { return inner_->InitPlayout(category); }
     bool    PlayoutIsInitialized() const override { return inner_->PlayoutIsInitialized(); }
     int32_t StartPlayout() override {
         if (tuning_) return 0;  // For tuning, don't allow playout
@@ -243,7 +243,14 @@ public:
     int32_t StopPlayout() override { return inner_->StopPlayout(); }
     bool    Playing() const override { return inner_->Playing(); }
 
-    int32_t InitRecording() override { return inner_->InitRecording(); }
+    int32_t InitRecording(AudioCategory category = AudioCategory::kMedia) override
+    {
+        // Ignore webrtc.lib's InitRecording (sent when a send stream starts), as
+        // with StartRecording/StopRecording: it would leave capture initialised even
+        // while we hold capture off. The app initialises capture itself via ForceInitRecording.
+        return 0;
+    }
+    int32_t ForceInitRecording(AudioCategory category = AudioCategory::kMedia) { return inner_->InitRecording(category); }
     bool    RecordingIsInitialized() const override { return inner_->RecordingIsInitialized(); }
     int32_t StartRecording() override {
         // ignore start recording as webrtc.lib will
@@ -442,6 +449,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     void setRenderDevice(const std::string& id) override;
 
     void setVoiceEnabled(bool enable) override;
+    void setStopCaptureOnMute(bool stop) override;
 
     void setTuningMode(bool enable) override;
     float getTuningAudioLevel() override;
@@ -466,29 +474,57 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     // The following thread helpers allow the
     // LLWebRTCPeerConnectionImpl class to post
     // tasks to the native webrtc threads.
-    void PostWorkerTask(absl::AnyInvocable<void() &&> task,
+    //
+    // Once terminate() has started they drop the task and return false.
+    // terminate() moves the thread members out to its shutdown thread, but a
+    // connection it hasn't closed yet can still get webrtc callbacks (e.g.
+    // OnConnectionChange on the signaling thread) that post work, and those
+    // would dereference a null thread.  This is race-free for callers on the
+    // signaling and worker threads: terminate() sets mTerminating, then does a
+    // BlockingCall on each of them, and only then moves the members.
+    bool PostWorkerTask(absl::AnyInvocable<void() &&> task,
                   const webrtc::Location& location = webrtc::Location::Current())
     {
+        if (mTerminating)
+        {
+            return false;
+        }
         mWorkerThread->PostTask(std::move(task), location);
+        return true;
     }
 
-    void PostSignalingTask(absl::AnyInvocable<void() &&> task,
+    bool PostSignalingTask(absl::AnyInvocable<void() &&> task,
                   const webrtc::Location& location = webrtc::Location::Current())
     {
+        if (mTerminating)
+        {
+            return false;
+        }
         mSignalingThread->PostTask(std::move(task), location);
+        return true;
     }
 
-    void PostDelayedSignalingTask(absl::AnyInvocable<void() &&> task,
+    bool PostDelayedSignalingTask(absl::AnyInvocable<void() &&> task,
                   webrtc::TimeDelta delay,
                   const webrtc::Location& location = webrtc::Location::Current())
     {
+        if (mTerminating)
+        {
+            return false;
+        }
         mSignalingThread->PostDelayedTask(std::move(task), delay, location);
+        return true;
     }
 
-    void PostNetworkTask(absl::AnyInvocable<void() &&> task,
+    bool PostNetworkTask(absl::AnyInvocable<void() &&> task,
                   const webrtc::Location& location = webrtc::Location::Current())
     {
+        if (mTerminating)
+        {
+            return false;
+        }
         mNetworkThread->PostTask(std::move(task), location);
+        return true;
     }
 
     void WorkerBlockingCall(webrtc::FunctionView<void()> functor,
@@ -521,8 +557,9 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     void freePeerConnection(LLWebRTCPeerConnectionInterface* peer_connection);
 
     // Start playout once a connection's audio is established (playout is gated
-    // on there being a connection to render).  Capture is not touched here --
-    // it follows voice-enabled state, not connection state.  Safe to call from
+    // on there being a connection to render).  Capture normally follows
+    // voice-enabled state, not connection state; the exception is "stop capture
+    // while muted", where it's also started here if unmuted.  Safe to call from
     // any thread (work is posted to the worker thread).
     void startPlayout();
 
@@ -581,6 +618,11 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     // Whether voice is enabled; gates whether the capture/playout devices run.
     bool                                                       mVoiceEnabled;
     float                                                      mGain;
+    std::atomic<bool>                                          mStopCaptureOnMute{ false };
+    // True once any connection's audio has been established, until the last
+    // connection is freed (not a count of currently-connected peers). Used to
+    // hold capture off until a call is actually up.
+    std::atomic<bool>                                          mAudioEstablished{ false };
 
     LLCustomProcessorStatePtr                                  mPeerCustomProcessor;
 
@@ -609,10 +651,29 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
     void init(LLWebRTCImpl * webrtc_impl);
     // Posts closeOnSignalingThread() and returns immediately.
     void terminate();
+
     // The actual close.  Signaling thread only.  Callable directly (via a
     // BlockingCall) when the caller needs the connection to be fully closed
     // before it continues -- see LLWebRTCImpl::terminate().
-    void closeOnSignalingThread();
+    // webrtc_terminate indicates we're shutting down the webrtc library,
+    // if not, we'll be reusing the peer connection for a reconnection
+    void closeOnSignalingThread(bool webrtc_terminate);
+
+    // Final close for a connection the viewer has freed.  Signaling thread
+    // only.  Drops the observers (the viewer has let go of the connection, so
+    // nothing may call back into it), closes the webrtc peer connection if it
+    // is still open, and releases the factory.  A connection freed without
+    // shutdownConnection() otherwise keeps a live peer connection -- ICE
+    // gathering on the network thread -- that terminate() no longer tracks
+    // and so tears the webrtc threads down underneath.
+    void closeOnSignalingThreadForFree();
+
+    // Drops this connection's reference to the peer connection factory once
+    // it won't be used again.  Signaling thread only, while that thread is
+    // still running: LLWebRTCImpl::terminate() relies on holding the last
+    // reference, so that the factory (and the voice engine and audio device
+    // module it owns) is destroyed there, in order.  See the destructor.
+    void releaseFactory();
 
     virtual void AddRef() const override = 0;
     virtual webrtc::RefCountReleaseStatus Release() const override = 0;
