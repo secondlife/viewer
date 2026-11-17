@@ -355,13 +355,21 @@ public:
             return true; // don't block, will fail later
         }
 
+        const std::string verb = params[1].asString();
+        // These verbs change the block list without asking. 
+        // A link from chat, a script or a web page should not run these untrusted.
+        // The viewer's menus use them as trusted links, which does not go through this path.
+        if (verb == "mute" || verb == "unmute" || verb == "block" || verb == "unblock")
+        {
+            return false;
+        }
+
         if (nav_type == NAV_TYPE_CLICKED
             || nav_type == NAV_TYPE_EXTERNAL)
         {
             return true;
         }
 
-        const std::string verb = params[1].asString();
         if (verb == "about" || verb == "inspect" || verb == "reportAbuse")
         {
             return true;
