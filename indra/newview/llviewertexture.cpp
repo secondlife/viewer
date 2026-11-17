@@ -3654,7 +3654,13 @@ F32 LLViewerMediaTexture::getMaxVirtualSize()
 
     if(!mMaxVirtualSizeResetCounter)
     {
-        addTextureStats(0.f, false);//reset
+        // addTextureStats(0.f, false) used to be called here, but addTextureStats()
+        // only ever raises mMaxVirtualSize (it takes the max of the new and old
+        // values), so passing 0 was a no-op whenever mMaxVirtualSize was already
+        // positive -- once a media's virtual size ratcheted up while visible, it
+        // could never come back down, even after every face went out of view
+        // (e.g. beyond draw distance). Reset the value directly instead.
+        mMaxVirtualSize = 0.f;
     }
 
     if(mIsPlaying) //media is playing

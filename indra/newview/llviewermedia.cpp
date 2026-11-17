@@ -2951,7 +2951,12 @@ void LLViewerMediaImpl::updateVolume()
                 if (!capture_undecided && fabsf(send_volume - mEmbeddedBrowserCefVolume) >= EMBEDDED_BROWSER_VOLUME_EPSILON)
                 {
                     mEmbeddedBrowserCefVolume = send_volume;
-                    LL_INFOS("MediaVolume") << "CEF media (id=" << mTextureId
+                    // Routine, not exceptional -- this fires on every meaningful rolloff
+                    // step while walking near uncaptured CEF audio (EMBEDDED_BROWSER_VOLUME_
+                    // EPSILON is small enough that distance alone crosses it often), so it
+                    // doesn't belong at LL_INFOS's always-on noise level like the setMuted()
+                    // state-change log below.
+                    LL_DEBUGS("MediaVolume") << "CEF media (id=" << mTextureId
                         << ") JS-injected volume=" << send_volume << LL_ENDL;
                     executeJavaScript(buildEmbeddedBrowserVolumeUpdateScript(send_volume));
                 }
