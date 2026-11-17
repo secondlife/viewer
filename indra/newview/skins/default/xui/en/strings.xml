@@ -3683,9 +3683,9 @@ Please reinstall viewer from  https://secondlife.com/support/downloads/ and cont
 	  Failed to start viewer
 	</string>
     <string name="UpdaterProgressDownloadingUpdate">
-        Downloading update [VERSION]. This may take some time, so please be patient.
+Downloading update [VERSION]. This may take some time.
 
-        [APP_NAME] Viewer will restart once the download is complete. Closing it will abort the download.
+[APP_NAME] will restart once the download is complete. Closing it will stop the download.
     </string>
 
 	<!-- System Messages -->

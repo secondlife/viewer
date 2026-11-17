@@ -83,6 +83,7 @@ static std::string sTargetVersion;                           // Velopack's actua
 static bool sShowingDownloadProgress = false;
 static bool sSilentRequiredUpdate = false;                    // Suppress PauseForUpdate prompt / progress view on next required check
 static bool sRequiredDownloadPendingReveal = false;
+static bool sLoginRequiredUpdate = false;
 static bool sDownloadInProgress = false;
 
 // Forward declarations
@@ -325,6 +326,7 @@ void velopack_set_silent(bool silent)
     sSilentRequiredUpdate = silent;
     if (sSilentRequiredUpdate)
     {
+        sLoginRequiredUpdate = true;
         // no progress should be visible, just quit
         return;
     }
@@ -1659,6 +1661,18 @@ static void clear_failed_required_update()
 // Operates on sPendingCheckInfo which was set by velopack_check_for_updates.
 static bool velopack_download_pending_update()
 {
+    if (sDownloadInProgress)
+    {
+        LL_WARNS("Velopack") << "Update download already in progress" << LL_ENDL;
+        return false;
+    }
+
+    struct DownloadInProgressGuard
+    {
+        DownloadInProgressGuard() { sDownloadInProgress = true; }
+        ~DownloadInProgressGuard() { sDownloadInProgress = false; }
+    } download_in_progress_guard;
+
     if (!sUpdateManager || !sPendingCheckInfo)
     {
         LL_WARNS("Velopack") << "No pending check info to download" << LL_ENDL;
@@ -1825,7 +1839,7 @@ static void on_optional_update_response(const LLSD& notification, const LLSD& re
 
 static void show_required_update_prompt()
 {
-    if (sSilentRequiredUpdate)
+    if (sSilentRequiredUpdate || sLoginRequiredUpdate)
     {
         // Triggered by login.cgi rejecting the login.
         // Skip Velopack's own "PauseForUpdate" prompt entirely --
@@ -1839,7 +1853,6 @@ static void show_required_update_prompt()
             << sTargetVersion << LL_ENDL;
         LLCoros::instance().launch("VelopackRequiredUpdateSilent", []()
         {
-            sDownloadInProgress = true;
             bool downloaded = velopack_download_pending_update();
             if (sRequiredDownloadPendingReveal && sSilentRequiredUpdate)
             {
@@ -1864,7 +1877,6 @@ static void show_required_update_prompt()
             {
                 offer_install_downloaded_update();
             }
-            sDownloadInProgress = false;
         });
         return;
     }
@@ -1883,9 +1895,18 @@ void velopack_check_for_updates(const std::string& required_version, const std::
         return;
     }
 
+    const bool login_required = sLoginRequiredUpdate;
+
     if (sUpdateUrl.empty())
     {
         LL_DEBUGS("Velopack") << "No update URL set, skipping update check" << LL_ENDL;
+        if (login_required)
+        {
+            sLoginRequiredUpdate = false;
+            sSilentRequiredUpdate = false;
+            sRequiredDownloadPendingReveal = false;
+            show_update_download_failed_notification();
+        }
         velopack_dismiss_downloading_progress_view();
         return;
     }
@@ -1900,13 +1921,12 @@ void velopack_check_for_updates(const std::string& required_version, const std::
     if (!sUpdateManager)
     {
         LL_WARNS("Velopack") << "Failed to create update manager" << LL_ENDL;
-        if (is_required_floor)
+        if (is_required_floor || login_required)
         {
             sReleaseNotesUrl = relnotes_url;
-            if (sSilentRequiredUpdate || sRequiredDownloadPendingReveal)
-            {
-                sRequiredDownloadPendingReveal = false;
-            }
+            sLoginRequiredUpdate = false;
+            sSilentRequiredUpdate = false;
+            sRequiredDownloadPendingReveal = false;
             velopack_dismiss_downloading_progress_view();
             show_update_download_failed_notification();
         }
@@ -1920,12 +1940,13 @@ void velopack_check_for_updates(const std::string& required_version, const std::
     if (result != UPDATE_AVAILABLE || !update_info)
     {
         LL_INFOS("Velopack") << "No update available from feed (result=" << result << ")" << LL_ENDL;
-        if (is_required_floor)
+        if (is_required_floor || login_required)
         {
             // The server told us (via VVM) that an update is required, but
             // Velopack's own feed check failed/disagreed -- let the user know
             // rather than leaving them stuck silently.
             sReleaseNotesUrl = relnotes_url;
+            sLoginRequiredUpdate = false;
             sSilentRequiredUpdate = false;
             sRequiredDownloadPendingReveal = false;
             velopack_dismiss_downloading_progress_view();
@@ -1950,7 +1971,7 @@ void velopack_check_for_updates(const std::string& required_version, const std::
     sPendingCheckInfo = update_info;
 
     // Determine if this is mandatory: running version is below VVM's required floor
-    bool is_required = ver_cmp < 0; // running < required -> must update
+    bool is_required = ver_cmp < 0 || login_required; // login.cgi also marks the update as required
     sIsRequired = is_required;
 
     if (is_required)
@@ -1958,6 +1979,7 @@ void velopack_check_for_updates(const std::string& required_version, const std::
         LL_INFOS("Velopack") << "Required update (running below " << required_version
                              << "), prompting user for " << target_version << LL_ENDL;
         show_required_update_prompt();
+        sLoginRequiredUpdate = false;
         return;
     }
 

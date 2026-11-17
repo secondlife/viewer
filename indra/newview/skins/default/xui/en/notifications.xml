@@ -4459,7 +4459,7 @@ Click OK to download and install.
    type="alertmodal">
       Failed to download an update.
 
-      Please try again later or visit [URL] to download the update manually.
+Please try again later or visit [URL] to download the update manually.
       <tag>confirm</tag>
       <usetemplate
        name="okcancelbuttons"
@@ -4487,7 +4487,7 @@ Click OK to install.
    type="alertmodal">
       An update to version [VERSION] has finished downloading and is ready to install.
 
-      [APP_NAME] needs to quit and restart to apply it. Quit now?
+[APP_NAME] needs to quit and restart to apply it. Quit now?
       <tag>confirm</tag>
       <usetemplate
        name="okcancelbuttons"
