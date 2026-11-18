@@ -356,7 +356,7 @@ public:
         }
 
         const std::string verb = params[1].asString();
-        // These verbs change the block list without asking. 
+        // These verbs change the block list without asking.
         // A link from chat, a script or a web page should not run these untrusted.
         // The viewer's menus use them as trusted links, which does not go through this path.
         if (verb == "mute" || verb == "unmute" || verb == "block" || verb == "unblock")
