@@ -297,6 +297,16 @@ void LLVoiceClient::setHidden(bool hidden)
 #endif
 }
 
+void LLVoiceClient::closeConnections()
+{
+#ifndef DISABLE_WEBRTC
+    if (LLWebRTCVoiceClient::instanceExists())
+    {
+        LLWebRTCVoiceClient::getInstance()->closeConnections();
+    }
+#endif
+}
+
 void LLVoiceClient::terminate()
 {
 #ifndef DISABLE_WEBRTC

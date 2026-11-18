@@ -3368,16 +3368,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>FullShutdownCleanup</key>
+    <key>FastShutdown</key>
     <map>
       <key>Comment</key>
-      <string>On exit, stop every thread and free everything before the process ends (slow; useful for leak checking). Otherwise the viewer saves settings and caches and then exits at once.</string>
+      <string>On exit, save settings and caches and then end the process at once. When off, stop every thread and free everything before the process ends (slow; useful for leak checking).</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>GesturesMarketplaceURL</key>
     <map>

@@ -1646,7 +1646,18 @@ bool LLAppViewer::doFrame()
         pingMainloopTimeout("Main:TerminateVoice");
         if (LLVoiceClient::instanceExists())
         {
-            LLVoiceClient::getInstance()->terminate();
+            if (isFastShutdown())
+            {
+                // During a fast shutdown: send each voice connection's courtesy
+                // "logout":true message to the voice server and close the
+                // connections, but don't wait for any of it, nor tear down the
+                // WebRTC threads, which can take seconds.
+                LLVoiceClient::getInstance()->closeConnections();
+            }
+            else
+            {
+                LLVoiceClient::getInstance()->terminate();
+            }
         }
 
         pingMainloopTimeout("Main:TerminatePump");
@@ -1704,6 +1715,15 @@ void LLAppViewer::flushLFSIO()
     }
 }
 
+bool LLAppViewer::isFastShutdown() const
+{
+    // Unless FastShutdown is turned off, save what the next session needs
+    // then exit ASAP, abandoning the side threads. Fast is also the answer
+    // when the setting doesn't exist yet (quitting before settings load).
+    return !gSavedSettings.controlExists("FastShutdown")
+        || gSavedSettings.getBOOL("FastShutdown");
+}
+
 bool LLAppViewer::cleanup()
 {
 #if LL_VELOPACK
@@ -1716,10 +1736,7 @@ bool LLAppViewer::cleanup()
     velopack_cleanup();
 #endif
 
-    // Unless a full cleanup was asked for, save what the next session needs
-    // then exit ASAP, abandoning the side threads.
-    const bool fast_exit = !gSavedSettings.controlExists("FullShutdownCleanup")
-            || !gSavedSettings.getBOOL("FullShutdownCleanup");
+    const bool fast_exit = isFastShutdown();
     LL_INFOS() << (fast_exit ? "Fast shutdown..." : "Full shutdown with cleanup...") << LL_ENDL;
 
     if (fast_exit && sTextureFetch)
@@ -2241,6 +2258,13 @@ void LLAppViewer::saveSessionData()
     LLLocationHistory::getInstance()->save();
 
     LLAvatarIconIDCache::getInstance()->save();
+
+    // Save the per-avatar voice volumes. LLVoiceClient::terminate() already
+    // has, unless this is a fast shutdown, which skips it.
+    if (LLSpeakerVolumeStorage::instanceExists())
+    {
+        LLSpeakerVolumeStorage::deleteSingleton();
+    }
 }
 
 void LLAppViewer::fastExit()

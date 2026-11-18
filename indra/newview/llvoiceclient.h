@@ -354,6 +354,10 @@ public:
 
     void terminate();   // Call this to clean up during shutdown
 
+    // For an exit that won't call terminate(): start closing the voice
+    // connections without waiting for them.
+    void closeConnections();
+
     const LLVoiceVersionInfo getVersion();
 
     static const F32 OVERDRIVEN_POWER_LEVEL;

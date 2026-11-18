@@ -352,6 +352,9 @@ private:
     // Save settings and other per-user files for the next session.
     void saveSessionData();
 
+    // True unless FastShutdown is turned off, asking for a full cleanup on exit.
+    bool isFastShutdown() const;
+
     // The end of a fast shutdown, once cleanup() has saved what the next
     // session needs: finish the cache writes, then end the process at once,
     // abandoning the side threads. Doesn't return.
