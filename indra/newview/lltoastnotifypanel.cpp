@@ -44,6 +44,8 @@
 #include "llviewermessage.h"
 #include "llfloaterimsession.h"
 #include "llavataractions.h"
+#include "llviewerobjectlist.h"
+#include "llvoavatarself.h"
 
 const S32 BOTTOM_PAD = VPAD * 3;
 const S32 IGNORE_BTN_TOP_DELTA = 3*VPAD;//additional ignore_btn padding
@@ -304,8 +306,21 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     static LLCachedControl<S32> script_button_width(gSavedSettings, "ScriptToastButtonWidth", 127);
     mButtonWidth = mIsScriptDialog ? script_button_width : btn_width;
 
-    // Script dialog text is written by user-made scripts, so its links are as untrusted as chat
-    bool is_content_trusted = (notif_name != "LoadWebPage") && !mIsScriptDialog;
+    // Script dialog text is written by user-made scripts, so its links are untrusted like chat.
+    // Unless: the script lives in an object attached to the avatar (a HUD or worn attachment,
+    // including temporary attachments from experiences).
+    // We already trust those to attach HUDs and  run against us, so we trust their app links too.
+    // Other objects that are not on our avatar remain untrusted
+    bool is_content_trusted = (notif_name != "LoadWebPage");
+    if (mIsScriptDialog)
+    {
+        is_content_trusted = false;
+        LLViewerObject* objectp = gObjectList.findObject(mNotification->getPayload()["object_id"].asUUID());
+        if (objectp && isAgentAvatarValid() && objectp->getAvatarAncestor() == gAgentAvatarp)
+        {
+            is_content_trusted = true;
+        }
+    }
     // is it a caution?
     //
     // caution flag can be set explicitly by specifying it in the notification payload, or it can be set implicitly if the
