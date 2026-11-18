@@ -38,5 +38,6 @@
  * event pump for display.
  */
 void initVVMUpdateCheck();
+bool hasPendingVVMUpdateCheck();
 
 #endif // LL_LLVVMQUERY_H
