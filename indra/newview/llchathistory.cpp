@@ -1380,7 +1380,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
         name_params.readonly_color(txt_color);
     }
 
-    bool prependNewLineState = mEditor->getText().size() != 0;
+    bool prependNewLineState = !mEditor->isEmpty();
 
     // compact mode: show a timestamp and name
     if (use_plain_text_chat_history)
