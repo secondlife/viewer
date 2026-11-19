@@ -273,6 +273,17 @@ void LLWebRTCVoiceClient::cleanupSingleton()
     sessionState::clearSessions();
 
     mStatusObservers.clear();
+
+    // Free the postWithoutWaiting() replies, which nothing else reads. Each
+    // request lands on mNoWaitHttpRequest's reply queue once it finishes or
+    // is cancelled, and update() takes it off and drops it. On a full
+    // shutdown the HTTP service has stopped by now, so every request has
+    // landed there.
+    if (mNoWaitHttpRequest)
+    {
+        mNoWaitHttpRequest->update(0);
+        mNoWaitHttpRequest.reset();
+    }
 }
 
 //---------------------------------------------------
@@ -339,6 +350,36 @@ void LLWebRTCVoiceClient::closeConnections()
     for (int i = 0; i < PASSES; ++i)
     {
         sessionState::processSessionStates();
+    }
+}
+
+void LLWebRTCVoiceClient::postWithoutWaiting(const std::string& url, const LLSD& body)
+{
+    // Created on first use: most sessions never need it.
+    if (!mNoWaitHttpRequest)
+    {
+        mNoWaitHttpRequest = std::make_shared<LLCore::HttpRequest>();
+    }
+
+    // The same headers HttpCoroutineAdapter::postAndSuspend() sends.
+    LLCore::HttpHeaders::ptr_t httpHeaders = std::make_shared<LLCore::HttpHeaders>();
+    httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_LLSD_XML);
+    httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
+
+    // requestPost() queues the request on the HTTP thread before it returns.
+    // With no handler, the reply is dropped when cleanupSingleton() takes it
+    // off the reply queue.
+    LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mNoWaitHttpRequest,
+                                                                    LLCore::HttpRequest::DEFAULT_POLICY_ID,
+                                                                    url,
+                                                                    body,
+                                                                    LLCore::HttpOptions::ptr_t(),
+                                                                    httpHeaders,
+                                                                    LLCore::HttpHandler::ptr_t());
+    if (handle == LLCORE_HTTP_HANDLE_INVALID)
+    {
+        LL_WARNS("Voice") << "Couldn't queue the POST to " << url << ": "
+                          << mNoWaitHttpRequest->getStatus().toString() << LL_ENDL;
     }
 }
 
@@ -2944,27 +2985,7 @@ void LLVoiceWebRTCConnection::sendLogoutWithoutWaiting()
     }
 
     LL_INFOS("Voice") << "Sending voice logout without waiting for the reply." << LL_ENDL;
-
-    // The same headers HttpCoroutineAdapter::postAndSuspend() sends.
-    LLCore::HttpHeaders::ptr_t httpHeaders = std::make_shared<LLCore::HttpHeaders>();
-    httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_LLSD_XML);
-    httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_LLSD_XML);
-
-    // requestPost() queues the request on the HTTP thread before it returns.
-    // With no handler, the reply is dropped.
-    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
-    LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(httpRequest,
-                                                                    LLCore::HttpRequest::DEFAULT_POLICY_ID,
-                                                                    url,
-                                                                    makeLogoutBody(),
-                                                                    LLCore::HttpOptions::ptr_t(),
-                                                                    httpHeaders,
-                                                                    LLCore::HttpHandler::ptr_t());
-    if (handle == LLCORE_HTTP_HANDLE_INVALID)
-    {
-        LL_WARNS("Voice") << "Couldn't queue the voice logout: "
-                          << httpRequest->getStatus().toString() << LL_ENDL;
-    }
+    LLWebRTCVoiceClient::getInstance()->postWithoutWaiting(url, makeLogoutBody());
 }
 
 // Tell the simulator to tell the Secondlife WebRTC server that we want a voice
