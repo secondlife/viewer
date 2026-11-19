@@ -351,9 +351,17 @@ void LLThread::shutdown()
             // even if the thread has exited since the test above.
             LL_WARNS("THREAD") << "Killing thread '" << mName << "', which didn't stop" << LL_ENDL;
 #if     LL_WINDOWS
-            TerminateThread(mThreadp->native_handle(), 0);
-            // TerminateThread() can return before the thread is gone
-            mThreadp->join();
+            HANDLE handle = mThreadp->native_handle();
+            TerminateThread(handle, 0);
+            // TerminateThread() can return before the thread is gone. Give it
+            // a moment, but don't block shutdown on it: what the thread was
+            // using is leaked below, so nothing is freed under it either way.
+            constexpr U32 TERMINATED_THREAD_EXIT_WAIT_MS = 30;
+            if (WaitForSingleObject(handle, TERMINATED_THREAD_EXIT_WAIT_MS) != WAIT_OBJECT_0)
+            {
+                LL_WARNS("THREAD") << "Thread '" << mName << "' still not gone after TerminateThread()" << LL_ENDL;
+            }
+            mThreadp->detach();
 #else
             // This takes effect only when the thread reaches a cancellation
             // point, which it may never do, so don't wait for it.
