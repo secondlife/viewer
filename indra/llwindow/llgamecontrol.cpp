@@ -2564,8 +2564,8 @@ namespace
             { "Tilt down",      { LLGameControl::FLYCAM_TILT,   -1.f } },
             { "Boom up",        { LLGameControl::FLYCAM_BOOM,    1.f } },
             { "Boom down",      { LLGameControl::FLYCAM_BOOM,   -1.f } },
-            { "Roll CCW",       { LLGameControl::FLYCAM_ROLL,   -1.f } },
-            { "Roll CW",        { LLGameControl::FLYCAM_ROLL,    1.f } },
+            { "Roll CCW",       { LLGameControl::FLYCAM_ROLL,    1.f } },
+            { "Roll CW",        { LLGameControl::FLYCAM_ROLL,   -1.f } },
             { "Zoom in",        { LLGameControl::FLYCAM_ZOOM,    1.f } },
             { "Zoom out",       { LLGameControl::FLYCAM_ZOOM,   -1.f } },
         };
