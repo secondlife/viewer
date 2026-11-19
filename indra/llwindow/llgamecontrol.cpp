@@ -3226,6 +3226,14 @@ void onControllerDeviceRemoved(const SDL_Event& event)
     LL_INFOS("SDL3") << "joystick id=" << event.gdevice.which << LL_ENDL;
 
     SDL_JoystickID id = event.gdevice.which;
+
+    // onControllerDeviceAdded opened the gamepad (SDL_OpenGamepad) but kept no handle,
+    // so close it here via the still-valid id or it leaks on every connect/disconnect.
+    if (SDL_Gamepad* controller = SDL_GetGamepadFromID(id))
+    {
+        SDL_CloseGamepad(controller);
+    }
+
     g_manager.removeController(id);
 
     // this event could happen while the preferences UI is open
