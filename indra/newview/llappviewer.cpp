@@ -1646,7 +1646,18 @@ bool LLAppViewer::doFrame()
         pingMainloopTimeout("Main:TerminateVoice");
         if (LLVoiceClient::instanceExists())
         {
-            LLVoiceClient::getInstance()->terminate();
+            if (isFastShutdown())
+            {
+                // During a fast shutdown: send each voice connection's courtesy
+                // "logout":true message to the voice server and close the
+                // connections, but don't wait for any of it, nor tear down the
+                // WebRTC threads, which can take seconds.
+                LLVoiceClient::getInstance()->closeConnections();
+            }
+            else
+            {
+                LLVoiceClient::getInstance()->terminate();
+            }
         }
 
         pingMainloopTimeout("Main:TerminatePump");
@@ -1704,6 +1715,15 @@ void LLAppViewer::flushLFSIO()
     }
 }
 
+bool LLAppViewer::isFastShutdown() const
+{
+    // Unless FastShutdown is turned off, save what the next session needs
+    // then exit ASAP, abandoning the side threads. Fast is also the answer
+    // when the setting doesn't exist yet (quitting before settings load).
+    return !gSavedSettings.controlExists("FastShutdown")
+        || gSavedSettings.getBOOL("FastShutdown");
+}
+
 bool LLAppViewer::cleanup()
 {
 #if LL_VELOPACK
@@ -1715,6 +1735,19 @@ bool LLAppViewer::cleanup()
     }
     velopack_cleanup();
 #endif
+
+    const bool fast_exit = isFastShutdown();
+    LL_INFOS() << (fast_exit ? "Fast shutdown..." : "Full shutdown with cleanup...") << LL_ENDL;
+
+    if (fast_exit && sTextureFetch)
+    {
+        // stop fetching textures (and stop writing them to the texture cache)
+        sTextureFetch->pause();
+    }
+
+    // Both shutdowns run the steps from here to fastExit(): stop the side
+    // processes and threads, then save what the next session needs. Steps
+    // that only free memory come after it.
 
     //ditch LLVOAvatarSelf instance
     gAgentAvatarp = NULL;
@@ -1788,8 +1821,50 @@ bool LLAppViewer::cleanup()
 
     LL_INFOS() << "Cleaning Up" << LL_ENDL;
 
-    // shut down mesh streamer
+    // Patch up settings for next time
+    // Must do this before we delete the viewer window,
+    // such that we can suck rectangle information out of it.
+    cleanupSavedSettings();
+    LL_INFOS() << "Settings patched up" << LL_ENDL;
+
+    // delete some of the files left around in the cache.
+    removeCacheFiles("*.wav");
+    removeCacheFiles("*.tmp");
+    removeCacheFiles("*.lso");
+    removeCacheFiles("*.out");
+    removeCacheFiles("*.dsf");
+    removeCacheFiles("*.bodypart");
+    removeCacheFiles("*.clothing");
+
+    LL_INFOS() << "Cache files removed" << LL_ENDL;
+
+    LL_INFOS() << "Shutting down Views" << LL_ENDL;
+
+    // Destroy the UI. Panels with persistent rects save them as they're
+    // destroyed, so this comes before saveSessionData().
+    if( gViewerWindow)
+        gViewerWindow->shutdownViews();
+
+    saveSessionData();
+
+    if (mPurgeUserDataOnExit)
+    {
+        // Ideally we should not save anything from this session since it is going to be purged now,
+        // but this is a very 'rare' case (user deleting himself), not worth overcomplicating 'save&cleanup' code
+        std::string user_path = gDirUtilp->getOSUserAppDir() + gDirUtilp->getDirDelimiter() + LLStartUp::getUserId();
+        gDirUtilp->deleteDirAndContents(user_path);
+    }
+
+    // shut down mesh streamer. Its thread writes the mesh cache: stop it, so
+    // that no mesh file is left half written. This waits for the thread with
+    // no time limit, so it comes after saveSessionData(): a stuck mesh thread
+    // can hang the exit, but can't keep the settings from being saved.
     gMeshRepo.shutdown();
+
+    if (fast_exit)
+    {
+        fastExit();   // doesn't return
+    }
 
     // shut down Havok
     LLPhysicsExtensions::quitSystem();
@@ -1835,8 +1910,6 @@ bool LLAppViewer::cleanup()
 
     LLCalc::cleanUp();
 
-    LL_INFOS() << "Global stuff deleted" << LL_ENDL;
-
     if (gAudiop)
     {
         LL_INFOS() << "Shutting down audio" << LL_ENDL;
@@ -1855,33 +1928,12 @@ bool LLAppViewer::cleanup()
         gAudiop = NULL;
     }
 
+    LL_INFOS() << "Global stuff deleted" << LL_ENDL;
+
     // Note: this is where LLFeatureManager::getInstance()-> used to be deleted.
 
-    // Patch up settings for next time
-    // Must do this before we delete the viewer window,
-    // such that we can suck rectangle information out of
-    // it.
-    cleanupSavedSettings();
-    LL_INFOS() << "Settings patched up" << LL_ENDL;
-
-    // delete some of the files left around in the cache.
-    removeCacheFiles("*.wav");
-    removeCacheFiles("*.tmp");
-    removeCacheFiles("*.lso");
-    removeCacheFiles("*.out");
-    removeCacheFiles("*.dsf");
-    removeCacheFiles("*.bodypart");
-    removeCacheFiles("*.clothing");
-
-    LL_INFOS() << "Cache files removed" << LL_ENDL;
-
-    LL_INFOS() << "Shutting down Views" << LL_ENDL;
-
-    // Destroy the UI
-    if( gViewerWindow)
-        gViewerWindow->shutdownViews();
-
-    // Model previews release their decomposition handles while the UI is destroyed.
+    // Model previews released their decomposition handles when the UI was
+    // destroyed, above.
     gMeshRepo.shutdownDecomposition();
 
     LL_INFOS() << "Cleaning up Inventory" << LL_ENDL;
@@ -1932,79 +1984,6 @@ bool LLAppViewer::cleanup()
     SUBSYSTEM_CLEANUP(LLWorldMapView);
     SUBSYSTEM_CLEANUP(LLFolderViewItem);
 
-    LL_INFOS() << "Saving Data" << LL_ENDL;
-
-    // Store the time of our current logoff
-    gSavedPerAccountSettings.setU32("LastLogoff", (U32)time_corrected());
-
-    if (LLEnvironment::instanceExists())
-    {
-        //Store environment settings if necessary
-        LLEnvironment::getInstance()->saveToSettings();
-    }
-
-    // Must do this after all panels have been deleted because panels that have persistent rects
-    // save their rects on delete.
-    gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), true);
-
-    LLUIColorTable::instance().saveUserSettings();
-
-    // PerAccountSettingsFile should be empty if no user has been logged on.
-    // *FIX:Mani This should get really saved in a "logoff" mode.
-    if (gSavedSettings.getString("PerAccountSettingsFile").empty())
-    {
-        LL_INFOS() << "Not saving per-account settings; don't know the account name yet." << LL_ENDL;
-    }
-    // Only save per account settings if the previous login succeeded, otherwise
-    // we might end up with a cleared out settings file in case a previous login
-    // failed after loading per account settings.
-    else if (!mSavePerAccountSettings)
-    {
-        LL_INFOS() << "Not saving per-account settings; last login was not successful." << LL_ENDL;
-    }
-    else
-    {
-        gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), true);
-        LL_INFOS() << "Saved settings" << LL_ENDL;
-
-        if (LLViewerParcelAskPlay::instanceExists())
-        {
-            LLViewerParcelAskPlay::getInstance()->saveSettings();
-        }
-    }
-
-    std::string warnings_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("Default", "Warnings"));
-    gWarningSettings.saveToFile(warnings_settings_filename, true);
-
-    // Save URL history file
-    LLURLHistory::saveFile("url_history.xml");
-
-    // save mute list. gMuteList used to also be deleted here too.
-    if (gAgent.isInitialized() && LLMuteList::instanceExists())
-    {
-        LLMuteList::getInstance()->cache(gAgent.getID());
-    }
-
-    //save call log list
-    if (LLConversationLog::instanceExists())
-    {
-        LLConversationLog::instance().cache();
-    }
-
-    clearSecHandler();
-
-    if (mPurgeCacheOnExit)
-    {
-        LL_INFOS() << "Purging all cache files on exit" << LL_ENDL;
-        gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""), "*.*");
-    }
-
-    writeDebugInfo();
-
-    LLLocationHistory::getInstance()->save();
-
-    LLAvatarIconIDCache::getInstance()->save();
-
     // Stop the plugin read thread if it's running.
     LLPluginProcessParent::setUseReadThread(false);
 
@@ -2031,14 +2010,6 @@ bool LLAppViewer::cleanup()
             LL_WARNS() << "Quitting with pending background tasks." << LL_ENDL;
             break;
         }
-    }
-
-    if (mPurgeUserDataOnExit)
-    {
-        // Ideally we should not save anything from this session since it is going to be purged now,
-        // but this is a very 'rare' case (user deleting himself), not worth overcomplicating 'save&cleanup' code
-        std::string user_path = gDirUtilp->getOSUserAppDir() + gDirUtilp->getDirDelimiter() + LLStartUp::getUserId();
-        gDirUtilp->deleteDirAndContents(user_path);
     }
 
     // Delete workers first
@@ -2213,6 +2184,125 @@ bool LLAppViewer::cleanup()
 
     // return 0;
     return true;
+}
+
+void LLAppViewer::saveSessionData()
+{
+    LL_INFOS() << "Saving Data" << LL_ENDL;
+
+    // Store the time of our current logoff
+    gSavedPerAccountSettings.setU32("LastLogoff", (U32)time_corrected());
+
+    if (LLEnvironment::instanceExists())
+    {
+        //Store environment settings if necessary
+        LLEnvironment::getInstance()->saveToSettings();
+    }
+
+    // Must do this after all panels have been deleted because panels that have persistent rects
+    // save their rects on delete.
+    gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), true);
+
+    LLUIColorTable::instance().saveUserSettings();
+
+    // PerAccountSettingsFile should be empty if no user has been logged on.
+    // *FIX:Mani This should get really saved in a "logoff" mode.
+    if (gSavedSettings.getString("PerAccountSettingsFile").empty())
+    {
+        LL_INFOS() << "Not saving per-account settings; don't know the account name yet." << LL_ENDL;
+    }
+    // Only save per account settings if the previous login succeeded, otherwise
+    // we might end up with a cleared out settings file in case a previous login
+    // failed after loading per account settings.
+    else if (!mSavePerAccountSettings)
+    {
+        LL_INFOS() << "Not saving per-account settings; last login was not successful." << LL_ENDL;
+    }
+    else
+    {
+        gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), true);
+        LL_INFOS() << "Saved settings" << LL_ENDL;
+
+        if (LLViewerParcelAskPlay::instanceExists())
+        {
+            LLViewerParcelAskPlay::getInstance()->saveSettings();
+        }
+    }
+
+    std::string warnings_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("Default", "Warnings"));
+    gWarningSettings.saveToFile(warnings_settings_filename, true);
+
+    // Save URL history file
+    LLURLHistory::saveFile("url_history.xml");
+
+    // save mute list. gMuteList used to also be deleted here too.
+    if (gAgent.isInitialized() && LLMuteList::instanceExists())
+    {
+        LLMuteList::getInstance()->cache(gAgent.getID());
+    }
+
+    //save call log list
+    if (LLConversationLog::instanceExists())
+    {
+        LLConversationLog::instance().cache();
+    }
+
+    clearSecHandler();
+
+    if (mPurgeCacheOnExit)
+    {
+        LL_INFOS() << "Purging all cache files on exit" << LL_ENDL;
+        gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""), "*.*");
+    }
+
+    writeDebugInfo();
+
+    LLLocationHistory::getInstance()->save();
+
+    LLAvatarIconIDCache::getInstance()->save();
+
+    // Save the per-avatar voice volumes. LLVoiceClient::terminate() already
+    // has, unless this is a fast shutdown, which skips it.
+    if (LLSpeakerVolumeStorage::instanceExists())
+    {
+        LLSpeakerVolumeStorage::deleteSingleton();
+    }
+}
+
+void LLAppViewer::fastExit()
+{
+    // The texture cache thread may still be writing texture data. The index
+    // is written under its lock, and a texture whose data is cut short is
+    // read back as far as it got and fetched again from there.
+    if (sTextureCache)
+    {
+        sTextureCache->writeIndex();
+    }
+
+    // Wait for the cache writes that must be complete.
+    if (LLLFSThread::sLocal)
+    {
+        flushLFSIO();
+    }
+    LLInventoryModel::waitForPendingCacheWrites();
+
+    if (!gLaunchFileOnQuit.empty())
+    {
+        LL_INFOS() << "Launch file on quit." << LL_ENDL;
+        LLWeb::loadURLExternal(gLaunchFileOnQuit, false);
+    }
+
+    removeMarkerFiles();
+
+    LL_INFOS() << "Fast exit" << LL_ENDL;
+    // close (and so flush) the log file
+    LLError::logToFile("");
+
+    // _exit(), not exit(): exit() runs static destructors and atexit handlers
+    // while the abandoned threads may still be using what they destroy. The
+    // window stays open until here, and closes as the process ends, so a
+    // viewer launched right after never finds this one still running.
+    _exit(0);
 }
 
 void LLAppViewer::initGeneralThread()

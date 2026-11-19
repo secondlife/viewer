@@ -77,6 +77,16 @@ public:
     void init(LLPumpIO *pump) override;    // Call this once at application startup (creates connector)
     void terminate() override;    // Call this to clean up during shutdown
 
+    // For an exit that won't call terminate(): send each voice connection's
+    // courtesy logout and start closing it, so the voice server learns at
+    // once that we've left, but don't wait for either to finish.
+    void closeConnections();
+
+    // POST an LLSD body to url and return at once, dropping the reply.
+    // Used at shutdown to avoid memleak noise that would otherwise
+    // show up under leak detection.
+    void postWithoutWaiting(const std::string& url, const LLSD& body);
+
     static bool isShuttingDown() { return sShuttingDown; }
 
     // True once llwebrtc::terminate() has been entered.  Between
@@ -562,6 +572,13 @@ private:
     LLEventMailDrop mWebRTCPump;
 
     LLSD mLastWebRTCStats;
+
+    // mNoWaitHttpRequest is used to avoid a memory leak during full clean shutdown.
+    // One HttpRequest shared by all the postWithoutWaiting() requests, kept
+    // until the end so their replies can be freed. With a temporary
+    // HttpRequest per request, nothing could take a finished request off its
+    // reply queue, and the request and the queue would keep each other alive.
+    LLCore::HttpRequest::ptr_t mNoWaitHttpRequest;
 };
 
 
@@ -721,6 +738,13 @@ class LLVoiceWebRTCConnection :
     static void requestVoiceConnectionCoro(connectionPtr_t connection) { connection->requestVoiceConnection(); }
 
     static void breakVoiceConnectionCoro(connectionPtr_t connection);
+
+    // The body of the "logout" request that tells the voice server we've left.
+    LLSD makeLogoutBody() const;
+
+    // Queue the logout request on the HTTP thread and return at once,
+    // ignoring the reply. For a shutdown that won't wait for it.
+    void sendLogoutWithoutWaiting();
 
     LLVoiceClientStatusObserver::EStatusType mCurrentStatus;
 
