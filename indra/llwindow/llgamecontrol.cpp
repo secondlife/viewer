@@ -27,6 +27,7 @@
 #include "llgamecontrol.h"
 
 #include <algorithm>
+#include <cmath>
 #include <unordered_map>
 
 #include "SDL3/SDL.h"
@@ -647,6 +648,19 @@ namespace
     // corrupt or hand-edited setting must be clamped before it reaches a consumer.
     constexpr F32 SPEED_FACTOR_MIN = 0.5f;
     constexpr F32 SPEED_FACTOR_MAX = 2.0f;
+    // Clamp a speed multiplier into the valid range, treating a non-finite value as
+    // the 1.0 default. std::clamp alone is not enough: every comparison with NaN is
+    // false, so std::clamp(NaN, lo, hi) returns NaN unchanged, and a corrupt/hand-
+    // edited setting (or any Inf) would otherwise flow live into the FlyCam/agent
+    // speed consumers. Check finiteness first, then clamp.
+    F32 sanitizeSpeedFactor(F32 value)
+    {
+        if (!std::isfinite(value))
+        {
+            return 1.0f;
+        }
+        return std::clamp(value, SPEED_FACTOR_MIN, SPEED_FACTOR_MAX);
+    }
     // FlyCam-only flag gating whether a centered crosshair is drawn over the
     // 3D view while flycam is engaged (see LLViewerWindow::draw()).
     // Absent/false means no crosshair is drawn.
@@ -3919,9 +3933,10 @@ F32 LLGameControl::getSpeedFactor(const std::string& mode)
     // the value is absent, e.g. settings saved before this flag existed.
     if (mode_map.isMap() && mode_map.has(GC_SPEED_FACTOR))
     {
-        // Clamp to the valid range: the stored value can be corrupt, stale, or of the
-        // wrong LLSD type (asReal() == 0), and it feeds camera/turn-speed consumers live.
-        return std::clamp((F32)mode_map[GC_SPEED_FACTOR].asReal(), SPEED_FACTOR_MIN, SPEED_FACTOR_MAX);
+        // Sanitize to the valid range: the stored value can be corrupt, stale, non-
+        // finite (NaN/Inf), or of the wrong LLSD type (asReal() == 0), and it feeds
+        // camera/turn-speed consumers live. See sanitizeSpeedFactor() re: NaN.
+        return sanitizeSpeedFactor((F32)mode_map[GC_SPEED_FACTOR].asReal());
     }
     return 1.0f;
 }
@@ -3930,7 +3945,7 @@ F32 LLGameControl::getSpeedFactor(const std::string& mode)
 void LLGameControl::setSpeedFactor(const std::string& mode, F32 speed_factor)
 {
     ensureGameControlSettings();
-    g_gameControlSettings[GC_MODEMAPPINGS][mode][GC_SPEED_FACTOR] = std::clamp(speed_factor, SPEED_FACTOR_MIN, SPEED_FACTOR_MAX);
+    g_gameControlSettings[GC_MODEMAPPINGS][mode][GC_SPEED_FACTOR] = sanitizeSpeedFactor(speed_factor);
     // The runtime reads this value live each frame (LLAgentCamera::updateFlycam(),
     // LLAgent::applyExternalActions()), so no action-lookup rebuild is needed here.
 }
