@@ -643,6 +643,10 @@ namespace
     // FlyCam/Mouselook speed multiplier (see LLGameControl::getSpeedFactor()).
     // Absent means the default (1.0, i.e. unscaled) is used.
     const std::string GC_SPEED_FACTOR("SpeedFactor");
+    // Valid range for the speed multiplier; the preferences slider enforces it, but a
+    // corrupt or hand-edited setting must be clamped before it reaches a consumer.
+    constexpr F32 SPEED_FACTOR_MIN = 0.5f;
+    constexpr F32 SPEED_FACTOR_MAX = 2.0f;
     // FlyCam-only flag gating whether a centered crosshair is drawn over the
     // 3D view while flycam is engaged (see LLViewerWindow::draw()).
     // Absent/false means no crosshair is drawn.
@@ -3902,7 +3906,9 @@ F32 LLGameControl::getSpeedFactor(const std::string& mode)
     // the value is absent, e.g. settings saved before this flag existed.
     if (mode_map.isMap() && mode_map.has(GC_SPEED_FACTOR))
     {
-        return (F32)mode_map[GC_SPEED_FACTOR].asReal();
+        // Clamp to the valid range: the stored value can be corrupt, stale, or of the
+        // wrong LLSD type (asReal() == 0), and it feeds camera/turn-speed consumers live.
+        return std::clamp((F32)mode_map[GC_SPEED_FACTOR].asReal(), SPEED_FACTOR_MIN, SPEED_FACTOR_MAX);
     }
     return 1.0f;
 }
@@ -3911,7 +3917,7 @@ F32 LLGameControl::getSpeedFactor(const std::string& mode)
 void LLGameControl::setSpeedFactor(const std::string& mode, F32 speed_factor)
 {
     ensureGameControlSettings();
-    g_gameControlSettings[GC_MODEMAPPINGS][mode][GC_SPEED_FACTOR] = speed_factor;
+    g_gameControlSettings[GC_MODEMAPPINGS][mode][GC_SPEED_FACTOR] = std::clamp(speed_factor, SPEED_FACTOR_MIN, SPEED_FACTOR_MAX);
     // The runtime reads this value live each frame (LLAgentCamera::updateFlycam(),
     // LLAgent::applyExternalActions()), so no action-lookup rebuild is needed here.
 }
