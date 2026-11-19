@@ -1260,7 +1260,10 @@ void LLGameControl::Options::AxisOptions::loadFromString(std::string options)
     if (!offset.empty())
     {
         S32 number;
-        if (!LLStringUtil::convertToS32(offset, number) || abs(number) > MAX_AXIS_OFFSET
+        // Range-check without abs(number): convertToS32 accepts INT_MIN, and abs(INT_MIN)
+        // is undefined behavior.
+        if (!LLStringUtil::convertToS32(offset, number)
+            || number < -MAX_AXIS_OFFSET || number > MAX_AXIS_OFFSET
             || std::to_string(number) != offset)
         {
             LL_WARNS("SDL3") << "Invalid offset value: '" << offset << "'" << LL_ENDL;
