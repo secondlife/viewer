@@ -1513,8 +1513,10 @@ static void routeAxisValue(LLGameControl::State& state, U8 phys, bool phys_is_tr
         // our half, using the press magnitude so the two triggers do not clobber each
         // other; inversion is not meaningful here (the half is fixed by which trigger).
         U8 slot = (phys == LT) ? (U8)(out * 2 + 1) : (U8)(out * 2);
-        storeOneHalf(state.mAxes, slot, (S16)abs((S32)value));
-        storeOneHalf(state.mRawAxes, slot, (S16)abs((S32)raw_value));
+        // Clamp the magnitude to the S16 max: abs(-32768) == 32768 would wrap to -32768
+        // on the cast to S16 and then store as 0, silently dropping a full deflection.
+        storeOneHalf(state.mAxes, slot, (S16)std::min(abs((S32)value), 32767));
+        storeOneHalf(state.mRawAxes, slot, (S16)std::min(abs((S32)raw_value), 32767));
         return;
     }
 
