@@ -1821,10 +1821,6 @@ bool LLAppViewer::cleanup()
 
     LL_INFOS() << "Cleaning Up" << LL_ENDL;
 
-    // shut down mesh streamer. Its thread writes the mesh cache: stop it, so
-    // that no mesh file is left half written.
-    gMeshRepo.shutdown();
-
     // Patch up settings for next time
     // Must do this before we delete the viewer window,
     // such that we can suck rectangle information out of it.
@@ -1858,6 +1854,12 @@ bool LLAppViewer::cleanup()
         std::string user_path = gDirUtilp->getOSUserAppDir() + gDirUtilp->getDirDelimiter() + LLStartUp::getUserId();
         gDirUtilp->deleteDirAndContents(user_path);
     }
+
+    // shut down mesh streamer. Its thread writes the mesh cache: stop it, so
+    // that no mesh file is left half written. This waits for the thread with
+    // no time limit, so it comes after saveSessionData(): a stuck mesh thread
+    // can hang the exit, but can't keep the settings from being saved.
+    gMeshRepo.shutdown();
 
     if (fast_exit)
     {
