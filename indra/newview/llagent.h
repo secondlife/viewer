@@ -458,6 +458,8 @@ public:
     void            standUp();
     /// @brief ground-sit at agent's current position
     void            sitDown();
+    // game-control ground-sit
+    void            sitDownNearby();
 
     //--------------------------------------------------------------------
     // Do Not Disturb
