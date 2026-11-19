@@ -107,6 +107,27 @@ public:
 };
 LLObjectIMHandler gObjectIMHandler;
 
+static LLXMLNodePtr getCachedChatHistoryXMLNode(const std::string& filename)
+{
+    typedef std::map<std::string, LLXMLNodePtr> xml_node_cache_t;
+    static xml_node_cache_t sCache;
+
+    xml_node_cache_t::const_iterator found = sCache.find(filename);
+    if (found != sCache.end())
+    {
+        return found->second->deepCopy();
+    }
+
+    LLXMLNodePtr root;
+    if (!LLUICtrlFactory::getLayeredXMLNode(filename, root) || root.isNull())
+    {
+        return LLXMLNodePtr();
+    }
+
+    sCache[filename] = root->deepCopy();
+    return root;
+}
+
 class LLChatHistoryHeader: public LLPanel
 {
 public:
@@ -131,7 +152,17 @@ public:
     static LLChatHistoryHeader* createInstance(const std::string& file_name)
     {
         LLChatHistoryHeader* pInstance = new LLChatHistoryHeader;
-        pInstance->buildFromFile(file_name);
+        // Chat can trigger frequently, cache the node.
+        LLXMLNodePtr root = getCachedChatHistoryXMLNode(file_name);
+        if (root.notNull())
+        {
+            pInstance->initPanelXML(root, NULL, NULL, LLPanel::getDefaultParams());
+            pInstance->setXMLFilename(file_name);
+        }
+        else
+        {
+            LL_WARNS() << "Couldn't parse chat history header from: " << file_name << LL_ENDL;
+        }
         return pInstance;
     }
 
@@ -1246,8 +1277,26 @@ void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
 
 LLView* LLChatHistory::getSeparator()
 {
-    LLPanel* separator = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>(mMessageSeparatorFilename, NULL, LLPanel::child_registry_t::instance());
-    return separator;
+    // Can be triggered frequently, so cache the node.
+    LLXMLNodePtr root = getCachedChatHistoryXMLNode(mMessageSeparatorFilename);
+    if (root.isNull())
+    {
+        LL_WARNS() << "Couldn't parse chat history separator from: " << mMessageSeparatorFilename << LL_ENDL;
+        return NULL;
+    }
+
+    LLView* view = LLUICtrlFactory::getInstance()->createFromXML(root, NULL, mMessageSeparatorFilename, LLPanel::child_registry_t::instance(), NULL);
+    if (view)
+    {
+        LLPanel* separator = dynamic_cast<LLPanel*>(view);
+        if (separator)
+        {
+            return separator;
+        }
+        // Should not fail
+        deleteView(view);
+    }
+    return nullptr;
 }
 
 LLView* LLChatHistory::getHeader(const LLChat& chat,const LLStyle::Params& style_params, const LLSD& args)
