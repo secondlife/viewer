@@ -46,7 +46,9 @@ namespace std
     string to_string(const SDL_GUID& guid)
     {
         char buffer[33] = { 0 };
-        SDL_GUIDToString(guid, buffer, sizeof(guid));
+        // Third arg is the output buffer size, not the GUID size: a full GUID is 32 hex
+        // chars + NUL = 33. Passing sizeof(guid) (16) truncated every GUID to 15 chars.
+        SDL_GUIDToString(guid, buffer, sizeof(buffer));
         return buffer;
     }
 
