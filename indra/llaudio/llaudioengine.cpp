@@ -87,6 +87,7 @@ void LLAudioEngine::setDefaults()
 
     mChannels.fill(nullptr);
     mBuffers.fill(nullptr);
+    mPinnedBuffers.clear();
 
     mMasterGain = 1.f;
     // Setting mInternalGain to an out of range value fixes the issue reported in STORM-830.
@@ -150,6 +151,13 @@ void LLAudioEngine::shutdown()
         delete mBuffers[i];
         mBuffers[i] = NULL;
     }
+
+    // Clean up pinned buffers
+    for (auto& pair : mPinnedBuffers)
+    {
+        delete pair.second;
+    }
+    mPinnedBuffers.clear();
 }
 
 
@@ -642,6 +650,31 @@ void LLAudioEngine::cleanupBuffer(LLAudioBuffer *bufferp)
     }
 }
 
+LLAudioBuffer* LLAudioEngine::getPinnedBuffer(const LLUUID& audio_uuid)
+{
+    auto iter = mPinnedBuffers.find(audio_uuid);
+    if (iter != mPinnedBuffers.end())
+    {
+        return iter->second;
+    }
+
+    LLAudioBuffer* bufferp = createBuffer();
+    if (bufferp)
+    {
+        mPinnedBuffers[audio_uuid] = bufferp;
+    }
+    return bufferp;
+}
+
+void LLAudioEngine::cleanupPinnedBuffer(const LLUUID& audio_uuid)
+{
+    auto iter = mPinnedBuffers.find(audio_uuid);
+    if (iter != mPinnedBuffers.end())
+    {
+        delete iter->second;
+        mPinnedBuffers.erase(iter);
+    }
+}
 
 bool LLAudioEngine::preloadSound(const LLUUID &uuid, bool pin_buffer)
 {
@@ -1801,6 +1834,31 @@ LLAudioData::LLAudioData(const LLUUID &uuid) :
     }
 }
 
+void LLAudioData::setPinned(const bool pinned)
+{
+    mPinned = pinned;
+
+    if (mBufferp)
+    {
+        // Discard old buffer if it exists, it will be regenerated later.
+        // Not supposed to happen since setPinned() is supposed to be called on startup.
+        LL_WARNS("AudioEngine") << "setPinned(" << pinned << ") called for " << mID
+            << " with an existing buffer; discarding existing buffer." << LL_ENDL;
+        if (gAudiop)
+        {
+            if (mBufferp->isPinned())
+            {
+                gAudiop->cleanupPinnedBuffer(mID);
+            }
+            else
+            {
+                gAudiop->cleanupBuffer(mBufferp);
+            }
+        }
+        mBufferp = nullptr;
+    }
+}
+
 //return false when the audio file is corrupted.
 bool LLAudioData::load()
 {
@@ -1820,7 +1878,7 @@ bool LLAudioData::load()
         return false;
     }
 
-    mBufferp = gAudiop->getFreeBuffer();
+    mBufferp = mPinned ? gAudiop->getPinnedBuffer(mID) : gAudiop->getFreeBuffer();
     if (!mBufferp)
     {
         // No free buffers, abort.
@@ -1839,7 +1897,14 @@ bool LLAudioData::load()
     if (mHasWAVLoadFailed)
     {
         // Hrm.  Right now, let's unset the buffer, since it's empty.
-        gAudiop->cleanupBuffer(mBufferp);
+        if (mPinned)
+        {
+            gAudiop->cleanupPinnedBuffer(mID);
+        }
+        else
+        {
+            gAudiop->cleanupBuffer(mBufferp);
+        }
         mBufferp = nullptr;
 
         if (!gDirUtilp->fileExists(wav_path))

@@ -42,6 +42,8 @@
 
 #include "lllistener.h"
 
+#include <unordered_map>
+
 const F32 LL_WIND_UPDATE_INTERVAL = 0.1f;
 const F32 LL_WIND_UNDERWATER_CENTER_FREQ = 20.f;
 
@@ -49,7 +51,7 @@ const F32 ATTACHED_OBJECT_TIMEOUT = 5.0f;
 const F32 DEFAULT_MIN_DISTANCE = 2.0f;
 
 #define LL_MAX_AUDIO_CHANNELS 30
-#define LL_MAX_AUDIO_BUFFERS 80 // Some extra for preloading and pinning UI sounds
+#define LL_MAX_AUDIO_BUFFERS 40 // Some extra for preloading
 
 class LLAudioSource;
 class LLAudioData;
@@ -165,6 +167,12 @@ public:
     LLAudioChannel *getFreeChannel(const F32 priority); // Get a free channel or flush an existing one if your priority is higher
     void cleanupBuffer(LLAudioBuffer *bufferp);
 
+    // Pinned buffers are allocated on demand (keyed by sound uuid) and are
+    // never reclaimed/evicted by getFreeBuffer()'s regular pool logic.
+    // They stay alive until explicitly unpinned or the engine shuts down.
+    LLAudioBuffer* getPinnedBuffer(const LLUUID& audio_uuid);
+    void cleanupPinnedBuffer(const LLUUID& audio_uuid);
+
     bool hasDecodedFile(const LLUUID &uuid);
     bool hasLocalFile(const LLUUID &uuid);
 
@@ -230,6 +238,9 @@ protected:
     // Buffers needs to change into a different data structure, as the number of buffers
     // that we have active should be limited by RAM usage, not count.
     std::array<LLAudioBuffer*, LL_MAX_AUDIO_BUFFERS> mBuffers;
+
+    // Pinned buffers (e.g. UI sounds), keyed by sound uuid.
+    std::unordered_map<LLUUID, LLAudioBuffer*> mPinnedBuffers;
 
     F32 mMasterGain;
     F32 mInternalGain;          // Actual gain set; either mMasterGain or 0 when mMuted is true.
@@ -465,15 +476,6 @@ protected:
     LLAudioData *mAudioDatap;
     LLFrameTimer mLastUseTimer;
 };
-
-inline void LLAudioData::setPinned(const bool pinned)
-{
-    mPinned = pinned;
-    if (mBufferp)
-    {
-        mBufferp->setPinned(pinned);
-    }
-}
 
 struct SoundData
 {
