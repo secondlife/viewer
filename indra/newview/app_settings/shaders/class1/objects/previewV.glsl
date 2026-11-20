@@ -37,7 +37,7 @@ out vec4 vertex_color;
 out vec2 vary_texcoord0;
 
 uniform vec4 light_position[8];
-uniform vec3 light_direction[8];
+uniform vec4 light_direction[8];
 uniform vec3 light_attenuation[8];
 uniform vec3 light_diffuse[8];
 

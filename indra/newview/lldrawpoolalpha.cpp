@@ -595,6 +595,9 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
         above_water = !above_water;
     }
 
+    // per-group local light selection: only color passes run lit shaders
+    const bool group_lights = !depth_only && !LLPipeline::sRenderingHUDs &&
+                              gPipeline.beginAlphaLocalLights();
 
     for (LLCullResult::sg_iterator i = begin; i != end; ++i)
     {
@@ -625,6 +628,23 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                     {
                         continue;
                     }
+                }
+            }
+
+            // HW light slots 2-7 get refit to the lights reaching this group's
+            // objects (object bounds: a node's full extents include all of its
+            // children), deferred to the group's first lit draw
+            const LLVector4a* light_ext = nullptr;
+            LLVector4a bridge_light_ext[2];
+            if (group_lights)
+            {
+                light_ext = group->getObjectExtents();
+                if (bridge)
+                { // a bridged group's bounds are in the bridge's frame, not agent space
+                    LLMatrix4a bridge_to_agent;
+                    bridge_to_agent.loadu(bridge->mDrawable->getXform()->getWorldMatrix());
+                    matMulBoundBox(bridge_to_agent, light_ext, bridge_light_ext);
+                    light_ext = bridge_light_ext;
                 }
             }
 
@@ -768,6 +788,12 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                     continue;
                 }
 
+                if (light_ext && current_shader->getUniformLocation(LLShaderMgr::LIGHT_POSITION) >= 0)
+                {
+                    gPipeline.selectAlphaLocalLights(light_ext);
+                    light_ext = nullptr;
+                }
+
                 bool tex_setup = TexSetup(&params, (mat != nullptr));
 
                 {
@@ -832,8 +858,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
             // render emissive faces into alpha channel for bloom effects
             if (!depth_only)
             {
-                gPipeline.enableLightsDynamic();
-
                 // install glow-accumulating blend mode
                 // don't touch color, add to alpha (glow)
                 gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE, LLRender::BF_ONE, LLRender::BF_ONE);
@@ -877,6 +901,11 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                 }
             }
         }
+    }
+
+    if (group_lights)
+    {
+        gPipeline.endAlphaLocalLights();
     }
 
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
