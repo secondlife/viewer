@@ -6,9 +6,9 @@
         save_rect="false"
         title="Edit Day Cycle"
         width="705"
-        height="700"
+        height="730"
         min_width="705"
-        min_height="700"
+        min_height="730"
         single_instance="true" 
         can_resize="false">
 
@@ -30,7 +30,7 @@
     <!-- Layout -->
     <layout_stack name="outer_stack"
             width="705"
-            height="700"
+            height="730"
             follows="all"
             animate="false"
             top="0"
@@ -91,16 +91,16 @@
                         bevel_style="in"
                         auto_resize="false"
                         user_resize="false"
-                        height="150"
-                        min_height="0"
+                        height="180"
+                        min_height="180"
                         visible="true">
                     <panel name="timeline_layers"
                             border="false"
                             follows="left|top"
-                            height="150"
+                            height="180"
                             width="110"
                             top_pad="0"
-                            min_height="0"
+                            min_height="180"
                             visible="true">
                         <button
                                 follows="left|top"
@@ -171,8 +171,8 @@
                     <panel name="timeline"
                             border="true"
                             follows="left|top"
-                            height="150"
-                            min_height="0"
+                            height="180"
+                            min_height="180"
                             width="595"
                             min_width="595"
                             left_pad="0"
@@ -272,7 +272,7 @@
                         <layout_stack
                                 name="track_options_ls"
                                 follows="all"
-                                height="200"
+                                height="180"
                                 animate="false"
                                 top_pad="0"
                                 left="0"
@@ -283,9 +283,9 @@
                                     bevel_style="in"
                                     auto_resize="false"
                                     user_resize="false"
-                                    height="150"
-                                    width="200"
-                                    min_height="0"
+                                    height="180"
+                                    width="170"
+                                    min_height="180"
                                     visible="true">
                                 <button
                                         follows="top|left"
@@ -320,7 +320,7 @@
                                     auto_resize="false"
                                     user_resize="false"
                                     height="150"
-                                    width="200"
+                                    width="170"
                                     min_height="0"
                                     visible="true">
                                 <layout_stack
@@ -466,22 +466,21 @@
                                     auto_resize="false"
                                     user_resize="false"
                                     width="190"
-                                    height="150"
-                                    min_height="0"
+                                    height="180"
+                                    min_height="180"
                                     visible="true">
                                 <button
-
-                                        follows="top|right"
+                                        follows="top|left"
                                         height="23"
-                                        width="90"
-                                        right="-10"
+                                        width="135"
+                                        left="10"
                                         top_pad="10"
                                         label="Add [FRAME]"
                                         name="add_frame" />
                                 <button
                                         follows="top|left"
                                         height="23"
-                                        width="90"
+                                        width="135"
                                         label="Load [FRAME]"
                                         top_pad="0"
                                         left_delta="0"
@@ -489,11 +488,19 @@
                                 <button
                                         follows="left|top"
                                         height="23"
-                                        width="90"
+                                        width="135"
                                         label="Delete [FRAME]"
                                         top_pad="0"
                                         left_delta="0"
                                         name="delete_frame" />
+                                <button
+                                        follows="left|top"
+                                        height="23"
+                                        width="135"
+                                        label="Save as [FRAME]..."
+                                        top_pad="0"
+                                        left_delta="0"
+                                        name="btn_save_frame" />
                             </layout_panel>
                         </layout_stack>
                     </panel>
