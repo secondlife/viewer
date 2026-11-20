@@ -504,7 +504,7 @@ void LLInventoryPanel::setSinceLogoff(bool sl)
     getFilter().setDateRangeLastLogoff(sl);
 }
 
-void LLInventoryPanel::setHoursAgo(U32 hours)
+void LLInventoryPanel::setHoursAgo(F32 hours)
 {
     getFilter().setHoursAgo(hours);
 }
