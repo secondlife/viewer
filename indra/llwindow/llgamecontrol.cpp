@@ -38,6 +38,7 @@
 #include "llformat.h"
 #include "llgamecontroltranslator.h"
 #include "llsd.h"
+#include "llsdutil.h"
 #include "llsdl.h"
 #include "lltimer.h"
 
@@ -867,6 +868,12 @@ namespace
         mappings[GC_MODE_FLYCAM]    = makeMode(flycam_axes, flycam_buttons, flycam_axes_invert);
         mappings[GC_MODE_CAPTIVE]   = makeMode(avatar_axes, avatar_buttons, avatar_axes_invert);
         mappings[GC_MODE_CURSOR]    = makeMode(cursor_axes, cursor_buttons, cursor_axes_invert);
+        mappings[GC_MODE_AVATAR][GC_SPEED_FACTOR]    = 1.0;
+        mappings[GC_MODE_MOUSELOOK][GC_SPEED_FACTOR] = 1.0;
+        mappings[GC_MODE_FLYCAM][GC_SPEED_FACTOR]    = 1.0;
+        mappings[GC_MODE_FLYCAM][GC_ALLOW_ROLL]      = false;
+        mappings[GC_MODE_FLYCAM][GC_SHOW_CROSSHAIR]  = false;
+        mappings[GC_MODE_FLYCAM][GC_HIDE_CURSOR]     = true;
         return mappings;
     }
 
@@ -3782,6 +3789,27 @@ LLSD LLGameControl::getDefaultGameControlSettings()
 }
 
 // static
+LLSD LLGameControl::compactGameControlSettings(const LLSD& full)
+{
+    if (!full.isMap())
+    {
+        return LLSD::emptyMap();
+    }
+    return llsd_diff_from_default(full, buildDefaultGameControlSettings());
+}
+
+// static
+LLSD LLGameControl::expandGameControlSettings(const LLSD& stored)
+{
+    LLSD defaults = buildDefaultGameControlSettings();
+    if (!stored.isMap())
+    {
+        return defaults;
+    }
+    return llsd_overlay_on_default(stored, defaults);
+}
+
+// static
 const LLSD& LLGameControl::getGameControlSettings()
 {
     ensureGameControlSettings();
@@ -3791,7 +3819,7 @@ const LLSD& LLGameControl::getGameControlSettings()
 // static
 void LLGameControl::setGameControlSettings(const LLSD& settings)
 {
-    g_gameControlSettings = settings;
+    g_gameControlSettings = expandGameControlSettings(settings);
     ensureGameControlSettings();
     // Mappings may have changed: refresh the runtime action lookup immediately.
     g_manager.rebuildActionLookup(true);
@@ -4376,15 +4404,19 @@ LLSD LLGameControl::getSettingsAsLLSD()
 
     g_gameControlSettings[GC_SENDTOSERVER] = g_sendToServer;
 
+    // Persist compactly: only the entries that differ from the built-in defaults.
     LLSD result = LLSD::emptyMap();
-    result[SETTING_GAMECONTROL] = g_gameControlSettings;
+    result[SETTING_GAMECONTROL] = compactGameControlSettings(g_gameControlSettings);
     return result;
 }
 
 // static
 void LLGameControl::applySettingsFromLLSD(const LLSD& settings)
 {
-    if (settings.has(SETTING_GAMECONTROL))       g_gameControlSettings = settings[SETTING_GAMECONTROL];
+    // The stored value may be compact (defaults omitted) or fully verbose;
+    // either way, overlay it onto the defaults to get the full in-memory map.
+    if (settings.has(SETTING_GAMECONTROL))
+        g_gameControlSettings = expandGameControlSettings(settings[SETTING_GAMECONTROL]);
     ensureGameControlSettings();
 
     // SendDataToServer is nested inside the GameControl map.

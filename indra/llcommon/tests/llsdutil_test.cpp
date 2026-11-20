@@ -431,4 +431,190 @@ namespace tut
         }
     }
 
+    // Defaults shared by the llsd_diff_from_default() / llsd_overlay_on_default() tests.
+    static LLSD diff_test_defaults()
+    {
+        return llsd::map(
+            "name",    "default",
+            "count",   3,
+            "enabled", true,
+            "list",    llsd::array(1, 2, 3),
+            "nested",  llsd::map(
+                "a", "alpha",
+                "b", "beta",
+                "deep", llsd::map("x", 1.5, "y", 2.5)));
+    }
+
+    template<> template<>
+    void llsdutil_object::test<11>()
+    {
+        set_test_name("llsd_diff_from_default");
+
+        const LLSD defaults = diff_test_defaults();
+
+        // A value equal to the defaults has an empty diff.
+        LLSD diff = llsd_diff_from_default(defaults, defaults);
+        ensure("diff of defaults is a map", diff.isMap());
+        ensure_equals("diff of defaults is empty", diff.size(), 0);
+
+        // Changes, additions and removals, including nested ones.
+        LLSD value = llsd_clone(defaults);
+        value["count"] = 4;                              // changed scalar
+        value["extra"] = "added";                        // key not in defaults
+        value.erase("enabled");                          // removed default
+        value["nested"]["deep"]["y"] = 9.0;              // changed deep entry
+        value["nested"].erase("b");                      // removed nested default
+        value["nested"]["more"] = llsd::map("k", "v");   // added nested map
+
+        diff = llsd_diff_from_default(value, defaults);
+        ensure_equals("diff keeps only differences", diff,
+                    llsd::map(
+                        "count",   4,
+                        "extra",   "added",
+                        "enabled", LLSD(),
+                        "nested",  llsd::map(
+                            "b",    LLSD(),
+                            "more", llsd::map("k", "v"),
+                            "deep", llsd::map("y", 9.0))));
+        ensure("removed default is marked undefined",
+               diff.has("enabled") && diff["enabled"].isUndefined());
+        ensure("unchanged entries are omitted",
+               !diff.has("name") && !diff.has("list") &&
+               !diff["nested"].has("a") && !diff["nested"]["deep"].has("x"));
+
+        // Arrays are compared atomically: one changed element stores the whole array.
+        value = llsd_clone(defaults);
+        value["list"][1] = 20;
+        diff = llsd_diff_from_default(value, defaults);
+        ensure_equals("changed array is stored whole", diff,
+                    llsd::map("list", llsd::array(1, 20, 3)));
+
+        // Same value but different type counts as a difference.
+        value = llsd_clone(defaults);
+        value["count"] = 3.0;
+        diff = llsd_diff_from_default(value, defaults);
+        ensure("type change is a difference", diff.has("count") && diff["count"].isReal());
+
+        // A map replacing a scalar default (and vice versa) is stored whole.
+        value = llsd_clone(defaults);
+        value["name"] = llsd::map("first", "Ann");
+        value["nested"] = "flat";
+        diff = llsd_diff_from_default(value, defaults);
+        ensure_equals("type-changed entries stored whole", diff,
+                    llsd::map("name", llsd::map("first", "Ann"), "nested", "flat"));
+
+        // Non-map arguments are compared atomically.
+        ensure("equal scalars diff to undefined",
+               llsd_diff_from_default(LLSD(5), LLSD(5)).isUndefined());
+        ensure_equals("different scalar diffs to the value",
+                    llsd_diff_from_default(LLSD("new"), LLSD("old")), LLSD("new"));
+        ensure_equals("map vs scalar default diffs to the map",
+                    llsd_diff_from_default(llsd::map("k", 1), LLSD(5)), llsd::map("k", 1));
+    }
+
+    template<> template<>
+    void llsdutil_object::test<12>()
+    {
+        set_test_name("llsd_overlay_on_default");
+
+        const LLSD defaults = diff_test_defaults();
+
+        // An empty or undefined diff expands to the defaults.
+        ensure_equals("empty diff gives defaults",
+                    llsd_overlay_on_default(LLSD::emptyMap(), defaults), defaults);
+        ensure_equals("undefined diff gives defaults",
+                    llsd_overlay_on_default(LLSD(), defaults), defaults);
+
+        // A fully verbose value overlays to itself.
+        LLSD verbose = llsd_clone(defaults);
+        verbose["count"] = 7;
+        ensure_equals("verbose value overlays to itself",
+                    llsd_overlay_on_default(verbose, defaults), verbose);
+
+        // A compact diff fills in the defaults, applies changes and removals.
+        LLSD diff = llsd::map(
+            "count",   4,
+            "enabled", LLSD(),
+            "nested",  llsd::map("b", LLSD(), "deep", llsd::map("y", 9.0)));
+        LLSD expected = llsd_clone(defaults);
+        expected["count"] = 4;
+        expected.erase("enabled");
+        expected["nested"].erase("b");
+        expected["nested"]["deep"]["y"] = 9.0;
+        ensure_equals("compact diff expands", llsd_overlay_on_default(diff, defaults), expected);
+
+        // Removing a key that isn't in the defaults is harmless.
+        ensure_equals("removing unknown key is a no-op",
+                    llsd_overlay_on_default(llsd::map("nope", LLSD()), defaults), defaults);
+
+        // The defaults are not modified by the overlay.
+        LLSD defaults_copy = llsd_clone(defaults);
+        LLSD result = llsd_overlay_on_default(diff, defaults_copy);
+        result["nested"]["deep"]["x"] = 100;
+        ensure_equals("defaults left untouched", defaults_copy, defaults);
+
+        // A non-map diff replaces the defaults.
+        ensure_equals("scalar diff replaces defaults",
+                    llsd_overlay_on_default(LLSD("flat"), defaults), LLSD("flat"));
+    }
+
+    template<> template<>
+    void llsdutil_object::test<13>()
+    {
+        set_test_name("llsd_diff_from_default / llsd_overlay_on_default round trip");
+
+        const LLSD defaults = diff_test_defaults();
+
+        std::vector<LLSD> values;
+        values.push_back(llsd_clone(defaults));          // all defaults
+        {
+            LLSD v = llsd_clone(defaults);               // assorted edits
+            v["count"] = 4;
+            v["extra"] = llsd::array("a", "b");
+            v.erase("enabled");
+            v["nested"]["deep"]["y"] = 9.0;
+            v["nested"].erase("b");
+            v["nested"]["more"] = llsd::map("k", "v");
+            values.push_back(v);
+        }
+        {
+            LLSD v = llsd_clone(defaults);               // everything removed
+            v.erase("name");
+            v.erase("count");
+            v.erase("enabled");
+            v.erase("list");
+            v.erase("nested");
+            values.push_back(v);
+        }
+        {
+            LLSD v = llsd_clone(defaults);               // nested map emptied
+            v["nested"] = LLSD::emptyMap();
+            values.push_back(v);
+        }
+        {
+            LLSD v = llsd_clone(defaults);               // types swapped
+            v["name"] = llsd::map("first", "Ann");
+            v["nested"] = "flat";
+            v["list"] = LLSD::emptyArray();
+            values.push_back(v);
+        }
+
+        for (size_t i = 0; i < values.size(); ++i)
+        {
+            const LLSD& value = values[i];
+            LLSD diff = llsd_diff_from_default(value, defaults);
+            ensure_equals(STRINGIZE("round trip " << i),
+                        llsd_overlay_on_default(diff, defaults), value);
+        }
+
+        // A verbose value that predates a default (is missing that key) reads
+        // back with the default filled in, since only an undefined entry
+        // removes a default.
+        LLSD old_verbose = llsd_clone(defaults);
+        old_verbose.erase("enabled");
+        old_verbose["nested"].erase("b");
+        ensure_equals("verbose value missing defaults gets them filled in",
+                      llsd_overlay_on_default(old_verbose, defaults), defaults);
+    }
+
 }

@@ -123,33 +123,31 @@ namespace tut
     {
         const auto before = std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::system_clock::now().time_since_epoch()).count();
-        const U64 current = totalTime();
+        const U64 current = LLTimer::getTotalTime();
         const auto after = std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::system_clock::now().time_since_epoch()).count();
-        ensure("totalTime is current Unix time in microseconds",
+        ensure("LLTimer::getTotalTime is current Unix time in microseconds",
             current >= U64(std::min(before, after)) && current <= U64(std::max(before, after)));
     }
 
     template<> template<>
     void frametimer_object_t::test<5>()
     {
-        std::atomic<bool> current_wall_time{true};
+        std::atomic<bool> monotonic{true};
         std::vector<std::thread> threads;
         for (int i = 0; i < 8; ++i)
         {
-            threads.emplace_back([&current_wall_time]()
+            threads.emplace_back([&monotonic]()
             {
+                U64 previous = totalTime();
                 for (int sample = 0; sample < 10000; ++sample)
                 {
-                    const auto before = std::chrono::duration_cast<std::chrono::microseconds>(
-                        std::chrono::system_clock::now().time_since_epoch()).count();
                     const U64 current = totalTime();
-                    const auto after = std::chrono::duration_cast<std::chrono::microseconds>(
-                        std::chrono::system_clock::now().time_since_epoch()).count();
-                    if (current < U64(std::min(before, after)) || current > U64(std::max(before, after)))
+                    if (current < previous)
                     {
-                        current_wall_time = false;
+                        monotonic = false;
                     }
+                    previous = current;
                 }
             });
         }
@@ -157,6 +155,17 @@ namespace tut
         {
             thread.join();
         }
-        ensure("Concurrent totalTime calls return current wall time", current_wall_time.load());
+        ensure("Concurrent totalTime calls never go backwards", monotonic.load());
+    }
+
+    template<> template<>
+    void frametimer_object_t::test<6>()
+    {
+        const auto wall_time = std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count();
+        const U64 start = totalTime();
+        ensure_distance("totalTime is in Unix microseconds", F64(start), F64(wall_time), 1000000.0);
+        ms_sleep(10);
+        ensure("totalTime advances", U64(totalTime()) > start);
     }
 }

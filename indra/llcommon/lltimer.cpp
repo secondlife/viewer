@@ -269,13 +269,14 @@ TimerInfo& get_timer_info()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// returns a U64 number that represents the number of
-// microseconds since the Unix epoch - Jan 1, 1970
+// Returns monotonic microseconds anchored to the Unix epoch on first use.
 U64MicrosecondsImplicit totalTime()
 {
-    // Unix timestamps must follow system-clock corrections and suspend/resume.
-    return U64Microseconds(std::chrono::duration_cast<std::chrono::microseconds>(
-        std::chrono::system_clock::now().time_since_epoch()).count());
+    // Anchor once so elapsed measurements ignore wall-clock adjustments.
+    static const auto epoch_offset = std::chrono::system_clock::now().time_since_epoch()
+                                  - std::chrono::steady_clock::now().time_since_epoch();
+    const auto elapsed = epoch_offset + std::chrono::steady_clock::now().time_since_epoch();
+    return U64Microseconds(std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count());
 }
 
 
@@ -305,9 +306,9 @@ void LLTimer::cleanupClass()
 // static
 U64MicrosecondsImplicit LLTimer::getTotalTime()
 {
-    // simply call into the implementation function.
-    U64MicrosecondsImplicit total_time = totalTime();
-    return total_time;
+    // Unix timestamps must follow system-clock corrections and suspend/resume.
+    return U64Microseconds(std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count());
 }
 
 // static

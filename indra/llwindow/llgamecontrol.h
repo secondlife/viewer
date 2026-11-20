@@ -666,7 +666,8 @@ public:
     // and exposed for callers that need to snapshot or restore module state
     // (e.g. preference panel cancel-restore).
     //   getSettingKeys()                 -- the host setting names this module reads/writes.
-    //   getSettingsAsLLSD()              -- snapshot of current in-memory state, keyed by the same names.
+    //   getSettingsAsLLSD()              -- snapshot of current in-memory state, keyed by the same names
+    //                                       (GameControl in compact form; see compactGameControlSettings()).
     //   applySettingsFromLLSD(settings)  -- apply 'settings' to in-memory state.
     //                                       Keys not present in 'settings' are left unchanged.
     static const std::vector<std::string>& getSettingKeys();
@@ -681,6 +682,19 @@ public:
     static LLSD getDefaultGameControlSettings(); // full default GameControl map
     static const LLSD& getGameControlSettings();
     static void setGameControlSettings(const LLSD& settings);
+
+    // Persisted form of the GameControl map.  The "GameControl" setting is stored
+    // compact: only the entries that differ from getDefaultGameControlSettings().
+    //   compactGameControlSettings(full) -- maps are compared recursively; entries
+    //       equal to the default are dropped, entries absent from the default are
+    //       kept whole, and default entries missing from 'full' are written as
+    //       undefined so the removal survives a round trip.  Returns an empty map
+    //       when 'full' matches the defaults.
+    //   expandGameControlSettings(stored) -- the inverse: overlays 'stored' onto the
+    //       defaults (undefined entries erase the default).  Accepts both compact
+    //       and fully verbose maps; a verbose map expands to itself.
+    static LLSD compactGameControlSettings(const LLSD& full);
+    static LLSD expandGameControlSettings(const LLSD& stored);
 
     // Global per-mode action mapping accessors.  getModeMapping falls back to the
     // built-in defaults when an entry is missing.
