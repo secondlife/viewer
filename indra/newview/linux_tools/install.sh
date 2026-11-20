@@ -3,8 +3,12 @@
 # Install the Second Life Viewer. This script can install the viewer both
 # system-wide and for an individual user.
 
-VT102_STYLE_NORMAL='\E[0m'
-VT102_COLOR_RED='\E[31m'
+exec 3>&2 2> /dev/null
+if command -v tput > /dev/null ; then
+    _STYLE_NORMAL="$(tput sgr0)"
+    _COLOR_RED="$(tput setaf 9)"
+fi
+exec 2>&3 3>&-
 
 SCRIPTSRC=`readlink -f "$0" || echo "$0"`
 RUN_PATH=`dirname "${SCRIPTSRC}" || echo .`
@@ -34,15 +38,15 @@ function prompt()
 
 function die()
 {
-    warn $1
+    warn "$1"
     exit 1
 }
 
 function warn()
 {
-    echo -n -e $VT102_COLOR_RED
-    echo $1
-    echo -n -e $VT102_STYLE_NORMAL
+    echo -n -e $_COLOR_RED
+    echo -e "$1"
+    echo -n -e $_STYLE_NORMAL
 }
 
 function homedir_install()
@@ -82,7 +86,9 @@ function root_install()
 
 function install_to_prefix()
 {
-    test -e "$1" && backup_previous_installation "$1"
+    if [[ -e "$1" && -z "$_NOBACKUP" ]]; then
+        backup_previous_installation "$1"
+    fi
     mkdir -p "$1" || die "Failed to create installation directory!"
 
     echo " - Installing to $1"
@@ -95,9 +101,17 @@ function backup_previous_installation()
     local backup_dir="$1".backup-$(date -I)
     echo " - Backing up previous installation to $backup_dir"
 
-    mv "$1" "$backup_dir" || die "Failed to create backup of existing installation!"
+    mv "$1" "$backup_dir" || die "Failed to create backup of existing installation!\nInvoke with NOBACKUP to skip the backup step!"
 }
 
+while [[ $1 ]]; do
+    case "$1" in
+        NOBACKUP)
+            _NOBACKUP=x
+            ;;
+    esac
+    shift
+done
 
 if [ "$UID" == "0" ]; then
     root_install
