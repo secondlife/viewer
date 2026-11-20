@@ -143,27 +143,17 @@ LLKeyboardWin32::LLKeyboardWin32()
     }
 }
 
-// Asynchronously poll the control, alt and shift keys and set the
-// appropriate states.
-// Note: this does not generate edges.
+// Asynchronously poll the control, alt and shift keys and reconcile
+// appropriate states with edge callbacks.
 void LLKeyboardWin32::resetMaskKeys()
 {
-    // GetAsyncKeyState returns a short and uses the most significant
-    // bit to indicate that the key is down.
-    if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
-    {
-        mKeyLevel[KEY_SHIFT] = true;
-    }
-
-    if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
-    {
-        mKeyLevel[KEY_CONTROL] = true;
-    }
-
-    if (GetAsyncKeyState(VK_MENU) & 0x8000)
-    {
-        mKeyLevel[KEY_ALT] = true;
-    }
+    // Re-sync modifier levels to match authoritative hardware state.
+    // Reconciling via edge callbacks clears modifiers released while unfocused
+    // or during transition stalls while delivering proper release callbacks
+    // (e.g. push-to-talk voice follow key) and keeping queued events consistent.
+    reconcileModifierKey(KEY_SHIFT,   (GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0);
+    reconcileModifierKey(KEY_CONTROL, (GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0);
+    reconcileModifierKey(KEY_ALT,     (GetAsyncKeyState(VK_MENU) & 0x8000) != 0);
 }
 
 

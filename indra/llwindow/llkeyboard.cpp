@@ -166,6 +166,18 @@ void LLKeyboard::resetKeyDownAndHandle()
     mCurTranslatedKey = KEY_NONE;
 }
 
+void LLKeyboard::reconcileModifierKey(KEY key, bool is_down)
+{
+    if (mKeyLevel[key] && !is_down)
+    {
+        handleTranslatedKeyUp(key, currentMask(false));
+    }
+    else if (!mKeyLevel[key] && is_down)
+    {
+        handleTranslatedKeyDown(key, currentMask(false));
+    }
+}
+
 // BUG this has to be called when an OS dialog is shown, otherwise modifier key state
 // is wrong because the keyup event is never received by the main window. JC
 void LLKeyboard::resetKeys()

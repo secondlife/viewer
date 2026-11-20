@@ -151,26 +151,15 @@ LLKeyboardSDL::LLKeyboardSDL()
 
 void LLKeyboardSDL::resetMaskKeys()
 {
-    SDL_Keymod mask = SDL_GetModState();
+    // Re-sync modifier levels to match SDL's authoritative mod-state.
+    // Reconciling via edge callbacks clears modifiers released while unfocused
+    // or during transition stalls while delivering proper release callbacks
+    // (e.g. push-to-talk voice follow key) and keeping queued events consistent.
+    const SDL_Keymod mask = SDL_GetModState();
 
-    // MBW -- XXX -- This mirrors the operation of the Windows version of resetMaskKeys().
-    //    It looks a bit suspicious, as it won't correct for keys that have been released.
-    //    Is this the way it's supposed to work?
-
-    if(mask & SDL_KMOD_SHIFT)
-    {
-        mKeyLevel[KEY_SHIFT] = true;
-    }
-
-    if(mask & SDL_KMOD_CTRL)
-    {
-        mKeyLevel[KEY_CONTROL] = true;
-    }
-
-    if(mask & SDL_KMOD_ALT)
-    {
-        mKeyLevel[KEY_ALT] = true;
-    }
+    reconcileModifierKey(KEY_SHIFT,   (mask & SDL_KMOD_SHIFT) != 0);
+    reconcileModifierKey(KEY_CONTROL, (mask & SDL_KMOD_CTRL) != 0);
+    reconcileModifierKey(KEY_ALT,     (mask & SDL_KMOD_ALT) != 0);
 }
 
 
