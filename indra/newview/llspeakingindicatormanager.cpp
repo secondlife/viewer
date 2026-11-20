@@ -178,6 +178,8 @@ void SpeakingIndicatorManager::unregisterSpeakingIndicator(const LLUUID& speaker
     }
 }
 
+std::unordered_set<const LLSpeakingIndicator*> LLSpeakingIndicator::sLiveIndicators;
+
 //////////////////////////////////////////////////////////////////////////
 // PRIVATE SECTION
 //////////////////////////////////////////////////////////////////////////
@@ -243,17 +245,26 @@ void SpeakingIndicatorManager::switchSpeakerIndicators(const speaker_ids_t& spea
     for (; it_uuid != speakers_uuids.end(); ++it_uuid)
     {
         LL_DEBUGS("SpeakingIndicator") << "Looking for indicator: " << *it_uuid << LL_ENDL;
-        indicator_range_t it_range = mSpeakingIndicators.equal_range(*it_uuid);
-        indicator_const_iterator it_indicator = it_range.first;
+        auto it_range = mSpeakingIndicators.equal_range(*it_uuid);
+        auto it_indicator = it_range.first;
         bool was_found = false;
         bool was_switched_on = false;
-        for (; it_indicator != it_range.second; ++it_indicator)
+        while (it_indicator != it_range.second)
         {
-            was_found = true;
             LLSpeakingIndicator* indicator = (*it_indicator).second;
+            if (!LLSpeakingIndicator::isLive(indicator))
+            {
+                // Destroyed without unregistering; calling it would be a use-after-free.
+                LL_WARNS("SpeakingIndicator") << "Dropping destroyed indicator " << (void*)indicator
+                                              << " registered for " << *it_uuid << LL_ENDL;
+                it_indicator = mSpeakingIndicators.erase(it_indicator);
+                continue;
+            }
+            was_found = true;
             was_switched_on = was_switched_on || switch_on;
 
             indicator->switchIndicator(switch_on);
+            ++it_indicator;
         }
 
         if (was_found)
