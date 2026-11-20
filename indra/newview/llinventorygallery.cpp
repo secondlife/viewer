@@ -2730,7 +2730,7 @@ bool LLInventoryGallery::checkAgainstFilterType(const LLUUID& object_id)
     if (filterTypes & LLInventoryFilter::FILTERTYPE_DATE)
     {
         const U16 HOURS_TO_SECONDS = 3600;
-        time_t earliest = time_corrected() - mFilter->getHoursAgo() * HOURS_TO_SECONDS;
+        time_t earliest = time_corrected() - (time_t)((F64)mFilter->getHoursAgo() * HOURS_TO_SECONDS);
 
         if (mFilter->getMinDate() > time_min() && mFilter->getMinDate() < earliest)
         {
