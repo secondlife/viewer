@@ -30,12 +30,6 @@
 #include <map>
 #include "llcontrol.h"
 
-// Enabled this definition to compile a 'hacked' viewer that
-// allows a hacked godmode to be toggled on and off.
-#define TOGGLE_HACKED_GODLIKE_VIEWER
-#ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-extern bool gHackGodmode;
-#endif
 
 bool toggle_show_navigation_panel(const LLSD& newvalue);
 bool toggle_show_favorites_panel(const LLSD& newvalue);
