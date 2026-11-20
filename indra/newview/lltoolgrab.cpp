@@ -993,6 +993,8 @@ bool LLToolGrabBase::handleMouseUp(S32 x, S32 y, MASK mask)
     if(mClickedInMouselook && !gAgentCamera.cameraMouselook())
     {
         mClickedInMouselook = false;
+        // Leaving mouselook restored normal tools, end the transient grab
+        gGrabTransientTool = NULL;
     }
     else
     {
@@ -1019,6 +1021,17 @@ void LLToolGrabBase::stopEditing()
 
 void LLToolGrabBase::onMouseCaptureLost()
 {
+    // A transient grab can end without a mouse up (the window losing focus),
+    // So mirror what handleMouseUp() does.
+    if (gGrabTransientTool)
+    {
+        if (!mClickedInMouselook || gAgentCamera.cameraMouselook())
+        {
+            gBasicToolset->selectTool(gGrabTransientTool);
+        }
+        gGrabTransientTool = NULL;
+    }
+
     LLViewerObject* objectp = mGrabPick.getObject();
     if (!objectp)
     {
