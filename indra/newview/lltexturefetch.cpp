@@ -1042,6 +1042,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
         return true;
     }
     static const LLCore::HttpStatus http_not_found(HTTP_NOT_FOUND);                     // 404
+    static const LLCore::HttpStatus http_forbidden(HTTP_FORBIDDEN);                     // 403
     static const LLCore::HttpStatus http_service_unavail(HTTP_SERVICE_UNAVAILABLE);     // 503
     static const LLCore::HttpStatus http_not_sat(HTTP_REQUESTED_RANGE_NOT_SATISFIABLE); // 416;
 
@@ -1568,6 +1569,37 @@ bool LLTextureFetchWorker::doWork(S32 param)
                             mUrl.clear();
                             ++mRetryAttempt;
                             mLastRegionId.setNull();
+                            setState(INIT);
+                            return false;
+                        }
+                    }
+                }
+                else if (http_forbidden == mGetStatus)
+                {
+                    LL_INFOS_ONCE(LOG_TXT) << "Texture server forbidden (403): " << mUrl << LL_ENDL;
+                    if (mCanUseHTTP && !mUrl.empty() && cur_size <= 0)
+                    {
+                        LLViewerRegion* region = getRegion();
+                        bool is_url_backed = (mFTType == FTT_SERVER_BAKE || mFTType == FTT_MAP_TILE);
+                        bool should_retry = (mRetryAttempt == 0) || (!is_url_backed && (!region || mLastRegionId != region->getRegionID()));
+
+                        if (should_retry)
+                        {
+                            if (mFTType != FTT_MAP_TILE)
+                            {
+                                LL_INFOS(LOG_TXT) << "Texture capability expired or forbidden (403), retrying: " << mUrl << " mRetryAttempt " << mRetryAttempt << LL_ENDL;
+                            }
+                            // Release HTTP semaphore so we do not hold a global slot while waiting in INIT
+                            releaseHttpSemaphore();
+
+                            // Preserve URL for URL-backed types (server bakes and map tiles).
+                            // Only clear capability-backed default textures to force re-resolving the cap URL.
+                            if (!is_url_backed)
+                            {
+                                mUrl.clear();
+                                mLastRegionId.setNull();
+                            }
+                            ++mRetryAttempt;
                             setState(INIT);
                             return false;
                         }
