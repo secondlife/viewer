@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2022, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -186,6 +186,25 @@ bool LLGLTFMaterial::fromJSON(const std::string& json, std::string& warn_msg, st
 {
     LL_PROFILE_ZONE_SCOPED;
     tinygltf::TinyGLTF gltf;
+
+    gltf.SetFsCallbacks({
+        [](const std::string&, void*) { return false; },
+        [](const std::string& path, void*) { return path; },
+        [](std::vector<unsigned char>*, std::string*, const std::string&, void*) { return false; },
+        [](std::string*, const std::string&, const std::vector<unsigned char>&, void*) { return false; },
+        [](size_t*, std::string*, const std::string&, void*) { return false; },
+        nullptr
+    });
+    gltf.SetImageLoader(
+        [](tinygltf::Image*, const int, std::string*, std::string*,
+            int, int, const unsigned char*, int, void*) -> bool
+    {
+        // Refuse to decode any image data while parsing untrusted JSON.
+        // Images should come as UUIDs.
+        LL_INFOS_ONCE("LLGLTFMaterial") << "Received image data while parsing JSON into LLGLTFMaterial." << LL_ENDL;
+        return false;
+    },
+        nullptr);
 
     tinygltf::Model model_in;
 
