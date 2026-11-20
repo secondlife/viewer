@@ -34,6 +34,8 @@
 #include "lltoastnotifypanel.h"
 #include "lltoastpanel.h"
 #include "lltoastscriptquestion.h"
+#include "llviewerobjectlist.h"
+#include "llvoavatarself.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -45,6 +47,37 @@ const S32 LLToastPanel::MAX_TEXT_LENGTH = 512 + 20 + DB_FIRST_NAME_BUF_SIZE + DB
 LLToastPanel::LLToastPanel(const LLNotificationPtr& notification)
 {
     mNotification = notification;
+}
+
+//static
+bool LLToastPanel::isNotificationContentTrusted(const LLNotificationPtr& notification)
+{
+    if (!notification)
+    {
+        return false;
+    }
+
+    const std::string& name = notification->getName();
+
+    // Web-launch content is explicitly untrusted.
+    if (name == "LoadWebPage")
+    {
+        return false;
+    }
+
+    // Script-authored notifications (llDialog and llTextBox both arrive as ScriptDialog /
+    // ScriptDialogGroup). Their text is written by user-made scripts, so its links are
+    // untrusted like chat, unless the script lives in an object attached to our own avatar
+    // (a HUD or worn attachment, including temporary attachments from experiences): we already
+    // trust those to attach HUDs and run against us, so we trust their app links too. Objects
+    // on other avatars, and in-world objects, remain untrusted.
+    if (name == "ScriptDialog" || name == "ScriptDialogGroup")
+    {
+        LLViewerObject* objectp = gObjectList.findObject(notification->getPayload()["object_id"].asUUID());
+        return objectp && isAgentAvatarValid() && objectp->getAvatarAncestor() == gAgentAvatarp;
+    }
+
+    return true;
 }
 
 LLToastPanel::~LLToastPanel()
