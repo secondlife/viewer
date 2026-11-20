@@ -27,6 +27,7 @@
 #include "llgamecontrol.h"
 
 #include <algorithm>
+#include <cmath>
 #include <unordered_map>
 
 #include "SDL3/SDL.h"
@@ -46,7 +47,9 @@ namespace std
     string to_string(const SDL_GUID& guid)
     {
         char buffer[33] = { 0 };
-        SDL_GUIDToString(guid, buffer, sizeof(guid));
+        // Third arg is the output buffer size, not the GUID size: a full GUID is 32 hex
+        // chars + NUL = 33. Passing sizeof(guid) (16) truncated every GUID to 15 chars.
+        SDL_GUIDToString(guid, buffer, sizeof(buffer));
         return buffer;
     }
 
@@ -641,6 +644,23 @@ namespace
     // FlyCam/Mouselook speed multiplier (see LLGameControl::getSpeedFactor()).
     // Absent means the default (1.0, i.e. unscaled) is used.
     const std::string GC_SPEED_FACTOR("SpeedFactor");
+    // Valid range for the speed multiplier; the preferences slider enforces it, but a
+    // corrupt or hand-edited setting must be clamped before it reaches a consumer.
+    constexpr F32 SPEED_FACTOR_MIN = 0.5f;
+    constexpr F32 SPEED_FACTOR_MAX = 2.0f;
+    // Clamp a speed multiplier into the valid range, treating a non-finite value as
+    // the 1.0 default. std::clamp alone is not enough: every comparison with NaN is
+    // false, so std::clamp(NaN, lo, hi) returns NaN unchanged, and a corrupt/hand-
+    // edited setting (or any Inf) would otherwise flow live into the FlyCam/agent
+    // speed consumers. Check finiteness first, then clamp.
+    F32 sanitizeSpeedFactor(F32 value)
+    {
+        if (!std::isfinite(value))
+        {
+            return 1.0f;
+        }
+        return std::clamp(value, SPEED_FACTOR_MIN, SPEED_FACTOR_MAX);
+    }
     // FlyCam-only flag gating whether a centered crosshair is drawn over the
     // 3D view while flycam is engaged (see LLViewerWindow::draw()).
     // Absent/false means no crosshair is drawn.
@@ -1254,7 +1274,10 @@ void LLGameControl::Options::AxisOptions::loadFromString(std::string options)
     if (!offset.empty())
     {
         S32 number;
-        if (!LLStringUtil::convertToS32(offset, number) || abs(number) > MAX_AXIS_OFFSET
+        // Range-check without abs(number): convertToS32 accepts INT_MIN, and abs(INT_MIN)
+        // is undefined behavior.
+        if (!LLStringUtil::convertToS32(offset, number)
+            || number < -MAX_AXIS_OFFSET || number > MAX_AXIS_OFFSET
             || std::to_string(number) != offset)
         {
             LL_WARNS("SDL3") << "Invalid offset value: '" << offset << "'" << LL_ENDL;
@@ -1504,8 +1527,10 @@ static void routeAxisValue(LLGameControl::State& state, U8 phys, bool phys_is_tr
         // our half, using the press magnitude so the two triggers do not clobber each
         // other; inversion is not meaningful here (the half is fixed by which trigger).
         U8 slot = (phys == LT) ? (U8)(out * 2 + 1) : (U8)(out * 2);
-        storeOneHalf(state.mAxes, slot, (S16)abs((S32)value));
-        storeOneHalf(state.mRawAxes, slot, (S16)abs((S32)raw_value));
+        // Clamp the magnitude to the S16 max: abs(-32768) == 32768 would wrap to -32768
+        // on the cast to S16 and then store as 0, silently dropping a full deflection.
+        storeOneHalf(state.mAxes, slot, (S16)std::min(abs((S32)value), 32767));
+        storeOneHalf(state.mRawAxes, slot, (S16)std::min(abs((S32)raw_value), 32767));
         return;
     }
 
@@ -2558,8 +2583,8 @@ namespace
             { "Tilt down",      { LLGameControl::FLYCAM_TILT,   -1.f } },
             { "Boom up",        { LLGameControl::FLYCAM_BOOM,    1.f } },
             { "Boom down",      { LLGameControl::FLYCAM_BOOM,   -1.f } },
-            { "Roll CCW",       { LLGameControl::FLYCAM_ROLL,   -1.f } },
-            { "Roll CW",        { LLGameControl::FLYCAM_ROLL,    1.f } },
+            { "Roll CCW",       { LLGameControl::FLYCAM_ROLL,    1.f } },
+            { "Roll CW",        { LLGameControl::FLYCAM_ROLL,   -1.f } },
             { "Zoom in",        { LLGameControl::FLYCAM_ZOOM,    1.f } },
             { "Zoom out",       { LLGameControl::FLYCAM_ZOOM,   -1.f } },
         };
@@ -3220,6 +3245,14 @@ void onControllerDeviceRemoved(const SDL_Event& event)
     LL_INFOS("SDL3") << "joystick id=" << event.gdevice.which << LL_ENDL;
 
     SDL_JoystickID id = event.gdevice.which;
+
+    // onControllerDeviceAdded opened the gamepad (SDL_OpenGamepad) but kept no handle,
+    // so close it here via the still-valid id or it leaks on every connect/disconnect.
+    if (SDL_Gamepad* controller = SDL_GetGamepadFromID(id))
+    {
+        SDL_CloseGamepad(controller);
+    }
+
     g_manager.removeController(id);
 
     // this event could happen while the preferences UI is open
@@ -3900,7 +3933,10 @@ F32 LLGameControl::getSpeedFactor(const std::string& mode)
     // the value is absent, e.g. settings saved before this flag existed.
     if (mode_map.isMap() && mode_map.has(GC_SPEED_FACTOR))
     {
-        return (F32)mode_map[GC_SPEED_FACTOR].asReal();
+        // Sanitize to the valid range: the stored value can be corrupt, stale, non-
+        // finite (NaN/Inf), or of the wrong LLSD type (asReal() == 0), and it feeds
+        // camera/turn-speed consumers live. See sanitizeSpeedFactor() re: NaN.
+        return sanitizeSpeedFactor((F32)mode_map[GC_SPEED_FACTOR].asReal());
     }
     return 1.0f;
 }
@@ -3909,7 +3945,7 @@ F32 LLGameControl::getSpeedFactor(const std::string& mode)
 void LLGameControl::setSpeedFactor(const std::string& mode, F32 speed_factor)
 {
     ensureGameControlSettings();
-    g_gameControlSettings[GC_MODEMAPPINGS][mode][GC_SPEED_FACTOR] = speed_factor;
+    g_gameControlSettings[GC_MODEMAPPINGS][mode][GC_SPEED_FACTOR] = sanitizeSpeedFactor(speed_factor);
     // The runtime reads this value live each frame (LLAgentCamera::updateFlycam(),
     // LLAgent::applyExternalActions()), so no action-lookup rebuild is needed here.
 }
