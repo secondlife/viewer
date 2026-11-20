@@ -56,7 +56,13 @@ char LLResMgr::getDecimalPoint() const
 
 std::string LLResMgr::getThousandsSeparator() const
 {
+#if LL_WINDOWS
+    // The narrow separator is in the locale's ANSI code page, not UTF-8 (Swedish: 0xA0, a no-break
+    // space, shown as '?'), so convert the C runtime's wide copy instead
+    return ll_convert_wide_to_string(localeconv()->_W_thousands_sep);
+#else
     return localeconv()->thousands_sep;
+#endif
 }
 
 char LLResMgr::getMonetaryDecimalPoint() const
@@ -68,7 +74,12 @@ char LLResMgr::getMonetaryDecimalPoint() const
 
 std::string LLResMgr::getMonetaryThousandsSeparator() const
 {
+#if LL_WINDOWS
+    // See getThousandsSeparator()
+    return ll_convert_wide_to_string(localeconv()->_W_mon_thousands_sep);
+#else
     return localeconv()->mon_thousands_sep;
+#endif
 }
 
 
