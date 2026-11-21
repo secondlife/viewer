@@ -1541,26 +1541,17 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
     {
         LLViewerInventoryItem* itemp(gInventory.getItem(fetch_info.mUUID));
 
-        if (itemp)
+        const bool force = fetch_info.mFetchType == FT_FORCED;
+        if (!itemp || !itemp->isFinished() || force)
         {
-            if (!itemp->isFinished() || fetch_info.mFetchType == FT_FORCED)
-            {
-                mFetchCount++;
-                if (itemp->getPermissions().getOwner() == gAgent.getID())
-                {
-                    AISAPI::FetchItem(fetch_info.mUUID, AISAPI::INVENTORY, ais_simple_item_callback);
-                }
-                else
-                {
-                    AISAPI::FetchItem(fetch_info.mUUID, AISAPI::LIBRARY, ais_simple_item_callback);
-                }
-            }
-        }
-        else // We don't know it, assume incomplete
-        {
-            // Assume agent's inventory, library wouldn't have gotten here
+            // Unknown items are assumed to belong to the agent.
+            const auto type = !itemp || itemp->getPermissions().getOwner() == gAgent.getID()
+                ? AISAPI::INVENTORY : AISAPI::LIBRARY;
             mFetchCount++;
-            AISAPI::FetchItem(fetch_info.mUUID, AISAPI::INVENTORY, ais_simple_item_callback);
+            if (!AISAPI::FetchItem(fetch_info.mUUID, type, ais_simple_item_callback, force))
+            {
+                mFetchCount--;
+            }
         }
     }
 
