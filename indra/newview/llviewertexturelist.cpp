@@ -1166,7 +1166,8 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
             llassert(image->mDownScalePending);
 
             LLImageGL* img = image->getGLTexture();
-            if (img && img->getHasGLTexture())
+            // don't scale down while a new texture is being created, the pending upload would replace the result
+            if (img && img->getHasGLTexture() && !image->needsCreateTexture())
             {
                 img->scaleDown(image->getDesiredDiscardLevel());
             }
