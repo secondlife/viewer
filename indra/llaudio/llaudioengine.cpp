@@ -325,9 +325,22 @@ void LLAudioEngine::idle()
         // attached to each channel, since only those with active channels
         // can have anything interesting happen with their queue? (Maybe not true)
         LLAudioSource *sourcep = src_pair.second;
-        if (!sourcep->mQueuedDatap || sourcep->isMuted())
+        if (!sourcep->mQueuedDatap)
         {
-            // Muted, or nothing queued, so we don't care.
+            // Nothing queued, so we don't care.
+            continue;
+        }
+
+        if (sourcep->mQueuedDatap->hasDecodeFailed() ||
+            sourcep->mQueuedDatap->hasWAVLoadFailed())
+        {
+            sourcep->mQueuedDatap = nullptr;
+            continue;
+        }
+
+        if (sourcep->isMuted())
+        {
+            // Muted, so we don't care.
             continue;
         }
 
@@ -1617,6 +1630,7 @@ void LLAudioSource::addAudioData(LLAudioData *adp, const bool set_current)
         if (!mCurrentDatap)
         {
             mCurrentDatap = adp;
+            mPlayedOnce = false;
             if (mChannelp)
             {
                 if (adp->getBuffer())
