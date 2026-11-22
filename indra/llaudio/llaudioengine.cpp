@@ -335,17 +335,17 @@ void LLAudioEngine::idle()
         if (!channelp)
         {
             // This sound isn't playing, so we just process move the queue
-            sourcep->mCurrentDatap = sourcep->mQueuedDatap;
+            LLAudioData* queued_datap = sourcep->mQueuedDatap;
+            updateBufferForData(queued_datap);
+            if (!queued_datap->getBuffer())
+            {
+                continue;
+            }
+            sourcep->mCurrentDatap = queued_datap;
             sourcep->mQueuedDatap = NULL;
 
             // Reset the timer so the source doesn't die.
             sourcep->mAgeTimer.reset();
-            // Make sure we have the buffer set up if we just decoded the data
-            if (sourcep->mCurrentDatap)
-            {
-                updateBufferForData(sourcep->mCurrentDatap);
-            }
-
             // Actually play the associated data.
             sourcep->setupChannel();
             channelp = sourcep->getChannel();
@@ -360,22 +360,25 @@ void LLAudioEngine::idle()
         // Check to see if the current sound is done playing.
         if (!channelp->isPlaying())
         {
-            sourcep->mCurrentDatap = sourcep->mQueuedDatap;
+            LLAudioData* queued_datap = sourcep->mQueuedDatap;
+            updateBufferForData(queued_datap);
+            if (!queued_datap->getBuffer())
+            {
+                continue;
+            }
+            sourcep->mCurrentDatap = queued_datap;
             sourcep->mQueuedDatap = NULL;
 
             // Reset the timer so the source doesn't die.
             sourcep->mAgeTimer.reset();
 
-            // Make sure we have the buffer set up if we just decoded the data
-            if (sourcep->mCurrentDatap)
-            {
-                updateBufferForData(sourcep->mCurrentDatap);
-            }
-
             // Actually play the associated data.
             sourcep->setupChannel();
-            channelp->updateBuffer();
-            sourcep->getChannel()->play();
+            if (sourcep->getChannel())
+            {
+                sourcep->getChannel()->updateBuffer();
+                sourcep->getChannel()->play();
+            }
             continue;
         }
 
@@ -385,7 +388,13 @@ void LLAudioEngine::idle()
             // It's a loop, we need to check and see if we're done with it.
             if (channelp->mLoopedThisFrame)
             {
-                sourcep->mCurrentDatap = sourcep->mQueuedDatap;
+                LLAudioData* queued_datap = sourcep->mQueuedDatap;
+                updateBufferForData(queued_datap);
+                if (!queued_datap->getBuffer())
+                {
+                    continue;
+                }
+                sourcep->mCurrentDatap = queued_datap;
                 sourcep->mQueuedDatap = NULL;
 
                 // Actually, should do a time sync so if we're a loop master/slave
@@ -458,10 +467,22 @@ void LLAudioEngine::idle()
     {
         if (mBuffers[i])
         {
-            if (!mBuffers[i]->mInUse && !mBuffers[i]->isPinned() && mBuffers[i]->mLastUseTimer.getElapsedTimeF32() > 30.f)
+            if (!mBuffers[i]->mInUse && !mBuffers[i]->isPinned()
+                && (!mBuffers[i]->mAudioDatap
+                    || mBuffers[i]->mAudioDatap->mPendingBufferp != mBuffers[i])
+                && mBuffers[i]->mLastUseTimer.getElapsedTimeF32() > 30.f)
             {
                 //LL_INFOS() << "Flushing unused buffer!" << LL_ENDL;
-                mBuffers[i]->mAudioDatap->mBufferp = NULL;
+                if (mBuffers[i]->mAudioDatap
+                    && mBuffers[i]->mAudioDatap->mBufferp == mBuffers[i])
+                {
+                    mBuffers[i]->mAudioDatap->mBufferp = NULL;
+                }
+                if (mBuffers[i]->mAudioDatap
+                    && mBuffers[i]->mAudioDatap->mPendingBufferp == mBuffers[i])
+                {
+                    mBuffers[i]->mAudioDatap->mPendingBufferp = NULL;
+                }
                 delete mBuffers[i];
                 mBuffers[i] = NULL;
             }
@@ -561,7 +582,9 @@ LLAudioBuffer * LLAudioEngine::getFreeBuffer()
         {
             if (!mBuffers[i]->mInUse && !mBuffers[i]->isPinned())
             {
-                if (mBuffers[i]->mLastUseTimer.getElapsedTimeF32() > max_age)
+                if (mBuffers[i]->mLastUseTimer.getElapsedTimeF32() > max_age
+                    && (!mBuffers[i]->mAudioDatap
+                        || mBuffers[i]->mAudioDatap->mPendingBufferp != mBuffers[i]))
                 {
                     max_age = mBuffers[i]->mLastUseTimer.getElapsedTimeF32();
                     buffer_id = i;
@@ -574,7 +597,16 @@ LLAudioBuffer * LLAudioEngine::getFreeBuffer()
     {
         LL_DEBUGS() << "Taking over unused buffer " << buffer_id << LL_ENDL;
         //LL_INFOS() << "Flushing unused buffer!" << LL_ENDL;
-        mBuffers[buffer_id]->mAudioDatap->mBufferp = NULL;
+        if (mBuffers[buffer_id]->mAudioDatap
+            && mBuffers[buffer_id]->mAudioDatap->mBufferp == mBuffers[buffer_id])
+        {
+            mBuffers[buffer_id]->mAudioDatap->mBufferp = NULL;
+        }
+        if (mBuffers[buffer_id]->mAudioDatap
+            && mBuffers[buffer_id]->mAudioDatap->mPendingBufferp == mBuffers[buffer_id])
+        {
+            mBuffers[buffer_id]->mAudioDatap->mPendingBufferp = NULL;
+        }
         delete mBuffers[buffer_id];
         mBuffers[buffer_id] = createBuffer();
         return mBuffers[buffer_id];
@@ -1516,6 +1548,11 @@ bool LLAudioSource::isDone() const
         return false;
     }
 
+    if (mCurrentDatap && mCurrentDatap->isLoadPending())
+    {
+        return false;
+    }
+
     if (mQueuedDatap)
     {
         // Don't kill this sound if we've got something queued up to play.
@@ -1582,8 +1619,15 @@ void LLAudioSource::addAudioData(LLAudioData *adp, const bool set_current)
             mCurrentDatap = adp;
             if (mChannelp)
             {
-                mChannelp->updateBuffer();
-                mChannelp->play();
+                if (adp->getBuffer())
+                {
+                    mChannelp->updateBuffer();
+                    mChannelp->play();
+                }
+                else
+                {
+                    gAudiop->updateBufferForData(adp);
+                }
             }
 
             // Make sure the audio engine knows that we want to request this sound.
@@ -1622,8 +1666,15 @@ void LLAudioSource::addAudioData(LLAudioData *adp, const bool set_current)
                 mCurrentDatap = adp;
                 if (mChannelp)
                 {
-                    mChannelp->updateBuffer();
-                    mChannelp->play();
+                    if (adp->getBuffer())
+                    {
+                        mChannelp->updateBuffer();
+                        mChannelp->play();
+                    }
+                    else
+                    {
+                        gAudiop->updateBufferForData(adp);
+                    }
                 }
                 // Make sure the audio engine knows that we want to request this sound.
                 gAudiop->startNextTransfer();
@@ -1804,6 +1855,8 @@ bool LLAudioChannel::updateBuffer()
 LLAudioData::LLAudioData(const LLUUID &uuid) :
     mID(uuid),
     mBufferp(NULL),
+    mPendingBufferp(NULL),
+    mLoadGeneration(0),
     mHasLocalData(false),
     mHasDecodedData(false),
     mHasCompletedDecode(false),
@@ -1837,26 +1890,30 @@ LLAudioData::LLAudioData(const LLUUID &uuid) :
 
 void LLAudioData::setPinned(const bool pinned)
 {
+    const bool was_pinned = mPinned;
     mPinned = pinned;
 
-    if (mBufferp)
+    if (mBufferp || mPendingBufferp)
     {
         // Discard old buffer if it exists, it will be regenerated later.
         // Not supposed to happen since setPinned() is supposed to be called on startup.
         LL_WARNS("AudioEngine") << "setPinned(" << pinned << ") called for " << mID
             << " with an existing buffer; discarding existing buffer." << LL_ENDL;
+        LLAudioBuffer* bufferp = mBufferp ? mBufferp : mPendingBufferp;
         if (gAudiop)
         {
-            if (mBufferp->isPinned())
+            if (bufferp->isPinned() || (bufferp == mPendingBufferp && was_pinned))
             {
                 gAudiop->cleanupPinnedBuffer(mID);
             }
             else
             {
-                gAudiop->cleanupBuffer(mBufferp);
+                gAudiop->cleanupBuffer(bufferp);
             }
         }
         mBufferp = nullptr;
+        mPendingBufferp = nullptr;
+        ++mLoadGeneration;
     }
 }
 
@@ -1871,6 +1928,12 @@ bool LLAudioData::load()
         return true;
     }
 
+    if (mPendingBufferp)
+    {
+        LL_INFOS() << "Already loading this sound, don't bother loading again!" << LL_ENDL;
+        return true;
+    }
+
     if (!gAudiop)
     {
         LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
@@ -1878,13 +1941,13 @@ bool LLAudioData::load()
         return false;
     }
 
-    mBufferp = mPinned ? gAudiop->getPinnedBuffer(mID) : gAudiop->getFreeBuffer();
-    if (!mBufferp)
+    mPendingBufferp = mPinned ? gAudiop->getPinnedBuffer(mID) : gAudiop->getFreeBuffer();
+    if (!mPendingBufferp)
     {
         // No free buffers, abort.
         LL_INFOS() << "Not able to allocate a new audio buffer, aborting." << LL_ENDL;
         // *TODO: Mark this failure differently so the audio engine could retry loading this buffer in the future
-        mHasWAVLoadFailed = true;
+        mHasWAVLoadFailed = false;
         return true;
     }
 
@@ -1896,9 +1959,9 @@ bool LLAudioData::load()
     LL::WorkQueue::ptr_t general_queue = LL::WorkQueue::getInstance("General");
 
     LLUUID id = mID;
-    bool pinned = mPinned;
+    U32 load_generation = ++mLoadGeneration;
 
-    mBufferp->mAudioDatap = this;
+    mPendingBufferp->mAudioDatap = this;
 
     main_queue->postTo(
         general_queue,
@@ -1916,7 +1979,7 @@ bool LLAudioData::load()
         }
         return data;
     },
-        [id, pinned](std::vector<U8> wav_data) // main thread: create AL buffer
+        [id, load_generation](std::vector<U8> wav_data) // main thread: create AL buffer
     {
         if (!gAudiop)
         {
@@ -1927,18 +1990,18 @@ bool LLAudioData::load()
         {
             return;
         }
-        adp->finishLoad(wav_data);
+        adp->finishLoad(wav_data, load_generation);
     });
 
     return true;
 }
 
-void LLAudioData::finishLoad(const std::vector<U8>& wav_data)
+void LLAudioData::finishLoad(const std::vector<U8>& wav_data, U32 load_generation)
 {
     // The buffer should have been allocated up-front in load(); if it's
     // gone (e.g. cleaned up, reset, or shutdown raced with this callback)
     // there's nothing to finish.
-    if (!mBufferp)
+    if (load_generation != mLoadGeneration || !mPendingBufferp)
     {
         LL_WARNS("AudioEngine") << "finishLoad() called for " << mID << " with no buffer to fill, aborting." << LL_ENDL;
         return;
@@ -1953,19 +2016,20 @@ void LLAudioData::finishLoad(const std::vector<U8>& wav_data)
     std::string uuid_str;
     mID.toString(uuid_str);
 
-    mHasWAVLoadFailed = wav_data.empty() || !mBufferp->loadWAV(wav_data);
+    mHasWAVLoadFailed = wav_data.empty() || !mPendingBufferp->loadWAV(wav_data);
     if (mHasWAVLoadFailed)
     {
         // unset the buffer, it's empty.
+        LLAudioBuffer* pending_bufferp = mPendingBufferp;
         if (mPinned)
         {
             gAudiop->cleanupPinnedBuffer(mID);
         }
         else
         {
-            gAudiop->cleanupBuffer(mBufferp);
+            gAudiop->cleanupBuffer(pending_bufferp);
         }
-        mBufferp = nullptr;
+        mPendingBufferp = nullptr;
 
         std::string wav_path = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, uuid_str) + ".dsf";
         if (!gDirUtilp->fileExists(wav_path))
@@ -1981,6 +2045,8 @@ void LLAudioData::finishLoad(const std::vector<U8>& wav_data)
         return;
     }
 
+    mBufferp = mPendingBufferp;
+    mPendingBufferp = nullptr;
     mBufferp->mAudioDatap = this;
     if (mPinned)
     {
