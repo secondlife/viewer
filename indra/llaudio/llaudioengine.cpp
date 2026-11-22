@@ -1386,8 +1386,7 @@ void LLAudioSource::update()
 
     if (mWaitingForLoad)
     {
-        // We already have a channel assigned, but the data it was pointed at wasn't
-        // ready yet.  Check if it's ready now, and if so, resume playback.
+        // Check if the data we're waiting for is ready now, and if so, resume playback.
         if (adp && adp->getBuffer())
         {
             play(adp->getID());
@@ -1658,6 +1657,10 @@ void LLAudioSource::addAudioData(LLAudioData *adp, const bool set_current)
                     mWaitingForLoad = true;
                     gAudiop->updateBufferForData(adp);
                 }
+            }
+            else
+            {
+                mWaitingForLoad = adp && !adp->getBuffer();
             }
 
             // Make sure the audio engine knows that we want to request this sound.
@@ -1955,14 +1958,14 @@ bool LLAudioData::load()
     // For now, just assume we're going to use one buffer per audiodata.
     if (mBufferp)
     {
-        LL_INFOS() << "Already have a buffer for this sound, don't bother loading!" << LL_ENDL;
+        LL_INFOS("AudioEngine") << "Already have a buffer for this sound, don't bother loading!" << LL_ENDL;
         mHasWAVLoadFailed = false;
         return true;
     }
 
     if (mPendingBufferp)
     {
-        LL_INFOS() << "Already loading this sound, don't bother loading again!" << LL_ENDL;
+        LL_DEBUGS("AudioEngine") << "Already loading this sound, don't bother loading again!" << LL_ENDL;
         return true;
     }
 
