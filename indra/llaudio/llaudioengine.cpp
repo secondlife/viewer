@@ -1344,6 +1344,7 @@ LLAudioSource::LLAudioSource(const LLUUID& id, const LLUUID& owner_id, const F32
     mQueueSounds(false),
     mPlayedOnce(false),
     mCorrupted(false),
+    mWaitingForLoad(false),
     mType(type),
     mChannelp(NULL),
     mCurrentDatap(NULL),
@@ -1381,18 +1382,26 @@ void LLAudioSource::update()
         return ; //no need to update
     }
 
+    LLAudioData* adp = getCurrentData();
+
+    if (mWaitingForLoad)
+    {
+        // We already have a channel assigned, but the data it was pointed at wasn't
+        // ready yet.  Check if it's ready now, and if so, resume playback.
+        if (adp && adp->getBuffer())
+        {
+            play(adp->getID());
+            return;
+        }
+    }
+
     if (!getCurrentBuffer())
     {
-        LLAudioData *adp = getCurrentData();
         if (adp)
         {
             // Hack - try and load the sound.  Will do this as a callback
             // on decode later.
-            if (adp->getBuffer())
-            {
-                play(adp->getID());
-            }
-            else if (adp->hasDecodedData() && !adp->hasWAVLoadFailed())
+            if (adp->hasDecodedData() && !adp->hasWAVLoadFailed())
             {
                 adp->load();
             }
@@ -1472,6 +1481,7 @@ bool LLAudioSource::setupChannel()
 
 void LLAudioSource::stop()
 {
+    mWaitingForLoad = false;
     play(LLUUID::null);
     if (mCurrentDatap)
     {
@@ -1494,8 +1504,12 @@ bool LLAudioSource::play(const LLUUID &audio_uuid)
                 mCurrentDatap = NULL;
             }
         }
+        mWaitingForLoad = false;
         return false;
     }
+
+    // Starting a fresh play attempt;
+    mWaitingForLoad = false;
 
     // Reset our age timeout if someone attempts to play the source.
     mAgeTimer.reset();
@@ -1635,11 +1649,13 @@ void LLAudioSource::addAudioData(LLAudioData *adp, const bool set_current)
             {
                 if (adp->getBuffer())
                 {
+                    mWaitingForLoad = false;
                     mChannelp->updateBuffer();
                     mChannelp->play();
                 }
                 else
                 {
+                    mWaitingForLoad = true;
                     gAudiop->updateBufferForData(adp);
                 }
             }
@@ -1682,11 +1698,13 @@ void LLAudioSource::addAudioData(LLAudioData *adp, const bool set_current)
                 {
                     if (adp->getBuffer())
                     {
+                        mWaitingForLoad = false;
                         mChannelp->updateBuffer();
                         mChannelp->play();
                     }
                     else
                     {
+                        mWaitingForLoad = true;
                         gAudiop->updateBufferForData(adp);
                     }
                 }

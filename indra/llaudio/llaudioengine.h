@@ -345,6 +345,7 @@ protected:
     bool            mQueueSounds;
     bool            mPlayedOnce;
     bool            mCorrupted;
+    bool            mWaitingForLoad = false; // channel assigned but buffer isn't ready
     S32             mType;
     LLVector3d      mPositionGlobal;
     LLVector3       mVelocity;
