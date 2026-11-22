@@ -1389,7 +1389,19 @@ void LLAudioSource::update()
         // Check if the data we're waiting for is ready now, and if so, resume playback.
         if (adp && adp->getBuffer())
         {
-            play(adp->getID());
+            mWaitingForLoad = false;
+            mAgeTimer.reset();
+            if (!isMuted() && setupChannel())
+            {
+                if (isSyncSlave())
+                {
+                    getChannel()->setWaiting(true);
+                }
+                else
+                {
+                    getChannel()->play();
+                }
+            }
             return;
         }
     }
