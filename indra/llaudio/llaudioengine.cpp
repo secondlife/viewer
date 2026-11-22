@@ -1972,10 +1972,17 @@ bool LLAudioData::load()
         if (file.is_open())
         {
             file.seekg(0, std::ios::end);
-            size_t size = file.tellg();
+            std::streamoff size = file.tellg();
+            if (size < 0)
+            {
+                return data;
+            }
             file.seekg(0, std::ios::beg);
-            data.resize(size);
-            file.read((char*)data.data(), size);
+            data.resize(static_cast<size_t>(size));
+            if (!file.read(reinterpret_cast<char*>(data.data()), static_cast<std::streamsize>(size)))
+            {
+                data.clear();
+            }
         }
         return data;
     },
