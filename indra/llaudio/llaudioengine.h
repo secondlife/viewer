@@ -375,6 +375,7 @@ class LLAudioData
   public:
     LLAudioData(const LLUUID &uuid);
     bool load();
+    void finishLoad(const std::vector<U8>& wav_data);
 
     LLUUID         getID() const { return mID; }
     LLAudioBuffer *getBuffer() const { return mBufferp; }
@@ -462,6 +463,7 @@ public:
     LLAudioBuffer();
     virtual ~LLAudioBuffer() {};
     virtual bool loadWAV(const std::string& filename) = 0;
+    virtual bool loadWAV(const std::vector<U8>& wav_data) = 0;
     virtual U32 getLength() = 0;
 
     void setPinned(bool pinned) { mPinned = pinned; }

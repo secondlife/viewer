@@ -114,6 +114,7 @@ class LLAudioBufferOpenAL : public LLAudioBuffer{
         virtual ~LLAudioBufferOpenAL();
 
         bool loadWAV(const std::string& filename);
+        bool loadWAV(const std::vector<U8>& wav_data);
         U32 getLength();
 
         friend class LLAudioChannelOpenAL;

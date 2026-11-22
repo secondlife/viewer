@@ -32,6 +32,7 @@
 
 #include "llerror.h"
 #include "llmath.h"
+#include "workqueue.h"
 
 #include "sound_ids.h"  // temporary hack for min/max distances
 
@@ -1865,7 +1866,6 @@ bool LLAudioData::load()
     // For now, just assume we're going to use one buffer per audiodata.
     if (mBufferp)
     {
-        // We already have this sound in a buffer, don't do anything.
         LL_INFOS() << "Already have a buffer for this sound, don't bother loading!" << LL_ENDL;
         mHasWAVLoadFailed = false;
         return true;
@@ -1889,14 +1889,74 @@ bool LLAudioData::load()
     }
 
     std::string uuid_str;
-    std::string wav_path;
     mID.toString(uuid_str);
-    wav_path= gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_str) + ".dsf";
+    std::string wav_path = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, uuid_str) + ".dsf";
 
-    mHasWAVLoadFailed = !mBufferp->loadWAV(wav_path);
+    LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+    LL::WorkQueue::ptr_t general_queue = LL::WorkQueue::getInstance("General");
+
+    LLUUID id = mID;
+    bool pinned = mPinned;
+
+    mBufferp->mAudioDatap = this;
+
+    main_queue->postTo(
+        general_queue,
+        [wav_path]() // worker thread: just read the file bytes
+    {
+        std::vector<U8> data;
+        llifstream file(wav_path, std::ios::binary);
+        if (file.is_open())
+        {
+            file.seekg(0, std::ios::end);
+            size_t size = file.tellg();
+            file.seekg(0, std::ios::beg);
+            data.resize(size);
+            file.read((char*)data.data(), size);
+        }
+        return data;
+    },
+        [id, pinned](std::vector<U8> wav_data) // main thread: create AL buffer
+    {
+        if (!gAudiop)
+        {
+            return;
+        }
+        LLAudioData* adp = gAudiop->getAudioData(id);
+        if (!adp)
+        {
+            return;
+        }
+        adp->finishLoad(wav_data);
+    });
+
+    return true;
+}
+
+void LLAudioData::finishLoad(const std::vector<U8>& wav_data)
+{
+    // The buffer should have been allocated up-front in load(); if it's
+    // gone (e.g. cleaned up, reset, or shutdown raced with this callback)
+    // there's nothing to finish.
+    if (!mBufferp)
+    {
+        LL_WARNS("AudioEngine") << "finishLoad() called for " << mID << " with no buffer to fill, aborting." << LL_ENDL;
+        return;
+    }
+
+    if (!gAudiop)
+    {
+        LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
+        return;
+    }
+
+    std::string uuid_str;
+    mID.toString(uuid_str);
+
+    mHasWAVLoadFailed = wav_data.empty() || !mBufferp->loadWAV(wav_data);
     if (mHasWAVLoadFailed)
     {
-        // Hrm.  Right now, let's unset the buffer, since it's empty.
+        // unset the buffer, it's empty.
         if (mPinned)
         {
             gAudiop->cleanupPinnedBuffer(mID);
@@ -1907,6 +1967,7 @@ bool LLAudioData::load()
         }
         mBufferp = nullptr;
 
+        std::string wav_path = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, uuid_str) + ".dsf";
         if (!gDirUtilp->fileExists(wav_path))
         {
             mHasLocalData = false;
@@ -1917,14 +1978,14 @@ bool LLAudioData::load()
             gAudiop->preloadSound(mID, mPinned);
         }
 
-        return false;
+        return;
     }
+
     mBufferp->mAudioDatap = this;
     if (mPinned)
     {
         mBufferp->setPinned(true);
     }
-    return true;
 }
 
 

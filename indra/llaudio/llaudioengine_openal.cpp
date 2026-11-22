@@ -491,6 +491,20 @@ bool LLAudioBufferOpenAL::loadWAV(const std::string& filename)
     return true;
 }
 
+bool LLAudioBufferOpenAL::loadWAV(const std::vector<U8>& wav_data)
+{
+    cleanup();
+    mALBuffer = alutCreateBufferFromFileImage(wav_data.data(), (ALsizei)wav_data.size());
+    if (mALBuffer == AL_NONE)
+    {
+        ALenum error = alutGetError();
+        LL_WARNS() << "LLAudioBufferOpenAL::loadWAV() Error loading from memory: "
+            << alutGetErrorString(error) << LL_ENDL;
+        return false;
+    }
+    return true;
+}
+
 U32 LLAudioBufferOpenAL::getLength()
 {
     if(mALBuffer == AL_NONE)
