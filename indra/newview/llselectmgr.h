@@ -418,6 +418,7 @@ private:
     LLPointer<LLViewerObject> mPrimaryObject;
     std::map<LLPointer<LLViewerObject>, LLSelectNode*> mSelectNodeMap;
     ESelectType mSelectType;
+    list_t mRemovedNodes;
 };
 
 typedef LLSafeHandle<LLObjectSelection> LLObjectSelectionHandle;
