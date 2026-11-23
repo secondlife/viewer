@@ -485,6 +485,17 @@
             media_plugin_libvlc
         </impl>
     </mimetype>
+    <mimetype name="video/webm">
+        <label name="video/webm_label">
+            Movie (WebM)
+        </label>
+        <widgettype>
+            movie
+        </widgettype>
+        <impl>
+            media_plugin_libvlc
+        </impl>
+    </mimetype>
   <mimetype name="application/octet-stream">
     <label name="video/octet-stream">
       Movie
