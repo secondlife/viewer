@@ -151,7 +151,7 @@ public:
             Optional<EFilterLink>       links;
             Optional<LLUUID>            uuid;
             Optional<DateRange>         date_range;
-            Optional<U32>               hours_ago;
+            Optional<F32>               hours_ago;
             Optional<U32>               date_search_direction;
             Optional<EFolderShow>       show_folder_state;
             Optional<PermissionMask>    permissions;
@@ -194,7 +194,7 @@ public:
 
         time_t          mMinDate,
                         mMaxDate;
-        U32             mHoursAgo;
+        F32             mHoursAgo;
         U32             mDateSearchDirection;
 
         EFolderShow     mShowFolderState;
@@ -278,8 +278,8 @@ public:
     time_t              getMinDate() const;
     time_t              getMaxDate() const;
 
-    void                setHoursAgo(U32 hours);
-    U32                 getHoursAgo() const;
+    void                setHoursAgo(F32 hours);
+    F32                 getHoursAgo() const;
     void                setDateSearchDirection(U32 direction);
     U32                 getDateSearchDirection() const;
 
