@@ -3179,6 +3179,15 @@ void LLGameControllerManager::setMouseCursorButtons(bool left_down, bool right_d
 
 void LLGameControllerManager::clear()
 {
+    // Each device was opened via SDL_OpenGamepad in onControllerDeviceAdded;
+    // close any still-connected ones before dropping their records.
+    for (const LLGameControl::Device& device : mDevices)
+    {
+        if (SDL_Gamepad* controller = SDL_GetGamepadFromID(device.getJoystickID()))
+        {
+            SDL_CloseGamepad(controller);
+        }
+    }
     mDevices.clear();
 }
 
