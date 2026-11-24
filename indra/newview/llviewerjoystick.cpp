@@ -1422,7 +1422,9 @@ void LLViewerJoystick::scanJoystick()
 
     if (mBtn[0] == 1)
     {
-        if (mBtn[0] != toggle_flycam)
+        // toggleFlycam() itself is ungated (keyboard/menu use it too), so the
+        // device's own flycam option is honoured here for its button.
+        if (mBtn[0] != toggle_flycam && gSavedSettings.getBOOL("JoystickFlycamEnabled"))
         {
             toggle_flycam = toggleFlycam() ? 1 : 0;
         }
