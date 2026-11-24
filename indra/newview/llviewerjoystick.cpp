@@ -211,8 +211,23 @@ BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVO
                 LLSD::Binary data; //just an std::vector
                 data.resize(size);
                 memcpy(&data[0], &device_instance_ptr->guidInstance /*POD _GUID*/, size);
-                LLViewerJoystick::getInstance()->initDevice(&device, product_name, LLSD(data), true);
-                return DIENUM_STOP;
+                if (LLViewerJoystick::getInstance()->initDevice(&device, product_name, LLSD(data), true))
+                {
+                    return DIENUM_STOP;
+                }
+                // ndof_init_first() failed: keep looking for another matching device.
+                // Note: we don't Release() the device here because we don't know whether
+                // libndofdev took ownership of it before failing, and a double Release()
+                // is worse than a leak.
+                LL_INFOS("Joystick") << "Failed to init device: " << product_name << LL_ENDL;
+                return DIENUM_CONTINUE;
+            }
+
+            // Failed before handing the device to libndofdev, so it is still ours to release
+            LL_WARNS("Joystick") << "Failed to set up device: " << product_name << " status: " << status << LL_ENDL;
+            if (device)
+            {
+                device->Release();
             }
         }
         else
@@ -552,10 +567,14 @@ void LLViewerJoystick::initDevice(LLSD &guid)
 bool LLViewerJoystick::initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, const std::string &name, const LLSD &guid, bool is_3dconnexion)
 {
 #if LIB_NDOF
+    // Only keep guid if the device opens: di8_devices_callback treats a set
+    // device id as the user's choice and would skip every remaining device.
+    LLSD previous_uuid = mLastDeviceUUID;
     mLastDeviceUUID = guid;
 
     if (!mNdofDev)
     {
+        mLastDeviceUUID = previous_uuid;
         return false;
     }
 
@@ -578,7 +597,12 @@ bool LLViewerJoystick::initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8
     mNdofDev->manufacturer[0] = '\0';
 #endif
 
-    return initDevice(preffered_device, is_3dconnexion);
+    if (initDevice(preffered_device, is_3dconnexion))
+    {
+        return true;
+    }
+    mLastDeviceUUID = previous_uuid;
+    return false;
 #else
     return false;
 #endif
