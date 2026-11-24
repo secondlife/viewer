@@ -490,46 +490,82 @@ void LLQueuedThread::processRequest(LLQueuedThread::QueuedRequest* req)
                 LL_PROFILE_ZONE_NAMED_CATEGORY_THREAD("qtpr - retry");
                 //put back on queue and try again in 0.1ms
                 lockData();
-                req->setStatus(STATUS_QUEUED);
 
-                unlockData();
+                if ((req->getFlags() & FLAG_ABORT) || (mStatus == QUITTING))
+                {
+                    // Don't repost an aborted job.
+                    req->setStatus(STATUS_ABORTED);
+                    req->finishRequest(false);
+                    if (req->getFlags() & FLAG_AUTO_COMPLETE)
+                    {
+                        mRequestHash.erase(req);
+                        req->deleteRequest();
+                    }
+                    unlockData();
+                }
+                else
+                {
+                    req->setStatus(STATUS_QUEUED);
+                    handle_t handle = req->getHashKey();
 
-                llassert(!mDataLock->isSelfLocked());
+                    unlockData();
+
+                    llassert(!mDataLock->isSelfLocked());
 
 #if 0
-                // try again on next frame
-                // NOTE: tried using "post" with a time in the future, but this
-                // would invariably cause this thread to wait for a long time (10+ ms)
-                // while work is pending
-                bool ret = LL::WorkQueue::postMaybe(
-                    mMainQueue,
-                    [=]()
+                    // try again on next frame
+                    // NOTE: tried using "post" with a time in the future, but this
+                    // would invariably cause this thread to wait for a long time (10+ ms)
+                    // while work is pending
+                    bool ret = LL::WorkQueue::postMaybe(
+                        mMainQueue,
+                        [=]()
                     {
                         LL_PROFILE_ZONE_NAMED("processRequest - retry");
                         mRequestQueue.post([=]()
-                            {
-                                LL_PROFILE_ZONE_NAMED("processRequest - retry"); // <-- not redundant, track retry on both queues
-                                processRequest(req);
-                            });
-                    });
-                llassert(ret);
-#else
-                using namespace std::chrono_literals;
-                auto retry_time = LL::WorkQueue::TimePoint::clock::now() + 16ms;
-                mRequestQueue.post([=, this]
-                    {
-                        LL_PROFILE_ZONE_NAMED("processRequest - retry");
-                        if (LL::WorkQueue::TimePoint::clock::now() < retry_time)
                         {
-                            auto sleep_time = std::chrono::duration_cast<std::chrono::milliseconds>(retry_time - LL::WorkQueue::TimePoint::clock::now());
-
-                            if (sleep_time.count() > 0)
+                            LL_PROFILE_ZONE_NAMED("processRequest - retry"); // <-- not redundant, track retry on both queues
+                            processRequest(req);
+                        });
+                    });
+                    llassert(ret);
+#else
+                    using namespace std::chrono_literals;
+                    auto retry_time = LL::WorkQueue::TimePoint::clock::now() + 16ms;
+                    bool posted = mRequestQueue.post([=, this]
+                        {
+                            LL_PROFILE_ZONE_NAMED("processRequest - retry");
+                            if (LL::WorkQueue::TimePoint::clock::now() < retry_time)
                             {
-                                ms_sleep((U32)sleep_time.count());
+                                auto sleep_time = std::chrono::duration_cast<std::chrono::milliseconds>(retry_time - LL::WorkQueue::TimePoint::clock::now());
+
+                                if (sleep_time.count() > 0)
+                                {
+                                    ms_sleep((U32)sleep_time.count());
+                                }
+                            }
+                            processRequest(req);
+                        });
+                    if (!posted)
+                    {
+                        // Somehow this failed. Shouldn't be possible, tasks
+                        // should have been aborted before queue got closed.
+                        lockData();
+                        QueuedRequest* cur = (QueuedRequest*)mRequestHash.find(handle);
+                        if (cur && cur == req && cur->getStatus() == STATUS_QUEUED)
+                        {
+                            cur->setStatus(STATUS_ABORTED);
+                            cur->finishRequest(false);
+                            if (req->getFlags() & FLAG_AUTO_COMPLETE)
+                            {
+                                mRequestHash.erase(handle);
+                                cur->deleteRequest();
                             }
                         }
-                        processRequest(req);
-                    });
+                        unlockData();
+                        LL_WARNS() << "Failed to post retry for request " << handle << LL_ENDL;
+                    }
+                }
 #endif
 
             }
