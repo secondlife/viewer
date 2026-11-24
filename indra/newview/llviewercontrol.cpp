@@ -437,6 +437,12 @@ static bool handleJoystickChanged(const LLSD& newvalue)
     return true;
 }
 
+static bool handleJoystickEnabledChanged(const LLSD& newvalue)
+{
+    LLViewerJoystick::getInstance()->setNeedsReset(true);
+    return true;
+}
+
 static bool handleUseOcclusionChanged(const LLSD& newvalue)
 {
     LLPipeline::sUseOcclusion = (newvalue.asBoolean()
@@ -940,6 +946,8 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "MuteVoice", handleAudioVolumeChanged);
     setting_setup_signal_listener(gSavedSettings, "MuteAmbient", handleAudioVolumeChanged);
     setting_setup_signal_listener(gSavedSettings, "MuteUI", handleAudioVolumeChanged);
+    setting_setup_signal_listener(gSavedSettings, "JoystickEnabled", handleJoystickEnabledChanged);
+    setting_setup_signal_listener(gSavedSettings, "JoystickFlycamEnabled", handleJoystickEnabledChanged);
     setting_setup_signal_listener(gSavedSettings, "JoystickAxis0", handleJoystickChanged);
     setting_setup_signal_listener(gSavedSettings, "JoystickAxis1", handleJoystickChanged);
     setting_setup_signal_listener(gSavedSettings, "JoystickAxis2", handleJoystickChanged);
