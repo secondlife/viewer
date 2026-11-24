@@ -1386,6 +1386,20 @@ void LLIMModel::LLIMSession::loadHistory()
     // Group and ad-hoc history retain the synchronous legacy loader.
     chat_message_list_t history;
     LLLogChat::loadChatHistory(mHistoryFileName, history, LLSD(), isGroupChat());
+
+    // Remember the newest minute of the local log so addMessagesFromServerHistory()
+    // can skip server history messages that are already in the log.
+    for (const LLSD& msg : history)
+    {
+        const std::string& msg_time_str = msg[LL_IM_DATE_TIME].asStringRef();
+        if (mLastHistoryCacheDateTime != msg_time_str)
+        {
+            mLastHistoryCacheDateTime = msg_time_str;
+            mLastHistoryCacheMsgs.clear();
+        }
+        mLastHistoryCacheMsgs.push_front(msg);
+    }
+
     replaceHistoricalMessages(history);
 }
 
