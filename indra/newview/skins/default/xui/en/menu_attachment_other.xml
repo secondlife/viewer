@@ -55,6 +55,15 @@
         function="Avatar.ResetSkeletonAndAnimations" />
      </menu_item_call>
 
+     <menu_item_call label="Reload Avatar"
+       layout="topleft"
+       name="Reload Avatar">
+       <menu_item_call.on_click
+        function="Avatar.Reload" />
+       <menu_item_call.on_enable
+        function="Avatar.EnableReload" />
+     </menu_item_call>
+
    <menu_item_separator />
     <menu_item_call
      enabled="false"
