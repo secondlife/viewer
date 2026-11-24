@@ -199,6 +199,7 @@ void ALC_APIENTRY LLAudioEngine_OpenAL::onDeviceEventSOFT(ALCenum eventType, ALC
 
 void LLAudioEngine_OpenAL::reopenOnDefaultDevice()
 {
+    std::lock_guard<std::mutex> lock(mALDeviceMutex);
     if (!mHasReopenExt || !mReopenDeviceSOFT || !mALDevice)
     {
         return;
@@ -228,11 +229,19 @@ void LLAudioEngine_OpenAL::shutdown()
 {
     LL_INFOS() << "About to LLAudioEngine::shutdown()" << LL_ENDL;
 
-    if (mHasReopenExt && mHasSystemEventsExt && mEventControlSOFT && mEventCallbackSOFT)
+
     {
-        ALCenum events[] = { ALC_EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT };
-        mEventControlSOFT(1, events, ALC_FALSE);
-        mEventCallbackSOFT(NULL, NULL);
+        // Make sure any in-flight reopenOnDefaultDevice() has finished
+        // before teardown.
+        std::lock_guard<std::mutex> lock(mALDeviceMutex);
+
+        if (mHasReopenExt && mHasSystemEventsExt && mEventControlSOFT && mEventCallbackSOFT)
+        {
+            ALCenum events[] = { ALC_EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT };
+            mEventControlSOFT(1, events, ALC_FALSE);
+            mEventCallbackSOFT(NULL, NULL);
+        }
+        mALDevice = NULL;
     }
 
     LLAudioEngine::shutdown();
