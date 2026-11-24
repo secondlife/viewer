@@ -53,7 +53,8 @@ public:
         STATUS_INPROGRESS = 2,
         STATUS_COMPLETE = 3,
         STATUS_ABORTED = 4,
-        STATUS_DELETE = 5
+        STATUS_DELETE = 5,
+        STATUS_QUEUEING = 6, // processRequest() returned false and a retry is being posted;
     };
     enum flags_t {
         FLAG_AUTO_COMPLETE = 1,

@@ -106,7 +106,8 @@ void LLQueuedThread::shutdown()
     lockData();
     while ( (req = (QueuedRequest*)mRequestHash.pop_element()) )
     {
-        if (req->getStatus() == STATUS_INPROGRESS)
+        if (req->getStatus() == STATUS_INPROGRESS
+            || req->getStatus() == STATUS_QUEUEING)
         {
             has_active = true;
             req->setFlags(FLAG_ABORT | FLAG_AUTO_COMPLETE);
@@ -321,6 +322,15 @@ bool LLQueuedThread::waitForResult(LLQueuedThread::handle_t handle, bool auto_co
             }
             done = true;
         }
+        else if (req->getStatus() == STATUS_ABORTED)
+        {
+            if (auto_complete)
+            {
+                mRequestHash.erase(handle);
+                req->deleteRequest();
+            }
+            done = true;
+        }
         unlockData();
 
         if (!done && mThreaded)
@@ -395,6 +405,7 @@ bool LLQueuedThread::completeRequest(handle_t handle)
     {
         llassert_always(req->getStatus() != STATUS_QUEUED);
         llassert_always(req->getStatus() != STATUS_INPROGRESS);
+        llassert_always(req->getStatus() != STATUS_QUEUEING);
 #if _DEBUG
 //      LL_INFOS() << llformat("LLQueuedThread::Completed req [%08d]",handle) << LL_ENDL;
 #endif
@@ -437,86 +448,90 @@ void LLQueuedThread::processRequest(LLQueuedThread::QueuedRequest* req)
     mIdleThread = false;
     //threadedUpdate();
 
-    // Get next request from pool
-    lockData();
-
-    if ((req->getFlags() & FLAG_ABORT) || (mStatus == QUITTING))
+    // Loop back to the top (as if called fresh) when a retry needs to be
+    // performed inline rather than re-queued, instead of recursing.
+    for (;;)
     {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_THREAD("qtpr - abort");
-        req->setStatus(STATUS_ABORTED);
-        req->finishRequest(false);
-        if (req->getFlags() & FLAG_AUTO_COMPLETE)
-        {
-            mRequestHash.erase(req);
-            req->deleteRequest();
-//              check();
-        }
-        unlockData();
-    }
-    else
-    {
-        llassert_always(req->getStatus() == STATUS_QUEUED);
+        // Get next request from pool
+        lockData();
 
-        if (req)
+        if ((req->getFlags() & FLAG_ABORT) || (mStatus == QUITTING))
         {
-            req->setStatus(STATUS_INPROGRESS);
+            LL_PROFILE_ZONE_NAMED_CATEGORY_THREAD("qtpr - abort");
+            req->setStatus(STATUS_ABORTED);
+            req->finishRequest(false);
+            if (req->getFlags() & FLAG_AUTO_COMPLETE)
+            {
+                mRequestHash.erase(req);
+                req->deleteRequest();
+                //              check();
+            }
+            unlockData();
+            break;
         }
+
+        // if getStatus() == STATUS_QUEUEING, processRequest fired
+        // before the state had a chance to change.
+        // But if we are here with STATUS_QUEUEING, the work was
+        // posted and it's safe to change status.
+        llassert_always(req->getStatus() == STATUS_QUEUED || req->getStatus() == STATUS_QUEUEING);
+
+        // Guard job from being deleted.
+        req->setStatus(STATUS_INPROGRESS);
         unlockData();
 
         // This is the only place we will call req->setStatus() after
         // it has initially been seet to STATUS_QUEUED, so it is
         // safe to access req.
-        if (req)
-        {
-            // process request
-            bool complete = req->processRequest();
+        bool complete = req->processRequest();
 
-            if (complete)
+        if (complete)
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_THREAD("qtpr - complete");
+            lockData();
+            req->setStatus(STATUS_COMPLETE);
+            req->finishRequest(true);
+            if (req->getFlags() & FLAG_AUTO_COMPLETE)
             {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_THREAD("qtpr - complete");
-                lockData();
-                req->setStatus(STATUS_COMPLETE);
-                req->finishRequest(true);
+                mRequestHash.erase(req);
+                req->deleteRequest();
+                //              check();
+            }
+            unlockData();
+            break;
+        }
+
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_THREAD("qtpr - chk retry");
+            // check status, put back on queue and try again in 0.1ms
+            lockData();
+            if ((req->getFlags() & FLAG_ABORT) || (mStatus == QUITTING))
+            {
+                // Abort now instead of scheduling a retry.
+                req->setStatus(STATUS_ABORTED);
+                req->finishRequest(false);
                 if (req->getFlags() & FLAG_AUTO_COMPLETE)
                 {
                     mRequestHash.erase(req);
                     req->deleteRequest();
-                    //              check();
                 }
                 unlockData();
+                break;
             }
             else
             {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_THREAD("qtpr - retry");
-                //put back on queue and try again in 0.1ms
-                lockData();
-                req->setStatus(STATUS_QUEUED);
+                // Put back on queue and try again in 0.1ms
+                req->setStatus(STATUS_QUEUEING);
 
-                unlockData();
-
-                llassert(!mDataLock->isSelfLocked());
-
-#if 0
-                // try again on next frame
-                // NOTE: tried using "post" with a time in the future, but this
-                // would invariably cause this thread to wait for a long time (10+ ms)
-                // while work is pending
-                bool ret = LL::WorkQueue::postMaybe(
-                    mMainQueue,
-                    [=]()
-                    {
-                        LL_PROFILE_ZONE_NAMED("processRequest - retry");
-                        mRequestQueue.post([=]()
-                            {
-                                LL_PROFILE_ZONE_NAMED("processRequest - retry"); // <-- not redundant, track retry on both queues
-                                processRequest(req);
-                            });
-                    });
-                llassert(ret);
-#else
                 using namespace std::chrono_literals;
                 auto retry_time = LL::WorkQueue::TimePoint::clock::now() + 16ms;
-                mRequestQueue.post([=, this]
+
+                // tryPost() never blocks -- it only attempts a non-blocking
+                // try_lock on the underlying queue's mutex -- so it's safe
+                // to call (and retry) while still holding mDataLock. This
+                // avoids ever releasing the lock, which would otherwise
+                // require re-validating req via mRequestHash lookup.
+                bool posted = mRequestQueue.tryPost([=, this]
                     {
                         LL_PROFILE_ZONE_NAMED("processRequest - retry");
                         if (LL::WorkQueue::TimePoint::clock::now() < retry_time)
@@ -530,12 +545,42 @@ void LLQueuedThread::processRequest(LLQueuedThread::QueuedRequest* req)
                         }
                         processRequest(req);
                     });
-#endif
 
+                if (!posted && !mRequestQueue.isClosed())
+                {
+                    // Queue momentarily full or its mutex momentarily
+                    // contended. If the queue is genuinely full, this
+                    // thread potentially is the sole party that could
+                    // ever drain it, so we can't rely on yielding.
+                    // Retry the request instead: loop back to the
+                    // top of processRequest as if freshly invoked.
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_THREAD("qtpr - inline retry");
+                    unlockData();
+                    continue; // back to the top of the for (;;) loop
+                }
+
+                if (posted)
+                {
+                    // Successfully re-queued, still under lock.
+                    req->setStatus(STATUS_QUEUED);
+                }
+                else // closed
+                {
+                    // Queue was closed, finish the request
+                    // here rather than leaking it.
+                    req->setStatus(STATUS_ABORTED);
+                    req->finishRequest(false);
+                    if (req->getFlags() & FLAG_AUTO_COMPLETE)
+                    {
+                        mRequestHash.erase(req);
+                        req->deleteRequest();
+                    }
+                }
+                unlockData();
+                break;
             }
         }
     }
-
     mIdleThread = true;
 }
 
