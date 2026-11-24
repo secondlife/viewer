@@ -91,6 +91,9 @@ public:
     // SpaceMouse Wireless BT on Windows) report a generic product name such
     // as "6 axis 2 button device".
     static bool is3DConnexionDevice(U16 vendor_id, U16 product_id, const std::string& device_name);
+    // For a device opened by libndofdev, which doesn't expose the USB ids:
+    // checks the product name and the manufacturer name (filled in on macOS).
+    static bool is3DConnexionDevice(const NDOF_Device* dev);
     // Returns device_name, or a descriptive substitute (e.g. "3Dconnexion device 256F:C63A")
     // when the USB ids identify a 3Dconnexion device but device_name doesn't.
     static std::string get3DConnexionDeviceName(U16 vendor_id, U16 product_id, const std::string& device_name);
@@ -113,7 +116,7 @@ protected:
     void loadDeviceIdFromSettings();
     // Call after a successful ndof_init_first(): marks the driver initialized
     // only if the device is a 3Dconnexion one (either is_3dconnexion is true or
-    // the product name looks like one).  Returns true if accepted.
+    // is3DConnexionDevice(mNdofDev) says so).  Returns true if accepted.
     bool acceptInitializedDevice(bool is_3dconnexion = false);
 #if LIB_NDOF
     static NDOF_HotPlugResult HotPlugAddCallback(NDOF_Device *dev);

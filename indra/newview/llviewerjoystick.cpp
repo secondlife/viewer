@@ -293,7 +293,7 @@ NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
     if (dev)
     {
         LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
-        if (joystick->mDriverState == JDS_UNINITIALIZED && is3DConnexionDevice(dev->product))
+        if (joystick->mDriverState == JDS_UNINITIALIZED && is3DConnexionDevice(dev))
         {
             LL_INFOS("Joystick") << "HotPlugAddCallback: will use device: " << (void*)(dev) << LL_ENDL;
             ndof_dump(stderr, dev);
@@ -633,7 +633,7 @@ bool LLViewerJoystick::acceptInitializedDevice(bool is_3dconnexion)
     // devices: everything else is handled by LLGameControl (SDL).  Accepting a
     // generic controller here would have both paths drive the flycam from the
     // same physical input.
-    mDeviceIs3DConnexion = is_3dconnexion || is3DConnexionDevice(mNdofDev->product);
+    mDeviceIs3DConnexion = is_3dconnexion || is3DConnexionDevice(mNdofDev);
     if (mDeviceIs3DConnexion)
     {
         mDriverState = JDS_INITIALIZED;
@@ -1602,12 +1602,42 @@ bool LLViewerJoystick::is3DConnexionDevice(U16 vendor_id, U16 product_id, const 
     // Older 3Dconnexion devices (e.g. SpaceNavigator) use Logitech's vendor id
     // with product ids in the 0xc6xx range
     constexpr U16 VID_LOGITECH = 0x046d;
+    // Note: we accept any product_id under the 3Dconnexion vendor id because,
+    // as of this writing, all known 3Dconnexion products are 6-axis devices.
+    // If they ever ship other kinds of devices that enumerate as game
+    // controllers we will need more logic here to tell them apart
+    // (e.g. check product ids or require 6 axes).
     if (vendor_id == VID_3DCONNEXION
         || (vendor_id == VID_LOGITECH && (product_id & 0xff00) == 0xc600))
     {
         return true;
     }
     return is3DConnexionDevice(device_name);
+}
+
+// static
+bool LLViewerJoystick::is3DConnexionDevice(const NDOF_Device* dev)
+{
+#if LIB_NDOF
+    if (!dev)
+    {
+        return false;
+    }
+    if (is3DConnexionDevice(ll_safe_string(dev->product, sizeof(dev->product))))
+    {
+        return true;
+    }
+    // libndofdev doesn't expose the USB ids, so we can't use the id-based
+    // check here.  On macOS it does fill in the HID manufacturer string, which
+    // identifies 3Dconnexion devices whose product name doesn't.
+    // On Windows the manufacturer is left empty: there the id-based check is
+    // done earlier, during DirectInput enumeration (di8_devices_callback).
+    const std::string VENDOR_NAME("3Dconnexion");
+    std::string manufacturer = ll_safe_string(dev->manufacturer, sizeof(dev->manufacturer));
+    return manufacturer.compare(0, VENDOR_NAME.size(), VENDOR_NAME) == 0;
+#else
+    return false;
+#endif
 }
 
 // static
