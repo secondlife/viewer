@@ -85,11 +85,10 @@ BOOL CALLBACK di8_list_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr,
         // For HID devices DirectInput encodes the USB ids in guidProduct as MAKELONG(VID, PID)
         U16 vendor_id = LOWORD(device_instance_ptr->guidProduct.Data1);
         U16 product_id = HIWORD(device_instance_ptr->guidProduct.Data1);
-        bool include_device = LLViewerJoystick::is3DConnexionDevice(vendor_id, product_id, product_name);
+        std::optional<std::string> device_name = LLViewerJoystick::get3DConnexionDeviceName(vendor_id, product_id, product_name);
 
-        if (include_device)
+        if (device_name)
         {
-            product_name = LLViewerJoystick::get3DConnexionDeviceName(vendor_id, product_id, product_name);
             S32 size = sizeof(GUID);
             LLSD::Binary data; //just an std::vector
             data.resize(size);
@@ -97,7 +96,7 @@ BOOL CALLBACK di8_list_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr,
 
             LLFloaterJoystick * floater = (LLFloaterJoystick*)pvRef;
             LLSD value = data;
-            floater->addDevice(product_name, value);
+            floater->addDevice(*device_name, value);
         }
     }
     return DIENUM_CONTINUE;

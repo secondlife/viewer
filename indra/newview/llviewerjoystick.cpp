@@ -43,6 +43,9 @@
 #include "llgamecontrol.h"
 #include "llformat.h"
 
+#include <algorithm>
+#include <string_view>
+
 #if LL_WINDOWS && !LL_MESA_HEADLESS
 // Require DirectInput version 8
 #define DIRECTINPUT_VERSION 0x0800
@@ -112,6 +115,59 @@ std::ostream& operator<<(std::ostream& out, NDOF_Device* ptr)
 }
 #endif // LIB_NDOF
 
+namespace
+{
+    // Product-name check, for when nothing better is available
+    bool is_3dconnexion_name(std::string_view name)
+    {
+        // Linux (evdev) prefixes the product with the vendor, e.g. "3Dconnexion SpaceNavigator"
+        constexpr std::string_view VENDOR_PREFIX("3Dconnexion ");
+        constexpr std::string_view MODELS[] = {
+            "SpaceNavigator", "SpaceExplorer", "SpaceTraveler", "SpacePilot", "SpaceMouse" };
+        if (name.starts_with(VENDOR_PREFIX))
+        {
+            name.remove_prefix(VENDOR_PREFIX.size());
+        }
+        return std::ranges::any_of(MODELS, [name](std::string_view model) { return name.starts_with(model); });
+    }
+
+    bool is_3dconnexion_usb_id(U16 vendor_id, U16 product_id)
+    {
+        constexpr U16 VID_3DCONNEXION = 0x256f;
+        // Older 3Dconnexion devices (e.g. SpaceNavigator) use Logitech's vendor id
+        // with product ids in the 0xc6xx range
+        constexpr U16 VID_LOGITECH = 0x046d;
+        // Note: we accept any product_id under the 3Dconnexion vendor id because,
+        // as of this writing, all known 3Dconnexion products are 6-axis devices.
+        // If they ever ship other kinds of devices that enumerate as game
+        // controllers we will need more logic here to tell them apart
+        // (e.g. check product ids or require 6 axes).
+        return vendor_id == VID_3DCONNEXION
+            || (vendor_id == VID_LOGITECH && (product_id & 0xff00) == 0xc600);
+    }
+
+#if LIB_NDOF
+    // For a device opened by libndofdev, which doesn't expose the USB ids:
+    // checks the product name and the manufacturer name.
+    bool is_3dconnexion_ndof(const NDOF_Device* dev)
+    {
+        if (!dev)
+        {
+            return false;
+        }
+        if (is_3dconnexion_name(ll_safe_string(dev->product, sizeof(dev->product))))
+        {
+            return true;
+        }
+        // On macOS libndofdev fills in the HID manufacturer string, which
+        // identifies 3Dconnexion devices whose product name doesn't.
+        // On Windows the manufacturer is left empty: there the id-based check is
+        // done earlier, during DirectInput enumeration (di8_devices_callback).
+        return ll_safe_string(dev->manufacturer, sizeof(dev->manufacturer)).starts_with("3Dconnexion");
+    }
+#endif // LIB_NDOF
+} // anonymous namespace
+
 
 #if LL_WINDOWS && !LL_MESA_HEADLESS
 // this should reflect ndof and set axises, see ndofdev_win.cpp from ndof package
@@ -155,12 +211,13 @@ BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVO
         // Only 3Dconnexion devices are handled by ndof: generic game controllers
         // belong to LLGameControl (SDL), and opening them here too would feed the
         // same physical input into the flycam twice.
-        if (!LLViewerJoystick::is3DConnexionDevice(vendor_id, product_id, product_name))
+        std::optional<std::string> device_name = LLViewerJoystick::get3DConnexionDeviceName(vendor_id, product_id, product_name);
+        if (!device_name)
         {
             LL_DEBUGS("Joystick") << "Skipping non-3Dconnexion device: " << product_name << LL_ENDL;
             return DIENUM_CONTINUE;
         }
-        product_name = LLViewerJoystick::get3DConnexionDeviceName(vendor_id, product_id, product_name);
+        product_name = *device_name;
 
         LLSD guid = LLViewerJoystick::getInstance()->getDeviceUUID();
 
@@ -308,7 +365,7 @@ NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
     if (dev)
     {
         LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
-        if (joystick->mDriverState == JDS_UNINITIALIZED && is3DConnexionDevice(dev))
+        if (joystick->mDriverState == JDS_UNINITIALIZED && is_3dconnexion_ndof(dev))
         {
             LL_INFOS("Joystick") << "HotPlugAddCallback: will use device: " << (void*)(dev) << LL_ENDL;
             ndof_dump(stderr, dev);
@@ -319,7 +376,6 @@ NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
             joystick->mNdofDev = dev;
 
             joystick->mDriverState = JDS_INITIALIZED;
-            joystick->mDeviceIs3DConnexion = true;
             res = NDOF_KEEP_HOTPLUGGED;
         }
         joystick->updateEnabled(true);
@@ -340,7 +396,6 @@ void LLViewerJoystick::HotPlugRemovalCallback(NDOF_Device *dev)
                 << joystick->mNdofDev << "; removed device:" << LL_ENDL;
         ndof_dump(stderr, dev);
         joystick->mDriverState = JDS_UNINITIALIZED;
-        joystick->mDeviceIs3DConnexion = false;
 
         // POTENTIAL LEAK: ndofdev_external.h doesn't say what becomes of 'dev' after this
         // callback, so we don't free it or keep using it.  init() allocates a new struct if
@@ -476,21 +531,12 @@ void LLViewerJoystick::init(bool autoenable)
 
     if (mDriverState == JDS_INITIALIZED)
     {
-        // A Joystick device is plugged in
-        if (isLikeSpaceNavigator())
+        // A 3Dconnexion device is plugged in (only those are accepted), we have defaults for it.
+        if (gSavedSettings.getString("JoystickInitialized") != "SpaceNavigator")
         {
-            // It's a space navigator, we have defaults for it.
-            if (gSavedSettings.getString("JoystickInitialized") != "SpaceNavigator")
-            {
-                // Only set the defaults if we haven't already (in case they were overridden)
-                setSNDefaults();
-                gSavedSettings.setString("JoystickInitialized", "SpaceNavigator");
-            }
-        }
-        else
-        {
-            // It's not a Space Navigator
-            gSavedSettings.setString("JoystickInitialized", "UnknownDevice");
+            // Only set the defaults if we haven't already (in case they were overridden)
+            setSNDefaults();
+            gSavedSettings.setString("JoystickInitialized", "SpaceNavigator");
         }
     }
     else
@@ -657,8 +703,9 @@ bool LLViewerJoystick::acceptInitializedDevice(bool is_3dconnexion)
     // devices: everything else is handled by LLGameControl (SDL).  Accepting a
     // generic controller here would have both paths drive the flycam from the
     // same physical input.
-    mDeviceIs3DConnexion = is_3dconnexion || is3DConnexionDevice(mNdofDev);
-    if (mDeviceIs3DConnexion)
+    // Note: this is the only place (besides HotPlugAddCallback()) that sets
+    // JDS_INITIALIZED, so an initialized driver always has a 3Dconnexion device.
+    if (is_3dconnexion || is_3dconnexion_ndof(mNdofDev))
     {
         mDriverState = JDS_INITIALIZED;
         mSessionDevices.try_emplace(ll_safe_string(mNdofDev->product), false);
@@ -681,7 +728,6 @@ void LLViewerJoystick::terminate()
         sNdofLibInitialized = false;
         mDriverState = JDS_UNINITIALIZED;
         mNdofDev = NULL;
-        mDeviceIs3DConnexion = false;
         LL_INFOS("Joystick") << "Terminated connection with NDOF device." << LL_ENDL;
     }
 #endif
@@ -1438,8 +1484,7 @@ bool LLViewerJoystick::toggleFlycam()
 void LLViewerJoystick::scanJoystick()
 {
     if (mDriverState != JDS_INITIALIZED
-            || !gSavedSettings.getBOOL("JoystickEnabled")
-            || !mDeviceIs3DConnexion)
+            || !gSavedSettings.getBOOL("JoystickEnabled"))
     {
         return;
     }
@@ -1603,77 +1648,19 @@ std::string LLViewerJoystick::getDescription()
 }
 
 // static
-bool LLViewerJoystick::is3DConnexionDevice(const std::string& full_name)
+std::optional<std::string> LLViewerJoystick::get3DConnexionDeviceName(U16 vendor_id, U16 product_id, const std::string& device_name)
 {
-    // Linux (evdev) prefixes the product with the vendor, e.g. "3Dconnexion SpaceNavigator"
-    const std::string VENDOR_PREFIX("3Dconnexion ");
-    std::string device_name = full_name.compare(0, VENDOR_PREFIX.size(), VENDOR_PREFIX) == 0
-        ? full_name.substr(VENDOR_PREFIX.size())
-        : full_name;
-    bool answer = device_name.find("Space") == 0
-        && ( (device_name.find("SpaceNavigator") == 0)
-            || (device_name.find("SpaceExplorer") == 0)
-            || (device_name.find("SpaceTraveler") == 0)
-            || (device_name.find("SpacePilot") == 0)
-            || (device_name.find("SpaceMouse") == 0));
-    return answer;
-}
-
-// static
-bool LLViewerJoystick::is3DConnexionDevice(U16 vendor_id, U16 product_id, const std::string& device_name)
-{
-    constexpr U16 VID_3DCONNEXION = 0x256f;
-    // Older 3Dconnexion devices (e.g. SpaceNavigator) use Logitech's vendor id
-    // with product ids in the 0xc6xx range
-    constexpr U16 VID_LOGITECH = 0x046d;
-    // Note: we accept any product_id under the 3Dconnexion vendor id because,
-    // as of this writing, all known 3Dconnexion products are 6-axis devices.
-    // If they ever ship other kinds of devices that enumerate as game
-    // controllers we will need more logic here to tell them apart
-    // (e.g. check product ids or require 6 axes).
-    if (vendor_id == VID_3DCONNEXION
-        || (vendor_id == VID_LOGITECH && (product_id & 0xff00) == 0xc600))
-    {
-        return true;
-    }
-    return is3DConnexionDevice(device_name);
-}
-
-// static
-bool LLViewerJoystick::is3DConnexionDevice(const NDOF_Device* dev)
-{
-#if LIB_NDOF
-    if (!dev)
-    {
-        return false;
-    }
-    if (is3DConnexionDevice(ll_safe_string(dev->product, sizeof(dev->product))))
-    {
-        return true;
-    }
-    // libndofdev doesn't expose the USB ids, so we can't use the id-based
-    // check here.  On macOS it does fill in the HID manufacturer string, which
-    // identifies 3Dconnexion devices whose product name doesn't.
-    // On Windows the manufacturer is left empty: there the id-based check is
-    // done earlier, during DirectInput enumeration (di8_devices_callback).
-    const std::string VENDOR_NAME("3Dconnexion");
-    std::string manufacturer = ll_safe_string(dev->manufacturer, sizeof(dev->manufacturer));
-    return manufacturer.compare(0, VENDOR_NAME.size(), VENDOR_NAME) == 0;
-#else
-    return false;
-#endif
-}
-
-// static
-std::string LLViewerJoystick::get3DConnexionDeviceName(U16 vendor_id, U16 product_id, const std::string& device_name)
-{
-    if (is3DConnexionDevice(device_name) || !is3DConnexionDevice(vendor_id, product_id, device_name))
+    if (is_3dconnexion_name(device_name))
     {
         return device_name;
     }
-    // Recognized by USB ids only: the OS gave it a generic name
-    // (e.g. "6 axis 2 button device" for the SpaceMouse Wireless BT on Windows)
-    return llformat("3Dconnexion device %04X:%04X", vendor_id, product_id);
+    if (is_3dconnexion_usb_id(vendor_id, product_id))
+    {
+        // Recognized by USB ids only: the OS gave it a generic name
+        // (e.g. "6 axis 2 button device" for the SpaceMouse Wireless BT on Windows)
+        return llformat("3Dconnexion device %04X:%04X", vendor_id, product_id);
+    }
+    return std::nullopt;
 }
 
 LLSD LLViewerJoystick::getSessionStatsAsLLSD() const
@@ -1703,11 +1690,10 @@ LLSD LLViewerJoystick::getSessionStatsAsLLSD() const
 bool LLViewerJoystick::isLikeSpaceNavigator() const
 {
 #if LIB_NDOF
-    // Use the flag set when the device was accepted rather than checking
+    // Only 3Dconnexion devices are ever accepted (see acceptInitializedDevice()
+    // and HotPlugAddCallback()), so any initialized device is one.  Don't check
     // mNdofDev->product again: the product name may be generic.
-    return (mNdofDev != NULL
-            && isJoystickInitialized()
-            && mDeviceIs3DConnexion);
+    return (mNdofDev != NULL && isJoystickInitialized());
 #else
     return false;
 #endif

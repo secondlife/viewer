@@ -30,6 +30,7 @@
 #include "stdtypes.h"
 
 #include <map>
+#include <optional>
 
 #if LIB_NDOF
 #if LL_DARWIN
@@ -86,17 +87,12 @@ public:
     std::string getDescription();
     void saveDeviceIdToSettings();
 
-    static bool is3DConnexionDevice(const std::string& device_name);
-    // Prefer this when the USB ids are available: some devices (e.g. the
-    // SpaceMouse Wireless BT on Windows) report a generic product name such
-    // as "6 axis 2 button device".
-    static bool is3DConnexionDevice(U16 vendor_id, U16 product_id, const std::string& device_name);
-    // For a device opened by libndofdev, which doesn't expose the USB ids:
-    // checks the product name and the manufacturer name (filled in on macOS).
-    static bool is3DConnexionDevice(const NDOF_Device* dev);
-    // Returns device_name, or a descriptive substitute (e.g. "3Dconnexion device 256F:C63A")
-    // when the USB ids identify a 3Dconnexion device but device_name doesn't.
-    static std::string get3DConnexionDeviceName(U16 vendor_id, U16 product_id, const std::string& device_name);
+    // Identifies a 3Dconnexion device by its USB ids or its product name.
+    // Returns std::nullopt if it isn't one; otherwise device_name, or a
+    // descriptive substitute (e.g. "3Dconnexion device 256F:C63A") when only
+    // the USB ids identify it: some devices (e.g. the SpaceMouse Wireless BT
+    // on Windows) report a generic product name such as "6 axis 2 button device".
+    static std::optional<std::string> get3DConnexionDeviceName(U16 vendor_id, U16 product_id, const std::string& device_name);
 
     // Summary of 3Dconnexion usage this session, for the viewer stats:
     // { enabled, devices: [ { name, used, connected }, ... ] }
@@ -116,7 +112,7 @@ protected:
     void loadDeviceIdFromSettings();
     // Call after a successful ndof_init_first(): marks the driver initialized
     // only if the device is a 3Dconnexion one (either is_3dconnexion is true or
-    // is3DConnexionDevice(mNdofDev) says so).  Returns true if accepted.
+    // its product/manufacturer name says so).  Returns true if accepted.
     bool acceptInitializedDevice(bool is_3dconnexion = false);
 #if LIB_NDOF
     static NDOF_HotPlugResult HotPlugAddCallback(NDOF_Device *dev);
@@ -141,7 +137,6 @@ private:
     U32                     mJoystickRun { 0 };
     bool                    mResetFlag { false };
     bool                    mCameraUpdated { true };
-    bool                    mDeviceIs3DConnexion { false };
 
     static F32              sLastDelta[7];
     static F32              sDelta[7];
