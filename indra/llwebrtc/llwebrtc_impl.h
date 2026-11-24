@@ -460,7 +460,11 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
 
     void setMute(bool mute, int delay_ms = 20) override;
 
-    void intSetMute(bool mute, int delay_ms = 20);
+    // force_restart: on unmute, stop and re-init capture even if it's already
+    // running (needed when the capture category changes).  Otherwise an unmute
+    // leaves running capture alone -- restarting it is disruptive (e.g. it
+    // makes Bluetooth headsets renegotiate).
+    void intSetMute(bool mute, int delay_ms = 20, bool force_restart = false);
 
     //
     // AudioDeviceObserver

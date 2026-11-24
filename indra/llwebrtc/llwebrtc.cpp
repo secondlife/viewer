@@ -934,7 +934,9 @@ void LLWebRTCImpl::setStopCaptureOnMute(bool stop)
         }
         else
         {
-            intSetMute(false, 0);
+            // Switching to always-record: capture may be running as kMedia, so
+            // force a restart to re-init it as kCommunications.
+            intSetMute(false, 0, true);
         }
     });
 }
@@ -1212,7 +1214,7 @@ void LLWebRTCImpl::setMute(bool mute, int delay_ms)
     }
 }
 
-void LLWebRTCImpl::intSetMute(bool mute, int delay_ms)
+void LLWebRTCImpl::intSetMute(bool mute, int delay_ms, bool force_restart)
 {
     // Mute by zeroing the captured (post-APM) gain; the sender track is also
     // disabled per connection (see LLWebRTCPeerConnectionImpl::setMute). By
@@ -1234,10 +1236,19 @@ void LLWebRTCImpl::intSetMute(bool mute, int delay_ms)
     static std::atomic<uint32_t> mute_sequence(0);
     uint32_t current_sequence = ++mute_sequence;
 
-    auto setRecording = [this, current_sequence](bool start)
+    auto setRecording = [this, current_sequence, force_restart](bool start)
     {
         if (!mDeviceModule || !mVoiceEnabled || mTuningMode ||
             current_sequence != mute_sequence.load())
+        {
+            return;
+        }
+
+        // Unmuting with capture already running (always-record mode, or a rapid
+        // mute/unmute that cancelled the delayed stop): leave it alone.  Stopping
+        // and restarting the device is audible and makes Bluetooth headsets
+        // renegotiate their profile.
+        if (start && !force_restart && mDeviceModule->Recording())
         {
             return;
         }
