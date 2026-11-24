@@ -345,6 +345,7 @@ protected:
     bool            mQueueSounds;
     bool            mPlayedOnce;
     bool            mCorrupted;
+    bool            mWaitingForLoad = false; // buffer isn't ready
     S32             mType;
     LLVector3d      mPositionGlobal;
     LLVector3       mVelocity;
@@ -375,9 +376,11 @@ class LLAudioData
   public:
     LLAudioData(const LLUUID &uuid);
     bool load();
+    void finishLoad(const std::vector<U8>& wav_data, U32 load_generation);
 
     LLUUID         getID() const { return mID; }
     LLAudioBuffer *getBuffer() const { return mBufferp; }
+    bool isLoadPending() const { return mPendingBufferp != nullptr; }
 
     bool hasLocalData() const { return mHasLocalData; }
     bool hasDecodedData() const { return mHasDecodedData; }
@@ -398,6 +401,8 @@ class LLAudioData
   protected:
     LLUUID         mID;
     LLAudioBuffer *mBufferp;             // If this data is being used by the audio system, a pointer to the buffer will be set here.
+    LLAudioBuffer *mPendingBufferp;
+    U32            mLoadGeneration;
     bool           mHasLocalData;        // Set true if the encoded sound asset file is available locally
     bool           mHasDecodedData;      // Set true if the decoded sound file is available on disk
     bool           mHasCompletedDecode;  // Set true when the sound is decoded
@@ -462,6 +467,7 @@ public:
     LLAudioBuffer();
     virtual ~LLAudioBuffer() {};
     virtual bool loadWAV(const std::string& filename) = 0;
+    virtual bool loadWAV(const std::vector<U8>& wav_data) = 0;
     virtual U32 getLength() = 0;
 
     void setPinned(bool pinned) { mPinned = pinned; }
