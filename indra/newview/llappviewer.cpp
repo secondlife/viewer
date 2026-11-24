@@ -1138,8 +1138,16 @@ bool LLAppViewer::init()
     gSimLastTime = gRenderStartTime.getElapsedTimeF32();
     gSimFrames = (F32)gFrameCount;
 
+#if LL_WINDOWS
+    // Windows calls init() again on WM_DEVICECHANGE (LLViewerWindow::handleDeviceChange())
+    // so a device plugged in later is still found.
     if (gSavedSettings.getBOOL("JoystickEnabled"))
+#endif
     {
+        // Linux and macOS have no device-change events, and on macOS the ndof hotplug
+        // callbacks only work after init() has called ndof_libinit(), so always look
+        // for a 3Dconnexion device at startup.  This doesn't override a user who chose
+        // "None": init() only autoenables if no device was ever set up (JoystickInitialized).
         LLViewerJoystick::getInstance()->init(false);
     }
 

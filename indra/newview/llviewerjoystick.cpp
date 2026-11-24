@@ -378,7 +378,9 @@ NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
             joystick->mDriverState = JDS_INITIALIZED;
             res = NDOF_KEEP_HOTPLUGGED;
         }
-        joystick->updateEnabled(true);
+        // Like init(): only autoenable if no device was ever set up, so a user
+        // who chose "None" doesn't get the joystick turned back on by a replug.
+        joystick->updateEnabled(gSavedSettings.getString("JoystickInitialized").empty());
     }
     return res;
 }
@@ -402,8 +404,15 @@ void LLViewerJoystick::HotPlugRemovalCallback(NDOF_Device *dev)
         // it needs one (and a replug hands us a new 'dev' via HotPlugAddCallback()).
         // If libndofdev doesn't free 'dev' itself, its memory is lost until ndof_libcleanup().
         joystick->mNdofDev = nullptr;
+
+        // Leave JoystickEnabled alone (don't call updateEnabled()): it is the user's
+        // choice and should survive an unplug/replug.  Just stop flying the camera
+        // with a device that's gone.
+        if (gAgentCamera.isUsingFlycam())
+        {
+            gAgentCamera.toggleFlycam();
+        }
     }
-    joystick->updateEnabled(true);
 }
 #endif
 
