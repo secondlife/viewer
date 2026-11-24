@@ -236,18 +236,22 @@ void LLFloaterReg::removeInstance(LLFloater* instance)
         return;
     }
 
-    auto it = sGroupMap.find(instance->getInstanceName());
-    if (it != sGroupMap.end() && !it->second.empty())
+    group_map_t::iterator group_it = sGroupMap.find(instance->getInstanceName());
+    if (group_it == sGroupMap.end() || group_it->second.empty())
     {
-        auto map_it = sInstanceMap.find(it->second);
-        if (map_it != sInstanceMap.end())
-        {
-            // Remove by pointer rather than by key: keys are mutable and are not guaranteed
-            // to be unique, so key-based removal could unregister another instance and leave
-            // a dangling pointer to this one in the registry.
-            map_it->second.remove(instance);
-        }
+        return;
     }
+
+    instance_map_t::iterator list_it = sInstanceMap.find(group_it->second);
+    if (list_it == sInstanceMap.end())
+    {
+        return;
+    }
+
+    // Remove by pointer rather than by key: keys are mutable and are not guaranteed
+    // to be unique, so key-based removal could unregister another instance and leave
+    // a dangling pointer to this one in the registry.
+    list_it->second.remove(instance);
 }
 
 //static
