@@ -101,6 +101,7 @@ public:
 
 protected:
     void updateEnabled(bool autoenable);
+    void finishDeviceSetup(bool autoenable);
     void handleRun(F32 inc);
     void agentSlide(F32 inc);
     void agentPush(F32 inc);
@@ -122,6 +123,8 @@ protected:
 private:
     // 3Dconnexion devices accepted this session (product name -> used), for viewer stats.
     std::map<std::string, bool> mSessionDevices;
+    // JoystickEnabled was switched off only because no device was connected
+    bool mDisabledForMissingDevice { false };
 
     F32                     mAxes[6];
     long                    mBtn[16];

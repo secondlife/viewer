@@ -332,6 +332,12 @@ void LLViewerJoystick::updateEnabled(bool autoenable)
 {
     if (mDriverState == JDS_UNINITIALIZED)
     {
+        if (gSavedSettings.getBOOL("JoystickEnabled"))
+        {
+            // Remember that the user had it enabled, so a device that shows up
+            // later (macOS hotplug) can turn it back on; see finishDeviceSetup().
+            mDisabledForMissingDevice = true;
+        }
         gSavedSettings.setBOOL("JoystickEnabled", false);
     }
     else
@@ -378,9 +384,8 @@ NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
             joystick->mDriverState = JDS_INITIALIZED;
             res = NDOF_KEEP_HOTPLUGGED;
         }
-        // Like init(): only autoenable if no device was ever set up, so a user
-        // who chose "None" doesn't get the joystick turned back on by a replug.
-        joystick->updateEnabled(gSavedSettings.getString("JoystickInitialized").empty());
+        // Same enable rules and first-device setup as init()
+        joystick->finishDeviceSetup(false);
     }
     return res;
 }
@@ -438,6 +443,40 @@ LLViewerJoystick::~LLViewerJoystick()
     {
         terminate();
     }
+}
+
+// -----------------------------------------------------------------------------
+// Shared by init() and HotPlugAddCallback(), after a device was looked for.
+void LLViewerJoystick::finishDeviceSetup(bool autoenable)
+{
+    // Autoenable the joystick for recognized devices if nothing was connected
+    // previously, so a user who chose "None" doesn't get it turned back on.
+    // Also restore it if it was only disabled because no device was connected.
+    bool restore = (mDriverState == JDS_INITIALIZED && mDisabledForMissingDevice);
+    if (!autoenable)
+    {
+        autoenable = restore || gSavedSettings.getString("JoystickInitialized").empty();
+    }
+    updateEnabled(autoenable);
+
+    if (mDriverState == JDS_INITIALIZED)
+    {
+        mDisabledForMissingDevice = false;
+
+        // A 3Dconnexion device is plugged in (only those are accepted), we have defaults for it.
+        if (gSavedSettings.getString("JoystickInitialized") != "SpaceNavigator")
+        {
+            // Only set the defaults if we haven't already (in case they were overridden)
+            setSNDefaults();
+            gSavedSettings.setString("JoystickInitialized", "SpaceNavigator");
+        }
+    }
+    else
+    {
+        // No device connected, don't change any settings
+    }
+    LL_INFOS("Joystick") << "ndof: mDriverState=" << mDriverState << "; mNdofDev="
+            << (void*)(mNdofDev) << "; libinit=" << sNdofLibInitialized << LL_ENDL;
 }
 
 // -----------------------------------------------------------------------------
@@ -531,30 +570,8 @@ void LLViewerJoystick::init(bool autoenable)
         }
     }
 
-    // Autoenable the joystick for recognized devices if nothing was connected previously
-    if (!autoenable)
-    {
-        autoenable = gSavedSettings.getString("JoystickInitialized").empty();
-    }
-    updateEnabled(autoenable);
+    finishDeviceSetup(autoenable);
 
-    if (mDriverState == JDS_INITIALIZED)
-    {
-        // A 3Dconnexion device is plugged in (only those are accepted), we have defaults for it.
-        if (gSavedSettings.getString("JoystickInitialized") != "SpaceNavigator")
-        {
-            // Only set the defaults if we haven't already (in case they were overridden)
-            setSNDefaults();
-            gSavedSettings.setString("JoystickInitialized", "SpaceNavigator");
-        }
-    }
-    else
-    {
-        // No device connected, don't change any settings
-    }
-
-    LL_INFOS("Joystick") << "ndof: mDriverState=" << mDriverState << "; mNdofDev="
-            << (void*)(mNdofDev) << "; libinit=" << sNdofLibInitialized << LL_ENDL;
 #endif
 }
 
