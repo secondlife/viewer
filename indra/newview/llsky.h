@@ -57,6 +57,7 @@ public:
     void setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_texture_next);
     void setCloudNoiseTextures(const LLUUID& cloud_noise_texture, const LLUUID& cloud_noise_texture_next);
     void setBloomTextures(const LLUUID& bloom_texture, const LLUUID& bloom_texture_next);
+    void setTonemapLutTextures(const LLUUID& tonemap_lut, const LLUUID& tonemap_lut_next);
 
     void setSunScale(F32 sun_scale);
     void setMoonScale(F32 moon_scale);

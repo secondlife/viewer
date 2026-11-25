@@ -157,10 +157,11 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, ou
         amblit = srgb_to_linear(amblit);
         amblit = vec3(dot(amblit, vec3(0.2126, 0.7152, 0.0722)));
         sunlit = srgb_to_linear(sunlit);
+
+        // Apply sun illuminance (lux) normalized for PBR lighting.
+        // Reference: 100000 lux (bright sunlight) = 1.0 normalized intensity
+        sunlit *= sun_lux / 100000.0;
     }
 
-    // Apply sun illuminance (lux) normalized for PBR lighting.
-    // Reference: 100000 lux (bright sunlight) = 1.0 normalized intensity
-    sunlit *= sun_lux / 100000.0;
     amblit *= sky_ambient_scale;
 }

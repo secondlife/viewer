@@ -53,13 +53,14 @@ void main()
     L = clamp(L, 0.0, max_L);
     L /= max_L;
     L = pow(L, 2.0);
-    float s = mix(dynamic_exposure_params.z, dynamic_exposure_params.y, L);
+    float ev = mix(dynamic_exposure_params.z, dynamic_exposure_params.y, L);
 #ifdef USE_LAST_EXPOSURE
-    float prev = texture(exposureMap, vec2(0.5,0.5)).r;
+    float prev = log2(max(texture(exposureMap, vec2(0.5,0.5)).r, 0.0001));
 
     float speed = -log(dynamic_exposure_params.w) / dynamic_exposure_params2.w;
-    s = mix(prev, s, 1 - exp(-speed * dt));
+    ev = mix(prev, ev, 1 - exp(-speed * dt));
 #endif
+    float s = exp2(ev);
 
     frag_color = max(vec4(s, s, s, dt), vec4(0.0));
 }

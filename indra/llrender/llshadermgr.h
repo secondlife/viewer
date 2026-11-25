@@ -224,6 +224,8 @@ public:
         DEFERRED_SPECULAR,                  //  "specularRect"
         DEFERRED_EMISSIVE,                  //  "emissiveRect"
         EXPOSURE_MAP,                       //  "exposureMap"
+        TONEMAP_LUT,                        //  "tonemapLut"
+        TONEMAP_LUT_NEXT,                   //  "tonemapLutNext"
         DEFERRED_BRDF_LUT,                  //  "brdfLut"
         DEFERRED_NOISE,                     //  "noiseMap"
         DEFERRED_LIGHTFUNC,                 //  "lightFunc"

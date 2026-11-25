@@ -2190,6 +2190,14 @@ LLViewerWindow::LLViewerWindow(const Params& p)
         LL_ERRS() << "gGL not initialized" << LL_ENDL;
     }
 
+    if (!gSavedSettings.getBOOL("RenderExposureConverted")) {
+        if (!gSavedSettings.getControl("RenderExposure")->isDefault()) {
+            gSavedSettings.setF32("RenderExposure", log2f(llclamp(gSavedSettings.getF32("RenderExposure"), 0.5f, 4.f)));
+        }
+
+        gSavedSettings.setBOOL("RenderExposureConverted", true);
+    }
+
     if (LLFeatureManager::getInstance()->isSafe()
         || (gSavedSettings.getS32("LastFeatureVersion") != LLFeatureManager::getInstance()->getVersion())
         || (gSavedSettings.getString("LastGPUString") != LLFeatureManager::getInstance()->getGPUString())

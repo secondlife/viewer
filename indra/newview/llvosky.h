@@ -271,6 +271,7 @@ public:
     LLViewerTexture*    getSunTex() const               { return mSunTexturep[0]; }
     LLViewerTexture*    getMoonTex() const              { return mMoonTexturep[0]; }
     LLViewerTexture*    getBloomTex() const             { return mBloomTexturep[0]; }
+    LLViewerTexture*    getTonemapLutTex() const        { return mTonemapLutTexturep[0]; }
     LLViewerTexture*    getCloudNoiseTex() const        { return mCloudNoiseTexturep[0]; }
 
     LLViewerTexture*    getRainbowTex() const           { return mRainbowMap; }
@@ -279,12 +280,14 @@ public:
     LLViewerTexture*    getSunTexNext() const           { return mSunTexturep[1]; }
     LLViewerTexture*    getMoonTexNext() const          { return mMoonTexturep[1]; }
     LLViewerTexture*    getBloomTexNext() const         { return mBloomTexturep[1]; }
+    LLViewerTexture*    getTonemapLutTexNext() const    { return mTonemapLutTexturep[1]; }
     LLViewerTexture*    getCloudNoiseTexNext() const    { return mCloudNoiseTexturep[1]; }
 
     void setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_texture_next);
     void setMoonTextures(const LLUUID& moon_texture, const LLUUID& moon_texture_next);
     void setCloudNoiseTextures(const LLUUID& cloud_noise_texture, const LLUUID& cloud_noise_texture_next);
     void setBloomTextures(const LLUUID& bloom_texture, const LLUUID& bloom_texture_next);
+    void setTonemapLutTextures(const LLUUID& tonemap_lut, const LLUUID& tonemap_lut_next);
 
     void setSunScale(F32 sun_scale);
     void setMoonScale(F32 sun_scale);
@@ -309,6 +312,7 @@ protected:
     LLPointer<LLViewerFetchedTexture> mMoonTexturep[2];
     LLPointer<LLViewerFetchedTexture> mCloudNoiseTexturep[2];
     LLPointer<LLViewerFetchedTexture> mBloomTexturep[2];
+    LLPointer<LLViewerFetchedTexture> mTonemapLutTexturep[2];
     LLPointer<LLViewerFetchedTexture> mRainbowMap;
     LLPointer<LLViewerFetchedTexture> mHaloMap;
 

@@ -83,6 +83,7 @@ private:
     void                    onAmbientSkySaturationChanged();
     void                    onTonemapperChanged();
     void                    onTonemapMixChanged();
+    void                    onTonemapLutChanged();
     void                    onHDRMinChanged();
     void                    onHDRMaxChanged();
     void                    onHDROffsetChanged();

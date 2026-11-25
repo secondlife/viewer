@@ -88,6 +88,7 @@ namespace
     const std::string   FIELD_SKY_HDR_OFFSET("hdr_offset");
     const std::string   FIELD_SKY_TONEMAPPER("tonemapper");
     const std::string   FIELD_SKY_TONEMAP_MIX("tonemap_mix");
+    const std::string   FIELD_SKY_TONEMAP_LUT("tonemap_lut");
 
     const std::string   PANEL_SKY_SUN_LAYOUT("sun_layout");
     const std::string   PANEL_SKY_MOON_LAYOUT("moon_layout");
@@ -164,6 +165,8 @@ bool LLPanelSettingsSkyAtmosTab::postBuild()
     getChild<LLUICtrl>(FIELD_AMBIENT_SKY_SATURATION)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onAmbientSkySaturationChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_TONEMAPPER)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onTonemapperChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_TONEMAP_MIX)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onTonemapMixChanged(); });
+    getChild<LLTextureCtrl>(FIELD_SKY_TONEMAP_LUT)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onTonemapLutChanged(); });
+    getChild<LLTextureCtrl>(FIELD_SKY_TONEMAP_LUT)->setAllowNoTexture(true);
     getChild<LLUICtrl>(FIELD_SKY_HDR_MIN)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onHDRMinChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_HDR_MAX)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onHDRMaxChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_HDR_OFFSET)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onHDROffsetChanged(); });
@@ -193,6 +196,7 @@ void LLPanelSettingsSkyAtmosTab::setEnabled(bool enabled)
         getChild<LLUICtrl>(FIELD_AMBIENT_SKY_SATURATION)->setEnabled(enabled);
         getChild<LLUICtrl>(FIELD_SKY_TONEMAPPER)->setEnabled(enabled);
         getChild<LLUICtrl>(FIELD_SKY_TONEMAP_MIX)->setEnabled(enabled);
+        getChild<LLUICtrl>(FIELD_SKY_TONEMAP_LUT)->setEnabled(enabled);
         getChild<LLUICtrl>(FIELD_SKY_HDR_MIN)->setEnabled(enabled);
         getChild<LLUICtrl>(FIELD_SKY_HDR_MAX)->setEnabled(enabled);
         getChild<LLUICtrl>(FIELD_SKY_HDR_OFFSET)->setEnabled(enabled);
@@ -214,6 +218,7 @@ void LLPanelSettingsSkyAtmosTab::refresh()
     bool is_v2 = mSkySettings->getSkySettingVersion() >= 2;
     getChild<LLUICtrl>(FIELD_SKY_TONEMAPPER)->setEnabled(is_v2 && getCanChangeSettings());
     getChild<LLUICtrl>(FIELD_SKY_TONEMAP_MIX)->setEnabled(is_v2 && getCanChangeSettings());
+    getChild<LLUICtrl>(FIELD_SKY_TONEMAP_LUT)->setEnabled(is_v2 && getCanChangeSettings());
     getChild<LLUICtrl>(FIELD_SKY_HDR_OFFSET)->setEnabled(is_v2 && getCanChangeSettings());
     getChild<LLUICtrl>(FIELD_SKY_HDR_MIN)->setEnabled(is_v2 && getCanChangeSettings());
     getChild<LLUICtrl>(FIELD_SKY_HDR_MAX)->setEnabled(is_v2 && getCanChangeSettings());
@@ -247,6 +252,7 @@ void LLPanelSettingsSkyAtmosTab::refresh()
 
     getChild<LLUICtrl>(FIELD_SKY_TONEMAPPER)->setValue((S32)mSkySettings->getTonemapper());
     getChild<LLUICtrl>(FIELD_SKY_TONEMAP_MIX)->setValue(mSkySettings->getTonemapMix());
+    getChild<LLTextureCtrl>(FIELD_SKY_TONEMAP_LUT)->setValue(mSkySettings->getTonemapLutId());
     getChild<LLUICtrl>(FIELD_SKY_HDR_MIN)->setValue(mSkySettings->getHDRMin());
     getChild<LLUICtrl>(FIELD_SKY_HDR_MAX)->setValue(mSkySettings->getHDRMax());
     getChild<LLUICtrl>(FIELD_SKY_HDR_OFFSET)->setValue(mSkySettings->getHDROffset());
@@ -389,6 +395,16 @@ void LLPanelSettingsSkyAtmosTab::onTonemapMixChanged()
     if (!mSkySettings) return;
     mSkySettings->setTonemapMix((F32)getChild<LLUICtrl>(FIELD_SKY_TONEMAP_MIX)->getValue().asReal());
     mSkySettings->update();
+    setIsDirty();
+}
+
+void LLPanelSettingsSkyAtmosTab::onTonemapLutChanged() {
+    if (!mSkySettings) {
+        return;
+    }
+
+    LLTextureCtrl* ctrl = getChild<LLTextureCtrl>(FIELD_SKY_TONEMAP_LUT);
+    mSkySettings->setTonemapLutId(ctrl->getValue().asUUID());
     setIsDirty();
 }
 

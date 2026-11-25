@@ -654,6 +654,10 @@ void LLFloaterEditExtDayCycle::onButtonApply(LLUICtrl *ctrl)
                         desc = LLTrans::getString("EnvironmentBloom");
                         is_local = true;
                     }
+                    else if (LLLocalBitmapMgr::getInstance()->isLocal(sky->getTonemapLutId())) {
+                        desc = LLTrans::getString("EnvironmentTonemapLut");
+                        is_local = true;
+                    }
                 }
             }
 

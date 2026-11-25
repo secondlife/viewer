@@ -81,6 +81,7 @@ private:
     void                        onMoonAzimElevChanged();
 
     void                        onCloudMapChanged();
+    void                        onTonemapLutChanged();
     void                        onWaterMapChanged();
 
     void                        onReflectionProbeAmbianceChanged();

@@ -117,6 +117,55 @@ uniform float exposure;
 uniform float tonemap_mix;
 uniform int tonemap_type;
 
+uniform sampler2D tonemapLut;
+uniform sampler2D tonemapLutNext;
+uniform float blend_factor;
+
+vec3 decodeTonemapLutTexel(sampler2D lut, ivec2 texel) {
+    vec4 rgbe = floor(texelFetch(lut, texel, 0) * 255.0 + 0.5);
+
+    if (rgbe.a == 0.0) {
+        return vec3(0.0);
+    }
+
+    return (rgbe.rgb + 0.5) * exp2(rgbe.a - 136.0);
+}
+
+ivec2 tonemapLutTexel(ivec3 cell, int lut_size, int tiles_per_row) {
+    ivec2 tile_origin = ivec2(cell.b % tiles_per_row, cell.b / tiles_per_row) * lut_size;
+    return tile_origin + cell.rg;
+}
+
+vec3 sampleTonemapLut(sampler2D lut, vec3 color) {
+    ivec2 lut_dims = textureSize(lut, 0);
+    int lut_size = int(round(pow(float(lut_dims.x * lut_dims.y), 1.0 / 3.0)));
+    int tiles_per_row = lut_dims.x / lut_size;
+
+    vec3 stimulus = max(color, vec3(0.0));
+    vec3 encoded = stimulus / (stimulus + 1.0);
+    vec3 coord = encoded * float(lut_size - 1);
+    ivec3 cell_low = ivec3(floor(coord));
+    ivec3 cell_high = min(cell_low + 1, ivec3(lut_size - 1));
+    vec3 weight = coord - vec3(cell_low);
+
+    vec3 c000 = decodeTonemapLutTexel(lut, tonemapLutTexel(ivec3(cell_low.r, cell_low.g, cell_low.b), lut_size, tiles_per_row));
+    vec3 c100 = decodeTonemapLutTexel(lut, tonemapLutTexel(ivec3(cell_high.r, cell_low.g, cell_low.b), lut_size, tiles_per_row));
+    vec3 c010 = decodeTonemapLutTexel(lut, tonemapLutTexel(ivec3(cell_low.r, cell_high.g, cell_low.b), lut_size, tiles_per_row));
+    vec3 c110 = decodeTonemapLutTexel(lut, tonemapLutTexel(ivec3(cell_high.r, cell_high.g, cell_low.b), lut_size, tiles_per_row));
+    vec3 c001 = decodeTonemapLutTexel(lut, tonemapLutTexel(ivec3(cell_low.r, cell_low.g, cell_high.b), lut_size, tiles_per_row));
+    vec3 c101 = decodeTonemapLutTexel(lut, tonemapLutTexel(ivec3(cell_high.r, cell_low.g, cell_high.b), lut_size, tiles_per_row));
+    vec3 c011 = decodeTonemapLutTexel(lut, tonemapLutTexel(ivec3(cell_low.r, cell_high.g, cell_high.b), lut_size, tiles_per_row));
+    vec3 c111 = decodeTonemapLutTexel(lut, tonemapLutTexel(ivec3(cell_high.r, cell_high.g, cell_high.b), lut_size, tiles_per_row));
+
+    vec3 c00 = mix(c000, c100, weight.r);
+    vec3 c10 = mix(c010, c110, weight.r);
+    vec3 c01 = mix(c001, c101, weight.r);
+    vec3 c11 = mix(c011, c111, weight.r);
+    vec3 c0 = mix(c00, c10, weight.g);
+    vec3 c1 = mix(c01, c11, weight.g);
+    return mix(c0, c1, weight.b);
+}
+
 
 vec3 toneMap(vec3 color)
 {
@@ -135,6 +184,9 @@ vec3 toneMap(vec3 color)
         break;
     case 1:
         tonemapped_color = toneMapACES_Hill(exposed_color);
+        break;
+    case 2:
+        tonemapped_color = mix(sampleTonemapLut(tonemapLut, exposed_color), sampleTonemapLut(tonemapLutNext, exposed_color), blend_factor);
         break;
     }
 

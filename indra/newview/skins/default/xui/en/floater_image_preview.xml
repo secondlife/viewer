@@ -128,7 +128,18 @@ Try saving image as 24 bit Targa (.tga).
      layout="topleft"
      left_delta="2"
      name="lossless_check"
-     top_pad="162"
+     top_pad="142"
+     width="280" />
+    <check_box
+     enabled="false"
+     initial_value="false"
+     follows="bottom|left"
+     height="16"
+     label="Tonemap LUT (lossless)"
+     layout="topleft"
+     left_delta="0"
+     name="tonemap_lut_check"
+     top_pad="4"
      width="280" />
     <button
      follows="bottom|right"

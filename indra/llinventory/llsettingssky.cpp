@@ -146,6 +146,7 @@ const std::string LLSettingsSky::SETTING_HDR_MAX("hdr_max");
 const std::string LLSettingsSky::SETTING_HDR_MIN("hdr_min");
 const std::string LLSettingsSky::SETTING_HDR_TONEMAPPER("hdr_tonemapper");
 const std::string LLSettingsSky::SETTING_HDR_TONEMAPPER_AMOUNT("hdr_tonemapper_amount");
+const std::string LLSettingsSky::SETTING_SKY_TONEMAP_LUT("tonemap_lut");
 
 const LLUUID LLSettingsSky::DEFAULT_ASSET_ID("651510b8-5f4d-8991-1592-e7eeab2a5a06");
 
@@ -418,7 +419,8 @@ LLSettingsSky::LLSettingsSky(const LLSD &data) :
     mNextCloudTextureId(),
     mNextBloomTextureId(),
     mNextRainbowTextureId(),
-    mNextHaloTextureId()
+    mNextHaloTextureId(),
+    mNextTonemapLutId()
 {
     loadValuesFromLLSD();
 }
@@ -430,7 +432,8 @@ LLSettingsSky::LLSettingsSky():
     mNextCloudTextureId(),
     mNextBloomTextureId(),
     mNextRainbowTextureId(),
-    mNextHaloTextureId()
+    mNextHaloTextureId(),
+    mNextTonemapLutId()
 {
     replaceSettings(defaults());
 }
@@ -444,6 +447,7 @@ void LLSettingsSky::replaceSettings(LLSD settings)
     mNextBloomTextureId.setNull();
     mNextRainbowTextureId.setNull();
     mNextHaloTextureId.setNull();
+    mNextTonemapLutId.setNull();
 }
 
 void LLSettingsSky::replaceSettings(const LLSettingsBase::ptr_t& other_sky)
@@ -513,6 +517,7 @@ void LLSettingsSky::replaceSettings(const LLSettingsBase::ptr_t& other_sky)
     mHaloTextureId = other->mHaloTextureId;
     mRainbowTextureId = other->mRainbowTextureId;
     mBloomTextureId = other->mBloomTextureId;
+    mTonemapLutId = other->mTonemapLutId;
 
     mHDRMin = other->mHDRMin;
     mHDRMax = other->mHDRMax;
@@ -526,6 +531,7 @@ void LLSettingsSky::replaceSettings(const LLSettingsBase::ptr_t& other_sky)
     mNextBloomTextureId.setNull();
     mNextRainbowTextureId.setNull();
     mNextHaloTextureId.setNull();
+    mNextTonemapLutId.setNull();
 }
 
 void LLSettingsSky::replaceWithSky(const LLSettingsSky::ptr_t& pother)
@@ -538,6 +544,7 @@ void LLSettingsSky::replaceWithSky(const LLSettingsSky::ptr_t& pother)
     mNextBloomTextureId = pother->mNextBloomTextureId;
     mNextRainbowTextureId = pother->mNextRainbowTextureId;
     mNextHaloTextureId = pother->mNextHaloTextureId;
+    mNextTonemapLutId = pother->mNextTonemapLutId;
 }
 
 bool lerp_legacy_color(LLColor3& a, bool& a_has_legacy, const LLColor3& b, bool b_has_legacy, const LLColor3& def, F32 mix)
@@ -708,6 +715,7 @@ void LLSettingsSky::blend(LLSettingsBase::ptr_t &end, F64 blendf)
         mNextBloomTextureId = other->getBloomTextureId();
         mNextRainbowTextureId = other->getRainbowTextureId();
         mNextHaloTextureId = other->getHaloTextureId();
+        mNextTonemapLutId = other->getTonemapLutId();
     }
     else
     {
@@ -760,6 +768,7 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
         validation.push_back(Validator(SETTING_BLOOM_TEXTUREID,     true,  LLSD::TypeUUID));
         validation.push_back(Validator(SETTING_RAINBOW_TEXTUREID,   false,  LLSD::TypeUUID));
         validation.push_back(Validator(SETTING_HALO_TEXTUREID,      false,  LLSD::TypeUUID));
+        validation.push_back(Validator(SETTING_SKY_TONEMAP_LUT,     false,  LLSD::TypeUUID));
 
         validation.push_back(Validator(SETTING_CLOUD_COLOR,         true,  LLSD::TypeArray,
             boost::bind(&Validator::verifyVectorMinMax, _1, _2,
@@ -842,6 +851,14 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
 
         validation.push_back(Validator(SETTING_AMBIENT_SKY_SATURATION, false, LLSD::TypeReal,
             boost::bind(&Validator::verifyFloatRange, _1, _2, llsd::array(0.0f, 1.0f))));
+
+        validation.push_back(Validator(SETTING_SKY_VERSION,             false, LLSD::TypeInteger));
+        validation.push_back(Validator(SETTING_HDR_MAX,                 false, LLSD::TypeReal));
+        validation.push_back(Validator(SETTING_HDR_MIN,                 false, LLSD::TypeReal));
+        validation.push_back(Validator(SETTING_HDR_OFFSET,              false, LLSD::TypeReal));
+        validation.push_back(Validator(SETTING_HDR_TONEMAPPER,          false, LLSD::TypeInteger));
+        validation.push_back(Validator(SETTING_HDR_TONEMAPPER_AMOUNT,   false, LLSD::TypeReal));
+        validation.push_back(Validator(SETTING_SUN_BRIGHTNESS,          false, LLSD::TypeReal));
 
         validation.push_back(Validator(SETTING_RAYLEIGH_CONFIG, true, LLSD::TypeArray, &validateRayleighLayers));
         validation.push_back(Validator(SETTING_ABSORPTION_CONFIG, true, LLSD::TypeArray, &validateAbsorptionLayers));
@@ -1241,9 +1258,9 @@ void LLSettingsSky::loadValuesFromLLSD()
     }
     else
     {
-        mHDRMax = 2.0f;
-        mHDRMin = 0.5f;
-        mHDROffset = 1.0f;
+        mHDRMax = 1.5849625f;
+        mHDRMin = 1.0f;
+        mHDROffset = 0.0f;
         mTonemapMix = 1.0f;
         mTonemapper = 0;
         mSunBrightness = 130000.f; // Brightness roughly around high noon in lux.
@@ -1256,6 +1273,7 @@ void LLSettingsSky::loadValuesFromLLSD()
     mHaloTextureId = settings[SETTING_HALO_TEXTUREID].asUUID();
     mRainbowTextureId = settings[SETTING_RAINBOW_TEXTUREID].asUUID();
     mBloomTextureId = settings[SETTING_BLOOM_TEXTUREID].asUUID();
+    mTonemapLutId = settings[SETTING_SKY_TONEMAP_LUT].asUUID();
 
     mSunScale = (F32)settings[SETTING_SUN_SCALE].asReal();
     mSunRotation = LLQuaternion(settings[SETTING_SUN_ROTATION]);
@@ -1339,6 +1357,7 @@ void LLSettingsSky::saveValuesToLLSD()
     settings[SETTING_HALO_TEXTUREID] = mHaloTextureId;
     settings[SETTING_RAINBOW_TEXTUREID] = mRainbowTextureId;
     settings[SETTING_BLOOM_TEXTUREID] = mBloomTextureId;
+    settings[SETTING_SKY_TONEMAP_LUT] = mTonemapLutId;
 
     settings[SETTING_SUN_SCALE] = mSunScale;
     settings[SETTING_SUN_ROTATION] = mSunRotation.getValue();
@@ -2144,7 +2163,7 @@ F32 LLSettingsSky::getHDRMax(bool auto_adjust) const
 F32 LLSettingsSky::getHDROffset(bool auto_adjust) const
 {
     if ((mCanAutoAdjust || mSkySettingVersion < 2) && !auto_adjust)
-        return 1.0f;
+        return 0.f;
 
     return mHDROffset;
 }
@@ -2196,6 +2215,16 @@ U8 LLSettingsSky::getTonemapper() const
 void LLSettingsSky::setTonemapper(U8 tonemapper)
 {
     mTonemapper = tonemapper;
+    setDirtyFlag(true);
+    setLLSDDirty();
+}
+
+LLUUID LLSettingsSky::getTonemapLutId() const {
+    return mTonemapLutId;
+}
+
+void LLSettingsSky::setTonemapLutId(const LLUUID &id) {
+    mTonemapLutId = id;
     setDirtyFlag(true);
     setLLSDDirty();
 }
@@ -2398,6 +2427,10 @@ LLUUID LLSettingsSky::getNextCloudNoiseTextureId() const
 LLUUID LLSettingsSky::getNextBloomTextureId() const
 {
     return mNextBloomTextureId;
+}
+
+LLUUID LLSettingsSky::getNextTonemapLutId() const {
+    return mNextTonemapLutId;
 }
 
 // if true, this sky is a candidate for auto-adjustment

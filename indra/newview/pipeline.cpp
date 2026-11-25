@@ -7309,8 +7309,8 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool
 
         F32 probe_ambiance = LLEnvironment::instance().getCurrentSky()->getReflectionProbeAmbiance(should_auto_adjust());
 
-        F32 exp_min = 1.f;
-        F32 exp_max = 1.f;
+        F32 exp_min = 0.f;
+        F32 exp_max = 0.f;
 
         static LLCachedControl<bool> use_exposure_sky_settings(gSavedSettings, "RenderUseExposureSkySettings", false);
 
@@ -7335,8 +7335,8 @@ void LLPipeline::generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool
 
                 if (hdr_scale > 1.f)
                 {
-                    exp_min = 1.f / hdr_scale;
-                    exp_max = hdr_scale;
+                    exp_min = -log2f(hdr_scale);
+                    exp_max = log2f(hdr_scale);
                 }
             }
         }
@@ -7406,7 +7406,7 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_co
 
         shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, (GLfloat)src->getWidth(), (GLfloat)src->getHeight());
 
-        static LLCachedControl<F32> exposure(gSavedSettings, "RenderExposure", 1.f);
+        static LLCachedControl<F32> exposure(gSavedSettings, "RenderExposure", 0.f);
         static LLCachedControl<U32> tonemap_type_setting(gSavedSettings, "RenderTonemapType", 0U);
         static LLCachedControl<F32> tonemap_mix_setting(gSavedSettings, "RenderTonemapMix", 1.f);
         static LLCachedControl<bool> use_env_hdr_settings(gSavedSettings, "RenderHDRUseEnvironmentSettings", false);
@@ -7423,15 +7423,60 @@ void LLPipeline::tonemap(LLRenderTarget* src, LLRenderTarget* dst, bool gamma_co
 
         if (use_env_hdr_settings && psky->getSkySettingVersion() > 1)
         {
-            e = llclamp(psky->getHDROffset(should_auto_adjust()), 0.5f, 4.f);
+            e = powf(2.f, llclamp(psky->getHDROffset(should_auto_adjust()), -1.f, 2.f));
             tonemap_type_value = psky->getTonemapper();
             tonemap_mix_value = psky->getTonemapMix(should_auto_adjust());
         }
         else
         {
-            e = llclamp(exposure(), 0.5f, 4.f);
+            e = powf(2.f, llclamp((F32)exposure(), -1.f, 2.f));
             tonemap_type_value = tonemap_type_setting();
             tonemap_mix_value = tonemap_mix_setting();
+        }
+
+        if (tonemap_type_value == LLSettingsSky::SKY_TONEMAPPER_CUSTOM) {
+            LLViewerTexture* luts[2] = { nullptr, nullptr };
+
+            if (gSky.mVOSkyp.notNull()) {
+                luts[0] = gSky.mVOSkyp->getTonemapLutTex();
+                luts[1] = gSky.mVOSkyp->getTonemapLutTexNext();
+            }
+
+            for (S32 index = 0; index < 2; ++index) {
+                if (!luts[index] || luts[index]->getDiscardLevel() != 0) {
+                    luts[index] = nullptr;
+                    continue;
+                }
+
+                S32 lut_width = luts[index]->getFullWidth();
+                S32 lut_height = luts[index]->getFullHeight();
+                bool valid_size = (lut_width == 256 && lut_height == 16)
+                    || (lut_width == 1024 && lut_height == 32)
+                    || (lut_width == 512 && lut_height == 512);
+
+                if (!valid_size) {
+                    luts[index] = nullptr;
+                }
+            }
+
+            F32 lut_blend = 0.f;
+
+            if (luts[0] && luts[1]) {
+                lut_blend = (F32)psky->getBlendFactor();
+            } else if (luts[1]) {
+                luts[0] = luts[1];
+            } else if (luts[0]) {
+                luts[1] = luts[0];
+            }
+
+            if (luts[0]) {
+                shader->bindTexture(LLShaderMgr::TONEMAP_LUT, luts[0]);
+                shader->bindTexture(LLShaderMgr::TONEMAP_LUT_NEXT, luts[1]);
+                shader->uniform1f(LLShaderMgr::BLEND_FACTOR, lut_blend);
+            } else {
+                tonemap_type_value = 0;
+                tonemap_mix_value = 0.f;
+            }
         }
 
         shader->uniform1f(s_exposure, e);

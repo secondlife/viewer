@@ -977,6 +977,27 @@ void LLVOSky::setBloomTextures(const LLUUID& bloom_texture, const LLUUID& bloom_
     }
 }
 
+void LLVOSky::setTonemapLutTextures(const LLUUID& tonemap_lut, const LLUUID& tonemap_lut_next) {
+    mTonemapLutTexturep[0] = nullptr;
+    mTonemapLutTexturep[1] = nullptr;
+
+    if (tonemap_lut.notNull()) {
+        mTonemapLutTexturep[0] = LLViewerTextureManager::getFetchedTexture(tonemap_lut, FTT_DEFAULT, MIPMAP_NO, LLGLTexture::BOOST_UI);
+    }
+
+    if (tonemap_lut_next.notNull()) {
+        mTonemapLutTexturep[1] = LLViewerTextureManager::getFetchedTexture(tonemap_lut_next, FTT_DEFAULT, MIPMAP_NO, LLGLTexture::BOOST_UI);
+    }
+
+    for (S32 index = 0; index < 2; ++index) {
+        if (mTonemapLutTexturep[index]) {
+            mTonemapLutTexturep[index]->setAddressMode(LLTexUnit::TAM_CLAMP);
+            mTonemapLutTexturep[index]->setFilteringOption(LLTexUnit::TFO_POINT);
+            mTonemapLutTexturep[index]->getGLTexture()->setAllowCompression(false);
+        }
+    }
+}
+
 bool LLVOSky::updateGeometry(LLDrawable *drawable)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;

@@ -600,6 +600,7 @@
               width="200">
           <combo_box.item label="Khronos PBR Neutral" name="khronos" value="0"/>
           <combo_box.item label="ACES" name="aces" value="1"/>
+          <combo_box.item label="Custom" name="custom" value="2"/>
         </combo_box>
         <text follows="left|top"
               name="tonemap_mix_label"
@@ -628,16 +629,16 @@
               layout="topleft"
               left_delta="0"
               top_pad="10"
-              width="200">HDR Offset:</text>
+              width="200">HDR Offset (EV):</text>
         <slider decimal_digits="2"
                 follows="left|top"
                 height="16"
                 increment="0.01"
-                initial_value="1"
+                initial_value="0"
                 layout="topleft"
                 left_delta="0"
-                min_val="0"
-                max_val="10"
+                min_val="-1"
+                max_val="2"
                 name="hdr_offset"
                 top_pad="5"
                 width="200"
@@ -648,16 +649,16 @@
               layout="topleft"
               left_delta="0"
               top_pad="10"
-              width="200">HDR Min:</text>
+              width="200">HDR Min (EV):</text>
         <slider decimal_digits="2"
                 follows="left|top"
                 height="16"
                 increment="0.01"
-                initial_value="0.5"
+                initial_value="1"
                 layout="topleft"
                 left_delta="0"
                 min_val="0"
-                max_val="10"
+                max_val="4"
                 name="hdr_min"
                 top_pad="5"
                 width="200"
@@ -668,20 +669,33 @@
               layout="topleft"
               left_delta="0"
               top_pad="10"
-              width="200">HDR Max:</text>
+              width="200">HDR Max (EV):</text>
         <slider decimal_digits="2"
                 follows="left|top"
                 height="16"
                 increment="0.01"
-                initial_value="2"
+                initial_value="1.58"
                 layout="topleft"
                 left_delta="0"
                 min_val="0"
-                max_val="10"
+                max_val="4"
                 name="hdr_max"
                 top_pad="5"
                 width="200"
                 can_edit_text="true"/>
+        <text follows="left|top"
+              name="tonemap_lut_label"
+              height="10"
+              layout="topleft"
+              left="230"
+              top="15"
+              width="200">Tonemap LUT:</text>
+        <texture_picker height="63"
+                        layout="topleft"
+                        left_delta="0"
+                        name="tonemap_lut"
+                        top_pad="5"
+                        width="60"/>
         <button follows="right|bottom"
                 height="23"
                 label="Upgrade"

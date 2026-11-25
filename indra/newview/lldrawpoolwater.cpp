@@ -257,7 +257,7 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
     static LLStaticHashedString tonemap_mix("tonemap_mix");
     static LLStaticHashedString tonemap_type("tonemap_type");
 
-    static LLCachedControl<F32> exposure(gSavedSettings, "RenderExposure", 1.f);
+    static LLCachedControl<F32> exposure(gSavedSettings, "RenderExposure", 0.f);
     static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", false);
     static LLCachedControl<bool> use_env_hdr_settings(gSavedSettings, "RenderHDRUseEnvironmentSettings", false);
     static LLCachedControl<U32> tonemap_type_setting(gSavedSettings, "RenderTonemapType", 0U);
@@ -269,13 +269,13 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
 
     if (use_env_hdr_settings && psky->getSkySettingVersion() > 1)
     {
-        e = llclamp(psky->getHDROffset(should_auto_adjust()), 0.5f, 4.f);
+        e = powf(2.f, llclamp(psky->getHDROffset(should_auto_adjust()), -1.f, 2.f));
         tonemap_type_value = psky->getTonemapper();
         tonemap_mix_value = psky->getTonemapMix(should_auto_adjust());
     }
     else
     {
-        e = llclamp(exposure(), 0.5f, 4.f);
+        e = powf(2.f, llclamp((F32)exposure(), -1.f, 2.f));
         tonemap_type_value = tonemap_type_setting();
         tonemap_mix_value = tonemap_mix_setting();
     }

@@ -42,6 +42,7 @@ class LLSettingsSky: public LLSettingsBase
 public:
     static const std::string SETTING_SKY_VERSION;
     static const U8 MAX_SKY_SETTINGS_VERSION = 2;
+    static const U8 SKY_TONEMAPPER_CUSTOM = 2;
     static const std::string SETTING_AMBIENT;
     static const std::string SETTING_BLOOM_TEXTUREID;
     static const std::string SETTING_RAINBOW_TEXTUREID;
@@ -116,6 +117,7 @@ public:
 
     static const std::string SETTING_HDR_TONEMAPPER;
     static const std::string SETTING_HDR_TONEMAPPER_AMOUNT;
+    static const std::string SETTING_SKY_TONEMAP_LUT;
 
     typedef PTR_NAMESPACE::shared_ptr<LLSettingsSky> ptr_t;
 
@@ -235,6 +237,8 @@ public:
     void setTonemapMix(F32 mix);
     U8 getTonemapper() const;
     void setTonemapper(U8 tonemapper);
+    LLUUID getTonemapLutId() const;
+    void setTonemapLutId(const LLUUID &id);
 
     U8 getSkySettingVersion() const;
     void setSkySettingVersion(U8 version);
@@ -284,6 +288,7 @@ public:
     LLUUID getNextMoonTextureId() const;
     LLUUID getNextCloudNoiseTextureId() const;
     LLUUID getNextBloomTextureId() const;
+    LLUUID getNextTonemapLutId() const;
 
     //=====================================================================
     virtual void loadTextures() { };
@@ -391,12 +396,14 @@ protected:
     LLUUID      mBloomTextureId;
     LLUUID      mRainbowTextureId;
     LLUUID      mHaloTextureId;
+    LLUUID      mTonemapLutId;
     LLUUID      mNextSunTextureId;
     LLUUID      mNextMoonTextureId;
     LLUUID      mNextCloudTextureId;
     LLUUID      mNextBloomTextureId;
     LLUUID      mNextRainbowTextureId;
     LLUUID      mNextHaloTextureId;
+    LLUUID      mNextTonemapLutId;
 
     bool mCanAutoAdjust;
     U8 mSkySettingVersion;

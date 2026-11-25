@@ -2848,6 +2848,7 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="EnvironmentSun">Sun</string>
 	<string name="EnvironmentMoon">Moon</string>
 	<string name="EnvironmentBloom">Bloom</string>
+	<string name="EnvironmentTonemapLut">Tonemap LUT</string>
 	<string name="EnvironmentCloudNoise">Cloud Noise</string>
 	<string name="EnvironmentNormalMap">Normal Map</string>
 	<string name="EnvironmentTransparent">Transparent</string>
@@ -3986,6 +3987,7 @@ Abuse Report</string>
   <string name="DefaultMimeType">none/none</string>
   <string name="texture_load_area_error">Can't load images larger than [PIXELS] pixels</string>
   <string name="texture_load_dimensions_error">Can't load images larger than [WIDTH]*[HEIGHT]</string>
+  <string name="tonemap_lut_too_large">Tonemap LUT is larger than 1 MB after lossless encoding.</string>
   <string name="texture_load_format_error">Incorrect image format.</string>
   <string name="texture_load_empty_file">File is empty.</string>
   <string name="outfit_photo_load_dimensions_error">Max outfit photo size is [WIDTH]*[HEIGHT]. Please resize or use another image</string>

@@ -72,8 +72,9 @@ const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
 const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 const S32 PREVIEW_VPAD = -24 + 35;  // yuk, hard coded
-const S32 PREF_BUTTON_HEIGHT = 16 + 7 + 16 + 35;
+const S32 PREF_BUTTON_HEIGHT = 16 + 7 + 16 + 35 + 20;
 const S32 PREVIEW_TEXTURE_HEIGHT = 320;
+const S32 TONEMAP_LUT_MAX_BYTES = 1024 * 1024;
 
 //-----------------------------------------------------------------------------
 // LLFloaterImagePreview()
@@ -130,6 +131,16 @@ bool LLFloaterImagePreview::postBuild()
             LLCheckBoxCtrl* check_box = getChild<LLCheckBoxCtrl>("lossless_check");
             check_box->setEnabled(true);
             check_box->setControlVariable(gSavedSettings.getControl("LosslessJ2CUpload"));
+        }
+
+        S32 lut_width = mRawImagep->getWidth();
+        S32 lut_height = mRawImagep->getHeight();
+        bool lut_size = (lut_width == 256 && lut_height == 16)
+            || (lut_width == 1024 && lut_height == 32)
+            || (lut_width == 512 && lut_height == 512);
+
+        if (lut_size && mRawImagep->getComponents() == 4) {
+            getChild<LLCheckBoxCtrl>("tonemap_lut_check")->setEnabled(true);
         }
     }
     else
@@ -275,8 +286,22 @@ void LLFloaterImagePreview::onBtnOK()
             }
         }
 
+        bool tonemap_lut = getChild<LLUICtrl>("tonemap_lut_check")->getValue().asBoolean();
+
+        if (tonemap_lut) {
+            formatted->setReversible(true);
+        }
+
         if (formatted->encode(mRawImagep, 0.0f))
         {
+            if (tonemap_lut && formatted->getDataSize() > TONEMAP_LUT_MAX_BYTES) {
+                LLSD args;
+                args["REASON"] = LLTrans::getString("tonemap_lut_too_large");
+                LLNotificationsUtil::add("ErrorEncodingImage", args);
+                closeFloater(false);
+                return;
+            }
+
             LLFileSystem fmt_file(new_asset_id, LLAssetType::AT_TEXTURE, LLFileSystem::WRITE);
             fmt_file.write(formatted->getData(), formatted->getDataSize());
 

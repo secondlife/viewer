@@ -170,6 +170,12 @@ void LLSky::setBloomTextures(const LLUUID& bloom_texture, const LLUUID& bloom_te
     }
 }
 
+void LLSky::setTonemapLutTextures(const LLUUID& tonemap_lut, const LLUUID& tonemap_lut_next) {
+    if (mVOSkyp.notNull()) {
+        mVOSkyp->setTonemapLutTextures(tonemap_lut, tonemap_lut_next);
+    }
+}
+
 void LLSky::setSunAndMoonDirectionsCFR(const LLVector3 &sun_direction, const LLVector3 &moon_direction)
 {
     if(mVOSkyp.notNull()) {

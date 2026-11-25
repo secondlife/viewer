@@ -228,17 +228,6 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
                     if (tep)
                     {
                         const LLGLTFMaterial* existing_override = tep->getGLTFMaterialOverride();
-                        LL_WARNS("GLTF") << "applyOverrideMessage: te=" << te
-                            << " existing_override=" << (existing_override ? "yes" : "no")
-                            << " od has sc=" << od[i].has("sc");
-                        if (existing_override)
-                        {
-                            LL_CONT << " existing specColor=("
-                                << existing_override->mSpecularColorFactor.mV[0] << ","
-                                << existing_override->mSpecularColorFactor.mV[1] << ","
-                                << existing_override->mSpecularColorFactor.mV[2] << ")";
-                        }
-                        LL_CONT << LL_ENDL;
                         if (existing_override)
                         {
                             if (existing_override->mEmissiveStrength != LLGLTFMaterial::getDefaultEmissiveStrength()

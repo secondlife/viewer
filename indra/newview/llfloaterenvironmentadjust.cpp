@@ -63,6 +63,7 @@ namespace
     const std::string FIELD_SKY_SUN_BRIGHTNESS("sun_brightness");
     const std::string FIELD_SKY_TONEMAPPER("tonemapper");
     const std::string FIELD_SKY_TONEMAP_MIX("tonemap_mix");
+    const std::string FIELD_SKY_TONEMAP_LUT("tonemap_lut");
     const std::string FIELD_SKY_HDR_OFFSET("hdr_offset");
     const std::string FIELD_SKY_HDR_MIN("hdr_min");
     const std::string FIELD_SKY_HDR_MAX("hdr_max");
@@ -133,6 +134,8 @@ bool LLFloaterEnvironmentAdjust::postBuild()
     getChild<LLUICtrl>(FIELD_AMBIENT_SKY_SATURATION)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onAmbientSkySaturationChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_TONEMAPPER)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onTonemapperChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_TONEMAP_MIX)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onTonemapMixChanged(); });
+    getChild<LLTextureCtrl>(FIELD_SKY_TONEMAP_LUT)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onTonemapLutChanged(); });
+    getChild<LLTextureCtrl>(FIELD_SKY_TONEMAP_LUT)->setAllowNoTexture(true);
     getChild<LLUICtrl>(FIELD_SKY_HDR_OFFSET)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onHDROffsetChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_HDR_MIN)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onHDRMinChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_HDR_MAX)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onHDRMaxChanged(); });
@@ -185,6 +188,7 @@ void LLFloaterEnvironmentAdjust::refresh()
     getChild<LLUICtrl>(BTN_UPGRADE)->setVisible(can_upgrade);
     getChild<LLUICtrl>(FIELD_SKY_TONEMAPPER)->setEnabled(is_v2);
     getChild<LLUICtrl>(FIELD_SKY_TONEMAP_MIX)->setEnabled(is_v2);
+    getChild<LLUICtrl>(FIELD_SKY_TONEMAP_LUT)->setEnabled(is_v2);
     getChild<LLUICtrl>(FIELD_SKY_HDR_OFFSET)->setEnabled(is_v2);
     getChild<LLUICtrl>(FIELD_SKY_HDR_MIN)->setEnabled(is_v2);
     getChild<LLUICtrl>(FIELD_SKY_HDR_MAX)->setEnabled(is_v2);
@@ -211,6 +215,7 @@ void LLFloaterEnvironmentAdjust::refresh()
 
     getChild<LLUICtrl>(FIELD_SKY_TONEMAPPER)->setValue((S32)mLiveSky->getTonemapper());
     getChild<LLUICtrl>(FIELD_SKY_TONEMAP_MIX)->setValue(mLiveSky->getTonemapMix());
+    getChild<LLTextureCtrl>(FIELD_SKY_TONEMAP_LUT)->setValue(mLiveSky->getTonemapLutId());
     getChild<LLUICtrl>(FIELD_SKY_HDR_OFFSET)->setValue(mLiveSky->getHDROffset());
     getChild<LLUICtrl>(FIELD_SKY_HDR_MIN)->setValue(mLiveSky->getHDRMin());
     getChild<LLUICtrl>(FIELD_SKY_HDR_MAX)->setValue(mLiveSky->getHDRMax());
@@ -521,6 +526,32 @@ void LLFloaterEnvironmentAdjust::onCloudMapChanged()
     }
 
     sky_to_set->setCloudNoiseTextureId(new_texture_id);
+
+    LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, sky_to_set);
+
+    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT, true);
+
+    picker_ctrl->setValue(new_texture_id);
+}
+
+void LLFloaterEnvironmentAdjust::onTonemapLutChanged() {
+    if (!mLiveSky) {
+        return;
+    }
+
+    LLTextureCtrl* picker_ctrl = getChild<LLTextureCtrl>(FIELD_SKY_TONEMAP_LUT);
+
+    LLUUID new_texture_id = picker_ctrl->getValue().asUUID();
+
+    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+
+    LLSettingsSky::ptr_t sky_to_set = mLiveSky->buildClone();
+
+    if (!sky_to_set) {
+        return;
+    }
+
+    sky_to_set->setTonemapLutId(new_texture_id);
 
     LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_LOCAL, sky_to_set);
 
