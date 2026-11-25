@@ -303,6 +303,13 @@ bool callUnicodeCallback(wchar_t character, unsigned int mask)
     return result;
 }
 
+bool callKeyboardFocusAcceptsText()
+{
+    return gWindowImplementation
+        && gWindowImplementation->getCallbacks()
+        && gWindowImplementation->getCallbacks()->keyboardFocusAcceptsText();
+}
+
 void callFocus()
 {
     if (gWindowImplementation && gWindowImplementation->getCallbacks())
@@ -1928,7 +1935,8 @@ void LLWindowMacOSX::spawnWebBrowser(const std::string& escaped_url, bool async)
     S32 i;
     for (i = 0; i < gURLProtocolWhitelistCount; i++)
     {
-        if (escaped_url.find(gURLProtocolWhitelist[i]) != std::string::npos)
+        // The URL must start with the allowed scheme, not just contain it
+        if (escaped_url.find(gURLProtocolWhitelist[i]) == 0)
         {
             found = true;
             break;

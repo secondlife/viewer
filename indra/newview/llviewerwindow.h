@@ -200,6 +200,7 @@ public:
     /*virtual*/ bool handleTranslatedKeyDown(KEY key,  MASK mask, bool repeated);
     /*virtual*/ bool handleTranslatedKeyUp(KEY key,  MASK mask);
     /*virtual*/ void handleScanKey(KEY key, bool key_down, bool key_up, bool key_level);
+    /*virtual*/ bool keyboardFocusAcceptsText();
     /*virtual*/ bool handleUnicodeChar(llwchar uni_char, MASK mask);    // NOT going to handle extended
     /*virtual*/ bool handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
     /*virtual*/ bool handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);

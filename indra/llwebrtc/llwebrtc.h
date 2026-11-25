@@ -302,10 +302,20 @@ LLSYMEXPORT void init(LLWebRTCLogCallback* logSink);
 // And should be terminated as part of shutdown.
 LLSYMEXPORT void terminate();
 
-// Return an interface for device management.
+// Return an interface for device management, or nullptr if the library isn't
+// initialized (before init() or after terminate()).
 LLSYMEXPORT LLWebRTCDeviceInterface* getDeviceInterface();
 
 // Allocate and free peer connections.
+//
+// Before init() or after terminate(), newPeerConnection() returns nullptr and
+// freePeerConnection() does nothing.
+//
+// terminate() closes and destroys every connection still allocated, so once
+// it has started, any LLWebRTCPeerConnectionInterface pointer -- and the
+// audio and data interfaces obtained from it -- is dangling.  Don't call
+// anything on them; passing one to freePeerConnection() afterwards is safe,
+// since it's ignored without being touched.
 LLSYMEXPORT LLWebRTCPeerConnectionInterface* newPeerConnection();
 LLSYMEXPORT void freePeerConnection(LLWebRTCPeerConnectionInterface *connection);
 }

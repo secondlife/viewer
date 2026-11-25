@@ -368,7 +368,7 @@ public:
 
     /*virtual*/ void    setNumTEs(const U8 num_tes);
     /*virtual*/ void    setTE(const U8 te, const LLTextureEntry &texture_entry);
-    void updateTEMaterialTextures(U8 te);
+    bool updateTEMaterialTextures(U8 te);
     /*virtual*/ S32     setTETexture(const U8 te, const LLUUID &uuid);
     /*virtual*/ S32     setTENormalMap(const U8 te, const LLUUID &uuid);
     /*virtual*/ S32     setTESpecularMap(const U8 te, const LLUUID &uuid);
@@ -702,17 +702,26 @@ private:
     bool isAssetInInventory(LLViewerInventoryItem* item, LLAssetType::EType type);
 
     ExtraParameter* createNewParameterEntry(U16 param_type);
+
+    static bool isValidExtraParamType(U16 param_type)
+    {
+        return param_type >= LLNetworkData::PARAMS_FLEXIBLE
+            && param_type <= LLNetworkData::PARAMS_MAX
+            && (param_type & 0xF) == 0;
+    }
     const ExtraParameter& getExtraParameterEntry(U16 param_type) const
     {
+        llassert(isValidExtraParamType(param_type));
         return mExtraParameterList[U32(param_type >> 4) - 1];
     }
     ExtraParameter& getExtraParameterEntry(U16 param_type)
     {
+        llassert(isValidExtraParamType(param_type));
         return mExtraParameterList[U32(param_type >> 4) - 1];
     }
     ExtraParameter* getExtraParameterEntryCreate(U16 param_type)
     {
-        if (param_type <= LLNetworkData::PARAMS_MAX)
+        if (isValidExtraParamType(param_type))
         {
             ExtraParameter& param = getExtraParameterEntry(param_type);
             if (!param.is_invalid)

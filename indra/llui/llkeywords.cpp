@@ -866,7 +866,6 @@ bool LLKeywords::applySegmentOpsRange(std::vector<LLTextSegmentPtr> *seg_list,
         if (op.type == SegmentOp::OP_LINE_BREAK)
         {
             LLTextSegmentPtr text_segment = new LLLineBreakTextSegment(style, op.start);
-            text_segment->setToken( 0 );
             insertSegment( *seg_list, text_segment, text_len, style, editor);
         }
         else
@@ -923,7 +922,6 @@ void LLKeywords::insertSegments(const LLWString& wtext, std::vector<LLTextSegmen
         }
 
         LLTextSegmentPtr text_segment = new LLLineBreakTextSegment(style, static_cast<S32>(pos));
-        text_segment->setToken( cur_token );
         insertSegment( seg_list, text_segment, text_len, style, editor);
 
         seg_start = static_cast<S32>(pos) + 1;

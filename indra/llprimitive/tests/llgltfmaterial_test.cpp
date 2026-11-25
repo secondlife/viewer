@@ -26,6 +26,9 @@
 #include "linden_common.h"
 #include "lltut.h"
 
+#include "llfile.h"
+
+#include <algorithm>
 #include <set>
 
 #include "../llgltfmaterial.h"
@@ -437,5 +440,31 @@ namespace tut
         ENSURE_HASH_CHANGED(hash_mat, source_mat, mDoubleSided);
         ENSURE_HASH_CHANGED(hash_mat, source_mat, mOverrideDoubleSided);
         ENSURE_HASH_CHANGED(hash_mat, source_mat, mOverrideAlphaMode);
+    }
+
+    // Test that fromJSON rejects external buffers.
+    template<> template<>
+    void llgltfmaterial_object_t::test<13>()
+    {
+        const char buffer_data[] = "data";
+        const std::string unique_id = LLUUID::generateNewID().asString();
+        const fsyspath temporary_directory(LLFile::tmpdir());
+        const fsyspath buffer_path = temporary_directory / ("llgltfmaterial_" + unique_id + ".bin");
+        const bool buffer_written = LLFile::write(buffer_path, buffer_data, 0, sizeof(buffer_data) - 1) == static_cast<S64>(sizeof(buffer_data) - 1);
+        std::string buffer_uri = buffer_path.string();
+        std::replace(buffer_uri.begin(), buffer_uri.end(), '\\', '/');
+        const std::string local_buffer_json =
+            R"({"asset":{"version":"2.0"},"buffers":[{"uri":")" + buffer_uri +
+            R"(","byteLength":4}]})";
+
+        LLGLTFMaterial material;
+        std::string warn_msg;
+        std::string error_msg;
+        const bool local_buffer_parsed = material.fromJSON(local_buffer_json, warn_msg, error_msg);
+
+        LLFile::remove(buffer_path);
+
+        ensure("Local buffer test file was created", buffer_written);
+        ensure("fromJSON rejects local buffer references", !local_buffer_parsed);
     }
 }

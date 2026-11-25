@@ -984,6 +984,32 @@ LLSD HttpCoroutineAdapter::getRawAndSuspend(LLCore::HttpRequest::ptr_t request,
     return getAndSuspend_(request, url, options, headers, httpHandler);
 }
 
+LLSD HttpCoroutineAdapter::getRawRangeAndSuspend(LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    size_t offset, size_t len,
+    LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
+{
+    LLEventStream  replyPump(mAdapterName + "Reply", true);
+    HttpCoroHandler::ptr_t httpHandler = std::make_shared<HttpCoroRawHandler>(replyPump);
+
+    HttpRequestPumper pumper(request);
+    checkDefaultHeaders(headers);
+
+    LLCore::HttpHandle hhandle = request->requestGetByteRange(mPolicyId,
+        url, offset, len, options, headers, httpHandler);
+
+    if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
+    {
+        return HttpCoroutineAdapter::buildImmediateErrorResult(request, url);
+    }
+
+    saveState(hhandle, request, httpHandler);
+    LLSD results = llcoro::suspendUntilEventOn(httpHandler->getReplyPump());
+    cleanState();
+
+    return results;
+}
+
 LLSD HttpCoroutineAdapter::getJsonAndSuspend(LLCore::HttpRequest::ptr_t request,
     const std::string & url, LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {

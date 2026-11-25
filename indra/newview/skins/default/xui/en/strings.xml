@@ -3667,6 +3667,9 @@ Please reinstall viewer from  https://secondlife.com/support/downloads/ and cont
 	<string name="UpdaterProgressBarText">
 	  Downloading update
 	</string>
+    <string name="UpdaterProgressBarCheckingText">
+        Checking for updates...
+    </string>
 	<string name="UpdaterFailDownloadTitle">
 	  Failed to download update
 	</string>
@@ -3679,6 +3682,11 @@ Please reinstall viewer from  https://secondlife.com/support/downloads/ and cont
 	<string name="UpdaterFailStartTitle">
 	  Failed to start viewer
 	</string>
+    <string name="UpdaterProgressDownloadingUpdate">
+Downloading update [VERSION]. This may take some time.
+
+[APP_NAME] will restart once the download is complete. Closing it will stop the download.
+    </string>
 
 	<!-- System Messages -->
 	<string name="ItemsComingInTooFastFrom">[APP_NAME]: Items coming in too fast from [FROM_NAME], automatic preview disabled for [TIME] seconds</string>

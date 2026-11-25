@@ -425,7 +425,11 @@ inline int decode_access_mode(std::ios_base::openmode omode)
 
 inline int decode_open_mode(std::ios_base::openmode omode)
 {
-    int flags = O_CREAT | decode_access_mode(omode);
+    int flags = decode_access_mode(omode);
+    if (omode & LLFile::out)
+    {
+        flags |= O_CREAT;
+    }
     if (omode & LLFile::app)
     {
         flags |= O_APPEND;
@@ -855,8 +859,14 @@ std::string LLFile::getContents(const std::filesystem::path& file_path, std::err
         if (!ec && length > 0)
         {
             buffer = std::string(length, 0);
-            file.read(&buffer[0], length, ec);
-            if (ec)
+            S64 total = 0;
+            while (total < length)
+            {
+                S64 n = file.read(&buffer[total], length - total, ec);
+                if (ec || n <= 0) { break; }
+                total += n;
+            }
+            if (ec || total != length)
             {
                 buffer.clear();
             }

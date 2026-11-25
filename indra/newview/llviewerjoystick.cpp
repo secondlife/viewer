@@ -265,13 +265,8 @@ void LLViewerJoystick::updateEnabled(bool autoenable)
             gSavedSettings.setBOOL("JoystickEnabled", true );
         }
     }
-    if (!gSavedSettings.getBOOL("JoystickEnabled"))
-    {
-        if (gAgentCamera.isUsingFlycam())
-        {
-            gAgentCamera.toggleFlycam();
-        }
-    }
+    // No flycam exit here when the joystick ends up disabled: the flycam may be
+    // driven by keyboard or game controller instead (see toggleFlycam()).
 }
 
 bool LLViewerJoystick::getOverrideCamera()
@@ -1367,15 +1362,9 @@ void LLViewerJoystick::moveFlycam(bool reset)
 // -----------------------------------------------------------------------------
 bool LLViewerJoystick::toggleFlycam()
 {
-    if (!gSavedSettings.getBOOL("JoystickEnabled") || !gSavedSettings.getBOOL("JoystickFlycamEnabled"))
-    {
-        if (gAgentCamera.isUsingFlycam())
-        {
-            gAgentCamera.toggleFlycam();
-        }
-        return false;
-    }
-
+    // The flycam is shared state (LLAgentCamera) that keyboard and game controller
+    // input drive too, so toggling it must not require a 3D mouse / joystick:
+    // moveFlycam() already skips the joystick's own input when it's disabled.
     if (!gAgentCamera.isUsingFlycam())
     {
         gAgentCamera.changeCameraToDefault();
@@ -1433,7 +1422,9 @@ void LLViewerJoystick::scanJoystick()
 
     if (mBtn[0] == 1)
     {
-        if (mBtn[0] != toggle_flycam)
+        // toggleFlycam() itself is ungated (keyboard/menu use it too), so the
+        // device's own flycam option is honoured here for its button.
+        if (mBtn[0] != toggle_flycam && gSavedSettings.getBOOL("JoystickFlycamEnabled"))
         {
             toggle_flycam = toggleFlycam() ? 1 : 0;
         }

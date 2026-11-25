@@ -200,7 +200,7 @@ public:
     void setFilterSubString(const std::string& string);
     const std::string getFilterSubString();
     void setSinceLogoff(bool sl);
-    void setHoursAgo(U32 hours);
+    void setHoursAgo(F32 hours);
     void setDateSearchDirection(U32 direction);
     bool getSinceLogoff();
     void setFilterLinks(U64 filter_links);

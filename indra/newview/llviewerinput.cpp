@@ -1961,7 +1961,7 @@ bool LLViewerInput::scanControllerInput(const LLGameControl::ActionType actionTy
             continue;
         }
 
-        LL_WARNS() << "Controller Val " << LLGameControl::stringFromAction(actionType, action) << state.mValue << LL_ENDL;
+        LL_DEBUGS("UserInput") << "Controller Val " << LLGameControl::stringFromAction(actionType, action) << state.mValue << LL_ENDL;
 
         bool res = binding.mFunction(state);
         if (state.mDown)

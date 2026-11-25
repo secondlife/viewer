@@ -474,29 +474,57 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     // The following thread helpers allow the
     // LLWebRTCPeerConnectionImpl class to post
     // tasks to the native webrtc threads.
-    void PostWorkerTask(absl::AnyInvocable<void() &&> task,
+    //
+    // Once terminate() has started they drop the task and return false.
+    // terminate() moves the thread members out to its shutdown thread, but a
+    // connection it hasn't closed yet can still get webrtc callbacks (e.g.
+    // OnConnectionChange on the signaling thread) that post work, and those
+    // would dereference a null thread.  This is race-free for callers on the
+    // signaling and worker threads: terminate() sets mTerminating, then does a
+    // BlockingCall on each of them, and only then moves the members.
+    bool PostWorkerTask(absl::AnyInvocable<void() &&> task,
                   const webrtc::Location& location = webrtc::Location::Current())
     {
+        if (mTerminating)
+        {
+            return false;
+        }
         mWorkerThread->PostTask(std::move(task), location);
+        return true;
     }
 
-    void PostSignalingTask(absl::AnyInvocable<void() &&> task,
+    bool PostSignalingTask(absl::AnyInvocable<void() &&> task,
                   const webrtc::Location& location = webrtc::Location::Current())
     {
+        if (mTerminating)
+        {
+            return false;
+        }
         mSignalingThread->PostTask(std::move(task), location);
+        return true;
     }
 
-    void PostDelayedSignalingTask(absl::AnyInvocable<void() &&> task,
+    bool PostDelayedSignalingTask(absl::AnyInvocable<void() &&> task,
                   webrtc::TimeDelta delay,
                   const webrtc::Location& location = webrtc::Location::Current())
     {
+        if (mTerminating)
+        {
+            return false;
+        }
         mSignalingThread->PostDelayedTask(std::move(task), delay, location);
+        return true;
     }
 
-    void PostNetworkTask(absl::AnyInvocable<void() &&> task,
+    bool PostNetworkTask(absl::AnyInvocable<void() &&> task,
                   const webrtc::Location& location = webrtc::Location::Current())
     {
+        if (mTerminating)
+        {
+            return false;
+        }
         mNetworkThread->PostTask(std::move(task), location);
+        return true;
     }
 
     void WorkerBlockingCall(webrtc::FunctionView<void()> functor,
@@ -540,7 +568,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     const webrtc::Environment                                  mEnv;
     void workerStartRecording();
     void workerStartPlayout();
-    void workerDeployDevices();
+    void workerDeployDevices(bool reset_module);
     // We always rely on WebRTC's internal (software APM) audio processing, so
     // any platform/hardware AEC/AGC/NS must be kept disabled.
     void workerDisableBuiltInAudioProcessing();
@@ -560,10 +588,12 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
 
     // Devices
     void updateDevices();
-    void deployDevices();
+    void deployDevices(bool reset_module);
     std::atomic<int>                                           mDevicesDeploying;
+    std::atomic<bool>                                          mTerminating;
     webrtc::scoped_refptr<LLWebRTCAudioDeviceModule>           mDeviceModule;
     std::vector<LLWebRTCDevicesObserver *>                     mVoiceDevicesObserverList;
+    std::atomic<bool>                                          mDevicesDeployingNeedsReset{ false };
 
     bool mBuiltinNS;
     bool mBuiltinAGC;
@@ -576,6 +606,13 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
 
     std::string                                                mPlayoutDevice;
     LLWebRTCVoiceDeviceList                                    mPlayoutDeviceList;
+
+    // Special "Default" entry guid last seen at index 0 so
+    // updateDevices() can detect that case and force a clean re-select.
+    std::string                                                mDefaultPlayoutDeviceGuid;
+    std::string                                                mDefaultRecordingDeviceGuid;
+    bool                                                       mHaveDefaultPlayoutDeviceGuid{ false };
+    bool                                                       mHaveDefaultRecordingDeviceGuid{ false };
 
     bool                                                       mMute;
     // Whether voice is enabled; gates whether the capture/playout devices run.
@@ -621,6 +658,22 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
     // webrtc_terminate indicates we're shutting down the webrtc library,
     // if not, we'll be reusing the peer connection for a reconnection
     void closeOnSignalingThread(bool webrtc_terminate);
+
+    // Final close for a connection the viewer has freed.  Signaling thread
+    // only.  Drops the observers (the viewer has let go of the connection, so
+    // nothing may call back into it), closes the webrtc peer connection if it
+    // is still open, and releases the factory.  A connection freed without
+    // shutdownConnection() otherwise keeps a live peer connection -- ICE
+    // gathering on the network thread -- that terminate() no longer tracks
+    // and so tears the webrtc threads down underneath.
+    void closeOnSignalingThreadForFree();
+
+    // Drops this connection's reference to the peer connection factory once
+    // it won't be used again.  Signaling thread only, while that thread is
+    // still running: LLWebRTCImpl::terminate() relies on holding the last
+    // reference, so that the factory (and the voice engine and audio device
+    // module it owns) is destroyed there, in order.  See the destructor.
+    void releaseFactory();
 
     virtual void AddRef() const override = 0;
     virtual webrtc::RefCountReleaseStatus Release() const override = 0;

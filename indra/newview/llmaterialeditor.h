@@ -108,7 +108,8 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     static void uploadMaterialFromModel(const std::string& filename,
                                         tinygltf::Model& model,
                                         S32 index,
-                                        const LLUUID& dest_folder_id = LLUUID::null);
+                                        const LLUUID& dest_folder_id = LLUUID::null,
+                                        const LLUUID& texture_dest = LLUUID::null);
     static void loadMaterialFromFile(const std::string& filename, S32 index = -1, const LLUUID& dest_folder = LLUUID::null);
 
     void onSelectionChanged(); // live overrides selection changes
@@ -251,6 +252,7 @@ private:
 
     LLUUID mAssetID;
     LLUUID mUploadFolder;
+    LLUUID mTextureUploadFolder;
 
     LLTextureCtrl* mBaseColorTextureCtrl;
     LLTextureCtrl* mMetallicTextureCtrl;

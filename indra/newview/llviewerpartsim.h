@@ -56,6 +56,8 @@ public:
 
     void init(LLPointer<LLViewerPartSource> sourcep, LLViewerTexture *imagep, LLVPCallback cb);
 
+    void logBrokenLink(const char* where) const;
+
 
     U32                 mPartID;                    // Particle ID used primarily for moving between groups
     F32                 mLastUpdateTime;            // Last time the particle was updated

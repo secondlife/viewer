@@ -122,7 +122,7 @@ public:
     LLXMLNode(const char* name, bool is_attribute);
     LLXMLNode(LLStringTableEntry* name, bool is_attribute);
     LLXMLNode(const LLXMLNode& rhs);
-    LLXMLNodePtr deepCopy();
+    LLXMLNodePtr deepCopy() const;
 
     bool isNull();
 

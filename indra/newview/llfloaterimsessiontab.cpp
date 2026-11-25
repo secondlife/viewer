@@ -328,6 +328,8 @@ bool LLFloaterIMSessionTab::postBuild()
 
     setOpenPositioning(LLFloaterEnums::POSITIONING_RELATIVE);
 
+    updateUniqueName();
+
     mSaveRect = isNearbyChat()
                     &&  !gSavedPerAccountSettings.getBOOL("NearbyChatIsNotTornOff");
     initRectControl();
@@ -391,6 +393,22 @@ bool LLFloaterIMSessionTab::postBuild()
 LLParticipantList* LLFloaterIMSessionTab::getParticipantList()
 {
     return dynamic_cast<LLParticipantList*>(LLFloaterIMContainer::getInstance()->getSessionModel(mSessionID));
+}
+
+void LLFloaterIMSessionTab::updateUniqueName()
+{
+    if (isNearbyChat())
+    {
+        return;
+    }
+
+    LLUUID name_id = mSessionID;
+    if (mSession && mSession->isP2PSessionType())
+    {
+        name_id = mSession->mOtherParticipantID;
+    }
+
+    setName("panel_im_" + name_id.asString());
 }
 
 // virtual

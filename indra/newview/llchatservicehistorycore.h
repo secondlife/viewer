@@ -97,6 +97,8 @@ namespace LLChatServiceHistoryCore
     std::string directConversationId(const LLUUID& agent_id, const LLUUID& resident_id);
     bool parseCanonicalUuid(const std::string& text, LLUUID& id);
     bool parseTimeUuid(const std::string& text, TimeUuidKey& key);
+    // Preserve an archive boundary in live-message context; an absent key stays empty.
+    std::string formatTimeUuid(const TimeUuidKey& key);
     bool persistedDirectDialog(S32 dialog);
     bool parseCreatedAt(const std::string& text, std::string& normalized);
     bool sameDirectSenderName(const std::string& left, const std::string& right);
@@ -104,7 +106,7 @@ namespace LLChatServiceHistoryCore
     // Compare service rows against original bodies and plaintext against logged bodies/times.
     bool sameDirectHistoryOccurrence(const LLSD& history, const LLSD& timed);
 
-    // Reserve known send times before receipt intervals and local-clock minute matches.
+    // Reserve known send times before receipt intervals and local-clock windows.
     std::list<LLSD> filterDirectHistoryDuplicates(const std::list<LLSD>& history,
                                                  const std::list<LLSD>& live);
 
@@ -113,7 +115,8 @@ namespace LLChatServiceHistoryCore
     // Union historical seams by service ID and plaintext occurrence, consuming overlaps one-for-one.
     Messages mergeDirectHistory(const Messages& loaded, const Messages& service);
 
-    // Preview publications start from the loaded value; visible context is retained separately.
+    // Preview publications start from the loaded value; retained context includes
+    // visible rows and the consumed occurrences needed to preserve their counts.
     class History
     {
     public:
@@ -122,10 +125,13 @@ namespace LLChatServiceHistoryCore
         void clearService();
         Messages compose(const Messages& preview, const Messages& live, U32 limit,
                          bool retain_context = false);
+        // Include consumed candidates so a new send cannot displace an older match.
+        TimeUuidKey latestServiceKey() const;
 
     private:
         Messages mLoaded;
-        Messages mVisible;
+        Messages mVisible; // Visible rows plus consumed anchors; anchors are filtered before display.
+        Messages mCandidates; // Last source seam, including rows already represented by live messages.
     };
 
     // Preserve live order and notification rows; replace history and reindex only on change.
@@ -138,7 +144,7 @@ namespace LLChatServiceHistoryCore
 
     // Both inputs are newest-first; interleave timed history without reordering live rows.
     std::list<LLSD> interleaveDirectHistory(const std::list<LLSD>& history,
-                                          const std::list<LLSD>& live);
+                                          std::list<LLSD> live);
 
     // Legacy SLT wall times carry no UTC offset; UTC-7 is their earliest possible
     // interpretation at the durable service boundary.

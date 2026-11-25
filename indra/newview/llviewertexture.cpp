@@ -1196,6 +1196,19 @@ void LLViewerFetchedTexture::init(bool firstinit)
 LLViewerFetchedTexture::~LLViewerFetchedTexture()
 {
     assert_main_thread();
+
+    // The texture lists and faces all hold LLPointers, so still being listed or used by a face means a reference was lost.
+    if (gTextureList.isInitialized() && !gTextureList.isShuttingDown()
+        && (mInImageList || mInFastCacheList || mCreatePending || mDownScalePending || getTotalNumFaces() > 0))
+    {
+        LL_WARNS("Texture") << "Texture " << mID << " deleted while still referenced:"
+            << " in_list " << mInImageList << " fast_cache " << mInFastCacheList
+            << " create_pending " << mCreatePending << " downscale_pending " << mDownScalePending
+            << " faces " << getTotalNumFaces()
+            << " light_vols " << mNumVolumes[LLRender::LIGHT_TEX] << " sculpt_vols " << mNumVolumes[LLRender::SCULPT_TEX]
+            << " boost " << mBoostLevel << " ft_type " << mFTType << LL_ENDL;
+    }
+
     //*NOTE getTextureFetch can return NULL when Viewer is shutting down.
     // This is due to LLWearableList is singleton and is destroyed after
     // LLAppViewer::cleanup() was called. (see ticket EXT-177)

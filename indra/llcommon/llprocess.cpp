@@ -47,10 +47,12 @@
 #include <limits>
 #include <algorithm>
 #include <chrono>
+#include <atomic>
 #include <cstring>
 #include <errno.h>
 #include <thread>
 #include <vector>
+#include <memory>
 #include <typeinfo>
 #include <signal.h>
 #include <utility>
@@ -144,6 +146,144 @@ namespace {
     }
 }
 #endif
+#if LL_DARWIN
+#include <spawn.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+#include <mutex>
+#include <boost/asio/posix/stream_descriptor.hpp>
+
+extern char** environ;
+
+namespace
+{
+    // RAII, any early-return/throw still closes fds we've opened,
+    // but not yet handed off to posix_spawn / the parent-side wrapper.
+    struct ScopedFD
+    {
+        int fd = -1;
+        ~ScopedFD() { if (fd >= 0) ::close(fd); }
+        int release() { int f = fd; fd = -1; return f; }
+        void close() { if (fd >= 0) { ::close(fd); fd = -1; } }
+    };
+
+    void make_pipe(ScopedFD& r, ScopedFD& w)
+    {
+        int fds[2];
+        if (::pipe(fds) != 0)
+        {
+            throw std::runtime_error(STRINGIZE("pipe() failed: " << strerror(errno)));
+        }
+        r.fd = fds[0];
+        w.fd = fds[1];
+    }
+
+    void terminateAndReap(pid_t pid, bool sendTerm)
+    {
+        if (sendTerm)
+            (void)::kill(pid, SIGTERM);
+
+        for (int i = 0; i < 30; ++i)
+        {
+            int status = 0;
+            pid_t result = ::waitpid(pid, &status, WNOHANG);
+            if (result == pid || (result == -1 && errno == ECHILD))
+                return;
+            if (result == -1 && errno != EINTR)
+                break;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+
+        int status = 0;
+        pid_t result;
+        do
+        {
+            result = ::waitpid(pid, &status, WNOHANG);
+        } while (result == -1 && errno == EINTR);
+        if (result == 0)
+            (void)::kill(pid, SIGKILL);
+        if (result != pid && !(result == -1 && errno == ECHILD))
+        {
+            do
+            {
+                result = ::waitpid(pid, &status, 0);
+            } while (result == -1 && errno == EINTR);
+        }
+    }
+
+    class DarwinReaperRegistry
+    {
+        struct ReaperThread
+        {
+            std::thread                        thread;
+            std::shared_ptr<std::atomic<bool>> finished;
+        };
+
+    public:
+        ~DarwinReaperRegistry()
+        {
+            shutdown();
+        }
+
+        void add(pid_t pid, bool sendTerm)
+        {
+            bool shutDown;
+            {
+                std::lock_guard<std::mutex> lock(mMutex);
+                shutDown = mShuttingDown;
+                if (!shutDown)
+                {
+                    auto thread = mThreads.begin();
+                    while (thread != mThreads.end())
+                    {
+                        if (thread->finished->load())
+                        {
+                            thread->thread.join();
+                            thread = mThreads.erase(thread);
+                        }
+                        else
+                        {
+                            ++thread;
+                        }
+                    }
+
+                    auto         finished = std::make_shared<std::atomic<bool>>(false);
+                    ReaperThread reaper;
+                    reaper.finished = finished;
+                    reaper.thread   = std::thread(
+                        [pid, sendTerm, finished]()
+                        {
+                            terminateAndReap(pid, sendTerm);
+                            finished->store(true);
+                        });
+                    mThreads.emplace_back(std::move(reaper));
+                }
+            }
+            if (shutDown)
+                terminateAndReap(pid, sendTerm);
+        }
+
+        void shutdown()
+        {
+            std::vector<ReaperThread> threads;
+            {
+                std::lock_guard<std::mutex> lock(mMutex);
+                mShuttingDown = true;
+                threads.swap(mThreads);
+            }
+            for (ReaperThread& thread : threads)
+                thread.thread.join();
+        }
+
+    private:
+        std::mutex mMutex;
+        std::vector<ReaperThread> mThreads;
+        bool mShuttingDown{ false };
+    };
+
+    DarwinReaperRegistry gDarwinReapers;
+}
+#endif // LL_DARWIN
 
 namespace bp = boost::process::v2;
 namespace asio = boost::asio;
@@ -478,19 +618,37 @@ LLProcess::LLProcess(const Params& params) :
 
 LLProcess::~LLProcess()
 {
-    if (mChild && mStatus.mState == RUNNING)
+#if LL_DARWIN
+    bool haveChild = (mChild || mDarwinPid > 0);
+#else
+    bool haveChild = bool(mChild);
+#endif
+    if (haveChild && mStatus.mState == RUNNING)
     {
+#if LL_DARWIN
+        if ((mAttached && mAutokill && !mKillCalled) || mKillCalled)
+#else
         if (mAttached && mAutokill && !mKillCalled)
+#endif
         {
-            LL_INFOS("LLProcess") << "Terminating child process " << mDesc << LL_ENDL;
+            LL_INFOS("LLProcess") << (mKillCalled ? "Reaping child process " : "Terminating child process ")
+                << mDesc << LL_ENDL;
+            id pid = childPid();
+#if LL_DARWIN
+            // The destructor may run on the viewer thread. Transfer termination,
+            // escalation, and reaping to a background owner.
+            if (mMainloopConnection.connected())
+                mMainloopConnection.disconnect();
+            gDarwinReapers.add(pid, !mKillCalled);
+#else
             boost::system::error_code ec;
             mChild->terminate(ec);
+#endif
 
-#if !LL_WINDOWS
+#if !LL_WINDOWS && !LL_DARWIN
             // On POSIX, terminate() sends SIGTERM which allows graceful shutdown.
             // Poll with waitpid(WNOHANG) rather than mChild->running() to avoid
             // competing with tick()'s own waitpid call.
-            pid_t pid = mChild->id();
             for (int i = 0; i < 30; ++i)
             {
                 int child_status = 0;
@@ -511,13 +669,14 @@ LLProcess::~LLProcess()
             // Force kill if still running
             {
                 int child_status;
-                if (::waitpid(pid, &child_status, WNOHANG) == 0)
+                pid_t result = ::waitpid(pid, &child_status, WNOHANG);
+                if (result == 0)
                 {
                     LL_WARNS("LLProcess") << "Force killing " << mDesc << LL_ENDL;
                     (void)::kill(pid, SIGKILL);
                 }
             }
-#else
+#elif LL_WINDOWS
             // On Windows, terminate() already does an immediate hard kill via TerminateProcess()
             // Only wait if terminate succeeded (process was running)
 
@@ -546,10 +705,13 @@ LLProcess::~LLProcess()
             LL_INFOS("LLProcess") << "Not terminating " << mDesc
                 << " (attached=" << mAttached
                 << ", autokill=" << mAutokill << ")" << LL_ENDL;
-            // Detach the bp::process so its destructor does not send SIGKILL
-            // to the still-running process (boost::process v2 terminates the
-            // child in bp::process::~process() if the handle is still valid).
-            mChild->detach();
+            if (mChild)
+            {
+                // Detach the bp::process so its destructor does not send SIGKILL
+                // to the still-running process (boost::process v2 terminates the
+                // child in bp::process::~process() if the handle is still valid).
+                mChild->detach();
+            }
         }
     }
 
@@ -557,6 +719,13 @@ LLProcess::~LLProcess()
     {
         mMainloopConnection.disconnect();
     }
+}
+
+void LLProcess::shutdownReapers()
+{
+#if LL_DARWIN
+    gDarwinReapers.shutdown();
+#endif
 }
 
 //static
@@ -592,6 +761,159 @@ LLProcessPtr LLProcess::create(const LLSDOrParams& params)
         return LLProcessPtr();
     }
 }
+
+#if LL_DARWIN
+void LLProcess::launchPosixSpawn(const LLSDOrParams& params,
+    const std::vector<std::string>& args,
+    const boost::filesystem::path& executable_path)
+{
+    // boost::process v2's POSIX backend launches children via fork(), which
+    // is unsafe here: the viewer is multithreaded and links Objective-C /
+    // Cocoa / libdispatch frameworks that are not fork-safe without an
+    // immediate exec(). A fork() inherited lock held by another thread (e.g.
+    // inside libdispatch or the ObjC runtime) can deadlock or crash the
+    // child before exec() ever runs. posix_spawn() avoids duplicating the
+    // parent's process image at all, sidestepping this class of crash.
+
+    posix_spawn_file_actions_t file_actions;
+    posix_spawn_file_actions_init(&file_actions);
+    struct FileActionsGuard
+    {
+        posix_spawn_file_actions_t* fa;
+        ~FileActionsGuard() { posix_spawn_file_actions_destroy(fa); }
+    } fa_guard{ &file_actions };
+
+    posix_spawnattr_t attr;
+    posix_spawnattr_init(&attr);
+    struct AttrGuard
+    {
+        posix_spawnattr_t* a;
+        ~AttrGuard() { posix_spawnattr_destroy(a); }
+    } attr_guard{ &attr };
+
+    short flags = 0;
+#ifdef POSIX_SPAWN_CLOEXEC_DEFAULT
+    // Darwin extension: close all fds not explicitly dup2'd via
+    // file_actions, instead of inheriting every open fd into the child.
+    flags |= POSIX_SPAWN_CLOEXEC_DEFAULT;
+#endif
+    posix_spawnattr_setflags(&attr, flags);
+
+    // --- stdin/stdout/stderr pipes -----------------------------------
+    // mStdinPipe/mStdoutPipe/mStderrPipe were already default-constructed
+    // (as asio::writable_pipe / readable_pipe, unopened) earlier in
+    // launch() if the corresponding FileParam requested "pipe". Here we
+    // create raw POSIX pipe fds ourselves so we have something to hand to
+    // posix_spawn_file_actions_adddup2(), then adopt the parent-side fd
+    // into the existing asio pipe object below.
+    ScopedFD stdinRead, stdinWrite;
+    ScopedFD stdoutRead, stdoutWrite;
+    ScopedFD stderrRead, stderrWrite;
+
+    // Capture these before creating pipes, which may reuse a closed standard
+    // descriptor as one of their endpoints.
+    const bool inheritStdin = ::fcntl(STDIN_FILENO, F_GETFD) != -1;
+    const bool inheritStdout = ::fcntl(STDOUT_FILENO, F_GETFD) != -1;
+    const bool inheritStderr = ::fcntl(STDERR_FILENO, F_GETFD) != -1;
+
+    if (mStdinPipe)   make_pipe(stdinRead, stdinWrite);   // child reads stdinRead
+    if (mStdoutPipe)  make_pipe(stdoutRead, stdoutWrite); // child writes stdoutWrite
+    if (mStderrPipe)  make_pipe(stderrRead, stderrWrite); // child writes stderrWrite
+
+    if (mStdinPipe)
+    {
+        posix_spawn_file_actions_adddup2(&file_actions, stdinRead.fd, STDIN_FILENO);
+        if (stdinWrite.fd != STDIN_FILENO)
+            posix_spawn_file_actions_addclose(&file_actions, stdinWrite.fd);
+        if (stdinRead.fd != STDIN_FILENO)
+            posix_spawn_file_actions_addclose(&file_actions, stdinRead.fd);
+    }
+    else
+    {
+        // Inherit parent's stdin. Under POSIX_SPAWN_CLOEXEC_DEFAULT, fds not
+        // named via file_actions are closed in the child, so explicitly
+        // preserve it with a dup2-onto-self if it was open in the parent.
+        if (inheritStdin)
+            posix_spawn_file_actions_adddup2(&file_actions, STDIN_FILENO, STDIN_FILENO);
+    }
+    if (mStdoutPipe)
+    {
+        posix_spawn_file_actions_adddup2(&file_actions, stdoutWrite.fd, STDOUT_FILENO);
+        if (stdoutRead.fd != STDOUT_FILENO)
+            posix_spawn_file_actions_addclose(&file_actions, stdoutRead.fd);
+        if (stdoutWrite.fd != STDOUT_FILENO)
+            posix_spawn_file_actions_addclose(&file_actions, stdoutWrite.fd);
+    }
+    else
+    {
+        if (inheritStdout)
+            posix_spawn_file_actions_adddup2(&file_actions, STDOUT_FILENO, STDOUT_FILENO);
+    }
+    if (mStderrPipe)
+    {
+        posix_spawn_file_actions_adddup2(&file_actions, stderrWrite.fd, STDERR_FILENO);
+        if (stderrRead.fd != STDERR_FILENO)
+            posix_spawn_file_actions_addclose(&file_actions, stderrRead.fd);
+        if (stderrWrite.fd != STDERR_FILENO)
+            posix_spawn_file_actions_addclose(&file_actions, stderrWrite.fd);
+    }
+    else
+    {
+        if (inheritStderr)
+            posix_spawn_file_actions_adddup2(&file_actions, STDERR_FILENO, STDERR_FILENO);
+    }
+
+    if (params.cwd.isProvided())
+    {
+        // Darwin-only extension: chdir in the child before exec, avoiding
+        // the need for bp::process_start_dir (which requires fork()).
+        posix_spawn_file_actions_addchdir_np(&file_actions, params.cwd().c_str());
+    }
+
+    // --- argv -------------------------------------------------------
+    std::vector<std::string> argv_storage;
+    argv_storage.push_back(executable_path.string());
+    for (const auto& a : args) argv_storage.push_back(a);
+
+    std::vector<char*> argv;
+    argv.reserve(argv_storage.size() + 1);
+    for (auto& s : argv_storage) argv.push_back(const_cast<char*>(s.c_str()));
+    argv.push_back(nullptr);
+
+    // Inherit parent's environment untouched (matches prior bp::process behavior).
+    char* const* envp = environ;
+
+    pid_t pid = -1;
+    int rc = ::posix_spawn(&pid, executable_path.c_str(), &file_actions, &attr,
+        argv.data(), envp);
+    if (rc != 0)
+    {
+        throw std::runtime_error(STRINGIZE("posix_spawn failed for "
+            << params.executable() << ": " << strerror(rc)));
+    }
+
+    mDarwinPid = pid;
+
+    // Close the parent copies of the child-side endpoints now that spawn has
+    // duplicated them into the child. Keep only the endpoints adopted below.
+    stdinRead.close();
+    stdoutWrite.close();
+    stderrWrite.close();
+
+    // Adopt the parent-side fds into the pre-existing asio pipe objects so
+    // the rest of LLProcess (WritePipeImpl/ReadPipeImpl/tick()) works
+    // unmodified.
+    if (mStdinPipe)
+        mStdinPipe->assign(stdinWrite.release());
+    if (mStdoutPipe)
+        mStdoutPipe->assign(stdoutRead.release());
+    if (mStderrPipe)
+        mStderrPipe->assign(stderrRead.release());
+
+    LL_INFOS("LLProcess") << "Launched " << mDesc
+        << " via posix_spawn (PID: " << mDarwinPid << ")" << LL_ENDL;
+}
+#endif // LL_DARWIN
 
 void LLProcess::launch(const LLSDOrParams& params)
 {
@@ -701,6 +1023,7 @@ void LLProcess::launch(const LLSDOrParams& params)
 #endif
 
         // Create child process with appropriate redirections.
+#if !LL_DARWIN
         // v2 uses process_stdio for I/O redirection
         bp::process_stdio stdio;
 
@@ -718,6 +1041,7 @@ void LLProcess::launch(const LLSDOrParams& params)
             stdio.err = *mStderrPipe;
         else
             stdio.err = nullptr; // inherit
+#endif
 
         // Build executable path.
         // Resolve bare executable names (i.e. "outleap-agent") through the
@@ -739,6 +1063,13 @@ void LLProcess::launch(const LLSDOrParams& params)
             }
         }
 
+#if LL_DARWIN
+        // boost::process v2's POSIX launcher calls fork(), which is unsafe
+        // in this multithreaded, Cocoa/libdispatch-linked process. Use
+        // posix_spawn() instead; mChild stays null and mDarwinPid tracks
+        // the child.
+        launchPosixSpawn(params, args, executable_path);
+#else
         // In Boost.Process v2, error_code cannot be passed as an initializer.
         // Use the throwing overload and catch the exception instead.
         try
@@ -768,6 +1099,7 @@ void LLProcess::launch(const LLSDOrParams& params)
             throw std::runtime_error(STRINGIZE("failed to launch " << params.executable()
                 << ": " << ex.what()));
         }
+#endif
 
 #if LL_WINDOWS
         // Add the process to the job object so it terminates when parent dies.
@@ -830,12 +1162,24 @@ void LLProcess::launch(const LLSDOrParams& params)
         }
 
         LL_INFOS("LLProcess") << "Launched " << mDesc
-            << " (PID: " << mChild->id() << ")" << LL_ENDL;
+            << " (PID: " << childPid() << ")" << LL_ENDL;
     }
     catch (const std::exception& e)
     {
         throw std::runtime_error(STRINGIZE("failed to create process: " << e.what()));
     }
+}
+
+LLProcess::id LLProcess::childPid() const
+{
+#if LL_WINDOWS
+    return mChild ? mChild->id() : 0;
+#elif LL_DARWIN
+    if (mChild) return mChild->id();
+    return mDarwinPid > 0 ? mDarwinPid : 0;
+#else
+    return mChild ? mChild->id() : 0;
+#endif
 }
 
 void LLProcess::connectMainloop()
@@ -915,17 +1259,18 @@ void LLProcess::tick()
 #else
     // Check process status using WNOHANG to avoid blocking or generating
     // signals that interfere with other waitpid() callers.
-    if (mChild && mStatus.mState == RUNNING)
+    id pid = childPid();
+    if (pid > 0 && mStatus.mState == RUNNING)
     {
         int status = 0;
         pid_t result;
         // Retry on EINTR: SA_RESTART only applies to blocking calls, not
         // WNOHANG waitpid(), so manual retry is still needed.
         do { // manual EINTR retry (SA_RESTART does not apply to WNOHANG)
-            result = ::waitpid(mChild->id(), &status, WNOHANG);
+            result = ::waitpid(pid, &status, WNOHANG);
         } while (result == -1 && errno == EINTR);
 
-        if (result == mChild->id())
+        if (result == pid)
         {
             // Child has exited; decode exit status now (before handleExit,
             // since the child has already been reaped by this waitpid call).
@@ -1077,7 +1422,8 @@ std::string LLProcess::getStatusString(const std::string& desc, const Status& st
 
 bool LLProcess::kill(const std::string& who)
 {
-    if (!mChild || mStatus.mState != RUNNING)
+    id pid = childPid();
+    if (pid <= 0 || mStatus.mState != RUNNING)
         return true;
 
     LL_INFOS("LLProcess") << who << " killing " << mDesc << LL_ENDL;
@@ -1102,7 +1448,6 @@ bool LLProcess::kill(const std::string& who)
     // sends SIGKILL and may set the internal pid to -1, which would cause
     // tick()'s waitpid(mChild->id(), ...) to wait for any child (-1) and
     // never match the result against the stored pid.
-    pid_t pid = mChild->id();
     if (::kill(pid, SIGTERM) != 0 && errno != ESRCH)
     {
         LL_WARNS("LLProcess") << "Failed to send SIGTERM to " << mDesc
@@ -1134,22 +1479,23 @@ void LLProcess::pump()
 
 LLProcess::id LLProcess::getProcessID() const
 {
-    if (!mChild)
+    id pid = childPid();
+    if (pid <= 0)
         return 0;
 
 #if LL_WINDOWS
-    return static_cast<int>(mChild->id());
+    return static_cast<int>(pid);
 #else
-    return mChild->id();
+    return pid;
 #endif
 }
 
 LLProcess::handle LLProcess::getProcessHandle() const
 {
+#if LL_WINDOWS
     if (!mChild)
         return 0;
 
-#if LL_WINDOWS
     // Duplicate the process handle so the caller owns an independent copy.
     // boost::process v2's process destructor always closes the handle
     // (even after process::detach()), so the raw native_handle() becomes invalid
@@ -1171,7 +1517,7 @@ LLProcess::handle LLProcess::getProcessHandle() const
     }
     return dup;
 #else
-    return mChild->id();
+    return childPid();
 #endif
 }
 

@@ -140,20 +140,22 @@ LLXMLNode::LLXMLNode(const LLXMLNode& rhs) :
 }
 
 // returns a new copy of this node and all its children
-LLXMLNodePtr LLXMLNode::deepCopy()
+LLXMLNodePtr LLXMLNode::deepCopy() const
 {
     LLXMLNodePtr newnode = LLXMLNodePtr(new LLXMLNode(*this));
     if (mChildren.notNull())
     {
-        for (LLXMLChildList::iterator iter = mChildren->map.begin();
-             iter != mChildren->map.end(); ++iter)
+        // Walk the intrusive doubly-linked list (head/tail/mNext/mPrev)
+        // rather than mChildren->map to preserve insertion order.
+        // The map is keyed by LLStringTableEntry* pointer, not order.
+        for (LLXMLNodePtr child = mChildren->head; child.notNull(); child = child->mNext)
         {
-            LLXMLNodePtr temp_ptr_for_gcc(iter->second->deepCopy());
+            LLXMLNodePtr temp_ptr_for_gcc(child->deepCopy());
             newnode->addChild(temp_ptr_for_gcc);
         }
     }
-    for (LLXMLAttribList::iterator iter = mAttributes.begin();
-         iter != mAttributes.end(); ++iter)
+    for (LLXMLAttribList::const_iterator iter = mAttributes.begin();
+        iter != mAttributes.end(); ++iter)
     {
         LLXMLNodePtr temp_ptr_for_gcc(iter->second->deepCopy());
         newnode->addChild(temp_ptr_for_gcc);
@@ -1574,22 +1576,22 @@ const char *LLXMLNode::parseFloat(const char *str, F64 *dest, U32 precision, Enc
     {
         str = skipWhitespace(str);
 
-        if (memcmp(str, "inf", 3) == 0)
+        if (strncmp(str, "inf", 3) == 0)
         {
             *(U64 *)dest = 0x7FF0000000000000ll;
             return str + 3;
         }
-        if (memcmp(str, "-inf", 4) == 0)
+        if (strncmp(str, "-inf", 4) == 0)
         {
             *(U64 *)dest = 0xFFF0000000000000ll;
             return str + 4;
         }
-        if (memcmp(str, "1.#INF", 6) == 0)
+        if (strncmp(str, "1.#INF", 6) == 0)
         {
             *(U64 *)dest = 0x7FF0000000000000ll;
             return str + 6;
         }
-        if (memcmp(str, "-1.#INF", 7) == 0)
+        if (strncmp(str, "-1.#INF", 7) == 0)
         {
             *(U64 *)dest = 0xFFF0000000000000ll;
             return str + 7;

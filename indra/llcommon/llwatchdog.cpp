@@ -31,6 +31,8 @@
 #include "llmutex.h"
 #include "llthread.h"
 
+#include <sstream>
+
 constexpr U32 WATCHDOG_SLEEP_TIME_USEC = 1000000U;
 
 // This class runs the watchdog timing thread.
@@ -95,7 +97,9 @@ void LLWatchdogEntry::stop()
 }
 std::string LLWatchdogEntry::getThreadName() const
 {
-    return mThreadName + llformat(": %d", mThreadID);
+    std::ostringstream id_stream;
+    id_stream << mThreadID;
+    return mThreadName + ": " + id_stream.str();
 }
 
 // LLWatchdogTimeout

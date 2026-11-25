@@ -537,7 +537,30 @@ attributedStringInfo getSegments(NSAttributedString *str)
         (ch < 0xF700 || ch > 0xF8FF))  // 0xF700-0xF8FF: reserved for function keys on the keyboard(from NSEvent.h)
     {
         [(LLAppDelegate*)[NSApp delegate] showInputWindow:true withEvent:theEvent];
-    } else
+    }
+    else if ([theEvent isARepeat] && !mMarkedTextAllowed && !mHasMarkedText && !callKeyboardFocusAcceptsText())
+    {
+        if (mModifiers & (NSEventModifierFlagControl | NSEventModifierFlagCommand))
+        {
+            return;
+        }
+        // Held keys outside text input (e.g. WASD movement) must bypass the input context,
+        // otherwise macOS press-and-hold pops up the accent character menu. See #3841
+        NSString *chars = [theEvent characters];
+        for (NSUInteger i = 0; i < [chars length]; i++)
+        {
+            unichar c = [chars characterAtIndex:i];
+            if (c == '\r' || c == NSEnterCharacter)
+            {
+                [self insertNewline:self];
+            }
+            else if (c >= ' ' && c != NSDeleteCharacter && (c < 0xF700 || c > 0xF8FF))
+            {
+                callUnicodeCallback(c, mModifiers);
+            }
+        }
+    }
+    else
     {
         [[self inputContext] handleEvent:theEvent];
     }

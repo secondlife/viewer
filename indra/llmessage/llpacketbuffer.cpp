@@ -60,6 +60,72 @@ LLPacketBuffer::~LLPacketBuffer ()
 {
 }
 
+// Only the live mSize bytes of mData are copied, not the full
+// NET_BUFFER_SIZE array. See the comment on these declarations in
+// llpacketbuffer.h and the class comment on LLPacketRing.
+LLPacketBuffer::LLPacketBuffer(const LLPacketBuffer& other)
+    : mSize(other.mSize),
+    mHost(other.mHost),
+    mReceivingIF(other.mReceivingIF),
+    mPacketIDChecked(other.mPacketIDChecked)
+{
+    if (mSize > 0)
+    {
+        memcpy(mData, other.mData, mSize);
+    }
+}
+
+LLPacketBuffer& LLPacketBuffer::operator=(const LLPacketBuffer& other)
+{
+    if (this != &other)
+    {
+        mSize = other.mSize;
+        mHost = other.mHost;
+        mReceivingIF = other.mReceivingIF;
+        mPacketIDChecked = other.mPacketIDChecked;
+        if (mSize > 0)
+        {
+            memcpy(mData, other.mData, mSize);
+        }
+    }
+    return *this;
+}
+
+LLPacketBuffer::LLPacketBuffer(LLPacketBuffer&& other) noexcept
+    : mSize(other.mSize),
+    mHost(other.mHost),
+    mReceivingIF(other.mReceivingIF),
+    mPacketIDChecked(other.mPacketIDChecked)
+{
+    if (mSize > 0)
+    {
+        memcpy(mData, other.mData, mSize);
+    }
+    // mData is a fixed inline array: there's nothing cheaper to "move" than
+    // a memcpy of the live bytes, so move and copy are identical in cost.
+    // Still worth having a distinct move overload so callers that write
+    // std::move(pkt) aren't silently falling back to a (more expensive, if
+    // mData were ever made larger) copy path.
+    other.mSize = 0;
+}
+
+LLPacketBuffer& LLPacketBuffer::operator=(LLPacketBuffer&& other) noexcept
+{
+    if (this != &other)
+    {
+        mSize = other.mSize;
+        mHost = other.mHost;
+        mReceivingIF = other.mReceivingIF;
+        mPacketIDChecked = other.mPacketIDChecked;
+        if (mSize > 0)
+        {
+            memcpy(mData, other.mData, mSize);
+        }
+        other.mSize = 0;
+    }
+    return *this;
+}
+
 void LLPacketBuffer::init(S32 hSocket)
 {
     mSize = receive_packet(hSocket, mData);

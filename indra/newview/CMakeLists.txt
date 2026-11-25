@@ -212,6 +212,7 @@ set(viewer_SOURCE_FILES
     llfloaterbuycurrencyhtml.cpp
     llfloaterbuyland.cpp
     llfloatercamera.cpp
+    llfloatercombatsettings.cpp
     llfloatercamerapresets.cpp
     llfloaterchangeitemthumbnail.cpp
     llfloaterchatmentionpicker.cpp
@@ -905,6 +906,7 @@ set(viewer_HEADER_FILES
     llfloaterchangeitemthumbnail.h
     llfloaterchatmentionpicker.h
     llfloatercamera.h
+    llfloatercombatsettings.h
     llfloaterchatvoicevolume.h
     llfloaterclassified.h
     llfloatercolorpicker.h
@@ -1074,6 +1076,7 @@ set(viewer_HEADER_FILES
     llinventoryitemslist.h
     llinventorylistener.h
     llinventorylistitem.h
+    llinventorycache.h
     llinventorymodel.h
     llinventorymodelbackgroundfetch.h
     llinventoryobserver.h
@@ -2393,6 +2396,27 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
             XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
             XCODE_ATTRIBUTE_DWARF_DSYM_FOLDER_PATH "${SYMBOLS_STAGING_DIR}/dSYMs")
 
+      # Prebuilt OpenAL ships dSYM in /lib/release.
+      if (USE_OPENAL)
+        add_custom_command(
+          OUTPUT "${SYMBOLS_STAGING_DIR}/dSYMs/libopenal.dylib.dSYM"
+                 "${SYMBOLS_STAGING_DIR}/dSYMs/libalut.dylib.dSYM"
+          COMMAND ${CMAKE_COMMAND} -E make_directory "${SYMBOLS_STAGING_DIR}/dSYMs"
+          COMMAND ${CMAKE_COMMAND} -E copy_directory
+                  "${ARCH_PREBUILT_DIRS_RELEASE}/libopenal.dylib.dSYM"
+                  "${SYMBOLS_STAGING_DIR}/dSYMs/libopenal.dylib.dSYM"
+          COMMAND ${CMAKE_COMMAND} -E copy_directory
+                  "${ARCH_PREBUILT_DIRS_RELEASE}/libalut.dylib.dSYM"
+                  "${SYMBOLS_STAGING_DIR}/dSYMs/libalut.dylib.dSYM"
+          COMMENT "Copying prebuilt OpenAL dSYMs into symbol staging directory"
+          VERBATIM
+          )
+        add_custom_target(copy_openal_dsyms DEPENDS
+          "${SYMBOLS_STAGING_DIR}/dSYMs/libopenal.dylib.dSYM"
+          "${SYMBOLS_STAGING_DIR}/dSYMs/libalut.dylib.dSYM"
+          )
+      endif ()
+
       add_custom_command(OUTPUT "${VIEWER_APP_XCARCHIVE}"
         COMMAND "zip"
         ARGS
@@ -2400,7 +2424,7 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
           "${VIEWER_APP_XCARCHIVE}"
             "${VIEWER_CHANNEL}"
           WORKING_DIRECTORY "${SYMBOLS_STAGING_DIR}/.."
-          DEPENDS "${VIEWER_BINARY_NAME}" llwebrtc
+          DEPENDS "${VIEWER_BINARY_NAME}" llwebrtc $<$<BOOL:${USE_OPENAL}>:copy_openal_dsyms>
           COMMENT "Generating ${VIEWER_APP_XCARCHIVE} for upload to BugSplat"
         )
       add_custom_target(generate_symbols DEPENDS
