@@ -37,7 +37,7 @@
 	<text name="key_label">
 		Raccourci :
 	</text>
-	<combo_box label="Aucun" name="modifier_combo" width="55"/>
+	<combo_box label="Aucun" name="modifier_combo"/>
 	<combo_box label="Aucun" name="key_combo" width="55"/>
 	<text name="library_label">
 		Bibliothèque :

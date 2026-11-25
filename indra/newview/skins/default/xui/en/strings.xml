@@ -2538,6 +2538,7 @@ If you continue to receive this message, please contact Second Life support for 
 	<!-- keyboard -->
 	<string name="KBShift">Shift</string>
 	<string name="KBCtrl">Ctrl</string>
+	<string name="KBAlt">Alt</string>
 
 	<!-- Avatar Skeleton -->
 	<string name="Chest">Chest</string>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  legacy_header_height="18"
- height="475"
- min_height="475"
+ height="497"
+ min_height="497"
  layout="topleft"
  name="gesture_preview"
  help_topic="gesture_preview"
@@ -128,10 +128,10 @@
      height="20"
      label="None"
      layout="topleft"
-     left_delta="135"
+     left_delta="0"
      name="modifier_combo"
-     top_delta="-4"
-     width="55" />
+     top_pad="4"
+     width="90" />
     <combo_box
      height="20"
      label="None"
@@ -160,7 +160,7 @@
      layout="topleft"
      left="10"
      name="library_list"
-     top_delta="15"
+     top_delta="19"
      width="180">
         <scroll_list.rows
          name="action_animation"
@@ -239,7 +239,7 @@
      layout="topleft"
      left="15"
      name="options_text"
-     top="315"
+     top="337"
      width="205">
 	 (options)
 	 </text>
@@ -249,7 +249,7 @@
      layout="topleft"
      left_delta="15"
      name="animation_list"
-     top="330"
+     top="352"
      width="100"/>
     <combo_box
      follows="top|left"
@@ -257,7 +257,7 @@
      layout="topleft"
      left_delta="0"
      name="sound_list"
-     top="330"
+     top="352"
      width="100" />
     <line_editor
      follows="top|left"
@@ -266,7 +266,7 @@
      left_delta="0"
      max_length_bytes="127"
      name="chat_editor"
-     top="330"
+     top="352"
      width="100" />
     <radio_group
      draw_border="false"
@@ -275,7 +275,7 @@
      layout="topleft"
      left_pad="8"
      name="animation_trigger_type"
-     top="330"
+     top="352"
      width="80">
         <radio_item
          height="16"
@@ -301,7 +301,7 @@
      layout="topleft"
      left="28"
      name="wait_key_release_check"
-     top="330"
+     top="352"
      width="100" />
     <check_box
      follows="top|left"
