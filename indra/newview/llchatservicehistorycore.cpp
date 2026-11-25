@@ -917,10 +917,10 @@ Messages mergeDirectHistory(const Messages& loaded, const Messages& incoming)
     return left.legacy;
 }
 
-void History::setLoaded(const Messages& messages)
+void History::setLoaded(Messages messages)
 {
-    mLoaded = messages;
-    if (messages.empty())
+    mLoaded = std::move(messages);
+    if (mLoaded.empty())
     {
         mVisible.clear();
     }
