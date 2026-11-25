@@ -241,7 +241,8 @@ bool LLWeb::useExternalBrowser(const std::string &url)
         up.extractParts();
         std::string uri_string = up.host();
 
-        boost::regex pattern = boost::regex("\\b(lindenlab.com|secondlife.com|secondlife.io)$", boost::regex::perl|boost::regex::icase);
+        // The host must be one of these domains or a subdomain of one, not just end with their letters
+        boost::regex pattern = boost::regex("(^|\\.)(lindenlab\\.com|secondlife\\.com|secondlife\\.io)$", boost::regex::perl|boost::regex::icase);
         boost::match_results<std::string::const_iterator> matches;
         return !(ll_regex_search(uri_string, matches, pattern));
     }

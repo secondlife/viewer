@@ -32,6 +32,7 @@ in vec2 vary_texcoord0;
 in vec2 screenpos;
 
 uniform sampler2D diffuseMap;
+uniform sampler2D altDiffuseMap;
 uniform float blend_factor;
 uniform float custom_alpha;
 uniform float time;
@@ -49,8 +50,8 @@ void main()
     // camera above water: class1\deferred\starsF.glsl
     // camera below water: class1\environment\starsF.glsl
     vec4 col_a = texture(diffuseMap, vary_texcoord0.xy);
-    vec4 col_b = texture(diffuseMap, vary_texcoord0.xy);
-    vec4 col = mix(col_b, col_a, blend_factor);
+    vec4 col_b = texture(altDiffuseMap, vary_texcoord0.xy);
+    vec4 col = mix(col_a, col_b, blend_factor);
     col.rgb *= vertex_color.rgb;
 
     float factor = smoothstep(0.0f, 0.9f, custom_alpha);

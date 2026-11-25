@@ -35,11 +35,19 @@
 
 #include <boost/json.hpp>
 #include <fstream>
+#include <limits>
 #include <unordered_map>
 #include "llnotificationsutil.h"
-#include "llviewercontrol.h"
 #include "llappviewer.h"
 #include "llcoros.h"
+#include "llsdserialize.h"
+#include "llprogressview.h"
+#include "llstartup.h"
+#include "lltrans.h"
+#include "llviewercontrol.h"
+#include "llviewerwindow.h"
+#include "llvvmquery.h"
+#include "llweb.h"
 
 #include "Velopack.h"
 
@@ -68,18 +76,303 @@ static vpkc_update_manager_t* sUpdateManager = nullptr;
 static vpkc_update_info_t* sPendingUpdate = nullptr;        // Downloaded, ready to apply
 static vpkc_update_info_t* sPendingCheckInfo = nullptr;     // Checked, awaiting user response
 static vpkc_update_source_t* sUpdateSource = nullptr;
-static LLNotificationPtr sDownloadingNotification;
 static bool sRestartAfterUpdate = false;
 static bool sIsRequired = false;                             // Is the pending check a required update?
 static std::string sReleaseNotesUrl;
 static std::string sTargetVersion;                           // Velopack's actual target version
+static bool sShowingDownloadProgress = false;
+static bool sSilentRequiredUpdate = false;                    // Suppress PauseForUpdate prompt / progress view on next required check
+static bool sRequiredDownloadPendingReveal = false;
+static bool sLoginRequiredUpdate = false;
+static bool sDownloadInProgress = false;
 
 // Forward declarations
 static void show_required_update_prompt();
-static void show_downloading_notification(const std::string& version);
 static void ensure_update_manager(bool allow_downgrade);
-static void velopack_download_pending_update();
+static bool velopack_download_pending_update();
 static std::unordered_map<std::string, std::string> sAssetUrlMap; // basename -> original absolute URL
+
+//
+// Version comparison helper
+//
+
+// Compare running version against a VVM version string "major.minor.patch.build".
+// Returns -1 if running < vvm, 0 if equal, 1 if running > vvm.
+static int compare_running_version(const std::string& vvm_version)
+{
+    S32 major = 0, minor = 0, patch = 0;
+    U64 build = 0;
+    sscanf(vvm_version.c_str(), "%d.%d.%d.%llu", &major, &minor, &patch, &build);
+
+    const LLVersionInfo& vi = LLVersionInfo::instance();
+    S32 cur_major = vi.getMajor();
+    S32 cur_minor = vi.getMinor();
+    S32 cur_patch = vi.getPatch();
+    U64 cur_build = vi.getBuild();
+
+    if (cur_major != major) return cur_major < major ? -1 : 1;
+    if (cur_minor != minor) return cur_minor < minor ? -1 : 1;
+    if (cur_patch != patch) return cur_patch < patch ? -1 : 1;
+    if (cur_build != build) return cur_build < build ? -1 : 1;
+    return 0;
+}
+
+//
+// 'skip version' support helpers
+//
+
+static std::string get_skip_file_path()
+{
+    return gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "velopack_skip.xml");
+}
+
+static void load_skip_map(LLSD& skip_map_out)
+{
+    std::string path = get_skip_file_path();
+    llifstream in_file(path, std::ios::binary);
+    if (!in_file.is_open())
+    {
+        return;
+    }
+    LLSDSerialize::fromXML(skip_map_out, in_file);
+    in_file.close();
+}
+
+static void save_skip_map(const LLSD& skip_map)
+{
+    std::string path = get_skip_file_path();
+    llofstream out_file(path, std::ios::binary | std::ios::trunc);
+    if (!out_file.is_open())
+    {
+        LL_WARNS("Velopack") << "Failed to write skip file: " << path << LL_ENDL;
+        return;
+    }
+
+    LLSDSerialize::toPrettyXML(skip_map, out_file);
+    out_file.close();
+}
+
+// Returns true if 'version' was previously skipped on the current channel.
+static bool is_version_skipped(const std::string& channel, const std::string& skip_version)
+{
+    LLSD skip_map;
+    load_skip_map(skip_map);
+    if (!skip_map.isMap())
+    {
+        return false;
+    }
+
+    // Might be better to use path instead of channel,
+    // but channels can be used to get different update sources.
+    LLSD& channel_array = skip_map[channel];
+    if (!channel_array.isArray() || channel_array.isEmpty())
+    {
+        return false;
+    }
+    LLSD::array_const_iterator end = channel_array.endArray();
+    LLSD::array_const_iterator i = channel_array.beginArray();
+
+    // first value is always the version used for creating the record.
+    std::string version = (*i).asString();
+    if (compare_running_version(version))
+    {
+        // Version has changed, the list is obsolete (don't change it just in case).
+        return false;
+    }
+    i++;
+
+    for (; i != end; ++i)
+    {
+        if (*i == skip_version)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Records that 'version' should be skipped on the current channel.
+// Overwrites any prior entry for this channel (self-clearing on version change).
+static void set_skipped_version(const std::string& channel, const std::string& skip_version)
+{
+    bool reset_array = false;
+    LLSD skip_map;
+    load_skip_map(skip_map);
+    if (skip_map.isMap())
+    {
+        LLSD& channel_array = skip_map[channel];
+        if (channel_array.isArray() && !channel_array.isEmpty())
+        {
+            // first record should be the version used for creating the record.
+            std::string version = channel_array[0].asString();
+            if (compare_running_version(version))
+            {
+                // Version has changed, clear the list.
+                reset_array = true;
+            }
+        }
+        else
+        {
+            reset_array = true;
+        }
+    }
+    else
+    {
+        skip_map = LLSD::emptyMap();
+        reset_array = true;
+    }
+
+    if (reset_array)
+    {
+        LLSD channel_array = LLSD::emptyArray();
+
+        const LLVersionInfo& vi = LLVersionInfo::instance();
+        S32 cur_major = vi.getMajor();
+        S32 cur_minor = vi.getMinor();
+        S32 cur_patch = vi.getPatch();
+        U64 cur_build = vi.getBuild();
+        std::string cur_version = llformat("%d.%d.%d.%llu", cur_major, cur_minor, cur_patch, cur_build);
+        channel_array.append(cur_version);
+        channel_array.append(skip_version);
+        skip_map[channel] = channel_array;
+    }
+    else
+    {
+        skip_map[channel].append(skip_version);
+    }
+    save_skip_map(skip_map);
+}
+
+//
+// Download progress UI (uses llprogressview)
+//
+static void show_downloading_progress(const std::string& version)
+{
+    if (!gViewerWindow)
+        return;
+
+    if (STATE_STARTED == LLStartUp::getStartupState())
+    {
+        // Already inworld, we shouldn't just quit on the user
+        // and shouldn't interrupt the 'experience' just for the sake of waiting
+        return;
+    }
+
+    // don't override progress if we're already showing it
+    if (!sShowingDownloadProgress)
+    {
+        gViewerWindow->setProgressPercent(0.f);
+    }
+
+    // Note that login.cgi requested update might trigger progress
+    // bar in velopack_set_silent.
+    sShowingDownloadProgress = true;
+    gViewerWindow->setShowProgress(true);
+    gViewerWindow->setProgressString(LLTrans::getString("UpdaterProgressBarTextWithEllipses"));
+
+    // Since we aren't logged in yet, this should show and handle as a 'quit' button.
+    gViewerWindow->setProgressCancelButtonVisible(true, LLTrans::getString("Quit"));
+
+    LLStringUtil::format_map_t args;
+    args["VERSION"] = version;
+    gViewerWindow->setProgressMessage(LLTrans::getString("UpdaterProgressDownloadingUpdate", args));
+}
+
+void velopack_dismiss_downloading_progress_view()
+{
+    if (!gViewerWindow || !sShowingDownloadProgress)
+        return;
+
+    sShowingDownloadProgress = false;
+
+    // Only hide the progress view if we still appear to own it. If shutdown
+    // has taken it over in the meantime (e.g. user quit mid-download), leave
+    // it alone -- LLAppViewer::idleShutdown() will keep driving it.
+    if (!LLAppViewer::instance()->quitRequested())
+    {
+        gViewerWindow->setShowProgress(false);
+    }
+}
+
+bool velopack_is_download_in_progress()
+{
+    return sDownloadInProgress;
+}
+
+
+static void update_failed_dialog_callback(const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (0 == option)
+    {
+        // Open download page in browser
+        std::string url = notification["substitutions"]["URL"].asString();
+        LLWeb::loadURLExternal(url);
+    }
+}
+
+static void show_update_download_failed_notification()
+{
+    LLSD args;
+    args["URL"] = LLTrans::getString("ViewerDownloadURL");
+    if (!LLAppViewer::instance()->quitRequested())
+    {
+        LLNotificationsUtil::add("UpdateDownloadFailed", args, LLSD(), update_failed_dialog_callback);
+    }
+}
+
+void velopack_set_silent(bool silent)
+{
+    sSilentRequiredUpdate = silent;
+    if (sSilentRequiredUpdate)
+    {
+        sLoginRequiredUpdate = true;
+        // no progress should be visible, just quit
+        return;
+    }
+
+    if (velopack_is_update_pending())
+    {
+        // Already have an update, no point to show progress.
+        // If we got here, user got bounced to login by a required update check,
+        // no point checking login state or prompting user to quit.
+        LL_INFOS("Velopack") << "Required update downloaded, quitting to apply" << LL_ENDL;
+        velopack_request_restart_after_update();
+        LLAppViewer::instance()->requestQuit();
+        sRequiredDownloadPendingReveal = false;
+        return;
+    }
+
+    if (sRequiredDownloadPendingReveal)
+    {
+        // There is an ongoing server-required download, show progress.
+        sRequiredDownloadPendingReveal = false;
+        show_downloading_progress(sTargetVersion);
+        return;
+    }
+
+    if (hasPendingVVMUpdateCheck() && !sShowingDownloadProgress)
+    {
+        if (!gViewerWindow || STATE_STARTED == LLStartUp::getStartupState())
+        {
+            // Shouldn't happen at this point, just a sanity check.
+            llassert(false);
+            return;
+        }
+
+        // User closed "RequiredUpdate", but velopack has no info about the update yet.
+        // Server requested it, so assume that velopack will get the update and show progress.
+
+        sShowingDownloadProgress = true;
+        gViewerWindow->setShowProgress(true);
+        gViewerWindow->setProgressPercent(0.f);
+        gViewerWindow->setProgressString(LLTrans::getString("UpdaterProgressBarCheckingText"));
+
+        // Since we aren't logged in yet, this should show and handle as a 'quit' button.
+        gViewerWindow->setProgressCancelButtonVisible(true, LLTrans::getString("Quit"));
+        gViewerWindow->setProgressMessage(LLTrans::getString("UpdaterUpdatingDescriptive"));
+    }
+}
 
 //
 // Custom update source helpers
@@ -159,33 +452,186 @@ static std::string download_url_raw(const std::string& url)
     return std::string(rawBody.begin(), rawBody.end());
 }
 
+static bool parse_content_range_total(const std::string& content_range, size_t& out_total)
+{
+    // Expected form: "bytes <first>-<last>/<total>" (or ".../*" if server doesn't know total)
+    auto slash = content_range.rfind('/');
+    if (slash == std::string::npos || slash + 1 >= content_range.size())
+        return false;
+
+    std::string total_str = content_range.substr(slash + 1);
+    if (total_str == "*")
+        return false;
+
+    char* end = nullptr;
+    unsigned long long total = llstrtou64(total_str.c_str(), &end, 10);
+    if (end == total_str.c_str() || total == 0)
+        return false;
+
+    while (*end == ' ' || *end == '\t')
+    {
+        ++end;
+    }
+    if (*end != '\0' || total > (std::numeric_limits<size_t>::max)())
+        return false;
+
+    out_total = static_cast<size_t>(total);
+    return true;
+}
+
 static bool download_url_to_file(const std::string& url, const std::string& local_path)
 {
+    // To support progress percentage, do the download in chunks.
+    // Treat range as 0-95% of progress bar, leaving 5% for final file copy operation
+    constexpr size_t CHUNK_SIZE = 1024 * 1024; // 1MB
+
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     auto httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("VelopackDownload", httpPolicy);
     auto httpRequest = std::make_shared<LLCore::HttpRequest>();
     auto httpOpts = std::make_shared<LLCore::HttpOptions>();
     httpOpts->setFollowRedirects(true);
     httpOpts->setTransferTimeout(1200);
+    httpOpts->setWantHeaders(true);
 
-    LLSD result = httpAdapter->getRawAndSuspend(httpRequest, url, httpOpts);
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-    if (!status)
-    {
-        LL_WARNS("Velopack") << "Download failed for " << url << ": " << status.toString() << LL_ENDL;
-        return false;
-    }
-
-    const LLSD::Binary& rawBody = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
     llofstream outFile(local_path, std::ios::binary | std::ios::trunc);
     if (!outFile.is_open())
     {
         LL_WARNS("Velopack") << "Failed to open file for writing: " << local_path << LL_ENDL;
         return false;
     }
-    outFile.write(reinterpret_cast<const char*>(rawBody.data()), rawBody.size());
+
+    size_t offset = 0;
+    size_t total_size = 0; // discovered from first response's Content-Range header; 0 = unknown
+    bool first_chunk = true;
+    std::error_code ec;
+
+    for (;;)
+    {
+        LLSD result = httpAdapter->getRawRangeAndSuspend(httpRequest, url, offset, CHUNK_SIZE, httpOpts);
+        LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+        // In case user quits during download.
+        LLCoros::checkStop();
+
+        if (!status)
+        {
+            if (status.getType() == 416 && offset > 0 && total_size == 0)
+            {
+                // With no advertised total, an exact-size final range is
+                // followed by an unsatisfiable request at EOF.
+                outFile.close();
+                LL_INFOS("Velopack") << "Downloaded " << offset << " bytes to " << local_path << LL_ENDL;
+                return true;
+            }
+
+            LL_WARNS("Velopack") << "Chunk download failed for " << url
+                << " at offset " << offset << ": " << status.toString() << LL_ENDL;
+            outFile.close();
+            return false;
+        }
+
+        const LLSD::Binary& rawBody = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
+
+        if (first_chunk)
+        {
+            first_chunk = false;
+
+            S32 http_status = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_TYPE].asInteger();
+            if (http_status != 206)
+            {
+                // Server ignored (or doesn't support) our Range request and
+                // returned the full body in one shot (200 OK). Treat this
+                // single response as the complete file - do NOT loop again,
+                // or we'll re-request and duplicate/corrupt the output.
+                LL_INFOS("Velopack") << "Server returned status " << http_status
+                    << " instead of 206 - range requests not supported, "
+                    << "downloading as a single response (" << rawBody.size()
+                    << " bytes)" << LL_ENDL;
+
+                outFile.write(reinterpret_cast<const char*>(rawBody.data()), rawBody.size());
+                if (outFile.fail() || outFile.bad())
+                {
+                    LL_WARNS("Velopack") << "Failed to write to file: " << local_path << LL_ENDL;
+                    outFile.close();
+                    return false;
+                }
+                outFile.close();
+
+                // Treat range as 0-95% of progress bar, leaving 5% for final file copy operation
+                if (sProgressCallback)
+                {
+                    sProgressCallback(95);
+                }
+                if (gViewerWindow && sShowingDownloadProgress)
+                {
+                    gViewerWindow->setProgressPercent(95.f);
+                }
+
+                LL_INFOS("Velopack") << "Downloaded " << rawBody.size() << " bytes to " << local_path << LL_ENDL;
+                return true;
+            }
+
+            // Genuine 206 - try to learn the total size from Content-Range.
+            LLSD httpHeaders = httpResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
+            if (httpHeaders.has("content-range"))
+            {
+                size_t parsed_total = 0;
+                if (parse_content_range_total(httpHeaders["content-range"].asString(), parsed_total))
+                {
+                    total_size = parsed_total;
+                }
+            }
+
+            if (rawBody.empty())
+            {
+                // No data from first packet, treat as a failure.
+                outFile.close();
+                return false;
+            }
+        }
+
+        if (rawBody.empty())
+        {
+            break; // no more data
+        }
+
+        outFile.write(reinterpret_cast<const char*>(rawBody.data()), rawBody.size());
+        if (outFile.fail() || outFile.bad())
+        {
+            LL_WARNS("Velopack") << "Failed to write to file: " << local_path << LL_ENDL;
+            outFile.close();
+            return false;
+        }
+
+        offset += rawBody.size();
+
+        if (total_size > 0)
+        {
+            // Treat range as 0-95% of progress bar, leaving 5% for final file copy operation
+            if (sProgressCallback)
+            {
+                int pct = static_cast<int>((static_cast<U64>(offset) * 95) / total_size);
+                sProgressCallback(pct);
+            }
+            if (gViewerWindow && sShowingDownloadProgress)
+            {
+                gViewerWindow->setProgressPercent(static_cast<F32>(offset) * 95.f / static_cast<F32>(total_size));
+            }
+
+            if (offset >= total_size)
+                break; // got everything
+        }
+        else if (rawBody.size() < CHUNK_SIZE)
+        {
+            // 206 responses but no Content-Range/total known, and this
+            // chunk came back short - treat as end of stream.
+            break;
+        }
+    }
+
     outFile.close();
+    LL_INFOS("Velopack") << "Downloaded " << offset << " bytes to " << local_path << LL_ENDL;
     return true;
 }
 
@@ -1033,9 +1479,22 @@ static void on_log_message(void* user_data, const char* level, const char* messa
 
 static void on_progress(void* user_data, size_t progress)
 {
+    // Download happens using getRawRangeAndSuspend, it tracks progress independently.
+    // This is a final 'file copy' callback, progress is either 0 or 100. Map it to 95-100%.
+    int final_progress = 95;
+    if (progress > 0)
+    {
+        final_progress = 100;
+    }
+
     if (sProgressCallback)
     {
-        sProgressCallback(static_cast<int>(progress));
+        sProgressCallback(final_progress);
+    }
+    if (gViewerWindow
+        && sShowingDownloadProgress) // check if we 'own' it, to not fight with shutdown progress bar
+    {
+        gViewerWindow->setProgressPercent(static_cast<F32>(final_progress));
     }
 }
 
@@ -1044,31 +1503,6 @@ static void on_vpk_log(void* p_user_data,
     const char* psz_message)
 {
     LL_DEBUGS("Velopack") << ll_safe_string(psz_message) << LL_ENDL;
-}
-
-//
-// Version comparison helper
-//
-
-// Compare running version against a VVM version string "major.minor.patch.build".
-// Returns -1 if running < vvm, 0 if equal, 1 if running > vvm.
-static int compare_running_version(const std::string& vvm_version)
-{
-    S32 major = 0, minor = 0, patch = 0;
-    U64 build = 0;
-    sscanf(vvm_version.c_str(), "%d.%d.%d.%llu", &major, &minor, &patch, &build);
-
-    const LLVersionInfo& vi = LLVersionInfo::instance();
-    S32 cur_major = vi.getMajor();
-    S32 cur_minor = vi.getMinor();
-    S32 cur_patch = vi.getPatch();
-    U64 cur_build = vi.getBuild();
-
-    if (cur_major != major) return cur_major < major ? -1 : 1;
-    if (cur_minor != minor) return cur_minor < minor ? -1 : 1;
-    if (cur_patch != patch) return cur_patch < patch ? -1 : 1;
-    if (cur_build != build) return cur_build < build ? -1 : 1;
-    return 0;
 }
 
 //
@@ -1210,14 +1644,39 @@ bool velopack_initialize()
     return true;
 }
 
+static void clear_failed_required_update()
+{
+    if (!sIsRequired)
+        return;
+
+    if (sPendingCheckInfo)
+    {
+        vpkc_free_update_info(sPendingCheckInfo);
+        sPendingCheckInfo = nullptr;
+    }
+    sIsRequired = false;
+}
+
 // Downloads the update that was found during the check phase.
 // Operates on sPendingCheckInfo which was set by velopack_check_for_updates.
-static void velopack_download_pending_update()
+static bool velopack_download_pending_update()
 {
+    if (sDownloadInProgress)
+    {
+        LL_WARNS("Velopack") << "Update download already in progress" << LL_ENDL;
+        return false;
+    }
+
+    struct DownloadInProgressGuard
+    {
+        DownloadInProgressGuard() { sDownloadInProgress = true; }
+        ~DownloadInProgressGuard() { sDownloadInProgress = false; }
+    } download_in_progress_guard;
+
     if (!sUpdateManager || !sPendingCheckInfo)
     {
         LL_WARNS("Velopack") << "No pending check info to download" << LL_ENDL;
-        return;
+        return false;
     }
 
     LL_DEBUGS("Velopack") << "Setting up detailed logging";
@@ -1251,7 +1710,8 @@ static void velopack_download_pending_update()
     {
         LL_WARNS("Velopack") << "Failed to pre-download update asset" << LL_ENDL;
         sPreDownloadedAssetPath.clear();
-        return;
+        clear_failed_required_update();
+        return false;
     }
 
     LL_INFOS("Velopack") << "Pre-download complete, handing to Velopack" << LL_ENDL;
@@ -1264,54 +1724,68 @@ static void velopack_download_pending_update()
         sPendingUpdate = sPendingCheckInfo;
         sPendingCheckInfo = nullptr; // Ownership transferred
         LL_INFOS("Velopack") << "Update downloaded and pending" << LL_ENDL;
+        return true;
+    }
+
+    char descr[512];
+    vpkc_get_last_error(descr, sizeof(descr));
+    LL_WARNS("Velopack") << "Failed to download update: " << ll_safe_string((const char*)descr) << LL_ENDL;
+
+    clear_failed_required_update();
+    return false;
+}
+
+static void on_update_ready_to_install_response(const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option == 0) // "Quit and Install"
+    {
+        LL_INFOS("Velopack") << "User confirmed quitting in-world to apply update" << LL_ENDL;
+        velopack_request_restart_after_update();
+        LLAppViewer::instance()->requestQuit();
     }
     else
     {
-        char descr[512];
-        vpkc_get_last_error(descr, sizeof(descr));
-        LL_WARNS("Velopack") << "Failed to download update: " << ll_safe_string((const char*)descr) << LL_ENDL;
+        LL_INFOS("Velopack") << "User deferred installing downloaded update while in-world" << LL_ENDL;
     }
 }
 
-static void on_downloading_closed(const LLSD& notification, const LLSD& response)
+static void offer_install_downloaded_update()
 {
-    sDownloadingNotification = nullptr;
-    if (sIsRequired)
+    if (LLStartUp::getStartupState() >= STATE_STARTED)
     {
-        // User closed the downloading dialog during a required update - re-show it
-        show_downloading_notification(sTargetVersion);
+        LL_INFOS("Velopack") << "Update downloaded while already logged in, prompting before quitting" << LL_ENDL;
+        LLSD args;
+        args["VERSION"] = sTargetVersion;
+        LLNotificationsUtil::add("UpdateReadyToInstall", args, LLSD(), on_update_ready_to_install_response);
+        return;
     }
-}
 
-static void show_downloading_notification(const std::string& version)
-{
-    LLSD args;
-    args["VERSION"] = version;
-    sDownloadingNotification = LLNotificationsUtil::add("DownloadingUpdate", args, LLSD(), on_downloading_closed);
-}
+    velopack_request_restart_after_update();
 
-static void dismiss_downloading_notification()
-{
-    if (sDownloadingNotification)
-    {
-        LLNotificationsUtil::cancel(sDownloadingNotification);
-        sDownloadingNotification = nullptr;
-    }
+    LL_INFOS("Velopack") << "Update downloaded, quitting to apply" << LL_ENDL;
+    LLAppViewer::instance()->requestQuit();
 }
 
 static void on_required_update_response(const LLSD& notification, const LLSD& response)
 {
     LL_INFOS("Velopack") << "Required update acknowledged, starting download" << LL_ENDL;
-    show_downloading_notification(sTargetVersion);
+    show_downloading_progress(sTargetVersion);
     LLCoros::instance().launch("VelopackRequiredUpdate", []()
     {
-        velopack_download_pending_update();
-        dismiss_downloading_notification();
-        if (velopack_is_update_pending())
+        bool downloaded = velopack_download_pending_update();
+        velopack_dismiss_downloading_progress_view();
+        if (downloaded && velopack_is_update_pending())
         {
             LL_INFOS("Velopack") << "Required update downloaded, quitting to apply" << LL_ENDL;
-            velopack_request_restart_after_update();
-            LLAppViewer::instance()->requestQuit();
+            // Note that if viewer was slow to check updates, user could already be online
+            // In which case we prompt, but do not enforce a restart, do not interrupt the
+            // experience, the update can wait.
+            offer_install_downloaded_update();
+        }
+        else if (!downloaded)
+        {
+            show_update_download_failed_notification();
         }
     });
 }
@@ -1319,23 +1793,39 @@ static void on_required_update_response(const LLSD& notification, const LLSD& re
 static void on_optional_update_response(const LLSD& notification, const LLSD& response)
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    // yesnocancelbuttons
+    // Yes(0) = "Install", No(1) = "Skip this version", Cancel(2) = "Cancel"
     if (option == 0) // "Install"
     {
         LL_INFOS("Velopack") << "User accepted optional update, starting download" << LL_ENDL;
-        show_downloading_notification(sTargetVersion);
+        show_downloading_progress(sTargetVersion);
         LLCoros::instance().launch("VelopackOptionalUpdate", []()
         {
-            velopack_download_pending_update();
-            dismiss_downloading_notification();
-            if (velopack_is_update_pending())
+            bool downloaded = velopack_download_pending_update();
+            velopack_dismiss_downloading_progress_view();
+            if (downloaded && velopack_is_update_pending())
             {
-                LL_INFOS("Velopack") << "Optional update downloaded, quitting to apply" << LL_ENDL;
-                velopack_request_restart_after_update();
-                LLAppViewer::instance()->requestQuit();
+                offer_install_downloaded_update();
+            }
+            else if (!downloaded)
+            {
+                show_update_download_failed_notification();
             }
         });
     }
-    else
+    else if (option == 1) // "Skip this version"
+    {
+        LL_INFOS("Velopack") << "Skipping version " << sTargetVersion
+            << " on channel '" << LLVersionInfo::instance().getChannel() << "'" << LL_ENDL;
+        set_skipped_version(LLVersionInfo::instance().getChannel(), sTargetVersion);
+        // Free the check info since user declined
+        if (sPendingCheckInfo)
+        {
+            vpkc_free_update_info(sPendingCheckInfo);
+            sPendingCheckInfo = nullptr;
+        }
+    }
+    else // Cancel
     {
         LL_INFOS("Velopack") << "User declined optional update (option=" << option << ")" << LL_ENDL;
         // Free the check info since user declined
@@ -1349,6 +1839,48 @@ static void on_optional_update_response(const LLSD& notification, const LLSD& re
 
 static void show_required_update_prompt()
 {
+    if (sSilentRequiredUpdate || sLoginRequiredUpdate)
+    {
+        // Triggered by login.cgi rejecting the login.
+        // Skip Velopack's own "PauseForUpdate" prompt entirely --
+        // the user is already seeing (or has already dismissed) the
+        // "RequiredUpdate" notification from LLLoginInstance. Start
+        // downloading immediately in the background; the progress view is
+        // revealed later via velopack_set_silent(false) once that
+        // notification is dismissed.
+        sRequiredDownloadPendingReveal = true;
+        LL_INFOS("Velopack") << "Required update (silent), starting background download for "
+            << sTargetVersion << LL_ENDL;
+        LLCoros::instance().launch("VelopackRequiredUpdateSilent", []()
+        {
+            bool downloaded = velopack_download_pending_update();
+            if (sRequiredDownloadPendingReveal && sSilentRequiredUpdate)
+            {
+                // Progress view was never revealed (user hasn't dismissed
+                // "RequiredUpdate" yet, or dismissed it very late) -- if the
+                // download already finished, just dismiss quietly here.
+                // App will quit once the user clicks 'ok' and triggers
+                // velopack_set_silent(false)
+
+                sRequiredDownloadPendingReveal = false;
+                velopack_dismiss_downloading_progress_view();
+            }
+            else
+            {
+                velopack_dismiss_downloading_progress_view();
+            }
+            if (!downloaded)
+            {
+                show_update_download_failed_notification();
+            }
+            if (!sSilentRequiredUpdate && velopack_is_update_pending())
+            {
+                offer_install_downloaded_update();
+            }
+        });
+        return;
+    }
+
     LLSD args;
     args["VERSION"] = sTargetVersion;
     args["URL"] = sReleaseNotesUrl;
@@ -1357,9 +1889,25 @@ static void show_required_update_prompt()
 
 void velopack_check_for_updates(const std::string& required_version, const std::string& relnotes_url)
 {
+    if (sDownloadInProgress)
+    {
+        LL_INFOS("Velopack") << "Update download already in progress, skipping redundant check" << LL_ENDL;
+        return;
+    }
+
+    const bool login_required = sLoginRequiredUpdate;
+
     if (sUpdateUrl.empty())
     {
         LL_DEBUGS("Velopack") << "No update URL set, skipping update check" << LL_ENDL;
+        if (login_required)
+        {
+            sLoginRequiredUpdate = false;
+            sSilentRequiredUpdate = false;
+            sRequiredDownloadPendingReveal = false;
+            show_update_download_failed_notification();
+        }
+        velopack_dismiss_downloading_progress_view();
         return;
     }
 
@@ -1368,9 +1916,22 @@ void velopack_check_for_updates(const std::string& required_version, const std::
     bool has_required = !required_version.empty();
     int ver_cmp = has_required ? compare_running_version(required_version) : 0;
     bool allow_downgrade = ver_cmp > 0; // running > required -> rollback scenario
+    bool is_required_floor = has_required && ver_cmp < 0; // running < required -> must update
     ensure_update_manager(allow_downgrade);
     if (!sUpdateManager)
+    {
+        LL_WARNS("Velopack") << "Failed to create update manager" << LL_ENDL;
+        if (is_required_floor || login_required)
+        {
+            sReleaseNotesUrl = relnotes_url;
+            sLoginRequiredUpdate = false;
+            sSilentRequiredUpdate = false;
+            sRequiredDownloadPendingReveal = false;
+            velopack_dismiss_downloading_progress_view();
+            show_update_download_failed_notification();
+        }
         return;
+    }
 
     // Ask Velopack to check its feed - this is the source of truth
     vpkc_update_info_t* update_info = nullptr;
@@ -1379,6 +1940,18 @@ void velopack_check_for_updates(const std::string& required_version, const std::
     if (result != UPDATE_AVAILABLE || !update_info)
     {
         LL_INFOS("Velopack") << "No update available from feed (result=" << result << ")" << LL_ENDL;
+        if (is_required_floor || login_required)
+        {
+            // The server told us (via VVM) that an update is required, but
+            // Velopack's own feed check failed/disagreed -- let the user know
+            // rather than leaving them stuck silently.
+            sReleaseNotesUrl = relnotes_url;
+            sLoginRequiredUpdate = false;
+            sSilentRequiredUpdate = false;
+            sRequiredDownloadPendingReveal = false;
+            velopack_dismiss_downloading_progress_view();
+            show_update_download_failed_notification();
+        }
         return;
     }
 
@@ -1398,7 +1971,7 @@ void velopack_check_for_updates(const std::string& required_version, const std::
     sPendingCheckInfo = update_info;
 
     // Determine if this is mandatory: running version is below VVM's required floor
-    bool is_required = ver_cmp < 0; // running < required -> must update
+    bool is_required = ver_cmp < 0 || login_required; // login.cgi also marks the update as required
     sIsRequired = is_required;
 
     if (is_required)
@@ -1406,11 +1979,16 @@ void velopack_check_for_updates(const std::string& required_version, const std::
         LL_INFOS("Velopack") << "Required update (running below " << required_version
                              << "), prompting user for " << target_version << LL_ENDL;
         show_required_update_prompt();
+        sLoginRequiredUpdate = false;
         return;
     }
 
     // Optional update - check user preference
     U32 updater_setting = gSavedSettings.getU32("UpdaterServiceSetting");
+
+    // Just in case update somehow restarted from a required one,
+    // it shouldn't have been up for an optional update
+    velopack_dismiss_downloading_progress_view();
 
     if (updater_setting == 3)
     {
@@ -1418,6 +1996,14 @@ void velopack_check_for_updates(const std::string& required_version, const std::
         LL_INFOS("Velopack") << "Optional update to " << target_version
                              << ", downloading automatically (UpdaterServiceSetting=3)" << LL_ENDL;
         velopack_download_pending_update();
+        return;
+    }
+
+    std::string channel = LLVersionInfo::instance().getChannel();
+    if (is_version_skipped(channel, target_version))
+    {
+        LL_INFOS("Velopack") << "Version " << target_version << " was previously skipped on channel '"
+            << channel << "', not prompting" << LL_ENDL;
         return;
     }
 

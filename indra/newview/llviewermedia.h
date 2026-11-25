@@ -511,6 +511,7 @@ private:
     void mimeDiscoveryCoro(std::string url);
     LLCoreHttpUtil::HttpCoroutineAdapter::wptr_t mMimeProbe;
     bool mCanceling;
+    U32 mPluginInitGeneration = 0;
 
 private:
     LLViewerMediaTexture *updateMediaImage();

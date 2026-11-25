@@ -6443,15 +6443,6 @@ void handle_force_delete()
     LLSelectMgr::getInstance()->selectForceDelete();
 }
 
-class LLViewEnableJoystickFlycam : public view_listener_t
-{
-    bool handleEvent(const LLSD& userdata)
-    {
-        bool new_value = (gSavedSettings.getBOOL("JoystickEnabled") && gSavedSettings.getBOOL("JoystickFlycamEnabled"));
-        return new_value;
-    }
-};
-
 class LLViewEnableLastChatter : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
@@ -6968,6 +6959,28 @@ class LLAvatarResetSkeletonAndAnimations : public view_listener_t
         }
         }
         return true;
+    }
+};
+
+class LLAvatarReload : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
+        if (avatar && !avatar->isSelf())
+        {
+            avatar->reloadAvatar();
+        }
+        return true;
+    }
+};
+
+class LLAvatarEnableReload : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
+        return avatar && !avatar->isSelf() && !avatar->isControlAvatar();
     }
 };
 
@@ -10081,7 +10094,6 @@ void initialize_menus()
     view_listener_t::addMenu(new LLViewToggleUI(), "View.ToggleUI");
 
     view_listener_t::addMenu(new LLViewEnableMouselook(), "View.EnableMouselook");
-    view_listener_t::addMenu(new LLViewEnableJoystickFlycam(), "View.EnableJoystickFlycam");
     view_listener_t::addMenu(new LLViewEnableLastChatter(), "View.EnableLastChatter");
 
     view_listener_t::addMenu(new LLViewCheckJoystickFlycam(), "View.CheckJoystickFlycam");
@@ -10417,6 +10429,8 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAvatarResetSkeleton(), "Avatar.ResetSkeleton");
     view_listener_t::addMenu(new LLAvatarEnableResetSkeleton(), "Avatar.EnableResetSkeleton");
     view_listener_t::addMenu(new LLAvatarResetSkeletonAndAnimations(), "Avatar.ResetSkeletonAndAnimations");
+    view_listener_t::addMenu(new LLAvatarReload(), "Avatar.Reload");
+    view_listener_t::addMenu(new LLAvatarEnableReload(), "Avatar.EnableReload");
     view_listener_t::addMenu(new LLAvatarResetSelfSkeleton(), "Avatar.ResetSelfSkeleton");
     view_listener_t::addMenu(new LLAvatarResetSelfSkeletonAndAnimations(), "Avatar.ResetSelfSkeletonAndAnimations");
 

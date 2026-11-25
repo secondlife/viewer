@@ -100,6 +100,7 @@ public:
     static LLFloater* findInstance(std::string_view name, const LLSD& key = LLSD());
     static LLFloater* getInstance(std::string_view name, const LLSD& key = LLSD());
     static LLFloater* removeInstance(std::string_view name, const LLSD& key = LLSD());
+    static void removeInstance(LLFloater* instance);
     static bool destroyInstance(std::string_view name, const LLSD& key = LLSD());
 
     // Iterators

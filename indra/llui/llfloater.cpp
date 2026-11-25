@@ -514,19 +514,15 @@ void LLFloater::destroy()
 {
     // LLFloaterReg should be synchronized with "dead" floater to avoid returning dead instance before
     // it was deleted via LLMortician::updateClass(). See EXT-8458.
-    LLFloaterReg::removeInstance(mInstanceName, mKey);
+    LLFloaterReg::removeInstance(this);
     die();
 }
 
 // virtual
 LLFloater::~LLFloater()
 {
-    if (!isDead())
-    {
-        // If it's dead, instance is supposed to be already removed, and
-        // in case of single instance we can remove new one by accident
-        LLFloaterReg::removeInstance(mInstanceName, mKey);
-    }
+    // Remove by pointer, not by key: another live instance may share or have taken over our key.
+    LLFloaterReg::removeInstance(this);
 
     if( gFocusMgr.childHasKeyboardFocus(this))
     {

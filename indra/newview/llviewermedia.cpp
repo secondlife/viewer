@@ -1896,6 +1896,9 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 //////////////////////////////////////////////////////////////////////////////////////////
 bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 {
+    // Allows a suspended initialization to detect whether a newer one has superseded it.
+    const U32 init_generation = ++mPluginInitGeneration;
+
     if(mMediaSource)
     {
         // Save the previous media source's last set size before destroying it.
@@ -1925,6 +1928,16 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
     mCurrentMimeType = mMimeType;
 
     LLPluginClassMedia* media_source = newSourceFromMediaType(mMimeType, this, mMediaWidth, mMediaHeight, mZoomFactor, mTarget, mCleanBrowser);
+
+    // Plugin creation can yield while acquiring the plugin-process mutex. Another
+    // initializePlugin() call may then install a newer source; discard this stale
+    // source rather than replacing and deleting the newer one.
+    if (init_generation != mPluginInitGeneration)
+    {
+        LL_WARNS("Media") << "Plugin initialization superseded by a newer one, discarding plugin for mime type " << media_type << LL_ENDL;
+        delete media_source;
+        return (mMediaSource != nullptr);
+    }
 
     if (media_source)
     {

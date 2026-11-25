@@ -5409,7 +5409,7 @@ void LLViewerObject::setTE(const U8 te, const LLTextureEntry& texture_entry)
     updateTEMaterialTextures(te);
 }
 
-void LLViewerObject::updateTEMaterialTextures(U8 te)
+bool LLViewerObject::updateTEMaterialTextures(U8 te)
 {
     if (getTE(te)->getMaterialParams().notNull())
     {
@@ -5422,6 +5422,7 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
 
     LLFetchedGLTFMaterial* mat = (LLFetchedGLTFMaterial*) getTE(te)->getGLTFRenderMaterial();
     llassert(mat == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(getTE(te)->getGLTFRenderMaterial()) != nullptr);
+    LLFetchedGLTFMaterial* const old_mat = mat;
     LLUUID mat_id = getRenderMaterialID(te);
     if (mat == nullptr && mat_id.notNull())
     {
@@ -5449,9 +5450,10 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
         getTE(te)->setGLTFMaterial(nullptr);
     }
 
-    auto fetch_texture = [this](const LLUUID& id)
+    auto fetch_texture = [this](const LLUUID& id, LLPointer<LLViewerTexture>& local_bake)
     {
         LLViewerFetchedTexture* img = nullptr;
+        local_bake = nullptr;
         if (id.notNull())
         {
             if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(id))
@@ -5459,6 +5461,13 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
                  // TODO -- fall back to LLTextureEntry::mGLTFRenderMaterial when overriding with baked texture
                 LLViewerTexture* viewerTexture = getBakedTextureForMagicId(id);
                 img = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : nullptr;
+
+                // While appearance is being edited the bake is composited locally instead of
+                // fetched, render that one so the edits show live.
+                if (!img)
+                {
+                    local_bake = viewerTexture;
+                }
             }
             else
             {
@@ -5470,17 +5479,32 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
         return img;
     };
 
+    bool changed = mat != old_mat;
+
+    // Refetches one slot and notes whether its fetched or local bake binding changed
+    auto update_slot = [&](LLPointer<LLViewerFetchedTexture>& fetched, S32 index)
+    {
+        LLPointer<LLViewerTexture>& local_bake = mat->mLocalBakeTextures[index];
+        const LLPointer<LLViewerFetchedTexture> old_fetched = fetched;
+        const LLPointer<LLViewerTexture> old_local_bake = local_bake;
+        fetched = fetch_texture(mat->mTextureId[index], local_bake);
+        changed |= fetched != old_fetched || local_bake != old_local_bake;
+    };
+
     if (mat != nullptr)
     {
-        mat->mBaseColorTexture = fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR]);
-        mat->mNormalTexture = fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL]);
-        mat->mMetallicRoughnessTexture = fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS]);
-        mat->mEmissiveTexture= fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE]);
+        update_slot(mat->mBaseColorTexture, LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR);
+        update_slot(mat->mNormalTexture, LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL);
+        update_slot(mat->mMetallicRoughnessTexture, LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS);
+        update_slot(mat->mEmissiveTexture, LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE);
     }
+
+    return changed;
 }
 
 void LLViewerObject::refreshBakeTexture()
 {
+    bool pbr_bake_refreshed = false;
     for (int face_index = 0; face_index < getNumTEs(); face_index++)
     {
         LLTextureEntry* tex_entry = getTE(face_index);
@@ -5490,6 +5514,25 @@ void LLViewerObject::refreshBakeTexture()
             LLViewerTexture* bakedTexture = getBakedTextureForMagicId(image_id);
             changeTEImage(face_index, bakedTexture);
         }
+
+        // PBR materials can use bakes regardless of the diffuse texture.
+        const LLGLTFMaterial* render_mat = tex_entry ? tex_entry->getGLTFRenderMaterial() : nullptr;
+        if (render_mat)
+        {
+            for (const LLUUID& texture_id : render_mat->mTextureId)
+            {
+                if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(texture_id))
+                {
+                    pbr_bake_refreshed |= updateTEMaterialTextures((U8)face_index);
+                    break;
+                }
+            }
+        }
+    }
+
+    if (pbr_bake_refreshed && mDrawable.notNull())
+    {
+        gPipeline.markTextured(mDrawable);
     }
 }
 

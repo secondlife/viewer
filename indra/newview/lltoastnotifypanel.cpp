@@ -304,7 +304,9 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     static LLCachedControl<S32> script_button_width(gSavedSettings, "ScriptToastButtonWidth", 127);
     mButtonWidth = mIsScriptDialog ? script_button_width : btn_width;
 
-    bool is_content_trusted = (notif_name != "LoadWebPage");
+    // See LLToastPanel::isNotificationContentTrusted: script dialog links are untrusted unless the
+    // sending object is attached to our own avatar; web-launch content is never trusted.
+    bool is_content_trusted = isNotificationContentTrusted(mNotification);
     // is it a caution?
     //
     // caution flag can be set explicitly by specifying it in the notification payload, or it can be set implicitly if the

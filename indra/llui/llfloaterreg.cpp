@@ -229,6 +229,32 @@ LLFloater* LLFloaterReg::removeInstance(std::string_view name, const LLSD& key)
 }
 
 //static
+void LLFloaterReg::removeInstance(LLFloater* instance)
+{
+    if (!instance)
+    {
+        return;
+    }
+
+    group_map_t::iterator group_it = sGroupMap.find(instance->getInstanceName());
+    if (group_it == sGroupMap.end() || group_it->second.empty())
+    {
+        return;
+    }
+
+    instance_map_t::iterator list_it = sInstanceMap.find(group_it->second);
+    if (list_it == sInstanceMap.end())
+    {
+        return;
+    }
+
+    // Remove by pointer rather than by key: keys are mutable and are not guaranteed
+    // to be unique, so key-based removal could unregister another instance and leave
+    // a dangling pointer to this one in the registry.
+    list_it->second.remove(instance);
+}
+
+//static
 // returns true if the instance existed
 bool LLFloaterReg::destroyInstance(std::string_view name, const LLSD& key)
 {
