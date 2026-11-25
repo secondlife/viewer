@@ -34,5 +34,9 @@
 	<text name="label_days">
 		Giorni
 	</text>
+	<spinner label="Anni fa" name="spin_years_ago"/>
+	<text name="label_years">
+		Anni
+	</text>
 	<button label="Chiudi" label_selected="Chiudi" name="Close"/>
 </floater>
