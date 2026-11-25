@@ -94,6 +94,11 @@ public:
     // on Windows) report a generic product name such as "6 axis 2 button device".
     static std::optional<std::string> get3DConnexionDeviceName(U16 vendor_id, U16 product_id, const std::string& device_name);
 
+    // macOS: true if a device from LLWindow::getInputDevices() (or a saved
+    // JoystickDeviceUUID map) is a 3Dconnexion device, by USB ids, product name
+    // or manufacturer name.
+    static bool is3DConnexionDeviceData(const LLSD& data);
+
     // Summary of 3Dconnexion usage this session, for the viewer stats:
     // { enabled, devices: [ { name, used, connected }, ... ] }
     // 'devices' lists every 3Dconnexion device accepted at some point this session.

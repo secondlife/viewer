@@ -53,6 +53,13 @@
 #include <dinput.h>
 #endif
 
+#if LIB_NDOF && LL_LINUX
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <linux/input.h>
+#endif
+
 
 // ----------------------------------------------------------------------------
 // Constants
@@ -165,6 +172,72 @@ namespace
         // done earlier, during DirectInput enumeration (di8_devices_callback).
         return ll_safe_string(dev->manufacturer, sizeof(dev->manufacturer)).starts_with("3Dconnexion");
     }
+
+#if LL_DARWIN
+    // libndofdev's ndof_init_first() on macOS opens the first joystick-like HID
+    // device whose names *start like* the requested ones (an empty name matches
+    // any device), so check it opened exactly the device we asked for.
+    bool ndof_opened_requested(const NDOF_Device* dev, const std::string& manufacturer, const std::string& product)
+    {
+        return ll_safe_string(dev->manufacturer, sizeof(dev->manufacturer)) == manufacturer
+            && ll_safe_string(dev->product, sizeof(dev->product)) == product;
+    }
+#endif // LL_DARWIN
+
+#if LL_LINUX
+    // open-libndofdev's ndof_init_first() looks for a device with one of these
+    // USB ids on /dev/input/event0..31, and if there is none it opens the first
+    // SDL joystick instead, whatever it is.  Keep this list in sync with that
+    // function (3p-open-libndofdev v1.14-r7, libndofdev/ndofdev.c).
+    bool is_open_libndofdev_evdev_id(U16 vendor_id, U16 product_id)
+    {
+        // 3Dconnexion used to be a Logitech subsidiary, and its older devices were sold
+        // under Logitech's USB vendor ID, 0x046d. Newer devices use 3Dconnexion's own
+        // vendor ID, 0x256f.
+        constexpr U16 LOGITECH_PRODUCTS[] = {
+            0xc603, 0xc605, 0xc606, 0xc621, 0xc623, 0xc625, 0xc626, 0xc627, 0xc628, 0xc629, 0xc62b };
+        constexpr U16 TDCONNEXION_PRODUCTS[] = { 0xc62e, 0xc62f, 0xc631, 0xc632, 0xc633, 0xc635 };
+        if (vendor_id == 0x046d)
+        {
+            return std::ranges::find(LOGITECH_PRODUCTS, product_id) != std::end(LOGITECH_PRODUCTS);
+        }
+        if (vendor_id == 0x256f)
+        {
+            return std::ranges::find(TDCONNEXION_PRODUCTS, product_id) != std::end(TDCONNEXION_PRODUCTS);
+        }
+        return false;
+    }
+
+    // Does the same search as ndof_init_first(): returns the evdev name of the
+    // 3Dconnexion device it would open, or std::nullopt if it would fall back
+    // to SDL.  Like the library, opens each node read-write.
+    std::optional<std::string> find_open_libndofdev_evdev_device()
+    {
+        for (int i = 0; i < 32; ++i)
+        {
+            std::string path = llformat("/dev/input/event%d", i);
+            int fd = open(path.c_str(), O_RDWR | O_NONBLOCK);
+            if (fd < 0)
+            {
+                continue;
+            }
+            std::optional<std::string> name;
+            struct input_id id {};
+            if (ioctl(fd, EVIOCGID, &id) >= 0 && is_open_libndofdev_evdev_id(id.vendor, id.product))
+            {
+                char buffer[256] = {};
+                ioctl(fd, EVIOCGNAME(sizeof(buffer) - 1), buffer);
+                name = std::string(buffer);
+            }
+            close(fd);
+            if (name)
+            {
+                return name;
+            }
+        }
+        return std::nullopt;
+    }
+#endif // LL_LINUX
 #endif // LIB_NDOF
 } // anonymous namespace
 
@@ -262,6 +335,19 @@ BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVO
 
             if (status == DI_OK)
             {
+                // libndofdev's ndof_init_first() calls Acquire() on this device and, if that
+                // fails, opens the first DI8DEVCLASS_GAMECTRL device instead, whatever it is.
+                // Make sure Acquire() works before handing the device over, so ndof never
+                // takes that fallback (and a device ndof never saw is still ours to release).
+                status = device->Acquire();
+                if (status == DI_OK)
+                {
+                    device->Unacquire();
+                }
+            }
+
+            if (status == DI_OK)
+            {
                 LL_DEBUGS("Joystick") << "Properties updated" << LL_ENDL;
 
                 S32 size = sizeof(GUID);
@@ -321,7 +407,15 @@ bool macos_devices_callback(std::string &product_name, LLSD &data, void* userdat
 {
     std::string product = data["product"].asString();
 
-    return LLViewerJoystick::getInstance()->initDevice(nullptr, product, data);
+    // Only 3Dconnexion devices are handled by ndof: generic game controllers
+    // belong to LLGameControl (SDL).
+    if (!LLViewerJoystick::is3DConnexionDeviceData(data))
+    {
+        LL_DEBUGS("Joystick") << "Skipping non-3Dconnexion device: " << product << LL_ENDL;
+        return false; // keep looking
+    }
+
+    return LLViewerJoystick::getInstance()->initDevice(nullptr, product, data, true);
 }
 
 #endif
@@ -525,7 +619,11 @@ void LLViewerJoystick::init(bool autoenable)
 #elif LL_DARWIN
             osx_callback = macos_devices_callback;
 
-            if (mLastDeviceUUID.isMap())
+            // Only reopen a saved 3Dconnexion device (an older viewer could have saved any
+            // joystick-like device), and only by its full name: ndof_init_first() treats an
+            // empty name as "any device".
+            if (mLastDeviceUUID.isMap() && is3DConnexionDeviceData(mLastDeviceUUID)
+                && !mLastDeviceUUID["product"].asString().empty())
             {
                 std::string manufacturer = mLastDeviceUUID["manufacturer"].asString();
                 std::string product = mLastDeviceUUID["product"].asString();
@@ -542,7 +640,9 @@ void LLViewerJoystick::init(bool autoenable)
                 }
                 else
                 {
-                    acceptInitializedDevice();
+                    // Trust the saved identification only if ndof opened that very device;
+                    // otherwise acceptInitializedDevice() checks the names of what it opened.
+                    acceptInitializedDevice(ndof_opened_requested(mNdofDev, manufacturer, product));
                 }
             }
 #endif
@@ -594,7 +694,11 @@ void LLViewerJoystick::initDevice(LLSD &guid)
     win_callback = &di8_devices_callback;
 #elif LL_DARWIN
     osx_callback = macos_devices_callback;
-    if (mLastDeviceUUID.isMap())
+    // Only reopen a saved 3Dconnexion device (an older viewer could have saved any
+    // joystick-like device), and only by its full name: ndof_init_first() treats an
+    // empty name as "any device".
+    if (mLastDeviceUUID.isMap() && is3DConnexionDeviceData(mLastDeviceUUID)
+        && !mLastDeviceUUID["product"].asString().empty())
     {
         std::string manufacturer = mLastDeviceUUID["manufacturer"].asString();
         std::string product = mLastDeviceUUID["product"].asString();
@@ -611,7 +715,9 @@ void LLViewerJoystick::initDevice(LLSD &guid)
         }
         else
         {
-            acceptInitializedDevice();
+            // Trust the saved identification only if ndof opened that very device;
+            // otherwise acceptInitializedDevice() checks the names of what it opened.
+            acceptInitializedDevice(ndof_opened_requested(mNdofDev, manufacturer, product));
         }
     }
 #endif
@@ -706,9 +812,77 @@ bool LLViewerJoystick::initDevice(void * preffered_device /* LPDIRECTINPUTDEVICE
     // libndofdev could be used to return deltas.  Here we choose to
     // just have the absolute values instead.
     mNdofDev->absolute = 1;
+
+    // ndof must only open 3Dconnexion devices: generic game controllers belong to
+    // LLGameControl (SDL).  But each platform's ndof_init_first() falls back to
+    // "the first joystick-like device" when it isn't told exactly which device
+    // to open, so don't call it unless it is.
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+    // With no DirectInput device, ndof_init_first() opens the first
+    // DI8DEVCLASS_GAMECTRL device.  di8_devices_callback() always passes one.
+    if (!preffered_device || !*((LPDIRECTINPUTDEVICE8 *)preffered_device))
+    {
+        LL_INFOS("Joystick") << "No 3Dconnexion device given, not letting ndof pick one" << LL_ENDL;
+        mDriverState = JDS_UNINITIALIZED;
+        return false;
+    }
+    // If Acquire() fails on our device, ndof_init_first() opens the first
+    // DI8DEVCLASS_GAMECTRL device instead and copies that device's name into
+    // 'product' (di8_devices_callback() checks Acquire() to avoid this).
+    // Put a marker in 'product' to detect it.
+    constexpr char REQUESTED_MARKER[] = "\x01ll-requested-device";
+    std::string requested_product = ll_safe_string(mNdofDev->product, sizeof(mNdofDev->product));
+    strncpy(mNdofDev->product, REQUESTED_MARKER, sizeof(mNdofDev->product));
+#elif LL_DARWIN
+    // ndof_init_first() opens the first joystick-like device whose names start
+    // like these; an empty name matches any device.
+    std::string requested_manufacturer = ll_safe_string(mNdofDev->manufacturer, sizeof(mNdofDev->manufacturer));
+    std::string requested_product = ll_safe_string(mNdofDev->product, sizeof(mNdofDev->product));
+    if (requested_product.empty() || !(is_3dconnexion || is_3dconnexion_ndof(mNdofDev)))
+    {
+        LL_INFOS("Joystick") << "Not a 3Dconnexion device, not opening: '" << requested_product << "'" << LL_ENDL;
+        mDriverState = JDS_UNINITIALIZED;
+        return false;
+    }
+#elif LL_LINUX
+    // Without a 3Dconnexion evdev device ndof_init_first() opens the first SDL joystick.
+    std::optional<std::string> evdev_name = find_open_libndofdev_evdev_device();
+    if (!evdev_name)
+    {
+        LL_INFOS("Joystick") << "No 3Dconnexion device ndof can open" << LL_ENDL;
+        mDriverState = JDS_UNINITIALIZED;
+        return false;
+    }
+#endif
+
     // init & use the first suitable NDOF device found on the USB chain
     // On windows preffered_device needs to be a pointer to LPDIRECTINPUTDEVICE8
-    if (ndof_init_first(mNdofDev, preffered_device))
+    int ndof_result = ndof_init_first(mNdofDev, preffered_device);
+
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+    if (strncmp(mNdofDev->product, REQUESTED_MARKER, sizeof(REQUESTED_MARKER)) == 0)
+    {
+        strncpy(mNdofDev->product, requested_product.c_str(), sizeof(mNdofDev->product));
+    }
+    else if (ndof_result == 0)
+    {
+        // ndof opened a different device than ours: only accept it by name.
+        // Note: if it's rejected, ndof keeps it acquired (but never reads it):
+        // libndofdev can't release a single device.
+        LL_WARNS("Joystick") << "ndof opened another device than requested: "
+                             << ll_safe_string(mNdofDev->product, sizeof(mNdofDev->product)) << LL_ENDL;
+        is_3dconnexion = false;
+    }
+#elif LL_DARWIN
+    // Trust the caller's identification only if ndof opened that very device
+    is_3dconnexion = is_3dconnexion
+        && ndof_opened_requested(mNdofDev, requested_manufacturer, requested_product);
+#elif LL_LINUX
+    // ndof opened the evdev device found above (rather than falling back to SDL)
+    is_3dconnexion = (ll_safe_string(mNdofDev->product, sizeof(mNdofDev->product)) == *evdev_name);
+#endif
+
+    if (ndof_result)
     {
         mDriverState = JDS_UNINITIALIZED;
         LL_WARNS() << "ndof_init_first FAILED" << LL_ENDL;
@@ -1671,6 +1845,22 @@ std::string LLViewerJoystick::getDescription()
     }
 #endif
     return res;
+}
+
+// static
+bool LLViewerJoystick::is3DConnexionDeviceData(const LLSD& data)
+{
+    if (!data.isMap())
+    {
+        return false;
+    }
+    U16 vendor_id = (U16)data["vendor_id"].asInteger();
+    U16 product_id = (U16)data["product_id"].asInteger();
+    if (get3DConnexionDeviceName(vendor_id, product_id, data["product"].asString()))
+    {
+        return true;
+    }
+    return data["manufacturer"].asString().starts_with("3Dconnexion");
 }
 
 // static

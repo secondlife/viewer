@@ -267,6 +267,12 @@ void LLFloaterJoystick::refresh()
 
 bool LLFloaterJoystick::addDeviceCallback(std::string &name, LLSD& value, void* userdata)
 {
+    // Only list 3Dconnexion devices: ndof won't open anything else
+    // (generic game controllers belong to LLGameControl)
+    if (!LLViewerJoystick::is3DConnexionDeviceData(value))
+    {
+        return false; // keep searching
+    }
     LLFloaterJoystick * floater = (LLFloaterJoystick*)userdata;
     floater->mJoysticksCombo->add(name, value, ADD_BOTTOM, 1);
     return false; // keep searching
