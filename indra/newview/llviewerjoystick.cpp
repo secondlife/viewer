@@ -476,6 +476,8 @@ NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
             joystick->mNdofDev = dev;
 
             joystick->mDriverState = JDS_INITIALIZED;
+            // Record it for the viewer stats, as acceptInitializedDevice() does
+            joystick->mSessionDevices.try_emplace(ll_safe_string(dev->product), false);
             res = NDOF_KEEP_HOTPLUGGED;
         }
         // Same enable rules and first-device setup as init()
@@ -914,6 +916,19 @@ bool LLViewerJoystick::acceptInitializedDevice(bool is_3dconnexion)
     LL_INFOS("Joystick") << "Ignoring non-3Dconnexion device: " << ll_safe_string(mNdofDev->product) << LL_ENDL;
     // Leave the state as INITIALIZING so callers still report "no matching device"
     mDriverState = JDS_INITIALIZING;
+
+    // Don't reuse this NDOF_Device for the next attempt: ndof_init_first() would
+    // overwrite its handle on the rejected device without releasing it, and on
+    // macOS a hot-unplug of the rejected device would be reported for it.
+    // libndofdev has no per-device close, so retire it instead:
+    // - Windows and macOS: the library keeps every NDOF_Device it created and
+    //   disposes of them (Windows: releasing the DirectInput device) in
+    //   ndof_libcleanup().  On macOS a rejected device was never opened by
+    //   ndof_init_first() (it only records which HID device to read).
+    // - Linux: open-libndofdev doesn't track or close devices, so this struct and
+    //   the rejected device stay allocated/open until exit.  With the check in
+    //   initDevice() this only happens if a device disappears during the call.
+    mNdofDev = ndof_create();
 #endif
     return false;
 }

@@ -1927,7 +1927,11 @@ bool LLViewerWindow::handleDeviceChange(LLWindow *window, const std::string& cha
     // give a chance to use a joystick after startup (hot-plugging)
     if (!LLViewerJoystick::getInstance()->isJoystickInitialized() )
     {
-        LLViewerJoystick::getInstance()->init(true);
+        // Don't force autoenable: any USB change sends this, and a user who
+        // chose "None" shouldn't get the joystick turned back on.  init() still
+        // enables a first-ever device, or one that was only disabled because it
+        // wasn't connected (see LLViewerJoystick::finishDeviceSetup()).
+        LLViewerJoystick::getInstance()->init(false);
         return true;
     }
     else
