@@ -230,39 +230,58 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
             }
         }
 
+        // camera cascade weight: 1 well inside its map, fading to 0 over the outer 10% (depth included, since a
+        // point outside the cascade's fitted depth range compares as lit) and toward the end of cascade 2
+        float camera_weight = 0.0;
+        float camera_shadow = 1.0;
+
         if (cascade < 3)
         {
             vec4 cascade_pos = shadow_matrix[cascade] * spos;
-            vec3 cascade_uv = cascade_pos.xyz / cascade_pos.w;
 
-            // depth too: a point outside the cascade's fitted depth range compares as lit
-            if (cascade_pos.w <= 0.0 || any(lessThan(cascade_uv, vec3(0.01))) || any(greaterThan(cascade_uv, vec3(0.99))))
+            if (cascade_pos.w > 0.0)
             {
-                cascade = 3;
+                vec3 cascade_uv = cascade_pos.xyz / cascade_pos.w;
+                vec3 edge = min(cascade_uv, vec3(1.0) - cascade_uv);
+                camera_weight = smoothstep(0.0, 0.1, min(edge.x, min(edge.y, edge.z)));
+                camera_weight *= smoothstep(-shadow_clip.z, -shadow_clip.z * 0.9, split_z);
             }
-            else if (cascade == 0)
+
+            if (camera_weight > 0.0)
             {
-                return pcfShadow(shadowMap0, norm, cascade_pos, 1.0, pos_screen, light_dir);
-            }
-            else if (cascade == 1)
-            {
-                return pcfShadow(shadowMap1, norm, cascade_pos, 1.0, pos_screen, light_dir);
-            }
-            else
-            {
-                return pcfShadow(shadowMap2, norm, cascade_pos, 1.0, pos_screen, light_dir);
+                if (cascade == 0)
+                {
+                    camera_shadow = pcfShadow(shadowMap0, norm, cascade_pos, 1.0, pos_screen, light_dir);
+                }
+                else if (cascade == 1)
+                {
+                    camera_shadow = pcfShadow(shadowMap1, norm, cascade_pos, 1.0, pos_screen, light_dir);
+                }
+                else
+                {
+                    camera_shadow = pcfShadow(shadowMap2, norm, cascade_pos, 1.0, pos_screen, light_dir);
+                }
             }
         }
 
-        vec4 omni_pos = shadow_matrix[3] * spos;
-        vec2 omni_uv = omni_pos.xy / omni_pos.w;
-
-        if (any(lessThan(omni_uv, vec2(0.0))) || any(greaterThan(omni_uv, vec2(1.0))))
+        if (camera_weight >= 1.0)
         {
-            return 1.0;
+            return camera_shadow;
         }
 
-        return pcfShadow(shadowMap3, norm, omni_pos, 1.0, pos_screen, light_dir);
+        // omni cascade, fading to lit over the outer 10% of its box
+        vec4 omni_pos = shadow_matrix[3] * spos;
+        vec3 omni_uv = omni_pos.xyz / omni_pos.w;
+        vec3 omni_edge = min(omni_uv, vec3(1.0) - omni_uv);
+        float omni_weight = smoothstep(0.0, 0.1, min(omni_edge.x, min(omni_edge.y, omni_edge.z)));
+        float omni_shadow = 1.0;
+
+        if (omni_weight > 0.0)
+        {
+            omni_shadow = mix(1.0, pcfShadow(shadowMap3, norm, omni_pos, 1.0, pos_screen, light_dir), omni_weight);
+        }
+
+        return mix(omni_shadow, camera_shadow, camera_weight);
     }
 
     if (split_z > -shadow_clip.w)
