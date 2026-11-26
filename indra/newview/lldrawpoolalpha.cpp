@@ -204,6 +204,25 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 
     prepare_alpha_shader(pbr_shader, true, water_sign);
 
+    transmissive_shader = nullptr;
+    transmissive_tint_shader = nullptr;
+    mTransmissionCap = 0;
+    mTransmissionCopies = 0;
+    mTransmissionHasDirty = false;
+
+    static LLCachedControl<U32> transmission_quality(gSavedSettings, "RenderTransmissionQuality", 1);
+    static const S32 transmission_caps[4] = { 0, 1, 2, 4 };
+
+    if (!LLPipeline::sRenderingHUDs && !LLPipeline::sImpostorRender && !gCubeSnapshot &&
+        gDeferredPBRTransmissiveProgram.isComplete() && gDeferredPBRTransmissiveTintProgram.isComplete())
+    {
+        mTransmissionCap = transmission_caps[llmin((U32)transmission_quality, (U32)3)];
+        transmissive_shader = &gDeferredPBRTransmissiveProgram;
+        prepare_alpha_shader(transmissive_shader, true, water_sign);
+        transmissive_tint_shader = &gDeferredPBRTransmissiveTintProgram;
+        prepare_alpha_shader(transmissive_tint_shader, true, water_sign);
+    }
+
     // explicitly unbind here so render loop doesn't make assumptions about the last shader
     // already being setup for rendering
     LLGLSLShader::unbind();
@@ -216,6 +235,8 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 
     // second pass, regular forward alpha rendering
     forwardRender();
+
+    endTransmission();
 
     // final pass, render to depth for depth of field effects
     if (!LLPipeline::sImpostorRender && LLPipeline::RenderDepthOfField && !gCubeSnapshot && !LLPipeline::sRenderingHUDs && getType() == LLDrawPool::POOL_ALPHA_POST_WATER)
@@ -495,6 +516,243 @@ void LLDrawPoolAlpha::RestoreTexSetup(bool tex_setup)
     }
 }
 
+// Keep in sync with TRANSMISSION_MAX_LOD in pbralphaF.glsl
+constexpr U32 TRANSMISSION_MAX_MIP = 6;
+
+// Screen rect of a world-space AABB; false means part of it is behind the camera
+static bool project_extents(const LLVector4a* ext, S32 width, S32 height, LLRect& rect)
+{
+    F32 min_x = FLT_MAX;
+    F32 min_y = FLT_MAX;
+    F32 max_x = -FLT_MAX;
+    F32 max_y = -FLT_MAX;
+
+    for (S32 corner = 0; corner < 8; ++corner)
+    {
+        F32 point[4] = { ext[corner & 1].getF32ptr()[0], ext[(corner >> 1) & 1].getF32ptr()[1], ext[(corner >> 2) & 1].getF32ptr()[2], 1.f };
+
+        F32 eye[4];
+        F32 clip[4];
+
+        for (S32 row = 0; row < 4; ++row)
+        {
+            eye[row] = gGLModelView[row] * point[0] + gGLModelView[4 + row] * point[1] + gGLModelView[8 + row] * point[2] + gGLModelView[12 + row];
+        }
+
+        for (S32 row = 0; row < 4; ++row)
+        {
+            clip[row] = gGLProjection[row] * eye[0] + gGLProjection[4 + row] * eye[1] + gGLProjection[8 + row] * eye[2] + gGLProjection[12 + row] * eye[3];
+        }
+
+        if (clip[3] <= 0.001f)
+        {
+            return false;
+        }
+
+        F32 screen_x = (clip[0] / clip[3] * 0.5f + 0.5f) * width;
+        F32 screen_y = (clip[1] / clip[3] * 0.5f + 0.5f) * height;
+        min_x = llmin(min_x, screen_x);
+        max_x = llmax(max_x, screen_x);
+        min_y = llmin(min_y, screen_y);
+        max_y = llmax(max_y, screen_y);
+    }
+
+    // padded for the jittered projection and the mip filter footprint
+    rect.mLeft = llclamp((S32)floorf(min_x) - 2, 0, width);
+    rect.mRight = llclamp((S32)ceilf(max_x) + 2, 0, width);
+    rect.mBottom = llclamp((S32)floorf(min_y) - 2, 0, height);
+    rect.mTop = llclamp((S32)ceilf(max_y) + 2, 0, height);
+    return true;
+}
+
+void LLDrawPoolAlpha::setTransmissionUniforms(const LLGLTFMaterial* gltf_mat, bool has_copy)
+{
+    static LLStaticHashedString sTransmissionHasCopy("transmissionHasCopy");
+    static LLStaticHashedString sAlphaOpaque("alphaOpaque");
+    static LLStaticHashedString sTransmissionSamples("transmissionSamples");
+    static LLCachedControl<U32> ggx_samples(gSavedSettings, "RenderTransmissionGGXSamples", 4);
+
+    S32 copy_flag = 0;
+    if (has_copy)
+    {
+        copy_flag = 1;
+    }
+
+    S32 alpha_opaque = 0;
+    if (gltf_mat->mAlphaMode != LLGLTFMaterial::ALPHA_MODE_BLEND)
+    {
+        alpha_opaque = 1;
+    }
+
+    current_shader->uniform1i(sTransmissionHasCopy, copy_flag);
+    current_shader->uniform1i(sAlphaOpaque, alpha_opaque);
+    current_shader->uniform1i(sTransmissionSamples, (S32)llclamp((U32)ggx_samples, 1u, 16u));
+}
+
+void LLDrawPoolAlpha::copyTransmissionScene(const LLRect* dirty)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
+    LL_PROFILE_GPU_ZONE("transmission copy");
+
+    LLRenderTarget& src = gPipeline.mRT->screen;
+    LLRenderTarget& depth_src = gPipeline.mRT->deferredScreen;
+    LLRenderTarget& dst = gPipeline.mWaterDis;
+
+    gGL.flush();
+
+    LLGLDisable blend(GL_BLEND);
+    LLGLDisable cull_face(GL_CULL_FACE);
+    LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
+
+    GLenum scissor_state = 0;
+
+    if (dirty)
+    {
+        scissor_state = GL_SCISSOR_TEST;
+    }
+
+    LLGLEnable scissor(scissor_state);
+
+    dst.bindTarget();
+
+    if (dirty)
+    {
+        glScissor(dirty->mLeft, dirty->mBottom, dirty->getWidth(), dirty->getHeight());
+    }
+
+    gCopyDepthProgram.bind();
+
+    S32 diff_map = gCopyDepthProgram.getTextureChannel(LLShaderMgr::DIFFUSE_MAP);
+    S32 depth_map = gCopyDepthProgram.getTextureChannel(LLShaderMgr::DEFERRED_DEPTH);
+
+    gGL.getTexUnit(diff_map)->bind(&src);
+    gGL.getTexUnit(depth_map)->bind(&depth_src, true);
+
+    gPipeline.mScreenTriangleVB->setBuffer();
+    gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+    buildTransmissionMips(dirty);
+
+    dst.flush();
+
+    // the copy clobbered texture units that fast-bound alpha shaders rely on
+    LLGLSLShader* alpha_shaders[] = {
+        simple_shader, fullbright_shader, particle_shader, particle_fullbright_shader,
+        pbr_shader, transmissive_shader, transmissive_tint_shader
+    };
+
+    for (LLGLSLShader* shader : alpha_shaders)
+    {
+        if (shader)
+        {
+            shader->mCanBindFast = false;
+
+            if (shader->mRiggedVariant)
+            {
+                shader->mRiggedVariant->mCanBindFast = false;
+            }
+        }
+    }
+
+    for (S32 i = 0; i < LLMaterial::SHADER_COUNT * 2; ++i)
+    {
+        gDeferredMaterialProgram[i].mCanBindFast = false;
+    }
+}
+
+// dst must be bound; leaves it bound
+void LLDrawPoolAlpha::buildTransmissionMips(const LLRect* dirty)
+{
+    LLRenderTarget& dst = gPipeline.mWaterDis;
+
+    U32 mip_levels = dst.getMipLevels();
+
+    if (mip_levels <= 1 || !gSSRDownsampleProgram.isComplete())
+    {
+        return;
+    }
+
+    U32 built_mip = llmin(mip_levels - 1, TRANSMISSION_MAX_MIP);
+
+    LLGLDisable blend(GL_BLEND);
+    LLGLDepthTest depth(GL_FALSE, GL_FALSE);
+
+    gGL.matrixMode(gGL.MM_MODELVIEW);
+    gGL.pushMatrix();
+    gGL.loadIdentity();
+
+    gGL.matrixMode(gGL.MM_PROJECTION);
+    gGL.pushMatrix();
+    gGL.loadIdentity();
+
+    gGL.flush();
+
+    static LLStaticHashedString texelStep("texelStep");
+    static LLStaticHashedString sKarisWeight("karisWeight");
+
+    gSSRDownsampleProgram.bind();
+    gSSRDownsampleProgram.uniform1i(sKarisWeight, 0);
+    S32 diffuse_channel = gSSRDownsampleProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, LLTexUnit::TT_TEXTURE);
+
+    for (U32 mip = 1; mip <= built_mip; ++mip)
+    {
+        F32 src_width = (F32)llmax(1, (S32)(dst.getWidth() >> (mip - 1)));
+        F32 src_height = (F32)llmax(1, (S32)(dst.getHeight() >> (mip - 1)));
+
+        gSSRDownsampleProgram.uniform2f(texelStep, 0.5f / src_width, 0.5f / src_height);
+
+        gGL.getTexUnit(diffuse_channel)->bind(&dst);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, mip - 1);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mip - 1);
+
+        dst.bindColorMipLevel(mip);
+
+        if (dirty)
+        {
+            S32 left = llmax(0, (dirty->mLeft >> mip) - 1);
+            S32 bottom = llmax(0, (dirty->mBottom >> mip) - 1);
+            S32 right = (dirty->mRight >> mip) + 2;
+            S32 top = (dirty->mTop >> mip) + 2;
+            glScissor(left, bottom, right - left, top - bottom);
+        }
+
+        gPipeline.mScreenTriangleVB->setBuffer();
+        gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+    }
+
+    gGL.getTexUnit(diffuse_channel)->bind(&dst);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, built_mip);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    dst.resetColorMipLevel();
+
+    gSSRDownsampleProgram.unbind();
+
+    gGL.matrixMode(gGL.MM_PROJECTION);
+    gGL.popMatrix();
+
+    gGL.matrixMode(gGL.MM_MODELVIEW);
+    gGL.popMatrix();
+}
+
+// Other mWaterDis readers sample it without mips
+void LLDrawPoolAlpha::endTransmission()
+{
+    if (mTransmissionCopies <= 0)
+    {
+        return;
+    }
+
+    LLRenderTarget& dst = gPipeline.mWaterDis;
+    gGL.getTexUnit(0)->bind(&dst);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, dst.getMipLevels() - 1);
+
+    mTransmissionCopies = 0;
+    mTransmissionHasDirty = false;
+}
+
 void LLDrawPoolAlpha::drawEmissive(LLDrawInfo* draw)
 {
     LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, 1.f);
@@ -662,6 +920,9 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
             LLSpatialGroup::drawmap_elem_t& draw_info = rigged ? group->mDrawMap[LLRenderPass::PASS_ALPHA_RIGGED] : group->mDrawMap[LLRenderPass::PASS_ALPHA];
 
+            LLRect group_rect;
+            bool group_rect_valid = false;
+
             for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)
             {
                 LLDrawInfo& params = **k;
@@ -679,9 +940,60 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
                 LLGLDisable cull_face(gltf_mat && gltf_mat->mDoubleSided ? GL_CULL_FACE : 0);
 
-                if (gltf_mat && gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND)
+                bool transmissive = gltf_mat && gltf_mat->mTransmissionFactor > FLT_EPSILON;
+                bool transmissive_draw = transmissive && transmissive_shader && !depth_only;
+                bool refracting = transmissive_draw && mTransmissionCap > 0;
+
+                if (gltf_mat && (gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND || transmissive))
                 {
                     target_shader = pbr_shader;
+
+                    if (refracting)
+                    {
+                        target_shader = transmissive_shader;
+                    }
+                    else if (transmissive_draw)
+                    {
+                        // no copy: tint the background first, the surface is a second draw below
+                        target_shader = transmissive_tint_shader;
+                    }
+
+                    if (refracting)
+                    {
+                        if (!group_rect_valid)
+                        {
+                            group_rect_valid = true;
+
+                            if (!project_extents(ext, gPipeline.mWaterDis.getWidth(), gPipeline.mWaterDis.getHeight(), group_rect))
+                            {
+                                group_rect = LLRect(0, gPipeline.mWaterDis.getHeight(), gPipeline.mWaterDis.getWidth(), 0);
+                            }
+                        }
+
+                        if (mTransmissionCopies == 0)
+                        {
+                            copyTransmissionScene(nullptr);
+                            mTransmissionCopies = 1;
+                            mTransmissionHasDirty = false;
+                        }
+                        else if (mTransmissionCopies < mTransmissionCap && mTransmissionHasDirty && group_rect.overlaps(mTransmissionDirty))
+                        {
+                            copyTransmissionScene(&mTransmissionDirty);
+                            ++mTransmissionCopies;
+                            mTransmissionHasDirty = false;
+                        }
+
+                        if (mTransmissionHasDirty)
+                        {
+                            mTransmissionDirty.unionWith(group_rect);
+                        }
+                        else
+                        {
+                            mTransmissionDirty = group_rect;
+                            mTransmissionHasDirty = true;
+                        }
+                    }
+
                     if (params.mAvatar != nullptr)
                     {
                         target_shader = target_shader->mRiggedVariant;
@@ -694,6 +1006,28 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                     }
 
                     params.mGLTFMaterial->bind(params.mTexture);
+
+                    if (transmissive_draw)
+                    {
+                        setTransmissionUniforms(gltf_mat, refracting);
+                    }
+
+                    if (refracting)
+                    {
+                        S32 transmission_channel = current_shader->enableTexture(LLShaderMgr::TRANSMISSION_SCENE_MAP);
+
+                        if (transmission_channel > -1)
+                        {
+                            gGL.getTexUnit(transmission_channel)->bind(&gPipeline.mWaterDis);
+                        }
+
+                        S32 depth_channel = current_shader->enableTexture(LLShaderMgr::DEFERRED_DEPTH);
+
+                        if (depth_channel > -1)
+                        {
+                            gGL.getTexUnit(depth_channel)->bind(&gPipeline.mWaterDis, true);
+                        }
+                    }
                 }
                 else
                 {
@@ -792,10 +1126,37 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                 bool tex_setup = TexSetup(&params, (mat != nullptr));
 
                 {
-                    gGL.blendFunc((LLRender::eBlendFactor) params.mBlendFuncSrc, (LLRender::eBlendFactor) params.mBlendFuncDst, mAlphaSFactor, mAlphaDFactor);
-
                     bool reset_minimum_alpha = false;
-                    if (!LLPipeline::sImpostorRender &&
+                    bool opaque_transmissive = refracting && gltf_mat->mAlphaMode != LLGLTFMaterial::ALPHA_MODE_BLEND;
+                    bool tinted_transmissive = transmissive_draw && !refracting;
+
+                    if (opaque_transmissive)
+                    {
+                        // blending off for color, destination alpha (glow) preserved
+                        gGL.blendFunc(LLRender::BF_ONE, LLRender::BF_ZERO, LLRender::BF_ZERO, LLRender::BF_ONE);
+
+                        F32 cutoff = 0.f;
+
+                        if (gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
+                        {
+                            cutoff = gltf_mat->mAlphaCutoff;
+                        }
+
+                        current_shader->setMinimumAlpha(cutoff);
+                        reset_minimum_alpha = true;
+                    }
+                    else if (tinted_transmissive)
+                    {
+                        // background *= transmittance; the surface is added by a second draw below
+                        gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_SOURCE_COLOR, LLRender::BF_ZERO, LLRender::BF_ONE);
+                    }
+                    else
+                    {
+                        gGL.blendFunc((LLRender::eBlendFactor) params.mBlendFuncSrc, (LLRender::eBlendFactor) params.mBlendFuncDst, mAlphaSFactor, mAlphaDFactor);
+                    }
+
+                    if (!opaque_transmissive &&
+                        !LLPipeline::sImpostorRender &&
                         params.mBlendFuncDst != LLRender::BF_SOURCE_ALPHA &&
                         params.mBlendFuncSrc != LLRender::BF_SOURCE_ALPHA)
                     { // this draw call has a custom blend function that may require rendering of "invisible" fragments
@@ -806,6 +1167,28 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                     params.mVertexBuffer->setBuffer();
                     params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
                     stop_glerror();
+
+                    if (tinted_transmissive)
+                    {
+                        LLGLSLShader* surface_shader = transmissive_shader;
+
+                        if (params.mAvatar != nullptr)
+                        {
+                            surface_shader = surface_shader->mRiggedVariant;
+                        }
+
+                        gPipeline.bindDeferredShaderFast(*surface_shader);
+                        params.mGLTFMaterial->bind(params.mTexture);
+                        setTransmissionUniforms(gltf_mat, false);
+
+                        if (params.mAvatar == nullptr || uploadMatrixPalette(params.mAvatar, params.mSkinInfo, lastAvatar, lastMeshId, lastAvatarShader, skipLastSkin))
+                        {
+                            gGL.blendFunc(LLRender::BF_ONE, LLRender::BF_ONE, LLRender::BF_ZERO, LLRender::BF_ONE);
+                            params.mVertexBuffer->setBuffer();
+                            params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+                            stop_glerror();
+                        }
+                    }
 
                     if (reset_minimum_alpha)
                     {

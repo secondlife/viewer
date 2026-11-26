@@ -101,6 +101,8 @@ public:
         GLTF_TEXTURE_INFO_OCCLUSION = GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS,
         GLTF_TEXTURE_INFO_EMISSIVE,
         GLTF_TEXTURE_INFO_SPECULAR,
+        GLTF_TEXTURE_INFO_TRANSMISSION,
+        GLTF_TEXTURE_INFO_THICKNESS,
 
         GLTF_TEXTURE_INFO_COUNT
     };
@@ -137,6 +139,8 @@ public:
     void setOcclusionRoughnessMetallicId(const LLUUID& id, bool for_override = false);
     void setEmissiveId(const LLUUID& id, bool for_override = false);
     void setSpecularId(const LLUUID& id, bool for_override = false);
+    void setTransmissionId(const LLUUID& id, bool for_override = false);
+    void setThicknessId(const LLUUID& id, bool for_override = false);
 
     void setBaseColorFactor(const LLColor4& baseColor, bool for_override = false);
     void setAlphaCutoff(F32 cutoff, bool for_override = false);
@@ -149,6 +153,11 @@ public:
     void setSpecularFactor(F32 factor, bool for_override = false);
     void setSpecularColorFactor(const LLColor3& color, bool for_override = false);
     void setIOR(F32 ior, bool for_override = false);
+    void setTransmissionFactor(F32 factor, bool for_override = false);
+    void setThicknessFactor(F32 factor, bool for_override = false);
+    void setAttenuationDistance(F32 distance, bool for_override = false);
+    void setAttenuationColor(const LLColor3& color, bool for_override = false);
+    void setDispersion(F32 dispersion, bool for_override = false);
 
     // *NOTE: texture offsets only exist in overrides, so "for_override" is not needed
 
@@ -168,6 +177,11 @@ public:
     static F32 getDefaultSpecularFactor();
     static LLColor3 getDefaultSpecularColorFactor();
     static F32 getDefaultIOR();
+    static F32 getDefaultTransmissionFactor();
+    static F32 getDefaultThicknessFactor();
+    static F32 getDefaultAttenuationDistance();
+    static LLColor3 getDefaultAttenuationColor();
+    static F32 getDefaultDispersion();
     static LLVector2 getDefaultTextureOffset();
     static LLVector2 getDefaultTextureScale();
     static F32 getDefaultTextureRotation();
@@ -295,6 +309,11 @@ public:
     F32 mSpecularFactor;
     LLColor3 mSpecularColorFactor;
     F32 mIOR;
+    F32 mTransmissionFactor;
+    F32 mThicknessFactor;
+    F32 mAttenuationDistance;
+    LLColor3 mAttenuationColor;
+    F32 mDispersion;
 
     AlphaMode mAlphaMode;
 

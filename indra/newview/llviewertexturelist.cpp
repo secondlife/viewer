@@ -113,6 +113,8 @@ const S32 LLViewerTextureList::sChannelToPriority[LLRender::NUM_TEXTURE_CHANNELS
     2,  // METALLIC_ROUGHNESS_MAP (4)  -> Z (specular/metallic)
     0,  // GLTF_NORMAL_MAP (5)         -> X (normals)
     3,  // EMISSIVE_MAP (6)            -> W (emissive)
+    2,  // TRANSMISSION_MAP (7)        -> Z (specular/metallic)
+    2,  // THICKNESS_MAP (8)           -> Z (specular/metallic)
 };
 
 LLViewerTextureList::LLViewerTextureList()
@@ -1116,11 +1118,13 @@ static void update_face_stream_vsize(LLFace* face)
             if (ch >= LLRender::BASECOLOR_MAP)
             {
                 // LLRender channel -> LLGLTFMaterial::TextureInfo
-                static const S32 gltf_info[4] = {
+                static const S32 gltf_info[6] = {
                     LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR,         // BASECOLOR_MAP (3)
                     LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS, // METALLIC_ROUGHNESS_MAP (4)
                     LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL,             // GLTF_NORMAL_MAP (5)
                     LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE,           // EMISSIVE_MAP (6)
+                    LLGLTFMaterial::GLTF_TEXTURE_INFO_TRANSMISSION,       // TRANSMISSION_MAP (7)
+                    LLGLTFMaterial::GLTF_TEXTURE_INFO_THICKNESS,          // THICKNESS_MAP (8)
                 };
                 if (gltf_mat)
                 {

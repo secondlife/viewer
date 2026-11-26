@@ -301,8 +301,10 @@ public:
         METALLIC_ROUGHNESS_MAP = 4,
         GLTF_NORMAL_MAP        = 5,
         EMISSIVE_MAP           = 6,
+        TRANSMISSION_MAP       = 7,
+        THICKNESS_MAP          = 8,
         // Total number of channels
-        NUM_TEXTURE_CHANNELS   = 7,
+        NUM_TEXTURE_CHANNELS   = 9,
     };
 
     enum eVolumeTexIndex : U8

@@ -253,6 +253,10 @@ LLGLSLShader            gDeferredSkinnedPBROpaqueProgram;
 LLGLSLShader            gHUDPBRAlphaProgram;
 LLGLSLShader            gDeferredPBRAlphaProgram;
 LLGLSLShader            gDeferredSkinnedPBRAlphaProgram;
+LLGLSLShader            gDeferredPBRTransmissiveProgram;
+LLGLSLShader            gDeferredSkinnedPBRTransmissiveProgram;
+LLGLSLShader            gDeferredPBRTransmissiveTintProgram;
+LLGLSLShader            gDeferredSkinnedPBRTransmissiveTintProgram;
 LLGLSLShader            gDeferredPBRTerrainProgram[TERRAIN_PAINT_TYPE_COUNT];
 
 LLGLSLShader            gVelocityProgram;
@@ -470,6 +474,8 @@ void LLViewerShaderMgr::finalizeShaderList()
     mShaderList.push_back(&gDeferredWLMoonProgram);
     mShaderList.push_back(&gDeferredWLSunProgram);
     mShaderList.push_back(&gDeferredPBRAlphaProgram);
+    mShaderList.push_back(&gDeferredPBRTransmissiveProgram);
+    mShaderList.push_back(&gDeferredPBRTransmissiveTintProgram);
     mShaderList.push_back(&gHUDPBRAlphaProgram);
     mShaderList.push_back(&gDeferredPostTonemapProgram);
     mShaderList.push_back(&gNoPostTonemapProgram);
@@ -1282,6 +1288,10 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSkinnedPBROpaqueProgram.unload();
         gDeferredPBRAlphaProgram.unload();
         gDeferredSkinnedPBRAlphaProgram.unload();
+        gDeferredPBRTransmissiveProgram.unload();
+        gDeferredSkinnedPBRTransmissiveProgram.unload();
+        gDeferredPBRTransmissiveTintProgram.unload();
+        gDeferredSkinnedPBRTransmissiveTintProgram.unload();
         for (U32 paint_type = 0; paint_type < TERRAIN_PAINT_TYPE_COUNT; ++paint_type)
         {
             gDeferredPBRTerrainProgram[paint_type].unload();
@@ -1583,6 +1593,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         shader->addPermutation("HAS_SPECULAR_MAP", "1"); // PBR: Packed: Occlusion, Metal, Roughness
         shader->addPermutation("HAS_EMISSIVE_MAP", "1");
         shader->addPermutation("USE_VERTEX_COLOR", "1");
+        shader->addPermutation("HAS_ALPHA_MASK", "1");
 
         add_common_permutations(shader);
 
@@ -1593,6 +1604,77 @@ bool LLViewerShaderMgr::loadShadersDeferred()
 
         shader->mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = make_rigged_variant(*shader, gDeferredSkinnedPBRAlphaProgram);
+        if (success)
+        {
+            success = shader->createShader();
+        }
+        llassert(success);
+
+        // Alpha Shader Hack
+        // See: LLRender::syncMatrices()
+        shader->mFeatures.calculatesLighting = true;
+        shader->mFeatures.hasLighting = true;
+
+        shader->mRiggedVariant->mFeatures.calculatesLighting = true;
+        shader->mRiggedVariant->mFeatures.hasLighting = true;
+    }
+
+    for (U32 tint_variant = 0; success && tint_variant < 2; ++tint_variant)
+    {
+        LLGLSLShader* shader = &gDeferredPBRTransmissiveProgram;
+        LLGLSLShader* rigged_shader = &gDeferredSkinnedPBRTransmissiveProgram;
+        shader->mName = "Deferred PBR Transmissive Shader";
+
+        if (tint_variant == 1)
+        {
+            shader = &gDeferredPBRTransmissiveTintProgram;
+            rigged_shader = &gDeferredSkinnedPBRTransmissiveTintProgram;
+            shader->mName = "Deferred PBR Transmissive Tint Shader";
+        }
+
+        // Up to 17 samplers with shadows, SSR and mirrors on; 16-unit GPUs would fail to link.
+        bool transmission_sun_shadow = use_sun_shadow && gGLManager.mNumTextureImageUnits > 16;
+
+        shader->mFeatures.calculatesLighting = false;
+        shader->mFeatures.hasLighting = false;
+        shader->mFeatures.isAlphaLighting = true;
+        shader->mFeatures.hasSrgb = true;
+        shader->mFeatures.calculatesAtmospherics = true;
+        shader->mFeatures.hasAtmospherics = true;
+        shader->mFeatures.hasGamma = true;
+        shader->mFeatures.hasShadows = transmission_sun_shadow;
+        shader->mFeatures.isDeferred = true; // include deferredUtils
+        shader->mFeatures.hasReflectionProbes = mShaderLevel[SHADER_DEFERRED];
+
+        shader->mShaderFiles.clear();
+        shader->mShaderFiles.push_back(make_pair("deferred/pbralphaV.glsl", GL_VERTEX_SHADER));
+        shader->mShaderFiles.push_back(make_pair("deferred/pbralphaF.glsl", GL_FRAGMENT_SHADER));
+
+        shader->clearPermutations();
+
+        U32 alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
+        shader->addPermutation("DIFFUSE_ALPHA_MODE", llformat("%d", alpha_mode));
+        shader->addPermutation("HAS_NORMAL_MAP", "1");
+        shader->addPermutation("HAS_SPECULAR_MAP", "1"); // PBR: Packed: Occlusion, Metal, Roughness
+        shader->addPermutation("HAS_EMISSIVE_MAP", "1");
+        shader->addPermutation("USE_VERTEX_COLOR", "1");
+        shader->addPermutation("TRANSMISSION", "1");
+        shader->addPermutation("HAS_ALPHA_MASK", "1");
+
+        if (tint_variant == 1)
+        {
+            shader->addPermutation("TRANSMISSION_TINT", "1");
+        }
+
+        add_common_permutations(shader);
+
+        if (transmission_sun_shadow)
+        {
+            shader->addPermutation("HAS_SUN_SHADOW", "1");
+        }
+
+        shader->mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = make_rigged_variant(*shader, *rigged_shader);
         if (success)
         {
             success = shader->createShader();
@@ -1622,6 +1704,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         shader->clearPermutations();
 
         shader->addPermutation("IS_HUD", "1");
+        shader->addPermutation("HAS_ALPHA_MASK", "1");
 
         add_common_permutations(shader);
 
@@ -2522,6 +2605,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredShadowGLTFAlphaBlendProgram.mShaderFiles.push_back(make_pair("deferred/pbrShadowAlphaBlendF.glsl", GL_FRAGMENT_SHADER));
         gDeferredShadowGLTFAlphaBlendProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         gDeferredShadowGLTFAlphaBlendProgram.clearPermutations();
+        gDeferredShadowGLTFAlphaBlendProgram.addPermutation("TRANSMISSION", "1");
 
         add_common_permutations(&gDeferredShadowGLTFAlphaBlendProgram);
 

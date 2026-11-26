@@ -321,6 +321,8 @@ extern LLGLSLShader         gHUDPBROpaqueProgram;
 extern LLGLSLShader         gPBRGlowProgram;
 extern LLGLSLShader         gDeferredPBROpaqueProgram;
 extern LLGLSLShader         gDeferredPBRAlphaProgram;
+extern LLGLSLShader         gDeferredPBRTransmissiveProgram;
+extern LLGLSLShader         gDeferredPBRTransmissiveTintProgram;
 extern LLGLSLShader         gHUDPBRAlphaProgram;
 
 // GLTF shaders

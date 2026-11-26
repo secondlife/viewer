@@ -95,6 +95,14 @@ static const U32 MATERIAL_SPECULAR_COLOR_DIRTY = 0x1 << 13;
 static const U32 MATERIAL_SPECULAR_TEX_DIRTY = 0x1 << 14;
 static const U32 MATERIAL_IOR_DIRTY = 0x1 << 15;
 
+static const U32 MATERIAL_TRANSMISSION_FACTOR_DIRTY = 0x1 << 16;
+static const U32 MATERIAL_TRANSMISSION_TEX_DIRTY = 0x1 << 17;
+static const U32 MATERIAL_THICKNESS_FACTOR_DIRTY = 0x1 << 18;
+static const U32 MATERIAL_THICKNESS_TEX_DIRTY = 0x1 << 19;
+static const U32 MATERIAL_ATTENUATION_DISTANCE_DIRTY = 0x1 << 20;
+static const U32 MATERIAL_ATTENUATION_COLOR_DIRTY = 0x1 << 21;
+static const U32 MATERIAL_DISPERSION_DIRTY = 0x1 << 22;
+
 LLUUID LLMaterialEditor::mOverrideObjectId;
 S32 LLMaterialEditor::mOverrideObjectTE = -1;
 bool LLMaterialEditor::mOverrideInProgress = false;
@@ -568,6 +576,9 @@ bool LLMaterialEditor::postBuild()
     mBaseColorCtrl = getChild<LLColorSwatchCtrl>("base color");
     mEmissiveColorCtrl = getChild<LLColorSwatchCtrl>("emissive color");
     mSpecularColorCtrl = getChild<LLColorSwatchCtrl>("specular color");
+    mTransmissionTextureCtrl = getChild<LLTextureCtrl>("transmission_texture");
+    mThicknessTextureCtrl = getChild<LLTextureCtrl>("thickness_texture");
+    mAttenuationColorCtrl = getChild<LLColorSwatchCtrl>("attenuation color");
 
     if (!gAgent.isGodlike())
     {
@@ -577,6 +588,8 @@ bool LLMaterialEditor::postBuild()
         mEmissiveTextureCtrl->setFilterPermissionMasks(PERM_COPY | PERM_TRANSFER);
         mNormalTextureCtrl->setFilterPermissionMasks(PERM_COPY | PERM_TRANSFER);
         mSpecularTextureCtrl->setFilterPermissionMasks(PERM_COPY | PERM_TRANSFER);
+        mTransmissionTextureCtrl->setFilterPermissionMasks(PERM_COPY | PERM_TRANSFER);
+        mThicknessTextureCtrl->setFilterPermissionMasks(PERM_COPY | PERM_TRANSFER);
     }
 
     // Texture callback
@@ -585,6 +598,8 @@ bool LLMaterialEditor::postBuild()
     mEmissiveTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_EMISIVE_TEX_DIRTY));
     mNormalTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_NORMAL_TEX_DIRTY));
     mSpecularTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_SPECULAR_TEX_DIRTY));
+    mTransmissionTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_TRANSMISSION_TEX_DIRTY));
+    mThicknessTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_THICKNESS_TEX_DIRTY));
 
     mNormalTextureCtrl->setBlankImageAssetID(BLANK_OBJECT_NORMAL);
 
@@ -596,6 +611,8 @@ bool LLMaterialEditor::postBuild()
         mEmissiveTextureCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_EMISIVE_TEX_DIRTY));
         mNormalTextureCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_NORMAL_TEX_DIRTY));
         mSpecularTextureCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_SPECULAR_TEX_DIRTY));
+        mTransmissionTextureCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_TRANSMISSION_TEX_DIRTY));
+        mThicknessTextureCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_THICKNESS_TEX_DIRTY));
 
         // Save applied changes on 'OK' to our recovery mechanism.
         mBaseColorTextureCtrl->setOnSelectCallback(boost::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_BASE_COLOR_TEX_DIRTY));
@@ -603,6 +620,8 @@ bool LLMaterialEditor::postBuild()
         mEmissiveTextureCtrl->setOnSelectCallback(boost::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_EMISIVE_TEX_DIRTY));
         mNormalTextureCtrl->setOnSelectCallback(boost::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_NORMAL_TEX_DIRTY));
         mSpecularTextureCtrl->setOnSelectCallback(boost::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_SPECULAR_TEX_DIRTY));
+        mTransmissionTextureCtrl->setOnSelectCallback(boost::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_TRANSMISSION_TEX_DIRTY));
+        mThicknessTextureCtrl->setOnSelectCallback(boost::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_THICKNESS_TEX_DIRTY));
     }
     else
     {
@@ -611,6 +630,8 @@ bool LLMaterialEditor::postBuild()
         mEmissiveTextureCtrl->setCanApplyImmediately(false);
         mNormalTextureCtrl->setCanApplyImmediately(false);
         mSpecularTextureCtrl->setCanApplyImmediately(false);
+        mTransmissionTextureCtrl->setCanApplyImmediately(false);
+        mThicknessTextureCtrl->setCanApplyImmediately(false);
     }
 
     if (!mIsOverride)
@@ -675,6 +696,24 @@ bool LLMaterialEditor::postBuild()
     }
     childSetCommitCallback("specular factor", changes_callback, (void*)&MATERIAL_SPECULAR_FACTOR_DIRTY);
     childSetCommitCallback("ior", changes_callback, (void*)&MATERIAL_IOR_DIRTY);
+
+    // Transmission and volume
+    mAttenuationColorCtrl->setCommitCallback(changes_callback, (void*)&MATERIAL_ATTENUATION_COLOR_DIRTY);
+
+    if (mIsOverride)
+    {
+        mAttenuationColorCtrl->setOnCancelCallback(boost::bind(&LLMaterialEditor::onCancelCtrl, this, _1, _2, MATERIAL_ATTENUATION_COLOR_DIRTY));
+        mAttenuationColorCtrl->setOnSelectCallback(boost::bind(&LLMaterialEditor::onSelectCtrl, this, _1, _2, MATERIAL_ATTENUATION_COLOR_DIRTY));
+    }
+    else
+    {
+        mAttenuationColorCtrl->setCanApplyImmediately(false);
+    }
+
+    childSetCommitCallback("transmission factor", changes_callback, (void*)&MATERIAL_TRANSMISSION_FACTOR_DIRTY);
+    childSetCommitCallback("thickness factor", changes_callback, (void*)&MATERIAL_THICKNESS_FACTOR_DIRTY);
+    childSetCommitCallback("attenuation distance", changes_callback, (void*)&MATERIAL_ATTENUATION_DISTANCE_DIRTY);
+    childSetCommitCallback("dispersion", changes_callback, (void*)&MATERIAL_DISPERSION_DIRTY);
 
     // Emissive
     mEmissiveColorCtrl->setCommitCallback(changes_callback, (void*)&MATERIAL_EMISIVE_COLOR_DIRTY);
@@ -999,6 +1038,86 @@ void LLMaterialEditor::setIOR(F32 ior)
     childSetValue("ior", ior);
 }
 
+F32 LLMaterialEditor::getTransmissionFactor()
+{
+    return (F32)childGetValue("transmission factor").asReal();
+}
+
+void LLMaterialEditor::setTransmissionFactor(F32 factor)
+{
+    childSetValue("transmission factor", factor);
+}
+
+LLUUID LLMaterialEditor::getTransmissionId()
+{
+    return mTransmissionTextureCtrl->getImageAssetID();
+}
+
+void LLMaterialEditor::setTransmissionId(const LLUUID& id)
+{
+    mTransmissionTextureCtrl->setImageAssetID(id);
+}
+
+F32 LLMaterialEditor::getThicknessFactor()
+{
+    return (F32)childGetValue("thickness factor").asReal();
+}
+
+void LLMaterialEditor::setThicknessFactor(F32 factor)
+{
+    childSetValue("thickness factor", factor);
+}
+
+LLUUID LLMaterialEditor::getThicknessId()
+{
+    return mThicknessTextureCtrl->getImageAssetID();
+}
+
+void LLMaterialEditor::setThicknessId(const LLUUID& id)
+{
+    mThicknessTextureCtrl->setImageAssetID(id);
+}
+
+F32 LLMaterialEditor::getAttenuationDistance()
+{
+    F32 distance = (F32)childGetValue("attenuation distance").asReal();
+
+    if (distance <= 0.f) {
+        distance = std::numeric_limits<F32>::infinity();
+    }
+
+    return distance;
+}
+
+void LLMaterialEditor::setAttenuationDistance(F32 distance)
+{
+    if (!std::isfinite(distance)) {
+        distance = 0.f;
+    }
+
+    childSetValue("attenuation distance", distance);
+}
+
+LLColor3 LLMaterialEditor::getAttenuationColor()
+{
+    return LLColor3(mAttenuationColorCtrl->get());
+}
+
+void LLMaterialEditor::setAttenuationColor(const LLColor3& color)
+{
+    mAttenuationColorCtrl->set(LLColor4(color));
+}
+
+F32 LLMaterialEditor::getDispersion()
+{
+    return (F32)childGetValue("dispersion").asReal();
+}
+
+void LLMaterialEditor::setDispersion(F32 dispersion)
+{
+    childSetValue("dispersion", dispersion);
+}
+
 void LLMaterialEditor::resetUnsavedChanges()
 {
     mUnsavedChanges = 0;
@@ -1138,6 +1257,7 @@ void LLMaterialEditor::setEnableEditing(bool can_modify)
     }
 
     childSetVisible("specular_layout_pnl", pbr_ext);
+    childSetVisible("transmission_layout_pnl", pbr_ext);
     childSetVisible("emissive_strength_lbl", pbr_ext);
     childSetVisible("emissive strength", pbr_ext);
 }
@@ -3004,6 +3124,93 @@ bool LLMaterialEditor::setFromGltfModel(const LL::GLTF::Asset& asset, S32 index,
         {
             setIOR(1.5f);
         }
+
+        // Transmission
+        if (material_in.mTransmission.mPresent)
+        {
+            setTransmissionFactor((F32)material_in.mTransmission.mTransmissionFactor);
+
+            if (set_textures)
+            {
+                S32 trans_tex_idx = material_in.mTransmission.mTransmissionTexture.mIndex;
+
+                if (trans_tex_idx >= 0 && (size_t)trans_tex_idx < asset.mTextures.size())
+                {
+                    S32 src = asset.mTextures[trans_tex_idx].mSource;
+
+                    if (src >= 0 && (size_t)src < asset.mImages.size())
+                    {
+                        LLUUID trans_id;
+                        trans_id.set(asset.mImages[src].mUri);
+                        setTransmissionId(trans_id);
+                    }
+                }
+                else
+                {
+                    setTransmissionId(LLUUID::null);
+                }
+            }
+        }
+        else
+        {
+            setTransmissionFactor(0.f);
+
+            if (set_textures)
+            {
+                setTransmissionId(LLUUID::null);
+            }
+        }
+
+        // Volume
+        if (material_in.mVolume.mPresent)
+        {
+            setThicknessFactor((F32)material_in.mVolume.mThicknessFactor);
+            setAttenuationDistance((F32)material_in.mVolume.mAttenuationDistance);
+            const auto& acf = material_in.mVolume.mAttenuationColor;
+            setAttenuationColor(LLColor3((F32)acf.x, (F32)acf.y, (F32)acf.z));
+
+            if (set_textures)
+            {
+                S32 thick_tex_idx = material_in.mVolume.mThicknessTexture.mIndex;
+
+                if (thick_tex_idx >= 0 && (size_t)thick_tex_idx < asset.mTextures.size())
+                {
+                    S32 src = asset.mTextures[thick_tex_idx].mSource;
+
+                    if (src >= 0 && (size_t)src < asset.mImages.size())
+                    {
+                        LLUUID thick_id;
+                        thick_id.set(asset.mImages[src].mUri);
+                        setThicknessId(thick_id);
+                    }
+                }
+                else
+                {
+                    setThicknessId(LLUUID::null);
+                }
+            }
+        }
+        else
+        {
+            setThicknessFactor(0.f);
+            setAttenuationDistance(std::numeric_limits<F32>::infinity());
+            setAttenuationColor(LLColor3(1.f, 1.f, 1.f));
+
+            if (set_textures)
+            {
+                setThicknessId(LLUUID::null);
+            }
+        }
+
+        // Dispersion
+        if (material_in.mDispersion.mPresent)
+        {
+            setDispersion((F32)material_in.mDispersion.mDispersion);
+        }
+        else
+        {
+            setDispersion(0.f);
+        }
     }
 
     return true;
@@ -3530,6 +3737,51 @@ public:
                 material->setIOR(revert_mat->mIOR, false);
             }
 
+            if (changed_flags & MATERIAL_TRANSMISSION_FACTOR_DIRTY)
+            {
+                material->setTransmissionFactor(mEditor->getTransmissionFactor(), true);
+            }
+            else if ((reverted_flags & MATERIAL_TRANSMISSION_FACTOR_DIRTY) && revert_mat.notNull())
+            {
+                material->setTransmissionFactor(revert_mat->mTransmissionFactor, false);
+            }
+
+            if (changed_flags & MATERIAL_THICKNESS_FACTOR_DIRTY)
+            {
+                material->setThicknessFactor(mEditor->getThicknessFactor(), true);
+            }
+            else if ((reverted_flags & MATERIAL_THICKNESS_FACTOR_DIRTY) && revert_mat.notNull())
+            {
+                material->setThicknessFactor(revert_mat->mThicknessFactor, false);
+            }
+
+            if (changed_flags & MATERIAL_ATTENUATION_DISTANCE_DIRTY)
+            {
+                material->setAttenuationDistance(mEditor->getAttenuationDistance(), true);
+            }
+            else if ((reverted_flags & MATERIAL_ATTENUATION_DISTANCE_DIRTY) && revert_mat.notNull())
+            {
+                material->setAttenuationDistance(revert_mat->mAttenuationDistance, false);
+            }
+
+            if (changed_flags & MATERIAL_ATTENUATION_COLOR_DIRTY)
+            {
+                material->setAttenuationColor(mEditor->getAttenuationColor(), true);
+            }
+            else if ((reverted_flags & MATERIAL_ATTENUATION_COLOR_DIRTY) && revert_mat.notNull())
+            {
+                material->setAttenuationColor(revert_mat->mAttenuationColor, false);
+            }
+
+            if (changed_flags & MATERIAL_DISPERSION_DIRTY)
+            {
+                material->setDispersion(mEditor->getDispersion(), true);
+            }
+            else if ((reverted_flags & MATERIAL_DISPERSION_DIRTY) && revert_mat.notNull())
+            {
+                material->setDispersion(revert_mat->mDispersion, false);
+            }
+
             if (changed_flags & MATERIAL_SPECULAR_TEX_DIRTY)
             {
                 material->setSpecularId(mEditor->getSpecularId(), true);
@@ -3543,6 +3795,48 @@ public:
             {
                 material->setSpecularId(revert_mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_SPECULAR], false);
                 LLUUID tracking_id = mEditor->getLocalTextureTrackingIdFromFlag(MATERIAL_SPECULAR_TEX_DIRTY);
+                if (tracking_id.notNull())
+                {
+                    LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(tracking_id, material);
+                }
+            }
+
+            if (changed_flags & MATERIAL_TRANSMISSION_TEX_DIRTY)
+            {
+                material->setTransmissionId(mEditor->getTransmissionId(), true);
+                LLUUID tracking_id = mEditor->getLocalTextureTrackingIdFromFlag(MATERIAL_TRANSMISSION_TEX_DIRTY);
+
+                if (tracking_id.notNull())
+                {
+                    LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(tracking_id, material);
+                }
+            }
+            else if ((reverted_flags & MATERIAL_TRANSMISSION_TEX_DIRTY) && revert_mat.notNull())
+            {
+                material->setTransmissionId(revert_mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_TRANSMISSION], false);
+                LLUUID tracking_id = mEditor->getLocalTextureTrackingIdFromFlag(MATERIAL_TRANSMISSION_TEX_DIRTY);
+
+                if (tracking_id.notNull())
+                {
+                    LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(tracking_id, material);
+                }
+            }
+
+            if (changed_flags & MATERIAL_THICKNESS_TEX_DIRTY)
+            {
+                material->setThicknessId(mEditor->getThicknessId(), true);
+                LLUUID tracking_id = mEditor->getLocalTextureTrackingIdFromFlag(MATERIAL_THICKNESS_TEX_DIRTY);
+
+                if (tracking_id.notNull())
+                {
+                    LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(tracking_id, material);
+                }
+            }
+            else if ((reverted_flags & MATERIAL_THICKNESS_TEX_DIRTY) && revert_mat.notNull())
+            {
+                material->setThicknessId(revert_mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_THICKNESS], false);
+                LLUUID tracking_id = mEditor->getLocalTextureTrackingIdFromFlag(MATERIAL_THICKNESS_TEX_DIRTY);
+
                 if (tracking_id.notNull())
                 {
                     LLLocalBitmapMgr::getInstance()->associateGLTFMaterial(tracking_id, material);
@@ -3680,6 +3974,13 @@ void LLMaterialEditor::getGLTFMaterial(LLGLTFMaterial* mat)
     mat->mSpecularColorFactor = getSpecularColorFactor();
     mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_SPECULAR] = getSpecularId();
     mat->mIOR = getIOR();
+    mat->mTransmissionFactor = getTransmissionFactor();
+    mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_TRANSMISSION] = getTransmissionId();
+    mat->mThicknessFactor = getThicknessFactor();
+    mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_THICKNESS] = getThicknessId();
+    mat->mAttenuationDistance = getAttenuationDistance();
+    mat->mAttenuationColor = getAttenuationColor();
+    mat->mDispersion = getDispersion();
     mat->bumpVersion();
 }
 
@@ -3705,6 +4006,14 @@ void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
     setSpecularColorFactor(mat->mSpecularColorFactor);
     setSpecularId(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_SPECULAR]);
     setIOR(mat->mIOR);
+
+    setTransmissionFactor(mat->mTransmissionFactor);
+    setTransmissionId(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_TRANSMISSION]);
+    setThicknessFactor(mat->mThicknessFactor);
+    setThicknessId(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_THICKNESS]);
+    setAttenuationDistance(mat->mAttenuationDistance);
+    setAttenuationColor(mat->mAttenuationColor);
+    setDispersion(mat->mDispersion);
 
     if (mat->hasLocalTextures())
     {
@@ -3734,6 +4043,16 @@ void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
             if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_SPECULAR])
             {
                 subscribeToLocalTexture(MATERIAL_SPECULAR_TEX_DIRTY, val.first);
+            }
+
+            if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_TRANSMISSION])
+            {
+                subscribeToLocalTexture(MATERIAL_TRANSMISSION_TEX_DIRTY, val.first);
+            }
+
+            if (world_id == mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_THICKNESS])
+            {
+                subscribeToLocalTexture(MATERIAL_THICKNESS_TEX_DIRTY, val.first);
             }
         }
     }

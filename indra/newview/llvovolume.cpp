@@ -826,7 +826,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
         else
         {
             ch_min = LLRender::BASECOLOR_MAP;
-            ch_max = LLRender::EMISSIVE_MAP;
+            ch_max = LLRender::THICKNESS_MAP;
         }
         for (U32 ch = ch_min; (!imagep && ch <= ch_max); ++ch)
         {
@@ -1848,6 +1848,8 @@ void LLVOVolume::regenFaces()
                 facep->setTexture(LLRender::GLTF_NORMAL_MAP, gltf_mat->mNormalTexture);
                 facep->setTexture(LLRender::METALLIC_ROUGHNESS_MAP, gltf_mat->mMetallicRoughnessTexture);
                 facep->setTexture(LLRender::EMISSIVE_MAP, gltf_mat->mEmissiveTexture);
+                facep->setTexture(LLRender::TRANSMISSION_MAP, gltf_mat->mTransmissionTexture);
+                facep->setTexture(LLRender::THICKNESS_MAP, gltf_mat->mThicknessTexture);
             }
             else
             {
@@ -1858,6 +1860,8 @@ void LLVOVolume::regenFaces()
                 facep->setTexture(LLRender::GLTF_NORMAL_MAP, nullptr);
                 facep->setTexture(LLRender::METALLIC_ROUGHNESS_MAP, nullptr);
                 facep->setTexture(LLRender::EMISSIVE_MAP, nullptr);
+                facep->setTexture(LLRender::TRANSMISSION_MAP, nullptr);
+                facep->setTexture(LLRender::THICKNESS_MAP, nullptr);
             }
         }
         facep->setViewerObject(this);
@@ -5941,6 +5945,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                     facep->setTexture(LLRender::GLTF_NORMAL_MAP, gltf_mat->mNormalTexture);
                     facep->setTexture(LLRender::METALLIC_ROUGHNESS_MAP, gltf_mat->mMetallicRoughnessTexture);
                     facep->setTexture(LLRender::EMISSIVE_MAP, gltf_mat->mEmissiveTexture);
+                    facep->setTexture(LLRender::TRANSMISSION_MAP, gltf_mat->mTransmissionTexture);
+                    facep->setTexture(LLRender::THICKNESS_MAP, gltf_mat->mThicknessTexture);
                 }
                 else
                 {
@@ -5951,6 +5957,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                     facep->setTexture(LLRender::GLTF_NORMAL_MAP, nullptr);
                     facep->setTexture(LLRender::METALLIC_ROUGHNESS_MAP, nullptr);
                     facep->setTexture(LLRender::EMISSIVE_MAP, nullptr);
+                    facep->setTexture(LLRender::TRANSMISSION_MAP, nullptr);
+                    facep->setTexture(LLRender::THICKNESS_MAP, nullptr);
                 }
 
                 //ALWAYS null out vertex buffer on rebuild -- if the face lands in a render
@@ -6015,7 +6023,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
                     bool force_simple = (facep->getPixelArea() < FORCE_SIMPLE_RENDER_AREA);
                     U32 type = gPipeline.getPoolTypeFromTE(te, tex);
-                    if (is_pbr && gltf_mat && gltf_mat->mAlphaMode != LLGLTFMaterial::ALPHA_MODE_BLEND)
+                    if (is_pbr && gltf_mat && gltf_mat->mAlphaMode != LLGLTFMaterial::ALPHA_MODE_BLEND && gltf_mat->mTransmissionFactor <= FLT_EPSILON)
                     {
                         type = LLDrawPool::POOL_GLTF_PBR;
                     }
@@ -6744,7 +6752,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 
                 if (gltf_mat)
                 { // all other parameters ignored if gltf material is present
-                    if (gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND)
+                    if (gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND || gltf_mat->mTransmissionFactor > FLT_EPSILON)
                     {
                         registerFace(group, facep, LLRenderPass::PASS_ALPHA);
                         is_alpha = true;

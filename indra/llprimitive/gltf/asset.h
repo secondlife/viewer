@@ -125,6 +125,7 @@ namespace LL
             {
             public:
                 F32 mTransmissionFactor = 0.f;
+                TextureInfo mTransmissionTexture;
 
                 const Transmission& operator=(const Value& src);
                 void serialize(boost::json::object& dst) const;
@@ -143,6 +144,7 @@ namespace LL
             {
             public:
                 F32 mThicknessFactor = 0.f;
+                TextureInfo mThicknessTexture;
                 F32 mAttenuationDistance = std::numeric_limits<F32>::infinity();
                 vec3 mAttenuationColor = vec3(1.f, 1.f, 1.f);
 

@@ -53,6 +53,8 @@ namespace tut
         material.setOcclusionRoughnessMetallicId(LLUUID::generateNewID());
         material.setEmissiveId(LLUUID::generateNewID());
         material.setSpecularId(LLUUID::generateNewID());
+        material.setTransmissionId(LLUUID::generateNewID());
+        material.setThicknessId(LLUUID::generateNewID());
     }
 
     void apply_test_material_texture_transforms(LLGLTFMaterial& material)
@@ -81,6 +83,11 @@ namespace tut
         material.setSpecularFactor(test_fraction);
         material.setSpecularColorFactor(LLColor3(test_fraction_big, test_fraction_big, test_fraction_big));
         material.setIOR(test_fraction);
+        material.setTransmissionFactor(test_fraction);
+        material.setThicknessFactor(test_fraction);
+        material.setAttenuationDistance(test_fraction);
+        material.setAttenuationColor(LLColor3(test_fraction_big, test_fraction_big, test_fraction_big));
+        material.setDispersion(test_fraction);
     }
 
     LLGLTFMaterial create_test_material()
@@ -130,10 +137,10 @@ namespace tut
 #if LL_WINDOWS
         // If any fields are added/changed, these tests should be updated (consider also updating ASSET_VERSION in LLGLTFMaterial)
         // This test result will vary between compilers, so only test a single platform
-        ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 296);
+        ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 416);
 #endif
 #endif
-        ensure_equals("LLGLTFMaterial texture info count", (U32)LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT, 5);
+        ensure_equals("LLGLTFMaterial texture info count", (U32)LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT, 7);
     }
 
     // Test that occlusion and metallicRoughness are the same (They are different for asset validation. See lluploadmaterial.cpp)
@@ -410,6 +417,11 @@ namespace tut
         source_mat.mSpecularFactor = test_fraction;
         source_mat.mSpecularColorFactor.set(test_fraction_big, test_fraction_big, test_fraction_big);
         source_mat.mIOR = test_fraction;
+        source_mat.mTransmissionFactor = test_fraction;
+        source_mat.mThicknessFactor = test_fraction;
+        source_mat.mAttenuationDistance = test_fraction;
+        source_mat.mAttenuationColor.set(test_fraction_big, test_fraction_big, test_fraction_big);
+        source_mat.mDispersion = test_fraction;
         source_mat.mDoubleSided = true;
 
         LLGLTFMaterial hash_mat;
@@ -428,6 +440,11 @@ namespace tut
         ENSURE_HASH_CHANGED(hash_mat, source_mat, mSpecularFactor);
         ENSURE_HASH_CHANGED(hash_mat, source_mat, mSpecularColorFactor);
         ENSURE_HASH_CHANGED(hash_mat, source_mat, mIOR);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mTransmissionFactor);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mThicknessFactor);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mAttenuationDistance);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mAttenuationColor);
+        ENSURE_HASH_CHANGED(hash_mat, source_mat, mDispersion);
         ENSURE_HASH_CHANGED(hash_mat, source_mat, mAlphaMode);
         ENSURE_HASH_CHANGED(hash_mat, source_mat, mDoubleSided);
         ENSURE_HASH_CHANGED(hash_mat, source_mat, mOverrideDoubleSided);

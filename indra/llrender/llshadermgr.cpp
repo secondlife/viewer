@@ -1633,6 +1633,16 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("specularColorFactor");
     mReservedUniforms.push_back("emissiveStrength");
     mReservedUniforms.push_back("ior");
+    mReservedUniforms.push_back("transmissionFactor");
+    mReservedUniforms.push_back("thicknessFactor");
+    mReservedUniforms.push_back("attenuationDistance");
+    mReservedUniforms.push_back("attenuationColor");
+    mReservedUniforms.push_back("dispersion");
+    mReservedUniforms.push_back("transmissionMap");
+    mReservedUniforms.push_back("thicknessMap");
+    mReservedUniforms.push_back("texture_transmission_transform");
+    mReservedUniforms.push_back("texture_thickness_transform");
+    mReservedUniforms.push_back("transmissionSceneMap");
 
     llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

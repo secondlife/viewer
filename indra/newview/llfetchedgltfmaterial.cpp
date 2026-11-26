@@ -58,6 +58,8 @@ LLFetchedGLTFMaterial& LLFetchedGLTFMaterial::operator=(const LLFetchedGLTFMater
     mMetallicRoughnessTexture = rhs.mMetallicRoughnessTexture;
     mEmissiveTexture = rhs.mEmissiveTexture;
     mSpecularTexture = rhs.mSpecularTexture;
+    mTransmissionTexture = rhs.mTransmissionTexture;
+    mThicknessTexture = rhs.mThicknessTexture;
 
     return *this;
 }
@@ -110,30 +112,51 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
     mTextureTransform[GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
     shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)base_color_packed);
 
-    if (!LLPipeline::sShadowRender)
+    // transmission and IOR also thin glTF alpha-blend shadows
+    if (mTransmissionTexture.notNull())
     {
-        // Bind the normal map at whatever resolution is resident, like Blinn-Phong
-        // (soft, never absent). Only fall back to the flat normal when it's not
-        // loaded yet. (The old discard<=4 gate dropped distant/tiled PBR normals
-        // entirely, making PBR look flatter than equivalent Blinn content.)
-        if (mNormalTexture.notNull() && mNormalTexture->hasGLTexture())
+        shader->bindTexture(LLShaderMgr::TRANSMISSION_MAP, mTransmissionTexture);
+    }
+    else
+    {
+        shader->bindTexture(LLShaderMgr::TRANSMISSION_MAP, LLViewerFetchedTexture::sWhiteImagep);
+    }
+
+    shader->uniform1f(LLShaderMgr::TRANSMISSION_FACTOR, mTransmissionFactor);
+    shader->uniform1f(LLShaderMgr::IOR, mIOR);
+
+    F32 transmission_packed[8];
+    mTextureTransform[GLTF_TEXTURE_INFO_TRANSMISSION].getPacked(transmission_packed);
+    shader->uniform4fv(LLShaderMgr::TEXTURE_TRANSMISSION_TRANSFORM, 2, (F32*)transmission_packed);
+
+    // Bind the normal map at whatever resolution is resident, like Blinn-Phong
+    // (soft, never absent). Only fall back to the flat normal when it's not
+    // loaded yet. (The old discard<=4 gate dropped distant/tiled PBR normals
+    // entirely, making PBR look flatter than equivalent Blinn content.)
+    if (mNormalTexture.notNull() && mNormalTexture->hasGLTexture())
+    {
+        shader->bindTexture(LLShaderMgr::BUMP_MAP, mNormalTexture);
+    }
+    else
+    {
+        shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
+        if (mNormalTexture.notNull())
         {
-            shader->bindTexture(LLShaderMgr::BUMP_MAP, mNormalTexture);
-        }
-        else
-        {
-            shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
-            if (mNormalTexture.notNull())
+            // In use, just not loaded yet - stamp it so the GC doesn't treat
+            // it as unseen and pin it deep before its first real bind.
+            if (LLImageGL* gl_tex = mNormalTexture->getGLTexture())
             {
-                // In use, just not loaded yet - stamp it so the GC doesn't treat
-                // it as unseen and pin it deep before its first real bind.
-                if (LLImageGL* gl_tex = mNormalTexture->getGLTexture())
-                {
-                    gl_tex->stampBound();
-                }
+                gl_tex->stampBound();
             }
         }
+    }
 
+    F32 normal_packed[8];
+    mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
+    shader->uniform4fv(LLShaderMgr::TEXTURE_NORMAL_TRANSFORM, 2, (F32*)normal_packed);
+
+    if (!LLPipeline::sShadowRender)
+    {
         if (mMetallicRoughnessTexture.notNull())
         {
             shader->bindTexture(LLShaderMgr::SPECULAR_MAP, mMetallicRoughnessTexture); // PBR linear packed Occlusion, Roughness, Metal.
@@ -160,11 +183,6 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
         shader->uniform1f(LLShaderMgr::SPECULAR_FACTOR, mSpecularFactor);
         shader->uniform3fv(LLShaderMgr::SPECULAR_COLOR_FACTOR, 1, mSpecularColorFactor.mV);
         shader->uniform1f(LLShaderMgr::EMISSIVE_STRENGTH, mEmissiveStrength);
-        shader->uniform1f(LLShaderMgr::IOR, mIOR);
-
-        F32 normal_packed[8];
-        mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
-        shader->uniform4fv(LLShaderMgr::TEXTURE_NORMAL_TRANSFORM, 2, (F32*)normal_packed);
 
         F32 metallic_roughness_packed[8];
         mTextureTransform[GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].getPacked(metallic_roughness_packed);
@@ -173,6 +191,32 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
         F32 emissive_packed[8];
         mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
         shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, (F32*)emissive_packed);
+
+        if (mThicknessTexture.notNull())
+        {
+            shader->bindTexture(LLShaderMgr::THICKNESS_MAP, mThicknessTexture);
+        }
+        else
+        {
+            shader->bindTexture(LLShaderMgr::THICKNESS_MAP, LLViewerFetchedTexture::sWhiteImagep);
+        }
+
+        shader->uniform1f(LLShaderMgr::THICKNESS_FACTOR, mThicknessFactor);
+        shader->uniform1f(LLShaderMgr::DISPERSION, mDispersion);
+        shader->uniform3fv(LLShaderMgr::ATTENUATION_COLOR, 1, mAttenuationColor.mV);
+
+        F32 attenuation_distance = mAttenuationDistance;
+
+        if (!std::isfinite(attenuation_distance))
+        {
+            attenuation_distance = 0.f;
+        }
+
+        shader->uniform1f(LLShaderMgr::ATTENUATION_DISTANCE, attenuation_distance);
+
+        F32 thickness_packed[8];
+        mTextureTransform[GLTF_TEXTURE_INFO_THICKNESS].getPacked(thickness_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_THICKNESS_TRANSFORM, 2, (F32*)thickness_packed);
     }
 }
 
@@ -218,6 +262,20 @@ bool LLFetchedGLTFMaterial::replaceLocalTexture(const LLUUID& tracking_id, const
     {
         mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_SPECULAR] = new_id;
         mSpecularTexture = fetch_texture(new_id);
+        res = true;
+    }
+
+    if (mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_TRANSMISSION] == old_id)
+    {
+        mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_TRANSMISSION] = new_id;
+        mTransmissionTexture = fetch_texture(new_id);
+        res = true;
+    }
+
+    if (mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_THICKNESS] == old_id)
+    {
+        mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_THICKNESS] = new_id;
+        mThicknessTexture = fetch_texture(new_id);
         res = true;
     }
 
@@ -268,6 +326,8 @@ void LLFetchedGLTFMaterial::clearFetchedTextures()
     mMetallicRoughnessTexture = nullptr;
     mEmissiveTexture = nullptr;
     mSpecularTexture = nullptr;
+    mTransmissionTexture = nullptr;
+    mThicknessTexture = nullptr;
 }
 
 void LLFetchedGLTFMaterial::materialBegin()

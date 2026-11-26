@@ -6,7 +6,7 @@
  name="panel_gltf_material"
  top="0"
  left="0"
- height="768"
+ height="1431"
  width="247">
   <check_box
     follows="left|top"
@@ -23,7 +23,7 @@
     left="0"
     top_pad="5"
     width="247"
-    height="743"
+    height="1406"
     orientation="vertical"
     animate="false"
     name="material_layout_stack">
@@ -408,6 +408,211 @@
           min_val="0"
           max_val="5"
           name="ior"
+          width="64"/>
+      </panel>
+    </layout_panel>
+    <layout_panel
+      auto_resize="false"
+      user_resize="false"
+      height="422"
+      min_height="0"
+      width="247"
+      name="transmission_layout_pnl">
+      <panel
+        border="true"
+        follows="left|top"
+        width="246"
+        height="180"
+        layout="topleft"
+        left="1"
+        top="5"
+        mouse_opaque="false"
+        name="transmission_texture_pnl">
+        <text
+          type="string"
+          font.style="BOLD"
+          length="1"
+          follows="left|top"
+          height="10"
+          layout="topleft"
+          left="10"
+          top="5"
+          width="128"
+          name="transmission_lbl">
+          Transmission:
+        </text>
+        <texture_picker
+          can_apply_immediately="true"
+          default_image_name="Default"
+          fallback_image="materials_ui_x_24.png"
+          allow_no_texture="true"
+          follows="left|top"
+          top_pad="8"
+          height="151"
+          layout="topleft"
+          left="10"
+          name="transmission_texture"
+          tool_tip="Transmission map. Red channel scales the transmission factor."
+          width="128" />
+        <text
+          type="string"
+          length="1"
+          follows="left|top"
+          height="10"
+          layout="topleft"
+          left_pad="5"
+          top="8"
+          width="96"
+          name="transmission_factor_lbl">
+          Transmission
+        </text>
+        <spinner
+          decimal_digits="3"
+          follows="left|top"
+          height="19"
+          increment="0.01"
+          initial_value="0"
+          layout="topleft"
+          left_delta="0"
+          top_pad="5"
+          min_val="0"
+          max_val="1"
+          name="transmission factor"
+          width="64"/>
+      </panel>
+      <panel
+        border="true"
+        follows="left|top"
+        width="246"
+        height="236"
+        layout="topleft"
+        left="1"
+        top="185"
+        mouse_opaque="false"
+        name="volume_texture_pnl">
+        <text
+          type="string"
+          font.style="BOLD"
+          length="1"
+          follows="left|top"
+          height="10"
+          layout="topleft"
+          left="10"
+          top="5"
+          width="128"
+          name="volume_lbl">
+          Volume:
+        </text>
+        <texture_picker
+          can_apply_immediately="true"
+          default_image_name="Default"
+          fallback_image="materials_ui_x_24.png"
+          allow_no_texture="true"
+          follows="left|top"
+          top_pad="8"
+          height="151"
+          layout="topleft"
+          left="10"
+          name="thickness_texture"
+          tool_tip="Thickness map. Green channel scales the thickness factor."
+          width="128" />
+        <text
+          type="string"
+          length="1"
+          follows="left|top"
+          height="10"
+          layout="topleft"
+          left_pad="5"
+          top="8"
+          width="96"
+          name="thickness_factor_lbl">
+          Thickness
+        </text>
+        <spinner
+          decimal_digits="3"
+          follows="left|top"
+          height="19"
+          increment="0.01"
+          initial_value="0"
+          layout="topleft"
+          left_delta="0"
+          top_pad="5"
+          min_val="0"
+          max_val="100"
+          name="thickness factor"
+          width="64"/>
+        <text
+          type="string"
+          length="1"
+          follows="left|top"
+          height="22"
+          layout="topleft"
+          left_delta="0"
+          top_pad="5"
+          width="96"
+          word_wrap="true"
+          name="attenuation_distance_lbl">
+          Attenuation Distance (0 = infinite)
+        </text>
+        <spinner
+          decimal_digits="3"
+          follows="left|top"
+          height="19"
+          increment="0.1"
+          initial_value="0"
+          layout="topleft"
+          left_delta="0"
+          top_pad="5"
+          min_val="0"
+          max_val="1000"
+          name="attenuation distance"
+          width="64"/>
+        <text
+          type="string"
+          length="1"
+          follows="left|top"
+          height="10"
+          layout="topleft"
+          left_delta="0"
+          top_pad="5"
+          width="96"
+          name="attenuation_color_lbl">
+          Attenuation Color
+        </text>
+        <color_swatch
+          can_apply_immediately="true"
+          follows="left|top"
+          height="40"
+          label_height="0"
+          layout="topleft"
+          left_delta="0"
+          top_pad="5"
+          name="attenuation color"
+          width="40" />
+        <text
+          type="string"
+          length="1"
+          follows="left|top"
+          height="10"
+          layout="topleft"
+          left="10"
+          top="188"
+          width="96"
+          name="dispersion_lbl">
+          Dispersion
+        </text>
+        <spinner
+          decimal_digits="3"
+          follows="left|top"
+          height="19"
+          increment="0.01"
+          initial_value="0"
+          layout="topleft"
+          left_delta="0"
+          top_pad="5"
+          min_val="0"
+          max_val="20"
+          name="dispersion"
           width="64"/>
       </panel>
     </layout_panel>

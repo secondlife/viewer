@@ -1557,7 +1557,7 @@ bool LLPanelRegionTerrainInfo::validateMaterials()
     //       volumes.
     // See also LLGLTFMaterial
 #ifdef LL_WINDOWS
-    llassert(sizeof(LLGLTFMaterial) == 232);
+    llassert(sizeof(LLGLTFMaterial) == 416);
 #endif
 
     bool valid = true;

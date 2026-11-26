@@ -1275,6 +1275,7 @@ const Material::Transmission& Material::Transmission::operator=(const Value& src
     if (src.is_object())
     {
         copy(src, "transmissionFactor", mTransmissionFactor);
+        copy(src, "transmissionTexture", mTransmissionTexture);
     }
     return *this;
 }
@@ -1282,6 +1283,7 @@ const Material::Transmission& Material::Transmission::operator=(const Value& src
 void Material::Transmission::serialize(object& dst) const
 {
     write(mTransmissionFactor, "transmissionFactor", dst, 0.f);
+    write(mTransmissionTexture, "transmissionTexture", dst);
 }
 
 const Material::IOR& Material::IOR::operator=(const Value& src)
@@ -1305,6 +1307,7 @@ const Material::Volume& Material::Volume::operator=(const Value& src)
     if (src.is_object())
     {
         copy(src, "thicknessFactor", mThicknessFactor);
+        copy(src, "thicknessTexture", mThicknessTexture);
         copy(src, "attenuationDistance", mAttenuationDistance);
         copy(src, "attenuationColor", mAttenuationColor);
     }
@@ -1314,6 +1317,7 @@ const Material::Volume& Material::Volume::operator=(const Value& src)
 void Material::Volume::serialize(object& dst) const
 {
     write(mThicknessFactor, "thicknessFactor", dst, 0.f);
+    write(mThicknessTexture, "thicknessTexture", dst);
     write(mAttenuationDistance, "attenuationDistance", dst, std::numeric_limits<F32>::infinity());
     write(mAttenuationColor, "attenuationColor", dst, vec3(1.f, 1.f, 1.f));
 }

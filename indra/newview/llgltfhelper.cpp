@@ -357,6 +357,8 @@ bool LLGLTFHelper::getMaterialFromModel(
         serializeTexIndex(mat_in.mPbrMetallicRoughness.mMetallicRoughnessTexture.mIndex);
         serializeTexIndex(mat_in.mEmissiveTexture.mIndex);
         serializeTexIndex(mat_in.mOcclusionTexture.mIndex);
+        serializeTexIndex(mat_in.mTransmission.mTransmissionTexture.mIndex);
+        serializeTexIndex(mat_in.mVolume.mThicknessTexture.mIndex);
 
         doc["materials"] = boost::json::array({ mat_json });
         if (!textures_arr.empty()) doc["textures"] = textures_arr;

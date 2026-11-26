@@ -40,6 +40,36 @@ uniform vec3 specularColorFactor;
 uniform float emissiveStrength;
 uniform float ior;
 
+#ifdef TRANSMISSION
+uniform sampler2D transmissionMap; // R: transmission
+uniform sampler2D thicknessMap;    // G: thickness
+uniform sampler2D transmissionSceneMap;
+uniform sampler2D depthMap; // depth of the transmission copy
+
+vec3 getPositionWithNDC(vec3 ndc);
+
+uniform float transmissionFactor;
+uniform float thicknessFactor;
+uniform float attenuationDistance; // 0 = infinite
+uniform vec3 attenuationColor;
+uniform float dispersion;
+
+uniform mat4 modelview_matrix;
+uniform mat4 projection_matrix;
+
+in vec2 transmission_texcoord;
+in vec2 thickness_texcoord;
+
+uniform int transmissionHasCopy; // 0 = no scene copy, transmission is done in the blend stage
+uniform int alphaOpaque;
+uniform int transmissionSamples;
+
+// Deepest mip the pipeline builds for the transmission copy.
+const float TRANSMISSION_MAX_LOD = 6.0;
+const int TRANSMISSION_MAX_SAMPLES = 16;
+const float TRANSMISSION_OFF_MAX_DEPTH = 1.0; // meters of volume assumed behind the surface at quality 0
+#endif
+
 #if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)
 uniform sampler2D lightMap;
 #endif
@@ -125,6 +155,155 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     vec3 lightColor,
                     float lightSize, float falloff, float is_pointlight, float ambiance);
 
+#ifdef TRANSMISSION
+vec2 BRDF(float NoV, float roughness);
+
+// Khronos Sample Viewer volume refraction, evaluated in eye space.
+vec3 transmissionRay(vec3 normal, vec3 viewDir, float iorValue, float thickness)
+{
+    vec3 modelScale = vec3(length(modelview_matrix[0].xyz), length(modelview_matrix[1].xyz), length(modelview_matrix[2].xyz));
+
+    vec3 refracted = refract(-viewDir, normal, 1.0 / iorValue);
+
+    if (dot(refracted, refracted) < 1e-8)
+    {
+        refracted = -viewDir;
+    }
+
+    return normalize(refracted) * thickness * modelScale;
+}
+
+vec3 sampleTransmissionTap(vec3 pos, vec3 normal, vec3 viewDir, float iorValue, float thickness, float roughness, float lodBias, out float rayLength)
+{
+    vec3 ray = transmissionRay(normal, viewDir, iorValue, thickness);
+
+    vec4 clip = projection_matrix * vec4(pos + ray, 1.0);
+    vec2 screen_uv = gl_FragCoord.xy / screen_res;
+    vec2 uv = screen_uv;
+
+    if (clip.w > 0.0)
+    {
+        uv = clip.xy / clip.w * 0.5 + 0.5;
+    }
+
+    // offset ramps in over the first meter behind the surface
+    float depth = texture(depthMap, screen_uv).r;
+    vec3 screen_behind = getPositionWithNDC(vec3(screen_uv * 2.0 - 1.0, depth * 2.0 - 1.0));
+    uv = mix(screen_uv, uv, clamp(pos.z - screen_behind.z, 0.0, 1.0));
+
+    // same falloff as SSR's calculateEdgeFade
+    vec2 edge = smoothstep(0.85, 1.0, abs(screen_uv * 2.0 - 1.0));
+    uv = mix(screen_uv, uv, 1.0 - max(edge.x, edge.y));
+
+    depth = texture(depthMap, uv).r;
+    vec3 behind = getPositionWithNDC(vec3(uv * 2.0 - 1.0, depth * 2.0 - 1.0));
+
+    if (pos.z < behind.z - 0.05)
+    {
+        uv = screen_uv;
+        behind = screen_behind;
+    }
+
+    // volume distance runs to the scene behind the surface
+    rayLength = length(behind - pos);
+
+    // GGX cone footprint in pixels, as SSR's cone mip; a microfacet tilt bends the refracted ray by (1 - 1/ior)
+    float coneTan = roughness * roughness * (1.0 - 1.0 / iorValue);
+    float footprint = coneTan * rayLength / max(-pos.z, 0.01) * screen_res.y * 0.5 * projection_matrix[1][1];
+    float lod = clamp(log2(max(footprint, 1.0)) - lodBias, 0.0, TRANSMISSION_MAX_LOD);
+
+    return textureLod(transmissionSceneMap, uv, lod).rgb;
+}
+
+// GGX microfacet normals on a golden-angle spiral, rotated per pixel (interleaved gradient noise)
+vec3 sampleTransmission(vec3 pos, vec3 normal, vec3 viewDir, float iorValue, float thickness, float roughness, out float rayLength)
+{
+    int samples = clamp(transmissionSamples, 1, TRANSMISSION_MAX_SAMPLES);
+    float alpha = roughness * roughness;
+
+    if (alpha < 0.001)
+    {
+        samples = 1;
+    }
+
+    vec3 up = vec3(0.0, 1.0, 0.0);
+
+    if (abs(normal.y) > 0.999)
+    {
+        up = vec3(1.0, 0.0, 0.0);
+    }
+
+    vec3 tangent = normalize(cross(up, normal));
+    vec3 bitangent = cross(normal, tangent);
+
+    float rotation = 6.2831853 * fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715))));
+    float lodBias = 0.5 * log2(float(samples));
+
+    vec3 accumColor = vec3(0.0);
+    float accumLength = 0.0;
+
+    for (int tap = 0; tap < samples; ++tap)
+    {
+        vec3 microNormal = normal;
+
+        if (samples > 1)
+        {
+            float radial = (float(tap) + 0.5) / float(samples);
+            float theta = atan(alpha * sqrt(radial / (1.0 - radial)));
+            float phi = float(tap) * 2.3999632 + rotation;
+            microNormal = normalize(sin(theta) * cos(phi) * tangent + sin(theta) * sin(phi) * bitangent + cos(theta) * normal);
+        }
+
+        float tapLength;
+        accumColor += sampleTransmissionTap(pos, microNormal, viewDir, iorValue, thickness, roughness, lodBias, tapLength);
+        accumLength += tapLength;
+    }
+
+    rayLength = accumLength / float(samples);
+    return accumColor / float(samples);
+}
+
+// fresnel, volume attenuation and base color applied to light passing through the surface
+vec3 transmissionFilter(vec3 normal, vec3 viewDir, float roughness, float rayLength, vec3 baseColor, vec3 specularColor, float specularWeight)
+{
+    vec3 attenuation = vec3(1.0);
+
+    if (attenuationDistance > 0.0)
+    {
+        vec3 coefficient = -log(max(attenuationColor, vec3(1e-6))) / attenuationDistance;
+        attenuation = exp(-coefficient * rayLength);
+    }
+
+    float nv = clamp(abs(dot(normal, viewDir)), 0.001, 1.0);
+    vec2 brdf = BRDF(nv, 1.0 - roughness);
+    vec3 fresnel = specularColor * brdf.x + brdf.y * specularWeight;
+
+    return (vec3(1.0) - clamp(fresnel, vec3(0.0), vec3(1.0))) * attenuation * baseColor;
+}
+
+vec3 calcTransmission(vec3 pos, vec3 normal, vec3 viewDir, float thickness, float roughness, vec3 baseColor, vec3 specularColor, float specularWeight)
+{
+    float iorValue = max(ior, 1.0001);
+    vec3 transmitted;
+    float rayLength;
+
+    if (dispersion > 0.0)
+    {
+        float halfSpread = (iorValue - 1.0) * 0.025 * dispersion;
+        vec3 iors = vec3(iorValue - halfSpread, iorValue, iorValue + halfSpread);
+        transmitted.r = sampleTransmission(pos, normal, viewDir, iors.r, thickness, roughness, rayLength).r;
+        transmitted.g = sampleTransmission(pos, normal, viewDir, iors.g, thickness, roughness, rayLength).g;
+        transmitted.b = sampleTransmission(pos, normal, viewDir, iors.b, thickness, roughness, rayLength).b;
+    }
+    else
+    {
+        transmitted = sampleTransmission(pos, normal, viewDir, iorValue, thickness, roughness, rayLength);
+    }
+
+    return transmissionFilter(normal, viewDir, roughness, rayLength, baseColor, specularColor, specularWeight) * transmitted;
+}
+#endif
+
 void main()
 {
     mirrorClip(vary_position);
@@ -198,6 +377,13 @@ void main()
 
     vec3 v = -normalize(pos.xyz);
 
+#ifdef TRANSMISSION
+    float transmissionBase = clamp(transmissionFactor, 0.0, 1.0) * texture(transmissionMap, transmission_texcoord.xy).r;
+    float transmission = transmissionBase * (1.0 - metallic);
+    float thickness = thicknessFactor * texture(thicknessMap, thickness_texcoord.xy).g;
+    diffuseColor *= (1.0 - transmissionBase);
+#endif
+
     color = pbrBaseLight(diffuseColor, specularColor, specWeight, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
 
     vec3 light = vec3(0);
@@ -217,10 +403,41 @@ void main()
 
     color.rgb = applySkyAndWaterFog(pos.xyz, additive, atten, vec4(color, 1.0)).rgb;
 
+#ifdef TRANSMISSION
+    // the copied scene is already fogged, so it is added after fog
+    if (transmission > 0.0 && transmissionHasCopy == 1)
+    {
+        color.rgb += transmission * calcTransmission(pos.xyz, norm.xyz, v, thickness, perceptualRoughness, col.rgb, specularColor, specWeight);
+    }
+#endif
+
     float a = basecolor.a*vertex_color.a;
     float final_scale = 1;
     if (classic_mode > 0)
         final_scale = 1.1;
+
+#ifdef TRANSMISSION
+    if (transmissionHasCopy == 0)
+    {
+        if (alphaOpaque == 1)
+        {
+            a = 1.0;
+        }
+
+#ifdef TRANSMISSION_TINT
+        // background tint (multiply blend); no depth copy, so assume at most TRANSMISSION_OFF_MAX_DEPTH of volume behind
+        vec2 screen_uv = gl_FragCoord.xy / screen_res;
+        float rayLength = min(length(getPositionWithNDC(vec3(screen_uv * 2.0 - 1.0, 1.0)) - pos.xyz), TRANSMISSION_OFF_MAX_DEPTH);
+        vec3 transmittance = transmission * transmissionFilter(norm.xyz, v, perceptualRoughness, rayLength, col.rgb, specularColor, specWeight);
+        frag_color = vec4(mix(vec3(1.0), transmittance, a), 1.0);
+#else
+        // surface (additive blend), drawn after the tint
+        frag_color = max(vec4(color.rgb * final_scale * a, a), vec4(0));
+#endif
+        return;
+    }
+#endif
+
     frag_color = max(vec4(color.rgb * final_scale,a), vec4(0));
 }
 

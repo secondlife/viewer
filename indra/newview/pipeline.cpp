@@ -947,7 +947,8 @@ bool LLPipeline::allocateScreenBufferInternal(U32 resX, U32 resY)
         }
 
         //water reflection texture (always needed as scratch space whether or not transparent water is enabled)
-        mWaterDis.allocate(resX, resY, screenFormat, true);
+        // mips are built manually for glTF transmission (see LLDrawPoolAlpha)
+        mWaterDis.allocate(resX, resY, screenFormat, true, LLTexUnit::TT_TEXTURE, LLTexUnit::TMG_MANUAL);
 
         if(RenderScreenSpaceReflections)
         {
@@ -1910,7 +1911,7 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
         }
     }
 
-    if (alpha || (gltf_mat && gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND))
+    if (alpha || (gltf_mat && (gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND || gltf_mat->mTransmissionFactor > FLT_EPSILON)))
     {
         return LLDrawPool::POOL_ALPHA;
     }
@@ -7012,6 +7013,8 @@ void LLPipeline::renderAlphaObjects(bool rigged)
     S32 sun_up = LLEnvironment::instance().getIsSunUp() ? 1 : 0;
     U32 target_width = LLRenderTarget::sCurResX;
     U32 type = LLRenderPass::PASS_ALPHA;
+    static LLCachedControl<F32> shadow_fresnel(gSavedSettings, "RenderTransmissionShadowFresnel", 4.f);
+    static LLStaticHashedString sShadowFresnel("shadowFresnelStrength");
     // for gDeferredShadowAlphaMaskProgram
     const LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
@@ -7043,6 +7046,7 @@ void LLPipeline::renderAlphaObjects(bool rigged)
                 LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
                 LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
+                LLGLSLShader::sCurBoundShaderPtr->uniform1f(sShadowFresnel, shadow_fresnel);
                 LLRenderPass::pushRiggedGLTFBatch(*pparams, lastAvatarGLTF, lastMeshIdGLTF, skipLastSkinGLTF);
             }
             else
@@ -7065,6 +7069,7 @@ void LLPipeline::renderAlphaObjects(bool rigged)
                 LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::SUN_UP_FACTOR, sun_up);
                 LLGLSLShader::sCurBoundShaderPtr->uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
                 LLGLSLShader::sCurBoundShaderPtr->setMinimumAlpha(ALPHA_BLEND_CUTOFF);
+                LLGLSLShader::sCurBoundShaderPtr->uniform1f(sShadowFresnel, shadow_fresnel);
                 LLRenderPass::pushGLTFBatch(*pparams);
             }
             else
@@ -7697,6 +7702,7 @@ void LLPipeline::renderSSRAlpha()
                     // Legacy: bind white for ORM so shader reads roughness=1.0 from green channel,
                     // making final roughness = roughness_factor directly
                     shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
+                    shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
 
                     // Legacy glossiness from specular color alpha
                     F32 roughness = 1.0f - params.mSpecColor.mV[3];
@@ -7705,6 +7711,7 @@ void LLPipeline::renderSSRAlpha()
                     // Identity PBR texture transforms for legacy materials
                     shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, sIdentityTransform);
                     shader->uniform4fv(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, 2, sIdentityTransform);
+                    shader->uniform4fv(LLShaderMgr::TEXTURE_NORMAL_TRANSFORM, 2, sIdentityTransform);
                     shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, -1.0f);
 
                     // Handle legacy texture matrix (texture animation)

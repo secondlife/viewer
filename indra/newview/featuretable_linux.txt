@@ -27,6 +27,7 @@ version 35
 // NOTE: All settings are set to the MIN of applied values, including 'all'!
 //
 list all
+RenderTransmissionQuality	1	3
 RenderAnisotropicLevel			1	16
 RenderAvatarLODFactor		1	1.0
 RenderAvatarPhysicsLODFactor 1	1.0
@@ -91,6 +92,7 @@ RenderHighPrecisionPostProcess 1 1
 // Low Graphics Settings
 //
 list Low
+RenderTransmissionQuality	1	0
 RenderAnisotropicLevel			1	0
 RenderAvatarLODFactor		1	0
 RenderAvatarPhysicsLODFactor 1	0
@@ -133,6 +135,7 @@ RenderHighPrecisionPostProcess 1 0
 // Medium Low Graphics Settings
 //
 list LowMid
+RenderTransmissionQuality	1	0
 RenderAnisotropicLevel			1	0
 RenderAvatarLODFactor		1	0.5
 RenderAvatarMaxComplexity   1	100000
@@ -175,6 +178,7 @@ RenderHighPrecisionPostProcess 1 0
 // Medium Graphics Settings (standard)
 //
 list Mid
+RenderTransmissionQuality	1	1
 RenderAnisotropicLevel			1	2
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	200000
@@ -216,6 +220,7 @@ RenderHighPrecisionPostProcess 1 0
 // Medium High Graphics Settings
 //
 list MidHigh
+RenderTransmissionQuality	1	1
 RenderAnisotropicLevel			1	2
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	250000
@@ -257,6 +262,7 @@ RenderHighPrecisionPostProcess 1 0
 // High Graphics Settings (SSAO + sun shadows)
 //
 list High
+RenderTransmissionQuality	1	2
 RenderAnisotropicLevel			1	4
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	300000
@@ -298,6 +304,7 @@ RenderHighPrecisionPostProcess 1 0
 // High Ultra Graphics Settings (SSAO + all shadows)
 //
 list HighUltra
+RenderTransmissionQuality	1	3
 RenderAnisotropicLevel			1	4
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	350000
@@ -339,6 +346,7 @@ RenderHighPrecisionPostProcess 1 1
 // Ultra graphics (REALLY PURTY!)
 //
 list Ultra
+RenderTransmissionQuality	1	3
 RenderAnisotropicLevel			1	8
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxNonImpostors 1   16

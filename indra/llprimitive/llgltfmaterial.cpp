@@ -33,6 +33,9 @@
 
 #include <boost/json.hpp>
 
+#include <cmath>
+#include <limits>
+
 const char* const LLGLTFMaterial::ASSET_VERSION = "1.1";
 const char* const LLGLTFMaterial::ASSET_TYPE = "GLTF 2.0";
 const std::array<std::string, 2> LLGLTFMaterial::ACCEPTED_ASSET_VERSIONS = { "1.0", "1.1" };
@@ -69,6 +72,8 @@ LLGLTFMaterial::LLGLTFMaterial()
     mSpecularFactor = 1.f;
     mSpecularColorFactor.set(1.f, 1.f, 1.f);
     mIOR = 1.5f;
+    mAttenuationDistance = std::numeric_limits<F32>::infinity();
+    mAttenuationColor.set(1.f, 1.f, 1.f);
     for (U32 i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
     {
         mTextureTransform[i].mScale.set(1.f, 1.f);
@@ -134,6 +139,11 @@ LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
     mSpecularFactor = rhs.mSpecularFactor;
     mSpecularColorFactor = rhs.mSpecularColorFactor;
     mIOR = rhs.mIOR;
+    mTransmissionFactor = rhs.mTransmissionFactor;
+    mThicknessFactor = rhs.mThicknessFactor;
+    mAttenuationDistance = rhs.mAttenuationDistance;
+    mAttenuationColor = rhs.mAttenuationColor;
+    mDispersion = rhs.mDispersion;
 
     mDoubleSided = rhs.mDoubleSided;
     mAlphaMode = rhs.mAlphaMode;
@@ -190,6 +200,11 @@ bool LLGLTFMaterial::operator==(const LLGLTFMaterial& rhs) const
         mSpecularFactor == rhs.mSpecularFactor &&
         mSpecularColorFactor == rhs.mSpecularColorFactor &&
         mIOR == rhs.mIOR &&
+        mTransmissionFactor == rhs.mTransmissionFactor &&
+        mThicknessFactor == rhs.mThicknessFactor &&
+        mAttenuationDistance == rhs.mAttenuationDistance &&
+        mAttenuationColor == rhs.mAttenuationColor &&
+        mDispersion == rhs.mDispersion &&
 
         mDoubleSided == rhs.mDoubleSided &&
         mAlphaMode == rhs.mAlphaMode &&
@@ -462,6 +477,92 @@ bool LLGLTFMaterial::setFromDocument(const boost::json::value& doc, S32 mat_inde
             if (ior_val && ior_val->is_number())
             {
                 mIOR = llmax((F32)ior_val->to_number<double>(), 0.f);
+            }
+        }
+
+        // KHR_materials_transmission
+        const auto* transmission_ext = extensions.if_contains("KHR_materials_transmission");
+
+        if (transmission_ext && transmission_ext->is_object())
+        {
+            const auto& trans = transmission_ext->as_object();
+
+            const auto* tf = trans.if_contains("transmissionFactor");
+
+            if (tf && tf->is_number())
+            {
+                mTransmissionFactor = llclamp((F32)tf->to_number<double>(), 0.f, 1.f);
+            }
+
+            const auto* trans_tex = trans.if_contains("transmissionTexture");
+
+            if (trans_tex && trans_tex->is_object())
+            {
+                readTextureInfo(doc, trans_tex->as_object(), GLTF_TEXTURE_INFO_TRANSMISSION);
+            }
+        }
+
+        // KHR_materials_volume
+        const auto* volume_ext = extensions.if_contains("KHR_materials_volume");
+
+        if (volume_ext && volume_ext->is_object())
+        {
+            const auto& vol = volume_ext->as_object();
+
+            const auto* thf = vol.if_contains("thicknessFactor");
+
+            if (thf && thf->is_number())
+            {
+                mThicknessFactor = llmax((F32)thf->to_number<double>(), 0.f);
+            }
+
+            const auto* ad = vol.if_contains("attenuationDistance");
+
+            if (ad && ad->is_number())
+            {
+                F32 distance = (F32)ad->to_number<double>();
+
+                if (distance > 0.f)
+                {
+                    mAttenuationDistance = distance;
+                }
+            }
+
+            const auto* ac = vol.if_contains("attenuationColor");
+
+            if (ac && ac->is_array())
+            {
+                const auto& arr = ac->as_array();
+
+                if (arr.size() >= 3)
+                {
+                    mAttenuationColor.set(
+                        (F32)arr[0].to_number<double>(),
+                        (F32)arr[1].to_number<double>(),
+                        (F32)arr[2].to_number<double>());
+                    mAttenuationColor.clamp();
+                }
+            }
+
+            const auto* thick_tex = vol.if_contains("thicknessTexture");
+
+            if (thick_tex && thick_tex->is_object())
+            {
+                readTextureInfo(doc, thick_tex->as_object(), GLTF_TEXTURE_INFO_THICKNESS);
+            }
+        }
+
+        // KHR_materials_dispersion
+        const auto* dispersion_ext = extensions.if_contains("KHR_materials_dispersion");
+
+        if (dispersion_ext && dispersion_ext->is_object())
+        {
+            const auto& disp = dispersion_ext->as_object();
+            const auto* dv = disp.if_contains("dispersion");
+
+            if (dv && dv->is_number())
+            {
+                mDispersion = llmax((F32)dv->to_number<double>(), 0.f);
             }
         }
     }
@@ -750,6 +851,64 @@ boost::json::value LLGLTFMaterial::writeDocument(ExtensionFamily family) const
             ior_ext["ior"] = (double)mIOR;
             mat_extensions["KHR_materials_ior"] = ior_ext;
         }
+
+        // KHR_materials_transmission
+        {
+            boost::json::object transmission_ext;
+
+            if (mTransmissionFactor != getDefaultTransmissionFactor())
+            {
+                transmission_ext["transmissionFactor"] = (double)mTransmissionFactor;
+            }
+
+            writeTextureEntry(images, textures, transmission_ext, "transmissionTexture",
+                mTextureId[GLTF_TEXTURE_INFO_TRANSMISSION], mTextureTransform[GLTF_TEXTURE_INFO_TRANSMISSION]);
+
+            if (!transmission_ext.empty())
+            {
+                mat_extensions["KHR_materials_transmission"] = transmission_ext;
+            }
+        }
+
+        // KHR_materials_volume; infinite attenuationDistance is omitted
+        {
+            boost::json::object volume_ext;
+
+            if (mThicknessFactor != getDefaultThicknessFactor())
+            {
+                volume_ext["thicknessFactor"] = (double)mThicknessFactor;
+            }
+
+            if (std::isfinite(mAttenuationDistance))
+            {
+                volume_ext["attenuationDistance"] = (double)mAttenuationDistance;
+            }
+
+            if (mAttenuationColor != getDefaultAttenuationColor())
+            {
+                volume_ext["attenuationColor"] = boost::json::array({
+                    boost::json::value((double)mAttenuationColor.mV[0]),
+                    boost::json::value((double)mAttenuationColor.mV[1]),
+                    boost::json::value((double)mAttenuationColor.mV[2])
+                });
+            }
+
+            writeTextureEntry(images, textures, volume_ext, "thicknessTexture",
+                mTextureId[GLTF_TEXTURE_INFO_THICKNESS], mTextureTransform[GLTF_TEXTURE_INFO_THICKNESS]);
+
+            if (!volume_ext.empty())
+            {
+                mat_extensions["KHR_materials_volume"] = volume_ext;
+            }
+        }
+
+        // KHR_materials_dispersion
+        if (mDispersion != getDefaultDispersion())
+        {
+            boost::json::object dispersion_ext;
+            dispersion_ext["dispersion"] = (double)mDispersion;
+            mat_extensions["KHR_materials_dispersion"] = dispersion_ext;
+        }
     }
 
     if (!mat_extensions.empty())
@@ -844,6 +1003,16 @@ void LLGLTFMaterial::setEmissiveId(const LLUUID& id, bool for_override)
 void LLGLTFMaterial::setSpecularId(const LLUUID& id, bool for_override)
 {
     setTextureId(GLTF_TEXTURE_INFO_SPECULAR, id, for_override);
+}
+
+void LLGLTFMaterial::setTransmissionId(const LLUUID& id, bool for_override)
+{
+    setTextureId(GLTF_TEXTURE_INFO_TRANSMISSION, id, for_override);
+}
+
+void LLGLTFMaterial::setThicknessId(const LLUUID& id, bool for_override)
+{
+    setTextureId(GLTF_TEXTURE_INFO_THICKNESS, id, for_override);
 }
 
 void LLGLTFMaterial::setBaseColorFactor(const LLColor4& baseColor, bool for_override)
@@ -971,6 +1140,73 @@ void LLGLTFMaterial::setIOR(F32 ior, bool for_override)
     bumpVersion();
 }
 
+void LLGLTFMaterial::setTransmissionFactor(F32 factor, bool for_override)
+{
+    mTransmissionFactor = llclamp(factor, 0.f, 1.f);
+
+    if (for_override && mTransmissionFactor == getDefaultTransmissionFactor())
+    {
+        mTransmissionFactor += FLT_EPSILON;
+    }
+
+    bumpVersion();
+}
+
+void LLGLTFMaterial::setThicknessFactor(F32 factor, bool for_override)
+{
+    mThicknessFactor = llmax(factor, 0.f);
+
+    if (for_override && mThicknessFactor == getDefaultThicknessFactor())
+    {
+        mThicknessFactor += FLT_EPSILON;
+    }
+
+    bumpVersion();
+}
+
+void LLGLTFMaterial::setAttenuationDistance(F32 distance, bool for_override)
+{
+    // 0 means infinite
+    mAttenuationDistance = distance;
+
+    if (!(mAttenuationDistance > 0.f))
+    {
+        mAttenuationDistance = getDefaultAttenuationDistance();
+    }
+
+    if (for_override && mAttenuationDistance == getDefaultAttenuationDistance())
+    {
+        mAttenuationDistance = std::numeric_limits<F32>::max();
+    }
+
+    bumpVersion();
+}
+
+void LLGLTFMaterial::setAttenuationColor(const LLColor3& color, bool for_override)
+{
+    mAttenuationColor = color;
+    mAttenuationColor.clamp();
+
+    if (for_override && mAttenuationColor == getDefaultAttenuationColor())
+    {
+        mAttenuationColor.mV[0] -= FLT_EPSILON;
+    }
+
+    bumpVersion();
+}
+
+void LLGLTFMaterial::setDispersion(F32 dispersion, bool for_override)
+{
+    mDispersion = llmax(dispersion, 0.f);
+
+    if (for_override && mDispersion == getDefaultDispersion())
+    {
+        mDispersion += FLT_EPSILON;
+    }
+
+    bumpVersion();
+}
+
 void LLGLTFMaterial::setSpecularColorFactor(const LLColor3& color, bool for_override)
 {
     mSpecularColorFactor = color;
@@ -1062,6 +1298,31 @@ LLColor3 LLGLTFMaterial::getDefaultSpecularColorFactor()
 F32 LLGLTFMaterial::getDefaultIOR()
 {
     return sDefault.mIOR;
+}
+
+F32 LLGLTFMaterial::getDefaultTransmissionFactor()
+{
+    return sDefault.mTransmissionFactor;
+}
+
+F32 LLGLTFMaterial::getDefaultThicknessFactor()
+{
+    return sDefault.mThicknessFactor;
+}
+
+F32 LLGLTFMaterial::getDefaultAttenuationDistance()
+{
+    return sDefault.mAttenuationDistance;
+}
+
+LLColor3 LLGLTFMaterial::getDefaultAttenuationColor()
+{
+    return sDefault.mAttenuationColor;
+}
+
+F32 LLGLTFMaterial::getDefaultDispersion()
+{
+    return sDefault.mDispersion;
 }
 
 LLVector2 LLGLTFMaterial::getDefaultTextureOffset()
@@ -1158,6 +1419,36 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
     if (override_mat.mIOR != getDefaultIOR())
     {
         mIOR = override_mat.mIOR;
+    }
+
+    if (override_mat.mTransmissionFactor != getDefaultTransmissionFactor())
+    {
+        mTransmissionFactor = override_mat.mTransmissionFactor;
+    }
+
+    if (override_mat.mThicknessFactor != getDefaultThicknessFactor())
+    {
+        mThicknessFactor = override_mat.mThicknessFactor;
+    }
+
+    if (override_mat.mAttenuationDistance != getDefaultAttenuationDistance())
+    {
+        mAttenuationDistance = override_mat.mAttenuationDistance;
+
+        if (mAttenuationDistance == std::numeric_limits<F32>::max())
+        {
+            mAttenuationDistance = getDefaultAttenuationDistance();
+        }
+    }
+
+    if (override_mat.mAttenuationColor != getDefaultAttenuationColor())
+    {
+        mAttenuationColor = override_mat.mAttenuationColor;
+    }
+
+    if (override_mat.mDispersion != getDefaultDispersion())
+    {
+        mDispersion = override_mat.mDispersion;
     }
 
     for (U32 i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
@@ -1259,6 +1550,31 @@ void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& d
     if (override_mat.mIOR != getDefaultIOR())
     {
         data["ior"] = override_mat.mIOR;
+    }
+
+    if (override_mat.mTransmissionFactor != getDefaultTransmissionFactor())
+    {
+        data["tf"] = override_mat.mTransmissionFactor;
+    }
+
+    if (override_mat.mThicknessFactor != getDefaultThicknessFactor())
+    {
+        data["tk"] = override_mat.mThicknessFactor;
+    }
+
+    if (override_mat.mAttenuationDistance != getDefaultAttenuationDistance())
+    {
+        data["ad"] = override_mat.mAttenuationDistance;
+    }
+
+    if (override_mat.mAttenuationColor != getDefaultAttenuationColor())
+    {
+        data["at"] = override_mat.mAttenuationColor.getValue();
+    }
+
+    if (override_mat.mDispersion != getDefaultDispersion())
+    {
+        data["dp"] = override_mat.mDispersion;
     }
 
     for (U32 i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
@@ -1402,6 +1718,66 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
         }
     }
 
+    const LLSD& tf = data["tf"];
+
+    if (tf.isReal())
+    {
+        mTransmissionFactor = (F32)tf.asReal();
+
+        if (mTransmissionFactor == getDefaultTransmissionFactor())
+        {
+            mTransmissionFactor += FLT_EPSILON;
+        }
+    }
+
+    const LLSD& tk = data["tk"];
+
+    if (tk.isReal())
+    {
+        mThicknessFactor = (F32)tk.asReal();
+
+        if (mThicknessFactor == getDefaultThicknessFactor())
+        {
+            mThicknessFactor += FLT_EPSILON;
+        }
+    }
+
+    const LLSD& ad = data["ad"];
+
+    if (ad.isReal())
+    {
+        mAttenuationDistance = (F32)ad.asReal();
+
+        if (!(mAttenuationDistance > 0.f) || mAttenuationDistance == getDefaultAttenuationDistance())
+        {
+            mAttenuationDistance = std::numeric_limits<F32>::max();
+        }
+    }
+
+    const LLSD& at = data["at"];
+
+    if (at.isDefined())
+    {
+        mAttenuationColor.setValue(at);
+
+        if (mAttenuationColor == getDefaultAttenuationColor())
+        {
+            mAttenuationColor.mV[0] -= FLT_EPSILON;
+        }
+    }
+
+    const LLSD& dp = data["dp"];
+
+    if (dp.isReal())
+    {
+        mDispersion = (F32)dp.asReal();
+
+        if (mDispersion == getDefaultDispersion())
+        {
+            mDispersion += FLT_EPSILON;
+        }
+    }
+
     const LLSD& ti = data["ti"];
     if (ti.isArray())
     {
@@ -1467,6 +1843,11 @@ LLUUID LLGLTFMaterial::getHash() const
     hash.update(&mSpecularFactor, sizeof(mSpecularFactor));
     hash.update(mSpecularColorFactor.mV, sizeof(mSpecularColorFactor.mV));
     hash.update(&mIOR, sizeof(mIOR));
+    hash.update(&mTransmissionFactor, sizeof(mTransmissionFactor));
+    hash.update(&mThicknessFactor, sizeof(mThicknessFactor));
+    hash.update(&mAttenuationDistance, sizeof(mAttenuationDistance));
+    hash.update(mAttenuationColor.mV, sizeof(mAttenuationColor.mV));
+    hash.update(&mDispersion, sizeof(mDispersion));
 
     hash.update(&mAlphaMode, sizeof(mAlphaMode));
     hash.update(&mDoubleSided, sizeof(mDoubleSided));

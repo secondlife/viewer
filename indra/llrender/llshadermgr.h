@@ -364,6 +364,16 @@ public:
         SPECULAR_COLOR_FACTOR,              //  "specularColorFactor" (KHR_materials_specular)
         EMISSIVE_STRENGTH,                  //  "emissiveStrength" (KHR_materials_emissive_strength)
         IOR,                                //  "ior" (KHR_materials_ior)
+        TRANSMISSION_FACTOR,                //  "transmissionFactor" (KHR_materials_transmission)
+        THICKNESS_FACTOR,                   //  "thicknessFactor" (KHR_materials_volume)
+        ATTENUATION_DISTANCE,               //  "attenuationDistance" (KHR_materials_volume)
+        ATTENUATION_COLOR,                  //  "attenuationColor" (KHR_materials_volume)
+        DISPERSION,                         //  "dispersion" (KHR_materials_dispersion)
+        TRANSMISSION_MAP,                   //  "transmissionMap"
+        THICKNESS_MAP,                      //  "thicknessMap"
+        TEXTURE_TRANSMISSION_TRANSFORM,     //  "texture_transmission_transform"
+        TEXTURE_THICKNESS_TRANSFORM,        //  "texture_thickness_transform"
+        TRANSMISSION_SCENE_MAP,             //  "transmissionSceneMap"
 
         END_RESERVED_UNIFORMS
     } eGLSLReservedUniforms;

@@ -281,7 +281,7 @@ void main()
         distort2 = distort;
     }
 
-    vec4 fb = texture(screenTex, distort2);
+    vec4 fb = textureLod(screenTex, distort2, 0.0);
 
 #else
     vec4 fb = applyWaterFogViewLinear(viewVec*2048.0, vec4(1.0));

@@ -30,10 +30,12 @@
 #include "lldrawpool.h"
 #include "llrender.h"
 #include "llframetimer.h"
+#include "llrect.h"
 
 class LLFace;
 class LLColor4;
 class LLGLSLShader;
+class LLGLTFMaterial;
 
 class LLDrawPoolAlpha final: public LLRenderPass
 {
@@ -94,6 +96,19 @@ private:
     void renderRiggedPbrEmissives(std::vector<LLDrawInfo*>& emissives);
     bool TexSetup(LLDrawInfo* draw, bool use_material);
     void RestoreTexSetup(bool tex_setup);
+
+    // glTF transmission scene copy (into mWaterDis) and its mips; a null rect copies the full screen
+    void copyTransmissionScene(const LLRect* dirty);
+    void setTransmissionUniforms(const LLGLTFMaterial* gltf_mat, bool has_copy);
+    void buildTransmissionMips(const LLRect* dirty);
+    void endTransmission();
+
+    LLGLSLShader* transmissive_shader = nullptr;
+    LLGLSLShader* transmissive_tint_shader = nullptr;
+    S32 mTransmissionCap = 0;
+    S32 mTransmissionCopies = 0;
+    LLRect mTransmissionDirty;
+    bool mTransmissionHasDirty = false;
 
     // our 'normal' alpha blend function for this pass
     LLRender::eBlendFactor mColorSFactor;

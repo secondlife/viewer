@@ -48,6 +48,10 @@ uniform vec4[2] texture_base_color_transform;
 uniform vec4[2] texture_normal_transform;
 uniform vec4[2] texture_metallic_roughness_transform;
 uniform vec4[2] texture_emissive_transform;
+#ifdef TRANSMISSION
+uniform vec4[2] texture_transmission_transform;
+uniform vec4[2] texture_thickness_transform;
+#endif
 
 out vec3 vary_fragcoord;
 
@@ -61,6 +65,10 @@ out vec2 base_color_texcoord;
 out vec2 normal_texcoord;
 out vec2 metallic_roughness_texcoord;
 out vec2 emissive_texcoord;
+#ifdef TRANSMISSION
+out vec2 transmission_texcoord;
+out vec2 thickness_texcoord;
+#endif
 
 out vec4 vertex_color;
 
@@ -92,6 +100,10 @@ void main()
     normal_texcoord = texture_transform(texcoord0, texture_normal_transform, texture_matrix0);
     metallic_roughness_texcoord = texture_transform(texcoord0, texture_metallic_roughness_transform, texture_matrix0);
     emissive_texcoord = texture_transform(texcoord0, texture_emissive_transform, texture_matrix0);
+#ifdef TRANSMISSION
+    transmission_texcoord = texture_transform(texcoord0, texture_transmission_transform, texture_matrix0);
+    thickness_texcoord = texture_transform(texcoord0, texture_thickness_transform, texture_matrix0);
+#endif
 
 #ifdef HAS_SKIN
     vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;

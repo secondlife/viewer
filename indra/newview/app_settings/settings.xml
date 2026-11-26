@@ -9681,6 +9681,40 @@
     <real>0.0</real>
   </map>
 
+  <key>RenderTransmissionQuality</key>
+  <map>
+    <key>Comment</key>
+    <string>glTF transmission quality: 0 = Off, 1 = Low (1 scene copy per alpha pool), 2 = Medium (2), 3 = High (4).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>RenderTransmissionShadowFresnel</key>
+  <map>
+    <key>Comment</key>
+    <string>Multiplier on the fresnel term that thickens glTF transmissive shadows at grazing angles (1 = physical).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>4.0</real>
+  </map>
+  <key>RenderTransmissionGGXSamples</key>
+  <map>
+    <key>Comment</key>
+    <string>Taps across the GGX lobe when sampling glTF transmission refraction (1 to 16). Dispersion triples the cost.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>4</integer>
+  </map>
+
   <key>RenderExposureConverted</key>
   <map>
     <key>Comment</key>

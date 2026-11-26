@@ -68,6 +68,8 @@ public:
     LLPointer<LLViewerFetchedTexture> mMetallicRoughnessTexture;
     LLPointer<LLViewerFetchedTexture> mEmissiveTexture;
     LLPointer<LLViewerFetchedTexture> mSpecularTexture;
+    LLPointer<LLViewerFetchedTexture> mTransmissionTexture;
+    LLPointer<LLViewerFetchedTexture> mThicknessTexture;
     void clearFetchedTextures();
 
     std::set<LLTextureEntry*> mTextureEntires;

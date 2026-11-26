@@ -227,6 +227,23 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     F32 getIOR();
     void setIOR(F32 ior);
 
+    F32 getTransmissionFactor();
+    void setTransmissionFactor(F32 factor);
+    LLUUID getTransmissionId();
+    void setTransmissionId(const LLUUID& id);
+
+    F32 getThicknessFactor();
+    void setThicknessFactor(F32 factor);
+    LLUUID getThicknessId();
+    void setThicknessId(const LLUUID& id);
+    F32 getAttenuationDistance();
+    void setAttenuationDistance(F32 distance);
+    LLColor3 getAttenuationColor();
+    void setAttenuationColor(const LLColor3& color);
+
+    F32 getDispersion();
+    void setDispersion(F32 dispersion);
+
     void setCanSaveAs(bool value);
     void setCanSave(bool value);
     void setEnableEditing(bool can_modify);
@@ -269,9 +286,12 @@ private:
     LLTextureCtrl* mEmissiveTextureCtrl;
     LLTextureCtrl* mNormalTextureCtrl;
     LLTextureCtrl* mSpecularTextureCtrl;
+    LLTextureCtrl* mTransmissionTextureCtrl;
+    LLTextureCtrl* mThicknessTextureCtrl;
     LLColorSwatchCtrl* mBaseColorCtrl;
     LLColorSwatchCtrl* mEmissiveColorCtrl;
     LLColorSwatchCtrl* mSpecularColorCtrl;
+    LLColorSwatchCtrl* mAttenuationColorCtrl;
 
     // 'Default' texture, unless it's null or from inventory is the one with the fee
     LLUUID mBaseColorTextureUploadId;

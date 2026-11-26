@@ -256,6 +256,51 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
                             {
                                 mat->mIOR = existing_override->mIOR;
                             }
+
+                            if (existing_override->mTransmissionFactor !=LLGLTFMaterial::getDefaultTransmissionFactor()
+                                && !od[i].has("tf"))
+                            {
+                                mat->mTransmissionFactor = existing_override->mTransmissionFactor;
+                            }
+
+                            if (existing_override->mThicknessFactor !=LLGLTFMaterial::getDefaultThicknessFactor()
+                                && !od[i].has("tk"))
+                            {
+                                mat->mThicknessFactor = existing_override->mThicknessFactor;
+                            }
+
+                            if (existing_override->mAttenuationDistance !=LLGLTFMaterial::getDefaultAttenuationDistance()
+                                && !od[i].has("ad"))
+                            {
+                                mat->mAttenuationDistance = existing_override->mAttenuationDistance;
+                            }
+
+                            if (existing_override->mAttenuationColor !=LLGLTFMaterial::getDefaultAttenuationColor()
+                                && !od[i].has("at"))
+                            {
+                                mat->mAttenuationColor = existing_override->mAttenuationColor;
+                            }
+
+                            if (existing_override->mDispersion !=LLGLTFMaterial::getDefaultDispersion()
+                                && !od[i].has("dp"))
+                            {
+                                mat->mDispersion = existing_override->mDispersion;
+                            }
+
+                            if (existing_override->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_TRANSMISSION].notNull()
+                                && !od[i].has("tex"))
+                            {
+                                mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_TRANSMISSION] =
+                                    existing_override->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_TRANSMISSION];
+                            }
+
+                            if (existing_override->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_THICKNESS].notNull()
+                                && !od[i].has("tex"))
+                            {
+                                mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_THICKNESS] =
+                                    existing_override->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_THICKNESS];
+                            }
+
                             mat->bumpVersion();
                         }
                     }
