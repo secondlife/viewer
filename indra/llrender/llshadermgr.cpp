@@ -1643,6 +1643,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("texture_transmission_transform");
     mReservedUniforms.push_back("texture_thickness_transform");
     mReservedUniforms.push_back("transmissionSceneMap");
+    mReservedUniforms.push_back("shadow_split_view");
 
     llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

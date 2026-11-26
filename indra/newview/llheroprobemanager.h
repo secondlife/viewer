@@ -96,8 +96,6 @@ public:
     LLVector3 mMirrorNormal;
     HeroProbeData mHeroData;
 
-    bool mHeroShadowsComplete[LL_MAX_HERO_PROBE_COUNT] = {};
-
     S32 mCurrentRenderingProbeIdx = -1;
 
 private:

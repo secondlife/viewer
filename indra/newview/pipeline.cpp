@@ -9261,6 +9261,15 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     {
         shader.uniform4fv(LLShaderMgr::DEFERRED_SHADOW_CLIP, 1, mSunClipPlanes.mV);
     }
+
+    // hero passes pick cascades in the main camera's eye space, where the splits were made
+    glm::mat4 shadow_split_view(1.f);
+    if (mHeroProbeManager.isMirrorPass())
+    {
+        shadow_split_view = mShadowSplitModelview * glm::inverse(get_current_modelview());
+    }
+
+    shader.uniformMatrix4fv(LLShaderMgr::DEFERRED_SHADOW_SPLIT_VIEW, 1, GL_FALSE, glm::value_ptr(shadow_split_view));
     shader.uniform1f(LLShaderMgr::DEFERRED_SUN_WASH, RenderDeferredSunWash);
     shader.uniform1f(LLShaderMgr::DEFERRED_SHADOW_NOISE, RenderShadowNoise);
     shader.uniform1f(LLShaderMgr::DEFERRED_BLUR_SIZE, RenderShadowBlurSize);
@@ -9300,7 +9309,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
 
     shader.uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, mTransformedSunDir.mV);
     shader.uniform3fv(LLShaderMgr::DEFERRED_MOON_DIR, 1, mTransformedMoonDir.mV);
-    shader.uniform2f(LLShaderMgr::DEFERRED_SHADOW_RES, (GLfloat)mRT->shadow[0].getWidth(), (GLfloat)mRT->shadow[0].getHeight());
+    shader.uniform2f(LLShaderMgr::DEFERRED_SHADOW_RES, (GLfloat)getSunShadowTarget(0)->getWidth(), (GLfloat)getSunShadowTarget(0)->getHeight());
     shader.uniform2f(LLShaderMgr::DEFERRED_PROJ_SHADOW_RES, (GLfloat)mSpotShadow.getWidth(), (GLfloat)mSpotShadow.getHeight());
     shader.uniform1f(LLShaderMgr::DEFERRED_DEPTH_CUTOFF, RenderEdgeDepthCutoff);
     shader.uniform1f(LLShaderMgr::DEFERRED_NORM_CUTOFF, RenderEdgeNormCutoff);
@@ -10870,6 +10879,12 @@ void LLPipeline::renderHighlight(const LLViewerObject* obj, F32 fade)
 LLRenderTarget* LLPipeline::getSunShadowTarget(U32 i)
 {
     llassert(i < 4);
+
+    if (mHeroProbeManager.isMirrorPass())
+    {
+        return &mMainRT.shadow[i];
+    }
+
     return &mRT->shadow[i];
 }
 
@@ -11005,6 +11020,11 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
     glm::mat4 saved_proj = get_current_projection();
     glm::mat4 saved_view = get_current_modelview();
     glm::mat4 inv_view = glm::inverse(saved_view);
+
+    if (!gCubeSnapshot)
+    {
+        mShadowSplitModelview = saved_view;
+    }
 
     glm::mat4 view[4];
     glm::mat4 proj[4];
@@ -11163,35 +11183,14 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
             LLVector3 min, max;
 
             //construct 8 corners of split frustum section
-            if (gCubeSnapshot && mHeroProbeManager.isMirrorPass())
+            for (U32 i = 0; i < 4; i++)
             {
-                // Hero probes render shadows once per probe and reuse them for all
-                // six cube faces, so fit each split to a probe-centered box covering
-                // every direction instead of this face's frustum. 1.75 >= sqrt(3), the
-                // max radial distance of a fragment that selects this split from any face.
-                LLVector3 left = shadow_cam.getLeftAxis();
-                LLVector3 up_axis = shadow_cam.getUpAxis();
-                F32 r = dist[j+1] * 1.75f;
-                for (U32 i = 0; i < 4; i++)
-                {
-                    LLVector3 delta = frust[i+4]-eye;
-                    LLVector3 transverse = left * ((delta * left) > 0.f ? 1.f : -1.f)
-                                         + up_axis * ((delta * up_axis) > 0.f ? 1.f : -1.f);
-                    frust[i] = eye + (transverse - pn) * r;
-                    frust[i+4] = eye + (transverse + pn) * r;
-                }
-            }
-            else
-            {
-                for (U32 i = 0; i < 4; i++)
-                {
-                    LLVector3 delta = frust[i+4]-eye;
-                    delta += (frust[i+4]-frust[(i+2)%4+4])*0.05f;
-                    delta.normVec();
-                    F32 dp = delta*pn;
-                    frust[i] = eye + (delta*dist[j]*0.75f)/dp;
-                    frust[i+4] = eye + (delta*dist[j+1]*1.25f)/dp;
-                }
+                LLVector3 delta = frust[i+4]-eye;
+                delta += (frust[i+4]-frust[(i+2)%4+4])*0.05f;
+                delta.normVec();
+                F32 dp = delta*pn;
+                frust[i] = eye + (delta*dist[j]*0.75f)/dp;
+                frust[i+4] = eye + (delta*dist[j+1]*1.25f)/dp;
             }
 
             shadow_cam.calcAgentFrustumPlanes(frust);

@@ -75,7 +75,7 @@ LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sWhiteImagep = nullptr
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultParticleImagep = nullptr;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultImagep = nullptr;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sSmokeImagep = nullptr;
-LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sFlatNormalImagep = nullptr;
+LLPointer<LLViewerTexture> LLViewerFetchedTexture::sFlatNormalImagep = nullptr;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultIrradiancePBRp;
 LLViewerMediaTexture::media_map_t LLViewerMediaTexture::sMediaMap;
 LLTexturePipelineTester* LLViewerTextureManager::sTesterp = nullptr;

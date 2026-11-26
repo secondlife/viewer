@@ -545,12 +545,6 @@ void LLHeroProbeManager::renderProbes()
             gAgentAvatarp->updateAttachmentVisibility(gAgentCamera.getCameraMode());
         }
 
-        // Reset shadow tracking for all probes
-        for (S32 i = 0; i < LL_MAX_HERO_PROBE_COUNT; ++i)
-        {
-            mHeroShadowsComplete[i] = false;
-        }
-
         S32 rate = sUpdateRate;
 
         // rate must be divisor of 6 (1, 2, 3, or 6)

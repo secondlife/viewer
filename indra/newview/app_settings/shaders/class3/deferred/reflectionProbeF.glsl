@@ -890,11 +890,17 @@ void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
             // Planar: project the pixel through the capture's camera for its spot on face 0
             vec4 capture_clip = heroCaptureMatrix[pi] * vec4(pos, 1.0);
             vec2 face_coord = -capture_clip.yx / max(capture_clip.w, 0.001);
+
+            // normal detail: the shaded reflection's offset from the flat one, in the capture camera's basis
+            vec4 shaded_clip = heroCaptureMatrix[pi] * vec4(refnormpersp, 0.0);
+            vec4 flat_clip = heroCaptureMatrix[pi] * vec4(reflect(pos.xyz, heroClipPlane[pi].xyz), 0.0);
+            face_coord += flat_clip.yx / max(flat_clip.w, 0.001) - shaded_clip.yx / max(shaded_clip.w, 0.001);
+
             vec3 cubemapDir = vec3(1.0, face_coord);
 
             // Fade out at the capture image border; valid data spans |y|,|z| <= 1
             float maxc = max(abs(cubemapDir.y), abs(cubemapDir.z));
-            w *= step(0.0, capture_clip.w) * (1.0 - smoothstep(0.95, 1.0, maxc));
+            w *= step(0.0, capture_clip.w) * step(0.0, shaded_clip.w) * (1.0 - smoothstep(0.95, 1.0, maxc));
 
             glossenv = mix(glossenv, textureLod(heroProbes,
                 vec4(cubemapDir, cubeIndex),

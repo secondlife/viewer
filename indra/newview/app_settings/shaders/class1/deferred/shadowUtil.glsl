@@ -38,6 +38,7 @@ uniform vec2 shadow_res;
 uniform vec2 proj_shadow_res;
 uniform mat4 shadow_matrix[4];
 uniform vec4 shadow_clip;
+uniform mat4 shadow_split_view;
 uniform float shadow_bias;
 uniform float shadow_offset;
 uniform float spot_shadow_bias;
@@ -202,7 +203,11 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
 
     vec4 spos = vec4(shadow_pos.xyz, 1.0);
 
-    if (spos.z > -shadow_clip.w)
+    // cascades are picked by depth in the eye space the splits were made for (identity outside hero probes)
+    float split_z = (shadow_split_view * spos).z;
+    float split_pos_z = (shadow_split_view * vec4(pos, 1.0)).z;
+
+    if (split_z > -shadow_clip.w)
     {
         vec4 lpos;
         vec4 near_split = shadow_clip*-0.75;
@@ -210,12 +215,12 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
         vec4 transition_domain = near_split-far_split;
         float weight = 0.0;
 
-        if (spos.z < near_split.z)
+        if (split_z < near_split.z)
         {
             lpos = shadow_matrix[3]*spos;
 
             float w = 1.0;
-            w -= max(spos.z-far_split.z, 0.0)/transition_domain.z;
+            w -= max(split_z-far_split.z, 0.0)/transition_domain.z;
             //w = clamp(w, 0.0, 1.0);
             float contrib = pcfShadow(shadowMap3, norm, lpos, 1.0, pos_screen, light_dir)*w;
             //if (contrib > 0)
@@ -223,16 +228,16 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
                 shadow += contrib;
                 weight += w;
             }
-            shadow += max((pos.z+shadow_clip.z)/(shadow_clip.z-shadow_clip.w)*2.0-1.0, 0.0);
+            shadow += max((split_pos_z+shadow_clip.z)/(shadow_clip.z-shadow_clip.w)*2.0-1.0, 0.0);
         }
 
-        if (spos.z < near_split.y && spos.z > far_split.z)
+        if (split_z < near_split.y && split_z > far_split.z)
         {
             lpos = shadow_matrix[2]*spos;
 
             float w = 1.0;
-            w -= max(spos.z-far_split.y, 0.0)/transition_domain.y;
-            w -= max(near_split.z-spos.z, 0.0)/transition_domain.z;
+            w -= max(split_z-far_split.y, 0.0)/transition_domain.y;
+            w -= max(near_split.z-split_z, 0.0)/transition_domain.z;
             //w = clamp(w, 0.0, 1.0);
             float contrib = pcfShadow(shadowMap2, norm, lpos, 1.0, pos_screen, light_dir)*w;
             //if (contrib > 0)
@@ -242,13 +247,13 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
             }
         }
 
-        if (spos.z < near_split.x && spos.z > far_split.y)
+        if (split_z < near_split.x && split_z > far_split.y)
         {
             lpos = shadow_matrix[1]*spos;
 
             float w = 1.0;
-            w -= max(spos.z-far_split.x, 0.0)/transition_domain.x;
-            w -= max(near_split.y-spos.z, 0.0)/transition_domain.y;
+            w -= max(split_z-far_split.x, 0.0)/transition_domain.x;
+            w -= max(near_split.y-split_z, 0.0)/transition_domain.y;
             //w = clamp(w, 0.0, 1.0);
             float contrib = pcfShadow(shadowMap1, norm, lpos, 1.0, pos_screen, light_dir)*w;
             //if (contrib > 0)
@@ -258,12 +263,12 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
             }
         }
 
-        if (spos.z > far_split.x)
+        if (split_z > far_split.x)
         {
             lpos = shadow_matrix[0]*spos;
 
             float w = 1.0;
-            w -= max(near_split.x-spos.z, 0.0)/transition_domain.x;
+            w -= max(near_split.x-split_z, 0.0)/transition_domain.x;
             //w = clamp(w, 0.0, 1.0);
             float contrib = pcfShadow(shadowMap0, norm, lpos, 1.0, pos_screen, light_dir)*w;
             //if (contrib > 0)

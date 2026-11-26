@@ -782,6 +782,13 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
         //Increment drawable frame counter
         LLDrawable::incrementVisible();
 
+        // main camera shadows go first; hero probes reuse them instead of rendering their own
+        if (gFrameCount > 1 && !for_snapshot)
+        { //for some reason, ATI 4800 series will error out if you
+          //try to generate a shadow before the first frame is through
+            gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
+        }
+
         // Render mirrors and associated hero probes before we render the rest of the scene.
         // Must follow incrementVisible so the hero cull stamps this frame's visibility.
         if (gPipeline.RenderMirrors && !gSnapshot)
@@ -831,11 +838,8 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
             if (!for_snapshot)
             {
-                if (gFrameCount > 1 && !for_snapshot)
-                { //for some reason, ATI 4800 series will error out if you
-                  //try to generate a shadow before the first frame is through
-                    gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
-                }
+                // hero probe passes leave their own camera's shadow matrices behind
+                gPipeline.refreshSunShadowMatrices();
 
                 LLVertexBuffer::unbind();
 
@@ -1255,23 +1259,14 @@ void display_cube_face()
 
     glClearColor(0.f, 0.f, 0.f, 0.f);
 
+    if (gPipeline.mHeroProbeManager.isMirrorPass())
     {
-        S32 probeIdx = gPipeline.mHeroProbeManager.mCurrentRenderingProbeIdx;
-        bool heroSkipShadow = gPipeline.mHeroProbeManager.isMirrorPass()
-                           && probeIdx >= 0
-                           && gPipeline.mHeroProbeManager.mHeroShadowsComplete[probeIdx];
-        if (!heroSkipShadow)
-        {
-            gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
-            if (gPipeline.mHeroProbeManager.isMirrorPass() && probeIdx >= 0)
-                gPipeline.mHeroProbeManager.mHeroShadowsComplete[probeIdx] = true;
-        }
-        else
-        {
-            // Reusing this probe's shadow maps — the maps are world-space and valid,
-            // but mSunShadowMatrix bakes in inv(modelview), which changes per face.
-            gPipeline.refreshSunShadowMatrices();
-        }
+        // hero probes reuse the main camera's shadow maps; only inv(modelview) in the matrices changes per face
+        gPipeline.refreshSunShadowMatrices();
+    }
+    else
+    {
+        gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
     }
 
     glClear(GL_DEPTH_BUFFER_BIT); // | GL_STENCIL_BUFFER_BIT);

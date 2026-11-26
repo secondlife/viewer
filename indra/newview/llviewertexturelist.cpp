@@ -151,17 +151,12 @@ void LLViewerTextureList::doPreloadImages()
     // Set default particle texture
     LLViewerFetchedTexture::sDefaultParticleImagep = LLViewerTextureManager::getFetchedTextureFromFile("pixiesmall.j2c");
 
-    // Set the default flat normal map
-    // BLANK_OBJECT_NORMAL has a version on dataserver, but it has compression artifacts
-    LLViewerFetchedTexture::sFlatNormalImagep =
-        LLViewerTextureManager::getFetchedTextureFromFile("flatnormal.tga",
-                                                          FTT_LOCAL_FILE,
-                                                          MIPMAP_NO,
-                                                          LLViewerFetchedTexture::BOOST_BUMP,
-                                                          LLViewerTexture::FETCHED_TEXTURE,
-                                                          0,
-                                                          0,
-                                                          BLANK_OBJECT_NORMAL);
+    // Default flat normal map: one RGBA16F texel that decodes to exactly (0, 0, 1)
+    const F32 flat_normal[4] = { 0.5f, 0.5f, 1.f, 1.f };
+    LLViewerFetchedTexture::sFlatNormalImagep = LLViewerTextureManager::getLocalTexture(1, 1, 4, false, true);
+    LLViewerFetchedTexture::sFlatNormalImagep->setExplicitFormat(GL_RGBA16F, GL_RGBA, GL_FLOAT);
+    LLViewerFetchedTexture::sFlatNormalImagep->getGLTexture()->setNeedsAlphaAndPickMask(false);
+    LLViewerFetchedTexture::sFlatNormalImagep->getGLTexture()->createGLTexture(0, (const U8*)flat_normal);
 
     // PBR: irradiance
     LLViewerFetchedTexture::sDefaultIrradiancePBRp = LLViewerTextureManager::getFetchedTextureFromFile("default_irradiance.png", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
