@@ -120,7 +120,7 @@ namespace LLChatServiceHistoryCore
     class History
     {
     public:
-        void setLoaded(const Messages& messages);
+        void setLoaded(Messages messages);
         void clear();
         void clearService();
         Messages compose(const Messages& preview, const Messages& live, U32 limit,

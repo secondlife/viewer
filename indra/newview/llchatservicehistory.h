@@ -58,7 +58,7 @@ namespace LLChatServiceHistory
         bool maintenance_needed = false;
     };
 
-    typedef boost::function<void(const HistoryResult&)> history_callback_t;
+    typedef boost::function<void(HistoryResult&)> history_callback_t;
     typedef boost::function<void(bool)> delete_callback_t;
     typedef boost::function<void(const LLUUID&, const Snapshot&)> snapshot_callback_t;
 
