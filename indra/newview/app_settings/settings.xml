@@ -7947,6 +7947,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>RenderMirrorShadowRadius</key>
+  <map>
+    <key>Comment</key>
+    <string>Half-size in meters of the camera-centered shadow cascade mirrors use outside the main view's shadows. 0 uses the second shadow split distance.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.0</real>
+  </map>
   <key>RenderMotionBlur</key>
   <map>
     <key>Comment</key>

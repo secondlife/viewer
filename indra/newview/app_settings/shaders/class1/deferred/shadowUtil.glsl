@@ -39,6 +39,7 @@ uniform vec2 proj_shadow_res;
 uniform mat4 shadow_matrix[4];
 uniform vec4 shadow_clip;
 uniform mat4 shadow_split_view;
+uniform int shadow_omni;
 uniform float shadow_bias;
 uniform float shadow_offset;
 uniform float spot_shadow_bias;
@@ -206,6 +207,63 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen)
     // cascades are picked by depth in the eye space the splits were made for (identity outside hero probes)
     float split_z = (shadow_split_view * spos).z;
     float split_pos_z = (shadow_split_view * vec4(pos, 1.0)).z;
+
+    // hero probe passes: the camera's cascades 0-2 where the point lands inside one, else the
+    // camera-centered omni cascade bound in the far slot
+    if (shadow_omni != 0)
+    {
+        int cascade = 3;
+
+        if (split_z < 0.0)
+        {
+            if (split_z > -shadow_clip.x)
+            {
+                cascade = 0;
+            }
+            else if (split_z > -shadow_clip.y)
+            {
+                cascade = 1;
+            }
+            else if (split_z > -shadow_clip.z)
+            {
+                cascade = 2;
+            }
+        }
+
+        if (cascade < 3)
+        {
+            vec4 cascade_pos = shadow_matrix[cascade] * spos;
+            vec3 cascade_uv = cascade_pos.xyz / cascade_pos.w;
+
+            // depth too: a point outside the cascade's fitted depth range compares as lit
+            if (cascade_pos.w <= 0.0 || any(lessThan(cascade_uv, vec3(0.01))) || any(greaterThan(cascade_uv, vec3(0.99))))
+            {
+                cascade = 3;
+            }
+            else if (cascade == 0)
+            {
+                return pcfShadow(shadowMap0, norm, cascade_pos, 1.0, pos_screen, light_dir);
+            }
+            else if (cascade == 1)
+            {
+                return pcfShadow(shadowMap1, norm, cascade_pos, 1.0, pos_screen, light_dir);
+            }
+            else
+            {
+                return pcfShadow(shadowMap2, norm, cascade_pos, 1.0, pos_screen, light_dir);
+            }
+        }
+
+        vec4 omni_pos = shadow_matrix[3] * spos;
+        vec2 omni_uv = omni_pos.xy / omni_pos.w;
+
+        if (any(lessThan(omni_uv, vec2(0.0))) || any(greaterThan(omni_uv, vec2(1.0))))
+        {
+            return 1.0;
+        }
+
+        return pcfShadow(shadowMap3, norm, omni_pos, 1.0, pos_screen, light_dir);
+    }
 
     if (split_z > -shadow_clip.w)
     {

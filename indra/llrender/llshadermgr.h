@@ -375,6 +375,7 @@ public:
         TEXTURE_THICKNESS_TRANSFORM,        //  "texture_thickness_transform"
         TRANSMISSION_SCENE_MAP,             //  "transmissionSceneMap"
         DEFERRED_SHADOW_SPLIT_VIEW,         //  "shadow_split_view"
+        DEFERRED_SHADOW_OMNI,               //  "shadow_omni"
 
         END_RESERVED_UNIFORMS
     } eGLSLReservedUniforms;

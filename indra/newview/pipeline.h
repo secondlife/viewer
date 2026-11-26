@@ -746,6 +746,9 @@ public:
 
     LLRenderTarget          mSpotShadow;
 
+    // camera-centered sun cascade covering every direction; hero probe passes use it outside the main cascades
+    LLRenderTarget          mMirrorShadow;
+
     LLRenderTarget          mPbrBrdfLut;
     LLRenderTarget          mWaterExclusionMask;
 
@@ -817,6 +820,8 @@ public:
     glm::mat4               mShadowModelview[4];
     glm::mat4               mShadowProjection[4];
     glm::mat4               mShadowSplitModelview; // main camera view the sun cascades were split for
+    glm::mat4               mMirrorShadowModelview;
+    glm::mat4               mMirrorShadowProjection;
     glm::mat4               mReflectionModelView;
 
     std::vector<glm::mat4>  mSpotShadowMatrix;

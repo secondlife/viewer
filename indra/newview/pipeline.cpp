@@ -1085,12 +1085,23 @@ bool LLPipeline::allocateShadowBuffer(U32 resX, U32 resY)
                 return false;
             }
         }
+
+        // same size as the main cascades: hero passes sample it through the same shadow_res
+        if (mRT == &mMainRT && !mMirrorShadow.allocate(sun_shadow_map_width, sun_shadow_map_height, 0, true))
+        {
+            return false;
+        }
     }
     else
     {
         for (U32 i = 0; i < 4; i++)
         {
             releaseSunShadowTarget(i);
+        }
+
+        if (mRT == &mMainRT)
+        {
+            mMirrorShadow.release();
         }
     }
 
@@ -1130,6 +1141,16 @@ bool LLPipeline::allocateShadowBuffer(U32 resX, U32 resY)
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
             }
+        }
+
+        if (mRT == &mMainRT)
+        {
+            gGL.getTexUnit(0)->bind(&mMirrorShadow, true);
+            gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
+            gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
         }
     }
 
@@ -1376,6 +1397,11 @@ void LLPipeline::releaseSunShadowTargets()
     for (U32 i = 0; i < 4; i++)
     {
         releaseSunShadowTarget(i);
+    }
+
+    if (mRT == &mMainRT)
+    {
+        mMirrorShadow.release();
     }
 }
 
@@ -9270,6 +9296,14 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     }
 
     shader.uniformMatrix4fv(LLShaderMgr::DEFERRED_SHADOW_SPLIT_VIEW, 1, GL_FALSE, glm::value_ptr(shadow_split_view));
+
+    S32 shadow_omni = 0;
+    if (mHeroProbeManager.isMirrorPass() && mMirrorShadow.isComplete())
+    {
+        shadow_omni = 1;
+    }
+
+    shader.uniform1i(LLShaderMgr::DEFERRED_SHADOW_OMNI, shadow_omni);
     shader.uniform1f(LLShaderMgr::DEFERRED_SUN_WASH, RenderDeferredSunWash);
     shader.uniform1f(LLShaderMgr::DEFERRED_SHADOW_NOISE, RenderShadowNoise);
     shader.uniform1f(LLShaderMgr::DEFERRED_BLUR_SIZE, RenderShadowBlurSize);
@@ -10882,6 +10916,12 @@ LLRenderTarget* LLPipeline::getSunShadowTarget(U32 i)
 
     if (mHeroProbeManager.isMirrorPass())
     {
+        // hero passes read the camera's cascades, with the omni cascade in the far slot
+        if (i == 3 && mMirrorShadow.isComplete())
+        {
+            return &mMirrorShadow;
+        }
+
         return &mMainRT.shadow[i];
     }
 
@@ -11522,6 +11562,43 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                 mShadowCamera[j+4] = shadow_cam;
             }
         }
+
+        // one more cascade, centered on the camera and covering every direction: hero probe passes
+        // use it wherever the main cascades (fit to the view frustum) have no coverage
+        if (!gCubeSnapshot && RenderMirrors && mMirrorShadow.isComplete())
+        {
+            static LLCachedControl<F32> mirror_shadow_radius(gSavedSettings, "RenderMirrorShadowRadius", 0.f);
+            F32 radius = mirror_shadow_radius;
+            if (radius <= 0.f)
+            {
+                radius = mSunClipPlanes.mV[1];
+            }
+
+            // shares cascade 3's camera id; that cascade has finished rendering
+            LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_SUN_SHADOW3;
+
+            mMirrorShadowModelview = look(camera.getOrigin(), lightDir, -up);
+            mMirrorShadowProjection = glm::ortho(-radius, radius, -radius, radius, -radius, radius);
+
+            LLCamera mirror_shadow_cam = camera;
+            mirror_shadow_cam.setOriginAndLookAt(camera.getOrigin(), up, camera.getOrigin() + lightDir);
+            mirror_shadow_cam.setOrigin(0,0,0);
+
+            set_current_modelview(mMirrorShadowModelview);
+            set_current_projection(mMirrorShadowProjection);
+
+            LLViewerCamera::updateFrustumPlanes(mirror_shadow_cam, false, false, true);
+            mirror_shadow_cam.getAgentPlane(LLCamera::AGENT_PLANE_NEAR).set(shadow_near_clip);
+
+            mMirrorShadow.bindTarget();
+            mMirrorShadow.getViewport(gGLViewport);
+            mMirrorShadow.clear();
+
+            static LLCullResult mirror_result;
+            renderShadow(mMirrorShadowModelview, mMirrorShadowProjection, mirror_shadow_cam, mirror_result, true);
+
+            mMirrorShadow.flush();
+        }
     }
 
     //hack to disable projector shadows
@@ -11758,6 +11835,11 @@ void LLPipeline::refreshSunShadowMatrices()
     for (U32 j = 0; j < 4; ++j)
     {
         mSunShadowMatrix[j] = trans * mShadowProjection[j] * mShadowModelview[j] * inv_view;
+    }
+
+    if (mHeroProbeManager.isMirrorPass() && mMirrorShadow.isComplete())
+    {
+        mSunShadowMatrix[3] = trans * mMirrorShadowProjection * mMirrorShadowModelview * inv_view;
     }
 
     for (U32 j = 0; j < mSpotShadowMatrix.size(); ++j)
@@ -12567,6 +12649,13 @@ void LLPipeline::skipRenderingShadows()
         mRT->shadow[j].bindTarget();
         mRT->shadow[j].clear();
         mRT->shadow[j].flush();
+    }
+
+    if (mRT == &mMainRT && mMirrorShadow.isComplete())
+    {
+        mMirrorShadow.bindTarget();
+        mMirrorShadow.clear();
+        mMirrorShadow.flush();
     }
 }
 
