@@ -54,6 +54,36 @@ constexpr F32 kMirrorSelectMargin   = 1.5f;
 constexpr S32 kMirrorSelectHoldFrames = 10;
 constexpr F32 kMirrorMinDist        = 0.25f;
 
+// the reflecting surface is the prim's +Z face, half its thickness out from the center
+static LLVector3 mirror_surface_point(LLVOVolume* hero, const LLVector3& face_normal)
+{
+    return hero->getPositionAgent() + face_normal * (hero->getScale().mV[VZ] * 0.5f);
+}
+
+// main eye space -> planar capture clip space (x, y, w), from the origin, axes and fov the capture renders with
+static LLMatrix4 planar_capture_from_eye(const LLVector3& origin, const LLVector3& look, const LLVector3& up, F32 tan_half_fov)
+{
+    LLVector3 right = look % up;
+    right.normalize();
+
+    F32 inv_fov = 1.f / tan_half_fov;
+    glm::mat4 capture_from_world(0.f);
+
+    for (S32 axis = 0; axis < 3; ++axis)
+    {
+        capture_from_world[axis][0] = right.mV[axis] * inv_fov;
+        capture_from_world[axis][1] = up.mV[axis] * inv_fov;
+        capture_from_world[axis][3] = look.mV[axis];
+    }
+
+    capture_from_world[3][0] = -(right * origin) * inv_fov;
+    capture_from_world[3][1] = -(up * origin) * inv_fov;
+    capture_from_world[3][3] = -(look * origin);
+
+    glm::mat4 from_eye = capture_from_world * glm::inverse(glm::make_mat4(gGLModelView));
+    return LLMatrix4(glm::value_ptr(from_eye));
+}
+
 static void touch_default_probe(LLReflectionMap* probe)
 {
     if (LLViewerCamera::getInstance())
@@ -125,6 +155,10 @@ void LLHeroProbeManager::update()
             mMipChain[i].allocate(res, res, render_hdr ? GL_RGBA16F : GL_RGBA8);
             res /= 2;
         }
+
+        // mip i holds the GGX lobe with roughness^2 = 2^(i+1) / resolution; round up to cover roughness 0.3
+        F32 top_mip = log2f(0.3f * 0.3f * (F32)mProbeResolution * 0.5f);
+        mRadianceMips = llclamp((S32)ceilf(top_mip) + 1, 1, (S32)count);
     }
 
     llassert(mProbes[0] == mDefaultProbe);
@@ -207,7 +241,7 @@ void LLHeroProbeManager::update()
             bool inside = d <= 0.f;
 
             LLVector3 face_normal = LLVector3::z_axis * vo->mDrawable->getWorldRotation();
-            if ((camera_pos - vo->getPositionAgent()) * face_normal <= 0.f)
+            if ((camera_pos - mirror_surface_point(vo, face_normal)) * face_normal <= 0.f)
             {
                 continue;
             }
@@ -223,13 +257,12 @@ void LLHeroProbeManager::update()
                 {
                     continue;
                 }
-                const LLVector4a* ext = vo->mDrawable->getSpatialExtents();
+                // agent-space box; spatial extents are bridge-local while the drawable is active (being edited)
+                LLBBox aligned = bb.getAxisAligned();
                 LLVector4a center;
-                center.setAdd(ext[0], ext[1]);
-                center.mul(0.5f);
+                center.load3(aligned.getCenterAgent().mV);
                 LLVector4a half;
-                half.setSub(ext[1], ext[0]);
-                half.mul(0.5f);
+                half.load3((aligned.getExtentLocal() * 0.5f).mV);
                 if (!LLViewerCamera::instance().AABBInFrustum(center, half))
                 {
                     continue;
@@ -435,10 +468,10 @@ void LLHeroProbeManager::update()
 
         S32 probeIdx = i + 1; // probe 0 is water
 
-        LLVector3 hero_pos = hero->getPositionAgent();
         LLVector3 face_normal = LLVector3(0, 0, 1);
         face_normal *= hero->mDrawable->getWorldRotation();
         face_normal.normalize();
+        LLVector3 hero_pos = mirror_surface_point(hero, face_normal);
 
         // All probes capture from the reflected camera position; direction-only
         // sampling in the shader assumes the mirrored eye as the capture origin.
@@ -471,7 +504,7 @@ void LLHeroProbeManager::update()
         LLVector3 face_normal = LLVector3(0, 0, 1);
         face_normal *= nearest->mDrawable->getWorldRotation();
         face_normal.normalize();
-        mMirrorPosition = nearest->getPositionAgent();
+        mMirrorPosition = mirror_surface_point(nearest, face_normal);
         mMirrorNormal   = face_normal;
     }
     else
@@ -574,10 +607,10 @@ void LLHeroProbeManager::renderProbes()
             {
                 // User probe
                 LLVOVolume* hero = mActiveHeroes[probeIdx - 1];
-                LLVector3 hero_pos = hero->getPositionAgent();
                 LLVector3 face_normal = LLVector3(0, 0, 1);
                 face_normal *= hero->mDrawable->getWorldRotation();
                 face_normal.normalize();
+                LLVector3 hero_pos = mirror_surface_point(hero, face_normal);
 
                 mCurrentClipPlane.setVec(hero_pos, face_normal);
                 mMirrorPosition = hero_pos;
@@ -821,7 +854,7 @@ void LLHeroProbeManager::generateRadiance(LLReflectionMap* probe)
 
             U32 res = mMipChain[0].getWidth();
 
-            for (int i = 0; i < mMipChain.size() / 4; ++i)
+            for (int i = 0; i < mRadianceMips; ++i)
             {
                 LL_PROFILE_GPU_ZONE("hero probe radiance gen");
                 static LLStaticHashedString sMipLevel("mipLevel");
@@ -914,18 +947,7 @@ void LLHeroProbeManager::updateUniforms()
             lookDir.normalize();
             upDir.normalize();
 
-            LLVector3 reflRight = lookDir % upDir;
-            reflRight.normalize();
-
-            // scale transverse axes by 1/tan(fov/2) so the widened capture maps onto face 0's +/-45 degree range
-            upDir /= mPlanarCaptureFovTanHalf;
-            reflRight /= mPlanarCaptureFovTanHalf;
-
-            mHeroData.heroPlaneMatrix[pi].initRows(
-                LLVector4(lookDir.mV[VX], -upDir.mV[VX], -reflRight.mV[VX], 0),
-                LLVector4(lookDir.mV[VY], -upDir.mV[VY], -reflRight.mV[VY], 0),
-                LLVector4(lookDir.mV[VZ], -upDir.mV[VZ], -reflRight.mV[VZ], 0),
-                LLVector4(0, 0, 0, 1));
+            mHeroData.heroCaptureMatrix[pi] = planar_capture_from_eye(LLVector3(mProbes[pi]->mOrigin.getF32ptr()), lookDir, upDir, mPlanarCaptureFovTanHalf);
 
             // Clip plane set just above water to avoid Z-fighting with underwater fog.
             // Computed camera-relative to avoid float32 precision loss at large world coords.
@@ -979,10 +1001,10 @@ void LLHeroProbeManager::updateUniforms()
                 mHeroData.heroParams[pi][0] = 1; // sphere shape
             }
 
-            LLVector3 hero_pos = hero->getPositionAgent();
             LLVector3 face_normal = LLVector3(0, 0, 1);
             face_normal *= hero->mDrawable->getWorldRotation();
             face_normal.normalize();
+            LLVector3 hero_pos = mirror_surface_point(hero, face_normal);
 
             bool isPlanar = hero->getScale().mV[VZ] < 0.02f;
 
@@ -997,18 +1019,7 @@ void LLHeroProbeManager::updateUniforms()
                 lookDir.normalize();
                 upDir.normalize();
 
-                LLVector3 reflRight = lookDir % upDir;
-                reflRight.normalize();
-
-                // scale transverse axes by 1/tan(fov/2) so the widened capture maps onto face 0's +/-45 degree range
-                upDir /= mPlanarCaptureFovTanHalf;
-                reflRight /= mPlanarCaptureFovTanHalf;
-
-                mHeroData.heroPlaneMatrix[pi].initRows(
-                    LLVector4(lookDir.mV[VX], -upDir.mV[VX], -reflRight.mV[VX], 0),
-                    LLVector4(lookDir.mV[VY], -upDir.mV[VY], -reflRight.mV[VY], 0),
-                    LLVector4(lookDir.mV[VZ], -upDir.mV[VZ], -reflRight.mV[VZ], 0),
-                    LLVector4(0, 0, 0, 1));
+                mHeroData.heroCaptureMatrix[pi] = planar_capture_from_eye(LLVector3(mProbes[pi]->mOrigin.getF32ptr()), lookDir, upDir, mPlanarCaptureFovTanHalf);
             }
 
             // Clip plane in eye space
@@ -1025,8 +1036,7 @@ void LLHeroProbeManager::updateUniforms()
         }
     }
 
-    llassert(mMipChain.size() <= size_t(S32_MAX));
-    mHeroData.heroMipCount = S32(mMipChain.size());
+    mHeroData.heroMipCount = mRadianceMips;
 }
 
 void LLHeroProbeManager::renderDebug()
@@ -1145,13 +1155,12 @@ void LLHeroProbeManager::doOcclusion()
             probe->mOccluded = false;
             continue;
         }
-        const LLVector4a* ext = hero->mDrawable->getSpatialExtents();
+        // agent-space box; spatial extents are bridge-local while the drawable is active (being edited)
+        LLBBox aligned = hero->getBoundingBoxAgent().getAxisAligned();
         LLVector4a center;
-        center.setAdd(ext[0], ext[1]);
-        center.mul(0.5f);
+        center.load3(aligned.getCenterAgent().mV);
         LLVector4a half_size;
-        half_size.setSub(ext[1], ext[0]);
-        half_size.mul(0.5f);
+        half_size.load3((aligned.getExtentLocal() * 0.5f).mV);
         // bounding-sphere cube, as regular probes use: a thin mirror's own face must not occlude its query
         F32 r = half_size.getLength3().getF32();
         half_size.set(r, r, r, 0.f);

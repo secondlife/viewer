@@ -89,9 +89,9 @@ layout (std140) uniform ReflectionProbes
 
     // heroParams[i] = { shape, cubeIndex, 0, 0 }
     ivec4 heroParams[MAX_HERO_PROBE_COUNT];
-    mat4 heroPlaneMatrix[MAX_HERO_PROBE_COUNT];
     vec4 heroClipPlane[MAX_HERO_PROBE_COUNT];
     vec4 heroFade[MAX_HERO_PROBE_COUNT];
+    mat4 heroCaptureMatrix[MAX_HERO_PROBE_COUNT]; // planar: main eye space -> capture clip (x, y, w)
 };
 
 // Inputs
@@ -842,6 +842,13 @@ void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
     float falloffMult = 10;
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
+    // inverse of the hero radiance gen's GGX mip mapping; past roughness 0.3 hand off to the probes
+    float roughness = 1.0 - glossiness;
+    float heroRes = float(textureSize(heroProbes, 0).x);
+    float heroLod = clamp(log2(max(roughness * roughness * heroRes * 0.5, 1.0)), 0.0, float(heroMipCount - 1));
+    float maxRoughness = max(sqrt(exp2(float(heroMipCount)) / heroRes), 0.31);
+    float roughnessFade = 1.0 - smoothstep(0.3, maxRoughness, roughness);
+
     for (int pi = 0; pi < heroProbeCount; ++pi)
     {
         int shape = heroParams[pi].x;
@@ -872,7 +879,7 @@ void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
         clipDist = clipDist * 0.95 + 0.05;
         clipDist = clamp(clipDist * falloffMult, 0, 1);
         w = clamp(w * falloffMult * clipDist, 0, 1);
-        w = mix(0, w, clamp(glossiness - 0.75, 0, 1) * 4);
+        w *= roughnessFade;
         w *= heroFade[pi].x;
 
         if (w < 0.001)
@@ -880,28 +887,24 @@ void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
 
         if (shape == 2)
         {
-            // Planar: apply correction matrix then sample face 0
-            vec3 worldDir = env_mat * refnormpersp;
-            vec3 corrected = mat3(heroPlaneMatrix[pi]) * worldDir;
-            vec3 cubemapDir = corrected;
+            // Planar: project the pixel through the capture's camera for its spot on face 0
+            vec4 capture_clip = heroCaptureMatrix[pi] * vec4(pos, 1.0);
+            vec2 face_coord = -capture_clip.yx / max(capture_clip.w, 0.001);
+            vec3 cubemapDir = vec3(1.0, face_coord);
 
-            // Fade out at the capture image border; the matrix already scales
-            // the capture FOV onto face 0, so valid data spans |y|,|z| <= x
-            float maxc = max(abs(cubemapDir.y), abs(cubemapDir.z)) / max(cubemapDir.x, 0.001);
-            w *= (cubemapDir.x > 0.0) ? (1.0 - smoothstep(0.95, 1.0, maxc)) : 0.0;
-
-            // Ensure face 0 is sampled
-            cubemapDir.x = max(cubemapDir.x, 0.001);
+            // Fade out at the capture image border; valid data spans |y|,|z| <= 1
+            float maxc = max(abs(cubemapDir.y), abs(cubemapDir.z));
+            w *= step(0.0, capture_clip.w) * (1.0 - smoothstep(0.95, 1.0, maxc));
 
             glossenv = mix(glossenv, textureLod(heroProbes,
                 vec4(cubemapDir, cubeIndex),
-                (1.0 - glossiness) * heroMipCount).xyz, w);
+                heroLod).xyz, w);
         }
         else
         {
             glossenv = mix(glossenv, textureLod(heroProbes,
                 vec4(env_mat * refnormpersp, cubeIndex),
-                (1.0 - glossiness) * heroMipCount).xyz, w);
+                heroLod).xyz, w);
         }
     }
 }
@@ -985,6 +988,9 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
     float lod = (1.0-glossiness)*reflection_lods;
     glossenv = sampleProbes(pos, normalize(refnormpersp), lod);
 
+    // mirrors first; SSR fills in detail on top of them
+    tapHeroProbe(glossenv, pos, norm, glossiness);
+
 #if defined(SSR)
     if (cube_snapshot != 1)
     {
@@ -1020,8 +1026,6 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
         }
     }
 #endif
-
-    tapHeroProbe(glossenv, pos, norm, glossiness);
 }
 
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
@@ -1117,6 +1121,10 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
         legacyenv = sampleProbes(pos, normalize(refnormpersp), 0.0);
     }
 
+    // mirrors first; SSR fills in detail on top of them
+    tapHeroProbe(glossenv, pos, norm, glossiness);
+    tapHeroProbe(legacyenv, pos, norm, 1.0);
+
 #if defined(SSR)
     if (cube_snapshot != 1)
     {
@@ -1147,14 +1155,34 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
                     ssr.a *= glossiness;
 
                 glossenv = mix(glossenv, ssr.rgb, ssr.a);
-                legacyenv = mix(legacyenv, ssr.rgb, ssr.a);
+            }
+        }
+
+        if (envIntensity > 0.0)
+        {
+            // Blinn-Phong env reflections ignore roughness, so SSR is sampled sharp like the probes and mirrors
+            vec4 ssr_sharp = vec4(0.0);
+
+            if (transparent)
+            {
+                ssr_sharp = textureLod(sceneMap, tc, SSR_TRANSPARENT_MIN_LOD);
+            }
+            else
+            {
+                ssr_sharp = sampleSSRComposite(tc, pos, 0.0);
+            }
+
+            if (ssr_sharp.a > 0.001)
+            {
+                ssr_sharp.rgb /= ssr_sharp.a;
+                float l = dot(ssr_sharp.rgb, vec3(0.2126, 0.7152, 0.0722));
+                ssr_sharp.rgb /= max(1.0 - l, 0.02); // cap recovery; emissive hits blow out otherwise
+
+                legacyenv = mix(legacyenv, ssr_sharp.rgb, ssr_sharp.a);
             }
         }
     }
 #endif
-
-    tapHeroProbe(glossenv, pos, norm, glossiness);
-    tapHeroProbe(legacyenv, pos, norm, 1.0);
 
     glossenv = clamp(glossenv, vec3(0), vec3(10));
 }

@@ -44,6 +44,7 @@ uniform vec2 screen_res;
 uniform mat4 projection_matrix;
 uniform float roughnessFactor;
 uniform float minimum_alpha;
+uniform int ssrDebug; // TEMP: hit classification view
 
 float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source, float glossiness);
 void bayerBlueDitherDiscard(float alpha, float threshold);
@@ -79,4 +80,11 @@ void main()
 
     // dither density carries alpha; scaling .a alone breaks the premultiplied decode
     frag_color = ssrColor;
+
+    // TEMP: alpha-prepass contributions show magenta (pre-compressed for the composite's luma recovery)
+    if (ssrDebug == 1)
+    {
+        vec3 debug_color = vec3(1.0, 0.0, 1.0);
+        frag_color = vec4(debug_color / (1.0 + dot(debug_color, vec3(0.2126, 0.7152, 0.0722))), 1.0);
+    }
 }

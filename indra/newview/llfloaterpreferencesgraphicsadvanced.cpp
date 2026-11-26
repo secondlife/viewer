@@ -191,17 +191,17 @@ void LLFloaterPreferenceGraphicsAdvanced::refresh()
     {
         reflections_combo->setValue(0); // Low
     }
-    else if (probe_quality == 1 && !ssr_enabled)
-    {
-        reflections_combo->setValue(1); // Medium
-    }
-    else
+    else if (mirrors_enabled)
     {
         reflections_combo->setValue(2); // High
     }
+    else
+    {
+        reflections_combo->setValue(1); // Medium
+    }
 
-    // Show/hide mirror sub-controls based on Ultra
-    bool show_mirror_controls = (reflections_combo->getValue().asInteger() == 3);
+    // Show/hide mirror sub-controls based on High and Ultra
+    bool show_mirror_controls = (reflections_combo->getValue().asInteger() >= 2);
     getChildView("MirrorResolutionText")->setVisible(show_mirror_controls);
     getChildView("MirrorResolution")->setVisible(show_mirror_controls);
     getChildView("HeroProbeUpdateText")->setVisible(show_mirror_controls);
@@ -458,7 +458,7 @@ void LLFloaterPreferenceGraphicsAdvanced::onReflectionsQualityChanged()
     // Map quality levels to settings:
     // 0 (Low) = probe quality 0, SSR off, mirrors off
     // 1 (Medium) = probe quality 1, SSR off, mirrors off
-    // 2 (High) = probe quality 1, SSR on, mirrors off
+    // 2 (High) = probe quality 1, SSR off, mirrors on
     // 3 (Ultra) = probe quality 1, SSR on, mirrors on
 
     if (quality == 0)
@@ -476,8 +476,8 @@ void LLFloaterPreferenceGraphicsAdvanced::onReflectionsQualityChanged()
     else if (quality == 2)
     {
         gSavedSettings.setS32("RenderReflectionProbeQuality", 1);
-        gSavedSettings.setBOOL("RenderScreenSpaceReflections", true);
-        gSavedSettings.setBOOL("RenderMirrors", false);
+        gSavedSettings.setBOOL("RenderScreenSpaceReflections", false);
+        gSavedSettings.setBOOL("RenderMirrors", true);
     }
     else // quality == 3 (Ultra)
     {
@@ -486,8 +486,8 @@ void LLFloaterPreferenceGraphicsAdvanced::onReflectionsQualityChanged()
         gSavedSettings.setBOOL("RenderMirrors", true);
     }
 
-    // Show/hide mirror sub-controls based on Ultra
-    bool show_mirror_controls = (quality == 3);
+    // Show/hide mirror sub-controls based on High and Ultra
+    bool show_mirror_controls = (quality >= 2);
     getChildView("MirrorResolutionText")->setVisible(show_mirror_controls);
     getChildView("MirrorResolution")->setVisible(show_mirror_controls);
     getChildView("HeroProbeUpdateText")->setVisible(show_mirror_controls);

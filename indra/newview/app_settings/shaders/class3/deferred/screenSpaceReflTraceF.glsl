@@ -55,9 +55,17 @@ void main()
 
     float glossiness;
     if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_HAS_PBR))
+    {
         glossiness = 1.0 - gb.specular.a;   // RT1.a = perceptualRoughness
+    }
+    else if (gb.envIntensity > 0.0)
+    {
+        glossiness = 1.0;                    // Blinn-Phong env reflections ignore roughness
+    }
     else
+    {
         glossiness = gb.specular.a;          // Legacy: a = glossiness
+    }
 
     vec4 ssrColor = vec4(0.0);
     tapScreenSpaceReflection(1, tc, pos, gb.normal, ssrColor, sceneMap, glossiness);

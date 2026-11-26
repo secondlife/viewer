@@ -7991,16 +7991,27 @@
     <key>Value</key>
     <integer>48</integer>
   </map>
+  <key>RenderScreenSpaceReflectionDebug</key>
+  <map>
+    <key>Comment</key>
+    <string>TEMP debug: SSR hits drawn as red = confidence lost, green = ray length (dark = very short), blue = hit after tunneling.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderScreenSpaceReflectionMaxThickness</key>
   <map>
     <key>Comment</key>
-    <string>Maximum thickness for SSR hit validation (view-space units).</string>
+    <string>Assumed surface thickness for SSR hits, as a fraction of view depth (0.02 = 2% of the distance). Full confidence up to it, fading out by twice it.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>1.0</real>
+    <real>0.02</real>
   </map>
   <key>RenderScreenSpaceReflectionDepthBias</key>
   <map>

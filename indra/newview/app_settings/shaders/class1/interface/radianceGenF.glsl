@@ -129,7 +129,16 @@ vec4 prefilterEnvMap(vec3 R)
     vec4 color = vec4(0.0);
     float totalWeight = 0.0;
     float envMapDim = float(textureSize(reflectionProbes, 0).s);
+#ifdef HERO_PROBES
+    // GGX lobe sized to the mip's texel; tapHeroProbe applies the inverse
+    float roughness = 0.0;
+    if (mipLevel > 0.0)
+    {
+        roughness = sqrt(exp2(mipLevel + 1.0) / float(u_width));
+    }
+#else
     float roughness = mipLevel/max_probe_lod;
+#endif
     uint numSamples = uint(max(PROBE_FILTER_SAMPLES*roughness, 1));
 
     float numMips = max_probe_lod+1;

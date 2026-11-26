@@ -37,6 +37,7 @@ uniform mat4 inv_modelview_delta;
 uniform int iterationCount;
 uniform float maxThickness;
 uniform float depthBias;
+uniform int ssrDebug; // TEMP: hit classification view
 uniform float glossySampleCount;
 uniform float noiseSine;
 uniform float maxZDepth;
@@ -113,7 +114,7 @@ float projectDepth(vec3 viewPos)
 // References:
 //   Godot Engine SSR: screen_space_reflection.glsl (MIT license)
 //   Sugulee/GPU Pro 5: Hi-Z Screen-Space Cone-Traced Reflections
-// Returns vec4: xyz = hit position (UV + raw depth), w = 1.0 on hit.
+// Returns vec4: xyz = hit position (UV + raw depth), w = overshoot behind the surface in cell allowances (<= 1 is a clean hit).
 // Returns vec4(-1) on miss (ray exits screen or runs out of iterations).
 // Thickness-rejected surfaces are skipped (mip-0 march) but don't kill the trace.
 vec4 hiZTrace(vec3 origin, vec3 dir, int maxIterations)
@@ -166,6 +167,8 @@ vec4 hiZTrace(vec3 origin, vec3 dir, int maxIterations)
         t += ssrIGN(gl_FragCoord.xy) * min(cellT.x, cellT.y);
     }
 
+    float overshoot = 0.0;
+
     for (int i = 0; i < maxIterations && curLevel >= 0 && t < tMax; i++)
     {
         vec3 pos = origin + rayDir * t;
@@ -196,21 +199,29 @@ vec4 hiZTrace(vec3 origin, vec3 dir, int maxIterations)
 
         int mipOffset = hit ? -1 : 1;
 
-        // Thickness gate at mip 0 (matches Godot depth_tolerance check):
-        // Linearize depths and reject if surface is too far behind ray.
+        // Thickness gate at mip 0: surfaces are assumed maxThickness * view depth thick (a fraction of distance)
         if (curLevel == 0 && hit)
         {
             float z0 = getPositionWithDepth(pos.xy, cellDepth).z;
             float z1 = getPositionWithDepth(pos.xy, pos.z).z;
-            if ((z0 - z1) > maxThickness)
+            // a grazing ray moves further in depth per cell than the slab; it may have crossed within that step
+            vec3 exitPos = origin + rayDir * edgeT;
+            float rayStepZ = abs(getPositionWithDepth(exitPos.xy, exitPos.z).z - z1);
+            float thickness = max(maxThickness * abs(z0), rayStepZ);
+            float cellOvershoot = max(z0 - z1, 0.0) / max(thickness, 1e-4);
+
+            if (cellOvershoot > 2.0)
             {
-                // unsure hit: budget lets rays pass behind thin objects, then miss to probes
+                // passed behind this surface: keep tracing for what is really there
                 tunnels++;
                 if (tunnels > SSR_MAX_TUNNEL)
-                    return vec4(-1.0);
+                    return vec4(-2.0); // TEMP: -2 marks a tunnel-budget miss for the debug view
                 hit = false;
                 mipOffset = 1;  // skip cell and re-coarsen; Hi-Z re-descends if the surface continues
-
+            }
+            else
+            {
+                overshoot = cellOvershoot;
             }
         }
 
@@ -238,7 +249,8 @@ vec4 hiZTrace(vec3 origin, vec3 dir, int maxIterations)
         t >= tMax)
         return vec4(-1.0);
 
-    return vec4(hitPos, 1.0);
+    // TEMP: tunnel count rides above the overshoot (overshoot <= 2) for the debug view
+    return vec4(hitPos, overshoot + 4.0 * float(tunnels));
 }
 
 float calculateEdgeFade(vec2 screenPos)
@@ -280,13 +292,8 @@ float tapScreenSpaceReflection(
         return 0.0;
     }
 
-    // Bias the ray origin along the normal, scaled by distance.
-    // Prevents grazing-angle rays from scraping the originating surface
-    // at distance where depth precision breaks down.
-    float biasAmount = max(0.01, -viewPos.z * depthBias);
-    vec3 biasedPos = viewPos - normal * biasAmount;
-
-    vec3 transformedPos = (inv_modelview_delta * vec4(biasedPos, 1.0)).xyz;
+    // the reflected ray starts on the surface itself; any normal offset shifts the whole reflection
+    vec3 transformedPos = (inv_modelview_delta * vec4(viewPos, 1.0)).xyz;
     float startDepth = -transformedPos.z;
 
     if (startDepth > maxZDepth)
@@ -305,6 +312,9 @@ float tapScreenSpaceReflection(
     vec3 accumColor = vec3(0.0);
     float accumFade = 0.0;
     int hits = 0;
+    bool budgetMiss = false; // TEMP: debug
+    bool validationMiss = false; // TEMP: debug
+    bool facingMiss = false; // TEMP: debug
 
     for (int s = 0; s < numSamples; s++)
     {
@@ -341,34 +351,47 @@ float tapScreenSpaceReflection(
         vec3 transformedReflDir = normalize(transformedTarget - transformedPos);
 
         if (transformedReflDir.z >= 0.5)
+        {
+            facingMiss = true;
             continue;
+        }
 
         // Fade rays pointing back toward camera to avoid sharp SSR boundary.
         float cameraFacingFade = 1.0 - smoothstep(0.45, 0.5, transformedReflDir.z);
-
-        // Push ray origin along surface normal to prevent self-intersection.
-        // Deterministic (not random) to avoid per-pixel noise.
-        // Scales with distance to match depth-buffer precision degradation.
-        float clearance = max(0.05, -viewPos.z * 0.002);
-        vec3 clearedPos = biasedPos + normal * clearance;
-        vec3 transformedClearedPos = (inv_modelview_delta * vec4(clearedPos, 1.0)).xyz;
 
         // Project ray origin and a nearby point to screen space (UV + raw depth).
         // Use a short step (fraction of distance-to-camera) to ensure the end
         // point stays in front of the camera — projecting at maxZDepth can wrap
         // behind the camera for reflections going toward the viewer.
-        vec3 ssOrigin = vec3(generateProjectedPosition(transformedClearedPos),
-                             projectDepth(transformedClearedPos));
-        float stepDist = max(0.1, -transformedClearedPos.z * 0.1);
-        vec3 transformedEnd = transformedClearedPos + transformedReflDir * stepDist;
+        // nudge the start just off the surface along its normal against reprojection noise; depth-scaled and small
+        // enough that the reflection shifts by about a pixel at most
+        float nudge = max(0.001, -viewPos.z * 0.001);
+        vec3 transformedStart = (inv_modelview_delta * vec4(viewPos + normal * nudge, 1.0)).xyz;
+
+        vec3 ssOrigin = vec3(generateProjectedPosition(transformedStart),
+                             projectDepth(transformedStart));
+        float stepDist = max(0.1, -transformedStart.z * 0.1);
+        vec3 transformedEnd = transformedStart + transformedReflDir * stepDist;
         vec3 ssFar = vec3(generateProjectedPosition(transformedEnd),
                           projectDepth(transformedEnd));
         vec3 ssDir = ssFar - ssOrigin;
 
+        // the trace reads last frame's depth; under camera motion the reprojected start can land a hair behind that
+        // surface and read as an immediate self-hit, so pull its depth onto the surface (direction unchanged)
+        ivec2 originPixel = clamp(ivec2(ssOrigin.xy * screen_res), ivec2(0), ivec2(screen_res) - 1);
+        ssOrigin.z = min(ssOrigin.z, texelFetch(sceneDepth, originPixel, 0).r);
+
         vec4 result = hiZTrace(ssOrigin, ssDir, iterationCount);
 
         if (result.x < 0.0)
+        {
+            if (result.x < -1.5)
+            {
+                budgetMiss = true;
+            }
+
             continue;
+        }
 
         vec2 hitTC = result.xy;
 
@@ -382,18 +405,32 @@ float tapScreenSpaceReflection(
         if (hitDepth > maxZDepth)
             continue;
 
-        // Confidence validation (matches Godot):
-        // Compare the trace's final depth with the actual surface depth at that pixel.
-        // No dead zone — smoothstep from 0 penalizes any mismatch.
-        // Squared for strong near-hits with rapid falloff.
         vec3 viewSpaceSurface = getPositionWithDepth(hitTC, hitSurfaceDepth).xyz;
-        vec3 viewSpaceHit = getPositionWithDepth(hitTC, result.z).xyz;
-        float hitDistance = length(viewSpaceSurface - viewSpaceHit);
-        float confidence = 1.0 - smoothstep(0.0, maxThickness, hitDistance);
-        confidence *= confidence;
 
-        if (confidence < 0.95)
+        // self-hit: a hit lying in the origin surface's own plane is that surface finding itself
+        vec3 originNormal = normalize(mat3(inv_modelview_delta) * normal);
+        if (dot(viewSpaceSurface - transformedPos, originNormal) < max(0.005, -transformedPos.z * 0.002))
+        {
             continue;
+        }
+
+        // end-depth validation (rejects camera-facing false hits, which don't snap onto the surface); a ramp,
+        // so near-misses around silhouettes fade instead of dropping out in blocks
+        vec3 viewSpaceHit = getPositionWithDepth(hitTC, result.z).xyz;
+        float endThickness = maxThickness * abs(viewSpaceSurface.z);
+        float endError = length(viewSpaceSurface - viewSpaceHit);
+
+        if (endError > endThickness)
+        {
+            validationMiss = true;
+            continue;
+        }
+
+        float endValidation = 1.0 - smoothstep(0.1 * endThickness, endThickness, endError);
+
+        // full weight within one cell's allowance, gone by two; rays that slid behind a silhouette fade out
+        float hit_overshoot = mod(result.w, 4.0);
+        float confidence = (1.0 - smoothstep(1.0, 2.0, hit_overshoot)) * endValidation;
 
         // Short-ray back-face check (Godot-style):
         // For rays that traveled < 3 pixels, compute a geometric normal at the
@@ -416,7 +453,37 @@ float tapScreenSpaceReflection(
                 continue;
         }
 
+        // Fringe and skim: the hit pixel's 4 neighbors in view space
+        ivec2 maxPixel = ivec2(screen_res) - 1;
+        ivec2 pxL = clamp(hitPixel - ivec2(1, 0), ivec2(0), maxPixel);
+        ivec2 pxR = clamp(hitPixel + ivec2(1, 0), ivec2(0), maxPixel);
+        ivec2 pxD = clamp(hitPixel - ivec2(0, 1), ivec2(0), maxPixel);
+        ivec2 pxU = clamp(hitPixel + ivec2(0, 1), ivec2(0), maxPixel);
+        vec3 nbL = getPositionWithDepth((vec2(pxL) + 0.5) / screen_res, texelFetch(sceneDepth, pxL, 0).r).xyz;
+        vec3 nbR = getPositionWithDepth((vec2(pxR) + 0.5) / screen_res, texelFetch(sceneDepth, pxR, 0).r).xyz;
+        vec3 nbD = getPositionWithDepth((vec2(pxD) + 0.5) / screen_res, texelFetch(sceneDepth, pxD, 0).r).xyz;
+        vec3 nbU = getPositionWithDepth((vec2(pxU) + 0.5) / screen_res, texelFetch(sceneDepth, pxU, 0).r).xyz;
+
+        // fringe: second difference of 1/z is zero on any plane at any slope and rises where the pixel straddles an edge
+        float invC = 1.0 / max(-viewSpaceSurface.z, 1e-4);
+        float bendX = abs(1.0 / max(-nbL.z, 1e-4) + 1.0 / max(-nbR.z, 1e-4) - 2.0 * invC);
+        float bendY = abs(1.0 / max(-nbD.z, 1e-4) + 1.0 / max(-nbU.z, 1e-4) - 2.0 * invC);
+        float fringe = 1.0 - smoothstep(maxThickness, 2.0 * maxThickness, max(bendX, bendY) / invC);
+
+        // skim: a ray meeting the surface near edge-on reads a sliver of it
+        vec3 hitSurfaceNormal = normalize(cross(nbR - nbL, nbU - nbD));
+        float skim = smoothstep(0.05, 0.2, abs(dot(transformedReflDir, hitSurfaceNormal)));
+
+        confidence *= fringe * skim;
+
         float edgeFade = calculateEdgeFade(hitTC);
+
+        // screen room: how far the ray could travel before leaving the screen; hits that used most of it
+        // fade gradually, so coverage approaches the screen-exit cut softly instead of stopping on a line
+        vec2 roomDir = normalize(ssDir.xy + vec2(1e-7));
+        vec2 roomT = max((vec2(0.0) - ssOrigin.xy) / roomDir, (vec2(1.0) - ssOrigin.xy) / roomDir);
+        float roomLen = max(min(roomT.x, roomT.y), 1e-4);
+        edgeFade *= 1.0 - smoothstep(0.5, 1.0, rayLen / roomLen);
 
         float zFadeStart = maxZDepth * 0.8;
         float zFade = 1.0 - smoothstep(zFadeStart, maxZDepth, hitDepth);
@@ -445,6 +512,15 @@ float tapScreenSpaceReflection(
 
         float sampleFade = edgeFade * zFade * fadeIn * rayFade * confidence * cameraFacingFade;
 
+        // TEMP: hit classification view, full weight; pre-compressed so the composite's recovery shows these exact colors
+        if (ssrDebug == 1)
+        {
+            vec3 debug_color = vec3(1.0 - confidence, clamp(rayPixelLen / 64.0, 0.0, 1.0), step(4.0, result.w));
+            float debug_luma = dot(debug_color, vec3(0.2126, 0.7152, 0.0722));
+            sampledColor.rgb = debug_color / (1.0 + debug_luma);
+            sampleFade = 1.0;
+        }
+
         accumColor += sampledColor.rgb * sampleFade;
         accumFade += sampleFade;
         hits++;
@@ -453,6 +529,27 @@ float tapScreenSpaceReflection(
     if (hits == 0)
     {
         collectedColor = vec4(0.0);
+
+        // TEMP: misses that ran out of tunnel budget show orange
+        if (ssrDebug == 1 && (budgetMiss || validationMiss || facingMiss))
+        {
+            // TEMP: orange = tunnel budget, cyan = end-depth validation, white = camera-facing cutoff
+            vec3 debug_color = vec3(1.0, 0.5, 0.0);
+
+            if (validationMiss)
+            {
+                debug_color = vec3(0.0, 1.0, 1.0);
+            }
+
+            if (facingMiss)
+            {
+                debug_color = vec3(1.0);
+            }
+
+            collectedColor = vec4(debug_color / (1.0 + dot(debug_color, vec3(0.2126, 0.7152, 0.0722))), 1.0);
+            return 1.0;
+        }
+
         return 0.0;
     }
 

@@ -104,9 +104,9 @@ public:
         // 3 ints above = 12 bytes; alignas(16) inserts 4 bytes so heroParams starts at offset 16.
         // heroParams[i] = { shape, cubeIndex, 0, 0 }
         alignas(16) GLint heroParams[LL_MAX_HERO_PROBE_COUNT][4];
-        LLMatrix4 heroPlaneMatrix[LL_MAX_HERO_PROBE_COUNT];
         LLVector4 heroClipPlane[LL_MAX_HERO_PROBE_COUNT];
         LLVector4 heroFade[LL_MAX_HERO_PROBE_COUNT];
+        LLMatrix4 heroCaptureMatrix[LL_MAX_HERO_PROBE_COUNT];
     };
 
     // allocate an environment map of the given resolution

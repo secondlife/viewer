@@ -1374,9 +1374,9 @@ void LLReflectionMapManager::updateUniforms()
             mProbeData.heroParams[i][1]   = hd.heroParams[i][1];
             mProbeData.heroParams[i][2]   = hd.heroParams[i][2];
             mProbeData.heroParams[i][3]   = hd.heroParams[i][3];
-            mProbeData.heroPlaneMatrix[i] = hd.heroPlaneMatrix[i];
             mProbeData.heroClipPlane[i]   = hd.heroClipPlane[i];
             mProbeData.heroFade[i]        = hd.heroFade[i];
+            mProbeData.heroCaptureMatrix[i] = hd.heroCaptureMatrix[i];
         }
         mProbeData.heroMipCount   = hd.heroMipCount;
         mProbeData.heroProbeCount = hd.heroProbeCount;

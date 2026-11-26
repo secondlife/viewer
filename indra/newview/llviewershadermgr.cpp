@@ -4079,7 +4079,7 @@ bool LLViewerShaderMgr::loadShadersInterface()
         gHeroRadianceGenProgram.mShaderFiles.push_back(make_pair("interface/radianceGenF.glsl", GL_FRAGMENT_SHADER));
         gHeroRadianceGenProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
         gHeroRadianceGenProgram.addPermutation("HERO_PROBES", "1");
-        gHeroRadianceGenProgram.addPermutation("PROBE_FILTER_SAMPLES", "4");
+        gHeroRadianceGenProgram.addPermutation("PROBE_FILTER_SAMPLES", "32");
         success                              = gHeroRadianceGenProgram.createShader();
     }
 

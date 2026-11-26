@@ -46,9 +46,10 @@ struct HeroProbeData
     GLint     heroProbeCount;
     // heroParams[i] = { shape, cubeIndex, 0, 0 }
     GLint     heroParams[LL_MAX_HERO_PROBE_COUNT][4];
-    LLMatrix4 heroPlaneMatrix[LL_MAX_HERO_PROBE_COUNT];
     LLVector4 heroClipPlane[LL_MAX_HERO_PROBE_COUNT];
     LLVector4 heroFade[LL_MAX_HERO_PROBE_COUNT];
+    // planar probes: main eye space -> capture clip space (x, y, w)
+    LLMatrix4 heroCaptureMatrix[LL_MAX_HERO_PROBE_COUNT];
 };
 
 class alignas(16) LLHeroProbeManager
@@ -113,6 +114,9 @@ private:
     LLRenderTarget mRenderTarget;
 
     std::vector<LLRenderTarget> mMipChain;
+
+    // GGX-filtered radiance mips, enough to cover roughness 0.3
+    S32 mRadianceMips = 1;
 
     // storage for reflection probe radiance maps (plus two scratch space cubemaps)
     LLPointer<LLCubeMapArray> mTexture;

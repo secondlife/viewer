@@ -7660,7 +7660,7 @@ void LLPipeline::renderSSRAlpha()
                         continue;
                     }
                 }
-                else if (1.f - params.mSpecColor.mV[VW] >= maxRoughness)
+                else if (params.mEnvIntensity <= 0.f && 1.f - params.mSpecColor.mV[VW] >= maxRoughness)
                 {
                     continue;
                 }
@@ -7704,8 +7704,14 @@ void LLPipeline::renderSSRAlpha()
                     shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
                     shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
 
-                    // Legacy glossiness from specular color alpha
+                    // Legacy glossiness from specular color alpha; Blinn-Phong env reflections ignore roughness
                     F32 roughness = 1.0f - params.mSpecColor.mV[3];
+
+                    if (params.mEnvIntensity > 0.f)
+                    {
+                        roughness = 0.f;
+                    }
+
                     shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, roughness);
 
                     // Identity PBR texture transforms for legacy materials
@@ -10328,6 +10334,11 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
             shader.uniform1i(LLShaderMgr::DEFERRED_SSR_ITR_COUNT, traceIterations);
             shader.uniform1f(LLShaderMgr::DEFERRED_SSR_MAX_THICKNESS, traceMaxThickness);
             shader.uniform1f(LLShaderMgr::DEFERRED_SSR_DEPTH_BIAS, traceDepthBias);
+
+            // TEMP: SSR hit classification debug view
+            static LLCachedControl<bool> ssr_debug(gSavedSettings, "RenderScreenSpaceReflectionDebug", false);
+            static LLStaticHashedString sSsrDebug("ssrDebug");
+            shader.uniform1i(sSsrDebug, (S32)(bool)ssr_debug);
             shader.uniform1f(LLShaderMgr::DEFERRED_SSR_GLOSSY_SAMPLES, (GLfloat)RenderScreenSpaceReflectionGlossySamples);
 
             // advance once per frame - the alpha prepass binds per draw, and a

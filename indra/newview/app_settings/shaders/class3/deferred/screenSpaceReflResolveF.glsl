@@ -107,9 +107,17 @@ void main()
     GBufferInfo gb = getGBuffer(vary_fragcoord);
     float glossiness;
     if (GET_GBUFFER_FLAG(gb.gbufferFlag, GBUFFER_FLAG_HAS_PBR))
+    {
         glossiness = 1.0 - gb.specular.a;
+    }
+    else if (gb.envIntensity > 0.0)
+    {
+        glossiness = 1.0; // Blinn-Phong env reflections ignore roughness
+    }
     else
+    {
         glossiness = gb.specular.a;
+    }
     float roughness = 1.0 - glossiness;
 
     // 3x3 moments: mean doubles as spatial ray reuse, variance bounds history
@@ -130,6 +138,19 @@ void main()
 
     // reuse neighbors' rays where the GGX lobe is wide; mirrors keep their own sample
     vec4 filtered = mix(cur, mu, smoothstep(0.0, 0.2, roughness));
+
+    // feather where good hits end: scale by the 5x5 fraction of pixels that have SSR data
+    // (premultiplied, so this fades coverage without shifting color)
+    float covered = 0.0;
+    for (int y = -2; y <= 2; ++y)
+    {
+        for (int x = -2; x <= 2; ++x)
+        {
+            covered += step(0.05, texelFetch(currentColorTex, clamp(px + ivec2(x, y), ivec2(0), sz - 1), 0).a);
+        }
+    }
+
+    filtered *= covered / 25.0;
 
     if (ssrHistoryBlend <= 0.0)
     {
