@@ -1157,8 +1157,10 @@ void LLScrollListCtrl::selectNextItem( bool extend_selection)
     {
         updateSort();
 
-        for (LLScrollListItem* cur_item : mItemList)
+        for (auto iter = mItemList.rbegin(); iter != mItemList.rend(); ++iter)
         {
+            LLScrollListItem* cur_item = *iter;
+
             if (cur_item->getSelected())
             {
                 if (next_item)
