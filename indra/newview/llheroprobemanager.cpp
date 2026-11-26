@@ -54,10 +54,10 @@ constexpr F32 kMirrorSelectMargin   = 1.5f;
 constexpr S32 kMirrorSelectHoldFrames = 10;
 constexpr F32 kMirrorMinDist        = 0.25f;
 
-// the reflecting surface is the prim's +Z face, half its thickness out from the center
+// the probe volume is centered on the reflecting surface, so its center plane is the mirror plane
 static LLVector3 mirror_surface_point(LLVOVolume* hero, const LLVector3& face_normal)
 {
-    return hero->getPositionAgent() + face_normal * (hero->getScale().mV[VZ] * 0.5f);
+    return hero->getPositionAgent();
 }
 
 // main eye space -> planar capture clip space (x, y, w), from the origin, axes and fov the capture renders with
