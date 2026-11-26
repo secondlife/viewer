@@ -10335,6 +10335,10 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
             shader.uniform1f(LLShaderMgr::DEFERRED_SSR_MAX_THICKNESS, traceMaxThickness);
             shader.uniform1f(LLShaderMgr::DEFERRED_SSR_DEPTH_BIAS, traceDepthBias);
 
+            static LLCachedControl<F32> traceMaxStretch(gSavedSettings, "RenderScreenSpaceReflectionMaxStretch", 2.f);
+            static LLStaticHashedString sMaxStretch("maxStretch");
+            shader.uniform1f(sMaxStretch, traceMaxStretch);
+
             // TEMP: SSR hit classification debug view
             static LLCachedControl<bool> ssr_debug(gSavedSettings, "RenderScreenSpaceReflectionDebug", false);
             static LLStaticHashedString sSsrDebug("ssrDebug");

@@ -8013,6 +8013,17 @@
     <key>Value</key>
     <real>0.02</real>
   </map>
+  <key>RenderScreenSpaceReflectionMaxStretch</key>
+  <map>
+    <key>Comment</key>
+    <string>SSR hits whose captured pixels are magnified more than this in the reflection start fading, gone by twice it.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>2.0</real>
+  </map>
   <key>RenderScreenSpaceReflectionDepthBias</key>
   <map>
     <key>Comment</key>

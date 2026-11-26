@@ -36,6 +36,7 @@ uniform mat4 inv_modelview_delta;
 
 uniform int iterationCount;
 uniform float maxThickness;
+uniform float maxStretch;
 uniform float depthBias;
 uniform int ssrDebug; // TEMP: hit classification view
 uniform float glossySampleCount;
@@ -474,7 +475,14 @@ float tapScreenSpaceReflection(
         vec3 hitSurfaceNormal = normalize(cross(nbR - nbL, nbU - nbD));
         float skim = smoothstep(0.05, 0.2, abs(dot(transformedReflDir, hitSurfaceNormal)));
 
-        confidence *= fringe * skim;
+        // stretch: captured texel footprint over the mirror ray cone's footprint at the hit (ray cones, same pixel angle)
+        float camDist = length(viewSpaceSurface);
+        float coneDist = length(transformedPos) + length(viewSpaceSurface - transformedPos);
+        float camFacing = max(abs(dot(viewSpaceSurface / max(camDist, 1e-4), hitSurfaceNormal)), 1e-3);
+        float stretch = (camDist * abs(dot(transformedReflDir, hitSurfaceNormal))) / max(coneDist * camFacing, 1e-4);
+        float stretchFade = 1.0 - smoothstep(maxStretch, 2.0 * maxStretch, stretch);
+
+        confidence *= fringe * skim * stretchFade;
 
         float edgeFade = calculateEdgeFade(hitTC);
 
