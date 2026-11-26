@@ -126,10 +126,13 @@ namespace
         return today - days_from_civil(target_year, m, d);
     }
 
-    // Inverse: split 'total_days' into whole calendar years plus remaining days
-    void split_days_into_years(time_t now, S64 total_days, S32& years, S64& days)
+    // Inverse: split 'total_days' into whole calendar years plus remaining days.
+    // 'max_years' is the spinner limit: any excess time is kept in 'days' so the
+    // total duration is preserved when the floater is reopened.
+    void split_days_into_years(time_t now, S64 total_days, S32 max_years, S32& years, S64& days)
     {
-        for (S32 y = static_cast<S32>(total_days / 365); y > 0; --y)
+        const S32 start_years = llmin(static_cast<S32>(total_days / 365), llmax(max_years, 0));
+        for (S32 y = start_years; y > 0; --y)
         {
             const S64 days_in_y = days_in_years_before(now, y);
             if (days_in_y <= total_days)
@@ -1360,7 +1363,8 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
     if (mSpinSinceYears)
     {
         S64 remaining_days = 0;
-        split_days_into_years(time_corrected(), total_days, years, remaining_days);
+        split_days_into_years(time_corrected(), total_days,
+                              (S32)mSpinSinceYears->getMaxValue(), years, remaining_days);
         days = (U32)remaining_days;
     }
     U32 date_search_direction = mFilter->getDateSearchDirection();
