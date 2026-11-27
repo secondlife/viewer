@@ -471,7 +471,13 @@ void LLFloaterModelPreview::disableViewOption(const std::string& option)
 void LLFloaterModelPreview::loadHighLodModel()
 {
     mModelPreview->mLookUpLodFiles = true;
-    loadModel(3);
+    loadModel(LLModel::LOD_HIGH);
+}
+
+void LLFloaterModelPreview::loadHighLodModel(const std::string& file_name)
+{
+    mModelPreview->mLookUpLodFiles = true;
+    loadModel(LLModel::LOD_HIGH, file_name);
 }
 
 void LLFloaterModelPreview::prepareToLoadModel(S32 lod)
