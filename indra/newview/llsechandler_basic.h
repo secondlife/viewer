@@ -35,15 +35,7 @@
 
 #include "llsecapi.h"
 #include <vector>
-#include <openssl/x509.h>
-
-// helpers
-extern LLSD cert_name_from_X509_NAME(X509_NAME* name);
-extern std::string cert_string_name_from_X509_NAME(X509_NAME* name);
-extern std::string cert_string_from_asn1_integer(ASN1_INTEGER* value);
-extern LLDate cert_date_from_asn1_time(ASN1_TIME* asn1_time);
-extern std::string cert_get_digest(const std::string& digest_type, X509 *cert);
-
+#include <filesystem>
 
 // class LLCertificate
 //
@@ -53,14 +45,16 @@ public:
     LOG_CLASS(LLBasicCertificate);
 
     // The optional validation_params allow us to make the unit test time-invariant
-    LLBasicCertificate(const std::string& pem_cert, const LLSD* validation_params = NULL);
-    LLBasicCertificate(X509* openSSLX509, const LLSD* validation_params = NULL);
+    LLBasicCertificate(const std::string& pem_cert, bool isSystem = false, const LLSD* validation_params = nullptr);
+    LLBasicCertificate(X509* openSSLX509, bool isSystem = false, const LLSD* validation_params = nullptr);
 
     virtual ~LLBasicCertificate();
 
     virtual std::string getPem() const;
     virtual std::vector<U8> getBinary() const;
     virtual void getLLSD(LLSD &llsd);
+
+    virtual bool isSystem() const;
 
     virtual X509* getOpenSSLX509() const;
 
@@ -73,19 +67,21 @@ protected:
     // other functionality is via openssl
     X509* mCert;
 
+    // define when a certificate is from the system store so to not persist them to the user store
+    bool mSystem;
+
     LLSD& _initLLSD();
     LLSD mLLSDInfo;
 };
-
 
 // class LLBasicCertificateVector
 // Class representing a list of certificates
 // This implementation uses a stl vector of certificates.
 class LLBasicCertificateVector : virtual public LLCertificateVector
 {
-
 public:
-    LLBasicCertificateVector() {}
+    LLBasicCertificateVector() : mLoaded(0), mRejected(0) {}
+    LLBasicCertificateVector(const std::string& path, bool isSystem, bool suppress_expire_warning);
 
     virtual ~LLBasicCertificateVector() {}
 
@@ -97,6 +93,7 @@ public:
     public:
         BasicIteratorImpl(std::vector<LLPointer<LLCertificate> >::iterator _iter) { mIter = _iter;}
         virtual ~BasicIteratorImpl() {};
+
         // seek forward or back.  Used by the operator++/operator-- implementations
         virtual void seek(bool incr)
         {
@@ -145,31 +142,61 @@ public:
     // return the number of certs in the store
     virtual int size() const { return static_cast<int>(mCerts.size()); }
 
-    // insert the cert to the store.  if a copy of the cert already exists in the store, it is removed first
-    virtual void  add(LLPointer<LLCertificate> cert) { insert(end(), cert); }
+    // insert the cert to the store. If the certificate already exists in the store, nothing is done.
+    virtual bool add(LLPointer<LLCertificate> cert) { return insert(end(), cert); }
 
-    // insert the cert to the store.  if a copy of the cert already exists in the store, it is removed first
-    virtual void  insert(iterator _iter, LLPointer<LLCertificate> cert);
+    // insert the cert to the store. If the certificate already exists in the store, nothing is done.
+    virtual bool insert(iterator _iter, LLPointer<LLCertificate> cert);
 
     // remove a certificate from the store
     virtual LLPointer<LLCertificate> erase(iterator _iter);
 
 protected:
-    std::vector<LLPointer<LLCertificate> >mCerts;
+    // verify the certificate and if it is valid and not expired add it to this certificate vector
+    int verify_and_add(const unsigned char* cert_bytes, long length, bool system, bool suppress_expire_warning);
+    int verify_and_add(X509* cert, bool system, bool suppress_expire_warning);
+    // load certificates from a file or directory
+    int load_from(const std::filesystem::path& path, bool system, bool suppress_expire_warning);
+    int load_from(const std::string& path, bool system, bool suppress_expire_warning)
+    {
+        const std::filesystem::path file_path = fsyspath(path);
+        return load_from(file_path, system, suppress_expire_warning);
+    }
+
+    int mLoaded;
+    int mRejected;
+
+private:
+    std::vector<LLPointer<LLCertificate>> mCerts;
+};
+
+// load certificates from the system store
+// by default suppress warnings about expired certificates since at least on Windows
+// and Mac the store contains usually also several expired certificates
+class LLSystemCertificateVector : public LLBasicCertificateVector
+{
+public:
+    LLSystemCertificateVector(bool suppress_expire_warning);
+
+    virtual ~LLSystemCertificateVector() {}
+
+private:
+    int load_from_system(bool suppress_expire_warning);
 };
 
 // class LLCertificateStore
 // represents a store of certificates, typically a store of root CA
 // certificates.  The store can be persisted, and can be used to validate
 // a cert chain
-//
 class LLBasicCertificateStore : virtual public LLBasicCertificateVector, public LLCertificateStore
 {
 public:
-    LLBasicCertificateStore(const std::string& filename);
-    void load_from_file(const std::string& filename);
+    // Load the certificate bundle from the file
+    LLBasicCertificateStore(const std::string& filename) :
+        LLBasicCertificateVector(filename, false, false),
+        mFilename(filename) {}
 
-    virtual ~LLBasicCertificateStore();
+    virtual ~LLBasicCertificateStore() {}
 
     // persist the store
     virtual void save();
@@ -183,12 +210,10 @@ public:
                           LLPointer<LLCertificateChain> ca_chain,
                           const LLSD& validation_params);
 
-    // Clears cache of certs validated agains store
+    // Clears cache of certs validated against store
     virtual void clearSertCache() { mTrustedCertCache.clear(); }
 
-protected:
-    std::vector<LLPointer<LLCertificate> >            mCerts;
-
+private:
     // cache of cert sha1 hashes to from/to date pairs, to improve
     // performance of cert trust.  Note, these are not the CA certs,
     // but the certs that have been validated against this store.
@@ -210,8 +235,6 @@ public:
     virtual ~LLBasicCertificateChain() {}
 
 };
-
-
 
 // LLSecAPIBasicCredential class
 class LLSecAPIBasicCredential : public LLCredential
