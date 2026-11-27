@@ -494,12 +494,7 @@ bool LLGLTFMaterial::setFromDocument(const boost::json::value& doc, S32 mat_inde
                 mTransmissionFactor = llclamp((F32)tf->to_number<double>(), 0.f, 1.f);
             }
 
-            const auto* trans_tex = trans.if_contains("transmissionTexture");
-
-            if (trans_tex && trans_tex->is_object())
-            {
-                readTextureInfo(doc, trans_tex->as_object(), GLTF_TEXTURE_INFO_TRANSMISSION);
-            }
+            // transmissionTexture is ignored in favor of thicknessTexture, like occlusion for ORM
         }
 
         // KHR_materials_volume
@@ -1005,12 +1000,7 @@ void LLGLTFMaterial::setSpecularId(const LLUUID& id, bool for_override)
     setTextureId(GLTF_TEXTURE_INFO_SPECULAR, id, for_override);
 }
 
-void LLGLTFMaterial::setTransmissionId(const LLUUID& id, bool for_override)
-{
-    setTextureId(GLTF_TEXTURE_INFO_TRANSMISSION, id, for_override);
-}
-
-void LLGLTFMaterial::setThicknessId(const LLUUID& id, bool for_override)
+void LLGLTFMaterial::setTransmissionThicknessId(const LLUUID& id, bool for_override)
 {
     setTextureId(GLTF_TEXTURE_INFO_THICKNESS, id, for_override);
 }

@@ -63,6 +63,11 @@ struct MikktMesh
         if (prim->mMode == Primitive::Mode::TRIANGLE_STRIP ||
             prim->mMode == Primitive::Mode::TRIANGLE_FAN)
         {
+            if (vert_count < 3) {
+                LL_WARNS("GLTF") << "Too few vertices for a triangle strip or fan" << LL_ENDL;
+                return false;
+            }
+
             triangle_count = vert_count - 2;
         }
         else if (prim->mMode == Primitive::Mode::TRIANGLES)
@@ -76,7 +81,12 @@ struct MikktMesh
         }
 
         vert_count = triangle_count * 3;
-        llassert(vert_count <= size_t(U32_MAX));  // triangle_count will also naturally be under the limit
+
+        // triangle_count will also naturally be under the limit
+        if (vert_count > size_t(U32_MAX)) {
+            LL_WARNS("GLTF") << "Too many vertices" << LL_ENDL;
+            return false;
+        }
 
         p.resize(vert_count);
         n.resize(vert_count);
@@ -329,48 +339,88 @@ bool Primitive::prep(Asset& asset)
     for (auto& it : mAttributes)
     {
         const std::string& attribName = it.first;
+
+        if (it.second < 0 || (size_t)it.second >= asset.mAccessors.size())
+        {
+            LL_WARNS("GLTF") << "Invalid accessor index" << LL_ENDL;
+            return false;
+        }
+
         Accessor& accessor = asset.mAccessors[it.second];
 
         // load vertex data
         if (attribName == "POSITION")
         {
-            copy(asset, accessor, mPositions);
+            if (!copy(asset, accessor, mPositions))
+            {
+                return false;
+            }
         }
         else if (attribName == "NORMAL")
         {
-            copy(asset, accessor, mNormals);
+            if (!copy(asset, accessor, mNormals))
+            {
+                return false;
+            }
         }
         else if (attribName == "TANGENT")
         {
-            copy(asset, accessor, mTangents);
+            if (!copy(asset, accessor, mTangents))
+            {
+                return false;
+            }
         }
         else if (attribName == "COLOR_0")
         {
-            copy(asset, accessor, mColors);
+            if (!copy(asset, accessor, mColors))
+            {
+                return false;
+            }
         }
         else if (attribName == "TEXCOORD_0")
         {
-            copy(asset, accessor, mTexCoords0);
+            if (!copy(asset, accessor, mTexCoords0))
+            {
+                return false;
+            }
         }
         else if (attribName == "TEXCOORD_1")
         {
-            copy(asset, accessor, mTexCoords1);
+            if (!copy(asset, accessor, mTexCoords1))
+            {
+                return false;
+            }
         }
         else if (attribName == "JOINTS_0")
         {
-            copy(asset, accessor, mJoints);
+            if (!copy(asset, accessor, mJoints))
+            {
+                return false;
+            }
         }
         else if (attribName == "WEIGHTS_0")
         {
-            copy(asset, accessor, mWeights);
+            if (!copy(asset, accessor, mWeights))
+            {
+                return false;
+            }
         }
     }
 
     // copy index buffer
     if (mIndices != INVALID_INDEX)
     {
+        if (mIndices < 0 || (size_t)mIndices >= asset.mAccessors.size())
+        {
+            LL_WARNS("GLTF") << "Invalid accessor index" << LL_ENDL;
+            return false;
+        }
+
         Accessor& accessor = asset.mAccessors[mIndices];
-        copy(asset, accessor, mIndexArray);
+        if (!copy(asset, accessor, mIndexArray))
+        {
+            return false;
+        }
 
         for (auto& idx : mIndexArray)
         {
@@ -388,6 +438,21 @@ bool Primitive::prep(Asset& asset)
         {
             mIndexArray[i] = i;
         }
+    }
+
+    // every per-vertex array that is present must cover every position
+    const size_t vertex_count = mPositions.size();
+    bool counts_match = (mNormals.empty() || mNormals.size() == vertex_count)
+        && (mTangents.empty() || mTangents.size() == vertex_count)
+        && (mColors.empty() || mColors.size() == vertex_count)
+        && (mTexCoords0.empty() || mTexCoords0.size() == vertex_count)
+        && (mTexCoords1.empty() || mTexCoords1.size() == vertex_count)
+        && (mJoints.empty() || mJoints.size() == vertex_count)
+        && (mWeights.empty() || mWeights.size() == vertex_count);
+
+    if (!counts_match || mJoints.empty() != mWeights.empty()) {
+        LL_WARNS("GLTF") << "Vertex attribute counts do not match" << LL_ENDL;
+        return false;
     }
 
     U32 mask = LLVertexBuffer::MAP_VERTEX;
@@ -425,6 +490,12 @@ bool Primitive::prep(Asset& asset)
     // bake material basecolor into color array
     if (mMaterial != INVALID_INDEX)
     {
+        if (mMaterial < 0 || (size_t)mMaterial >= asset.mMaterials.size())
+        {
+            LL_WARNS("GLTF") << "Invalid material index" << LL_ENDL;
+            return false;
+        }
+
         const Material& material = asset.mMaterials[mMaterial];
         LLColor4 baseColor(glm::value_ptr(material.mPbrMetallicRoughness.mBaseColorFactor));
         for (auto& dst : mColors)
@@ -717,7 +788,7 @@ void Primitive::createOctree()
 
     else
     {
-        LL_ERRS() << "Unsupported Primitive mode" << LL_ENDL;
+        LL_WARNS("GLTF") << "Unsupported Primitive mode" << LL_ENDL;
     }
 
     //remove unneeded octree layers

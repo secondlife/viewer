@@ -40,7 +40,7 @@ namespace LL
 {
     namespace GLTF
     {
-        static std::unordered_set<std::string> ExtensionsSupported = {
+        static const std::unordered_set<std::string> ExtensionsSupported = {
             "KHR_materials_unlit",
             "KHR_texture_transform",
             "KHR_materials_transmission",
@@ -51,7 +51,7 @@ namespace LL
             "KHR_materials_specular"
         };
 
-        static std::unordered_set<std::string> ExtensionsIgnored = {
+        static const std::unordered_set<std::string> ExtensionsIgnored = {
             "KHR_materials_pbrSpecularGlossiness"
         };
 
@@ -496,6 +496,9 @@ void Asset::update()
 bool Asset::prep()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
+    mUnsupportedExtensions.clear();
+    mIgnoredExtensions.clear();
+
     // check required extensions
     for (auto& extension : mExtensionsRequired)
     {
@@ -515,6 +518,72 @@ bool Asset::prep()
     if (mUnsupportedExtensions.size() > 0)
     {
         return false;
+    }
+
+    if (!mInvalidFields.empty()) {
+        for (const std::string& invalid_field : mInvalidFields) {
+            LL_WARNS("GLTF") << "Invalid field: " << invalid_field << LL_ENDL;
+        }
+
+        return false;
+    }
+
+    // every child index must be in range and every node may have only one parent
+    std::vector<S32> node_parents(mNodes.size(), INVALID_INDEX);
+
+    for (size_t node_index = 0; node_index < mNodes.size(); ++node_index) {
+        for (S32 child_index : mNodes[node_index].mChildren) {
+            if (child_index < 0 || (size_t)child_index >= mNodes.size() || node_parents[child_index] != INVALID_INDEX) {
+                LL_WARNS("GLTF") << "Invalid node hierarchy" << LL_ENDL;
+                return false;
+            }
+
+            node_parents[child_index] = (S32)node_index;
+        }
+    }
+
+    // with one parent each, any node not reachable from a root is part of a cycle
+    std::vector<S32> pending_nodes;
+    size_t reached_nodes = 0;
+
+    for (size_t node_index = 0; node_index < mNodes.size(); ++node_index) {
+        if (node_parents[node_index] == INVALID_INDEX) {
+            pending_nodes.push_back((S32)node_index);
+        }
+    }
+
+    while (!pending_nodes.empty()) {
+        S32 node_index = pending_nodes.back();
+        pending_nodes.pop_back();
+        ++reached_nodes;
+
+        for (S32 child_index : mNodes[node_index].mChildren) {
+            pending_nodes.push_back(child_index);
+        }
+    }
+
+    if (reached_nodes != mNodes.size()) {
+        LL_WARNS("GLTF") << "Node hierarchy contains a cycle" << LL_ENDL;
+        return false;
+    }
+
+    for (const Scene& scene : mScenes) {
+        for (S32 node_index : scene.mNodes) {
+            if (node_index < 0 || (size_t)node_index >= mNodes.size()) {
+                LL_WARNS("GLTF") << "Invalid scene node index" << LL_ENDL;
+                return false;
+            }
+        }
+    }
+
+    for (const Node& node : mNodes) {
+        bool mesh_valid = node.mMesh == INVALID_INDEX || (node.mMesh >= 0 && (size_t)node.mMesh < mMeshes.size());
+        bool skin_valid = node.mSkin == INVALID_INDEX || (node.mSkin >= 0 && (size_t)node.mSkin < mSkins.size());
+
+        if (!mesh_valid || !skin_valid) {
+            LL_WARNS("GLTF") << "Invalid mesh or skin index on node" << LL_ENDL;
+            return false;
+        }
     }
 
     // do buffers first as other resources depend on them
@@ -774,6 +843,20 @@ bool Asset::loadBinary(const std::string& data, bool loadIntoVRAM)
 
 const Asset& Asset::operator=(const Value& src)
 {
+    // puts the previous sink back on every exit path, including a throw
+    struct InvalidFieldsScope {
+        std::vector<std::string>* mPrevious = sInvalidFields;
+
+        ~InvalidFieldsScope() {
+            sInvalidFields = mPrevious;
+        }
+    };
+
+    InvalidFieldsScope invalid_fields_scope;
+
+    mInvalidFields.clear();
+    sInvalidFields = &mInvalidFields;
+
     if (src.is_object())
     {
         const object& obj = src.as_object();
@@ -783,6 +866,10 @@ const Asset& Asset::operator=(const Value& src)
         if (it != obj.end())
         {
             const Value& asset = it->value();
+
+            if (!asset.is_object()) {
+                copy_failed("asset", asset, "not an object");
+            }
 
             copy(asset, "version", mVersion);
             copy(asset, "minVersion", mMinVersion);

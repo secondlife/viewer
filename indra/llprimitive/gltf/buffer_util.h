@@ -38,6 +38,9 @@
 
 #include "accessor.h"
 
+#include <algorithm>
+#include <cmath>
+
 namespace LL
 {
     namespace GLTF
@@ -45,53 +48,101 @@ namespace LL
 
         using string_view = boost::json::string_view;
 
+        // members present in the json that failed validation
+        // points at Asset::mInvalidFields for the duration of Asset::operator=
+        inline thread_local std::vector<std::string>* sInvalidFields = nullptr;
+
+        // records "<member>: <reason>, got <json kind> <value>"
+        inline void copy_failed(string_view member, const Value& value, const char* reason)
+        {
+            if (sInvalidFields == nullptr) {
+                return;
+            }
+
+            std::string got = boost::json::serialize(value);
+
+            if (got.size() > 64) {
+                got.resize(64);
+            }
+
+            std::string kind(boost::json::to_string(value.kind()));
+            sInvalidFields->push_back(std::string(member) + ": " + reason + ", got " + kind + " " + got);
+        }
+
+        // value validators, passed as the last argument to copy(src, member, dst, validator)
+
+        // value must fall within [mMin, mMax]
+        template<typename T>
+        struct RangeValidator {
+            T mMin;
+            T mMax;
+
+            bool operator()(const T& value) const {
+                return value >= mMin && value <= mMax;
+            }
+        };
+
+        // value must be one of mValues; a single specific value is a list of one
+        template<typename T>
+        struct ValueValidator {
+            std::vector<T> mValues;
+
+            bool operator()(const T& value) const {
+                return std::find(mValues.begin(), mValues.end(), value) != mValues.end();
+            }
+        };
+
+        // strings and string enums are lists of allowed strings
+        using StringValidator = ValueValidator<std::string>;
+        using EnumValidator = ValueValidator<std::string>;
+
         // copy one Scalar from src to dst
         template<class S, class T>
-        inline void copyScalar(S* src, T& dst)
+        inline bool copyScalar(S* src, T& dst)
         {
-            LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
+            return false;
         }
 
         // copy one vec2 from src to dst
         template<class S, class T>
-        inline void copyVec2(S* src, T& dst)
+        inline bool copyVec2(S* src, T& dst)
         {
-            LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
+            return false;
         }
 
         // copy one vec3 from src to dst
         template<class S, class T>
-        inline void copyVec3(S* src, T& dst)
+        inline bool copyVec3(S* src, T& dst)
         {
-            LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
+            return false;
         }
 
         // copy one vec4 from src to dst
         template<class S, class T>
-        inline void copyVec4(S* src, T& dst)
+        inline bool copyVec4(S* src, T& dst)
         {
-            LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
+            return false;
         }
 
         // copy one mat2 from src to dst
         template<class S, class T>
-        inline void copyMat2(S* src, T& dst)
+        inline bool copyMat2(S* src, T& dst)
         {
-            LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
+            return false;
         }
 
         // copy one mat3 from src to dst
         template<class S, class T>
-        inline void copyMat3(S* src, T& dst)
+        inline bool copyMat3(S* src, T& dst)
         {
-            LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
+            return false;
         }
 
         // copy one mat4 from src to dst
         template<class S, class T>
-        inline void copyMat4(S* src, T& dst)
+        inline bool copyMat4(S* src, T& dst)
         {
-            LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
+            return false;
         }
 
         //=========================================================================================================
@@ -99,378 +150,527 @@ namespace LL
         //=========================================================================================================
 
         template<>
-        inline void copyScalar<F32, F32>(F32* src, F32& dst)
+        inline bool copyScalar<F32, F32>(F32* src, F32& dst)
         {
             dst = *src;
+            return true;
         }
 
         template<>
-        inline void copyScalar<U32, U32>(U32* src, U32& dst)
+        inline bool copyScalar<U32, U32>(U32* src, U32& dst)
         {
             dst = *src;
+            return true;
         }
 
         template<>
-        inline void copyScalar<U32, U16>(U32* src, U16& dst)
+        inline bool copyScalar<U32, U16>(U32* src, U16& dst)
         {
             dst = *src;
+            return true;
         }
 
         template<>
-        inline void copyScalar<U16, U16>(U16* src, U16& dst)
+        inline bool copyScalar<U16, U16>(U16* src, U16& dst)
         {
             dst = *src;
+            return true;
         }
 
         template<>
-        inline void copyScalar<U16, U32>(U16* src, U32& dst)
+        inline bool copyScalar<U16, U32>(U16* src, U32& dst)
         {
             dst = *src;
+            return true;
         }
 
         template<>
-        inline void copyScalar<U8, U16>(U8* src, U16& dst)
+        inline bool copyScalar<U8, U16>(U8* src, U16& dst)
         {
             dst = *src;
+            return true;
         }
 
         template<>
-        inline void copyScalar<U8, U32>(U8* src, U32& dst)
+        inline bool copyScalar<U8, U32>(U8* src, U32& dst)
         {
             dst = *src;
+            return true;
         }
 
         template<>
-        inline void copyScalar<U32, LLVector4a>(U32* src, LLVector4a& dst)
+        inline bool copyScalar<U32, LLVector4a>(U32* src, LLVector4a& dst)
         {
             dst.set((F32)*src, 0.f, 0.f, 0.f);
+            return true;
         }
 
         template<>
-        inline void copyScalar<U16, LLVector4a>(U16* src, LLVector4a& dst)
+        inline bool copyScalar<U16, LLVector4a>(U16* src, LLVector4a& dst)
         {
             dst.set((F32)*src, 0.f, 0.f, 0.f);
+            return true;
         }
 
         template<>
-        inline void copyScalar<U8, LLVector4a>(U8* src, LLVector4a& dst)
+        inline bool copyScalar<U8, LLVector4a>(U8* src, LLVector4a& dst)
         {
             dst.set((F32)*src, 0.f, 0.f, 0.f);
+            return true;
         }
 
         template<>
-        inline void copyScalar<U32, LLVector2>(U32* src, LLVector2& dst)
+        inline bool copyScalar<U32, LLVector2>(U32* src, LLVector2& dst)
         {
             dst.set((F32)*src, 0.f);
+            return true;
         }
 
         template<>
-        inline void copyScalar<U16, LLVector2>(U16* src, LLVector2& dst)
+        inline bool copyScalar<U16, LLVector2>(U16* src, LLVector2& dst)
         {
             dst.set((F32)*src, 0.f);
+            return true;
         }
 
         template<>
-        inline void copyScalar<U8, LLVector2>(U8* src, LLVector2& dst)
+        inline bool copyScalar<U8, LLVector2>(U8* src, LLVector2& dst)
         {
             dst.set((F32)*src, 0.f);
+            return true;
         }
 
         template<>
-        inline void copyVec2<F32, LLVector2>(F32* src, LLVector2& dst)
+        inline bool copyVec2<F32, LLVector2>(F32* src, LLVector2& dst)
         {
             dst.set(src[0], src[1]);
+            return true;
         }
 
         template<>
-        inline void copyVec3<F32, LLVector2>(F32* src, LLVector2& dst)
+        inline bool copyVec3<F32, LLVector2>(F32* src, LLVector2& dst)
         {
             dst.set(src[0], src[1]);
+            return true;
         }
 
         template<>
-        inline void copyVec3<F32, vec3>(F32* src, vec3& dst)
+        inline bool copyVec3<F32, vec3>(F32* src, vec3& dst)
         {
             dst = vec3(src[0], src[1], src[2]);
+            return true;
         }
 
         template<>
-        inline void copyVec3<F32, LLVector4a>(F32* src, LLVector4a& dst)
+        inline bool copyVec3<F32, LLVector4a>(F32* src, LLVector4a& dst)
         {
             dst.load3(src);
+            return true;
         }
 
         template<>
-        inline void copyVec3<F32, LLColor4U>(F32* src, LLColor4U& dst)
+        inline bool copyVec3<F32, LLColor4U>(F32* src, LLColor4U& dst)
         {
             dst.set((U8)(src[0] * 255.f), (U8)(src[1] * 255.f), (U8)(src[2] * 255.f), 255);
+            return true;
         }
 
         template<>
-        inline void copyVec3<U16, LLColor4U>(U16* src, LLColor4U& dst)
+        inline bool copyVec3<U16, LLColor4U>(U16* src, LLColor4U& dst)
         {
             dst.set((U8)(src[0]), (U8)(src[1]), (U8)(src[2]), 255);
+            return true;
         }
 
         template<>
-        inline void copyVec4<U8, LLColor4U>(U8* src, LLColor4U& dst)
+        inline bool copyVec4<U8, LLColor4U>(U8* src, LLColor4U& dst)
         {
             dst.set(src[0], src[1], src[2], src[3]);
+            return true;
         }
 
         template<>
-        inline void copyVec4<U16, U64>(U16* src, U64& dst)
+        inline bool copyVec4<U16, U64>(U16* src, U64& dst)
         {
             U16* data = (U16*)&dst;
             data[0] = src[0];
             data[1] = src[1];
             data[2] = src[2];
             data[3] = src[3];
+            return true;
         }
 
         template<>
-        inline void copyVec4<U8, U64>(U8* src, U64& dst)
+        inline bool copyVec4<U8, U64>(U8* src, U64& dst)
         {
             U8* data = (U8*)&dst;
             data[0] = src[0];
             data[1] = src[1];
             data[2] = src[2];
             data[3] = src[3];
+            return true;
         }
 
         template<>
-        inline void copyVec4<U16, LLColor4U>(U16* src, LLColor4U& dst)
+        inline bool copyVec4<U16, LLColor4U>(U16* src, LLColor4U& dst)
         {
             dst.set((U8)(src[0]), (U8)(src[1]), (U8)(src[2]), ((U8)src[3]));
+            return true;
         }
 
         template<>
-        inline void copyVec4<F32, LLColor4U>(F32* src, LLColor4U& dst)
+        inline bool copyVec4<F32, LLColor4U>(F32* src, LLColor4U& dst)
         {
             dst.set((U8)(src[0]*255.f), (U8)(src[1]*255.f), (U8)(src[2]*255.f), (U8)(src[3]*255.f));
+            return true;
         }
 
         template<>
-        inline void copyVec4<F32, LLVector4a>(F32* src, LLVector4a& dst)
+        inline bool copyVec4<F32, LLVector4a>(F32* src, LLVector4a& dst)
         {
             dst.loadua(src);
+            return true;
         }
 
         template<>
-        inline void copyVec4<U32, LLVector4a>(U32* src, LLVector4a& dst)
+        inline bool copyVec4<U32, LLVector4a>(U32* src, LLVector4a& dst)
         {
             dst.set((F32)src[0], (F32)src[1], (F32)src[2], (F32)src[3]);
+            return true;
         }
 
         template<>
-        inline void copyVec4<U16, LLVector4a>(U16* src, LLVector4a& dst)
+        inline bool copyVec4<U16, LLVector4a>(U16* src, LLVector4a& dst)
         {
             dst.set(src[0], src[1], src[2], src[3]);
+            return true;
         }
 
         template<>
-        inline void copyVec4<U8, LLVector4a>(U8* src, LLVector4a& dst)
+        inline bool copyVec4<U8, LLVector4a>(U8* src, LLVector4a& dst)
         {
             dst.set(src[0], src[1], src[2], src[3]);
+            return true;
         }
 
         template<>
-        inline void copyVec4<F32, quat>(F32* src, quat& dst)
+        inline bool copyVec4<F32, quat>(F32* src, quat& dst)
         {
             dst.x = src[0];
             dst.y = src[1];
             dst.z = src[2];
             dst.w = src[3];
+            return true;
         }
 
         template<>
-        inline void copyMat4<F32, mat4>(F32* src, mat4& dst)
+        inline bool copyMat4<F32, mat4>(F32* src, mat4& dst)
         {
             dst = glm::make_mat4(src);
+            return true;
         }
 
         //=========================================================================================================
 
         // copy from src to dst, stride is the number of bytes between each element in src, count is number of elements to copy
         template<class S, class T>
-        inline void copyScalar(S* src, LLStrider<T> dst, S32 stride, S32 count)
+        inline bool copyScalar(S* src, LLStrider<T> dst, S32 stride, S32 count)
         {
             for (S32 i = 0; i < count; ++i)
             {
-                copyScalar(src, *dst);
+                if (!copyScalar(src, *dst))
+                {
+                    return false;
+                }
                 dst++;
                 src = (S*)((U8*)src + stride);
             }
+            return true;
         }
 
         // copy from src to dst, stride is the number of bytes between each element in src, count is number of elements to copy
         template<class S, class T>
-        inline void copyVec2(S* src, LLStrider<T> dst, S32 stride, S32 count)
+        inline bool copyVec2(S* src, LLStrider<T> dst, S32 stride, S32 count)
         {
             for (S32 i = 0; i < count; ++i)
             {
-                copyVec2(src, *dst);
+                if (!copyVec2(src, *dst))
+                {
+                    return false;
+                }
                 dst++;
                 src = (S*)((U8*)src + stride);
             }
+            return true;
         }
 
         // copy from src to dst, stride is the number of bytes between each element in src, count is number of elements to copy
         template<class S, class T>
-        inline void copyVec3(S* src, LLStrider<T> dst, S32 stride, S32 count)
+        inline bool copyVec3(S* src, LLStrider<T> dst, S32 stride, S32 count)
         {
             for (S32 i = 0; i < count; ++i)
             {
-                copyVec3(src, *dst);
+                if (!copyVec3(src, *dst))
+                {
+                    return false;
+                }
                 dst++;
                 src = (S*)((U8*)src + stride);
             }
+            return true;
         }
 
         // copy from src to dst, stride is the number of bytes between each element in src, count is number of elements to copy
         template<class S, class T>
-        inline void copyVec4(S* src, LLStrider<T> dst, S32 stride, S32 count)
+        inline bool copyVec4(S* src, LLStrider<T> dst, S32 stride, S32 count)
         {
             for (S32 i = 0; i < count; ++i)
             {
-                copyVec4(src, *dst);
+                if (!copyVec4(src, *dst))
+                {
+                    return false;
+                }
                 dst++;
                 src = (S*)((U8*)src + stride);
             }
+            return true;
         }
 
         // copy from src to dst, stride is the number of bytes between each element in src, count is number of elements to copy
         template<class S, class T>
-        inline void copyMat2(S* src, LLStrider<T> dst, S32 stride, S32 count)
+        inline bool copyMat2(S* src, LLStrider<T> dst, S32 stride, S32 count)
         {
             for (S32 i = 0; i < count; ++i)
             {
-                copyMat2(src, *dst);
+                if (!copyMat2(src, *dst))
+                {
+                    return false;
+                }
                 dst++;
                 src = (S*)((U8*)src + stride);
             }
+            return true;
         }
 
         // copy from src to dst, stride is the number of bytes between each element in src, count is number of elements to copy
         template<class S, class T>
-        inline void copyMat3(S* src, LLStrider<T> dst, S32 stride, S32 count)
+        inline bool copyMat3(S* src, LLStrider<T> dst, S32 stride, S32 count)
         {
             for (S32 i = 0; i < count; ++i)
             {
-                copyMat3(src, *dst);
+                if (!copyMat3(src, *dst))
+                {
+                    return false;
+                }
                 dst++;
                 src = (S*)((U8*)src + stride);
             }
+            return true;
         }
 
         // copy from src to dst, stride is the number of bytes between each element in src, count is number of elements to copy
         template<class S, class T>
-        inline void copyMat4(S* src, LLStrider<T> dst, S32 stride, S32 count)
+        inline bool copyMat4(S* src, LLStrider<T> dst, S32 stride, S32 count)
         {
             for (S32 i = 0; i < count; ++i)
             {
-                copyMat4(src, *dst);
+                if (!copyMat4(src, *dst))
+                {
+                    return false;
+                }
                 dst++;
                 src = (S*)((U8*)src + stride);
             }
+            return true;
         }
 
         template<class S, class T>
-        inline void copy(Asset& asset, Accessor& accessor, const S* src, LLStrider<T>& dst, S32 byteStride)
+        inline bool copy(Asset& asset, Accessor& accessor, const S* src, LLStrider<T>& dst, S32 byteStride)
         {
             if (accessor.mType == Accessor::Type::SCALAR)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 1 : byteStride;
-                copyScalar((S*)src, dst, stride, accessor.mCount);
+                return copyScalar((S*)src, dst, stride, accessor.mCount);
             }
             else if (accessor.mType == Accessor::Type::VEC2)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 2 : byteStride;
-                copyVec2((S*)src, dst, stride, accessor.mCount);
+                return copyVec2((S*)src, dst, stride, accessor.mCount);
             }
             else if (accessor.mType == Accessor::Type::VEC3)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 3 : byteStride;
-                copyVec3((S*)src, dst, stride, accessor.mCount);
+                return copyVec3((S*)src, dst, stride, accessor.mCount);
             }
             else if (accessor.mType == Accessor::Type::VEC4)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 4 : byteStride;
-                copyVec4((S*)src, dst, stride, accessor.mCount);
+                return copyVec4((S*)src, dst, stride, accessor.mCount);
             }
             else if (accessor.mType == Accessor::Type::MAT2)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 4 : byteStride;
-                copyMat2((S*)src, dst, stride, accessor.mCount);
+                return copyMat2((S*)src, dst, stride, accessor.mCount);
             }
             else if (accessor.mType == Accessor::Type::MAT3)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 9 : byteStride;
-                copyMat3((S*)src, dst, stride, accessor.mCount);
+                return copyMat3((S*)src, dst, stride, accessor.mCount);
             }
             else if (accessor.mType == Accessor::Type::MAT4)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 16 : byteStride;
-                copyMat4((S*)src, dst, stride, accessor.mCount);
+                return copyMat4((S*)src, dst, stride, accessor.mCount);
             }
             else
             {
-                LL_ERRS("GLTF") << "Unsupported accessor type " << (S32)accessor.mType << LL_ENDL;
+                LL_WARNS("GLTF") << "Unsupported accessor type " << (S32)accessor.mType << LL_ENDL;
+                return false;
             }
         }
 
         // copy data from accessor to strider
         template<class T>
-        inline void copy(Asset& asset, Accessor& accessor, LLStrider<T>& dst)
+        inline bool copy(Asset& asset, Accessor& accessor, LLStrider<T>& dst)
         {
-            if (accessor.mBufferView == INVALID_INDEX
+            if (accessor.mBufferView < 0
                 || accessor.mBufferView >= asset.mBufferViews.size())
             {
                 LL_WARNS("GLTF") << "Invalid buffer" << LL_ENDL;
-                return;
+                return false;
             }
             const BufferView& bufferView = asset.mBufferViews[accessor.mBufferView];
-            if (bufferView.mBuffer >= asset.mBuffers.size())
+            if (bufferView.mBuffer < 0
+                || bufferView.mBuffer >= asset.mBuffers.size())
             {
                 LL_WARNS("GLTF") << "Invalid buffer view" << LL_ENDL;
-                return;
+                return false;
             }
             const Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
-            const U8* src = buffer.mData.data() + bufferView.mByteOffset + accessor.mByteOffset;
+
+            S64 componentSize = 0;
+            switch (accessor.mComponentType)
+            {
+            case Accessor::ComponentType::BYTE:
+            case Accessor::ComponentType::UNSIGNED_BYTE:
+                componentSize = 1;
+                break;
+            case Accessor::ComponentType::SHORT:
+            case Accessor::ComponentType::UNSIGNED_SHORT:
+                componentSize = 2;
+                break;
+            case Accessor::ComponentType::UNSIGNED_INT:
+            case Accessor::ComponentType::FLOAT:
+                componentSize = 4;
+                break;
+            default:
+                LL_WARNS("GLTF") << "Invalid component type" << LL_ENDL;
+                return false;
+            }
+
+            S64 componentCount = 0;
+            switch (accessor.mType)
+            {
+            case Accessor::Type::SCALAR:
+                componentCount = 1;
+                break;
+            case Accessor::Type::VEC2:
+                componentCount = 2;
+                break;
+            case Accessor::Type::VEC3:
+                componentCount = 3;
+                break;
+            case Accessor::Type::VEC4:
+            case Accessor::Type::MAT2:
+                componentCount = 4;
+                break;
+            case Accessor::Type::MAT3:
+                componentCount = 9;
+                break;
+            case Accessor::Type::MAT4:
+                componentCount = 16;
+                break;
+            default:
+                LL_WARNS("GLTF") << "Invalid accessor type" << LL_ENDL;
+                return false;
+            }
+
+            S64 elementSize = componentSize * componentCount;
+            S64 stride = bufferView.mByteStride;
+            if (stride == 0)
+            {
+                stride = elementSize;
+            }
+
+            if (accessor.mCount < 0
+                || accessor.mByteOffset < 0
+                || bufferView.mByteOffset < 0
+                || stride < elementSize)
+            {
+                LL_WARNS("GLTF") << "Accessor out of range" << LL_ENDL;
+                return false;
+            }
+
+            if (accessor.mCount == 0)
+            {
+                return true;
+            }
+
+            S64 requiredBytes = ((S64)accessor.mCount - 1) * stride + elementSize;
+            S64 startOffset = (S64)bufferView.mByteOffset + (S64)accessor.mByteOffset;
+            if (startOffset + requiredBytes > (S64)buffer.mData.size())
+            {
+                LL_WARNS("GLTF") << "Accessor out of range" << LL_ENDL;
+                return false;
+            }
+
+            const U8* src = buffer.mData.data() + startOffset;
 
             switch (accessor.mComponentType)
             {
             case Accessor::ComponentType::FLOAT:
-                copy(asset, accessor, (const F32*)src, dst, bufferView.mByteStride);
-                break;
+                return copy(asset, accessor, (const F32*)src, dst, bufferView.mByteStride);
             case Accessor::ComponentType::UNSIGNED_INT:
-                copy(asset, accessor, (const U32*)src, dst, bufferView.mByteStride);
-                break;
+                return copy(asset, accessor, (const U32*)src, dst, bufferView.mByteStride);
             case Accessor::ComponentType::SHORT:
-                copy(asset, accessor, (const S16*)src, dst, bufferView.mByteStride);
-                break;
+                return copy(asset, accessor, (const S16*)src, dst, bufferView.mByteStride);
             case Accessor::ComponentType::UNSIGNED_SHORT:
-                copy(asset, accessor, (const U16*)src, dst, bufferView.mByteStride);
-                break;
+                return copy(asset, accessor, (const U16*)src, dst, bufferView.mByteStride);
             case Accessor::ComponentType::BYTE:
-                copy(asset, accessor, (const S8*)src, dst, bufferView.mByteStride);
-                break;
+                return copy(asset, accessor, (const S8*)src, dst, bufferView.mByteStride);
             case Accessor::ComponentType::UNSIGNED_BYTE:
-                copy(asset, accessor, (const U8*)src, dst, bufferView.mByteStride);
-                break;
+                return copy(asset, accessor, (const U8*)src, dst, bufferView.mByteStride);
             default:
-                LL_ERRS("GLTF") << "Invalid component type" << LL_ENDL;
-                break;
+                LL_WARNS("GLTF") << "Invalid component type" << LL_ENDL;
+                return false;
             }
         }
 
         // copy data from accessor to vector
         template<class T>
-        inline void copy(Asset& asset, Accessor& accessor, std::vector<T>& dst)
+        inline bool copy(Asset& asset, Accessor& accessor, std::vector<T>& dst)
         {
+            if (accessor.mCount < 0
+                || accessor.mBufferView < 0
+                || accessor.mBufferView >= asset.mBufferViews.size())
+            {
+                return false;
+            }
+
+            const BufferView& bufferView = asset.mBufferViews[accessor.mBufferView];
+
+            if (bufferView.mBuffer < 0 || bufferView.mBuffer >= asset.mBuffers.size()) {
+                return false;
+            }
+
+            // every element takes at least one byte, so a larger count is never valid
+            if ((size_t)accessor.mCount > asset.mBuffers[bufferView.mBuffer].mData.size()) {
+                return false;
+            }
+
             dst.resize(accessor.mCount);
             LLStrider<T> strider = dst.data();
-            copy(asset, accessor, strider);
+            return copy(asset, accessor, strider);
         }
 
 
@@ -484,9 +684,30 @@ namespace LL
         template<typename T>
         inline bool copy(const Value& src, T& dst)
         {
+            if (!src.is_object()) {
+                return false;
+            }
+
             dst = src;
             return true;
         }
+
+        // extras may hold any json value
+        template<>
+        inline bool copy(const Value& src, Value& dst)
+        {
+            dst = src;
+            return true;
+        }
+
+        template<>
+        inline bool copy(const Value& src, F32& dst);
+
+        template<>
+        inline bool copy(const Value& src, S32& dst);
+
+        template<>
+        inline bool copy(const Value& src, std::string& dst);
 
         template<typename T>
         inline bool write(const T& src, Value& dst)
@@ -502,11 +723,16 @@ namespace LL
             if (src.is_object())
             {
                 const boost::json::object& obj = src.as_object();
+                bool success = true;
+
                 for (const auto& [key, value] : obj)
                 {
-                    copy<T>(value, dst[key]);
+                    if (!copy<T>(value, dst[key])) {
+                        success = false;
+                    }
                 }
-                return true;
+
+                return success;
             }
             return false;
         }
@@ -539,11 +765,16 @@ namespace LL
             {
                 const boost::json::array& arr = src.get_array();
                 dst.resize(arr.size());
+                bool success = true;
+
                 for (size_t i = 0; i < arr.size(); ++i)
                 {
-                    copy(arr[i], dst[i]);
+                    if (!copy(arr[i], dst[i])) {
+                        success = false;
+                    }
                 }
-                return true;
+
+                return success;
             }
 
             return false;
@@ -576,9 +807,39 @@ namespace LL
             auto it = src.find(member);
             if (it != src.end())
             {
-                return copy(it->value(), dst);
+                if (copy(it->value(), dst)) {
+                    return true;
+                }
+
+                copy_failed(member, it->value(), "wrong type or out of range");
             }
             return false;
+        }
+
+        // as above, and the copied value must also pass the validator
+        template<typename T, typename V>
+        inline bool copy(const boost::json::object& src, string_view member, T& dst, const V& validator)
+        {
+            auto it = src.find(member);
+
+            if (it == src.end()) {
+                return false;
+            }
+
+            T value = dst;
+
+            if (!copy(it->value(), value)) {
+                copy_failed(member, it->value(), "wrong type or out of range");
+                return false;
+            }
+
+            if (!validator(value)) {
+                copy_failed(member, it->value(), "value not allowed");
+                return false;
+            }
+
+            dst = value;
+            return true;
         }
 
         // always write a member to an object without checking default
@@ -606,6 +867,10 @@ namespace LL
                 if (copy(extensions.at(member), *dst))
                 {
                     success = true;
+                }
+                else
+                {
+                    copy_failed(member, extensions.at(member), "wrong type or out of range");
                 }
             }
         }
@@ -640,6 +905,10 @@ namespace LL
                     {
                         const boost::json::object& ext_obj = extensions.as_object();
                         _copy_extension(success, ext_obj, args...);
+                    }
+                    else
+                    {
+                        copy_failed("extensions", extensions, "not an object");
                     }
                 }
             }
@@ -746,13 +1015,38 @@ namespace LL
             return false;
         }
 
+        template<typename T, typename V>
+        inline bool copy(const Value& src, string_view member, T& dst, const V& validator)
+        {
+            if (src.is_object())
+            {
+                const boost::json::object& obj = src.as_object();
+                return copy(obj, member, dst, validator);
+            }
+
+            return false;
+        }
+
         // Accessor::ComponentType
         template<>
         inline bool copy(const Value& src, Accessor::ComponentType& dst)
         {
-            if (src.is_int64())
+            static const ValueValidator<S32> valid = {
+                {
+                    (S32)Accessor::ComponentType::BYTE,
+                    (S32)Accessor::ComponentType::UNSIGNED_BYTE,
+                    (S32)Accessor::ComponentType::SHORT,
+                    (S32)Accessor::ComponentType::UNSIGNED_SHORT,
+                    (S32)Accessor::ComponentType::UNSIGNED_INT,
+                    (S32)Accessor::ComponentType::FLOAT
+                }
+            };
+
+            S32 value = 0;
+
+            if (copy(src, value) && valid(value))
             {
-                dst = (Accessor::ComponentType)src.get_int64();
+                dst = (Accessor::ComponentType)value;
                 return true;
             }
             return false;
@@ -769,9 +1063,13 @@ namespace LL
         template<>
         inline bool copy(const Value& src, Primitive::Mode& dst)
         {
-            if (src.is_int64())
+            static const RangeValidator<S32> valid = { (S32)Primitive::Mode::POINTS, (S32)Primitive::Mode::TRIANGLE_FAN };
+
+            S32 value = 0;
+
+            if (copy(src, value) && valid(value))
             {
-                dst = (Primitive::Mode)src.get_int64();
+                dst = (Primitive::Mode)value;
                 return true;
             }
             return false;
@@ -794,12 +1092,10 @@ namespace LL
                 if (arr.size() == 4)
                 {
                     vec4 v;
-                    std::error_code ec;
 
-                    v.x = arr[0].to_number<F32>(ec); if (ec) return false;
-                    v.y = arr[1].to_number<F32>(ec); if (ec) return false;
-                    v.z = arr[2].to_number<F32>(ec); if (ec) return false;
-                    v.w = arr[3].to_number<F32>(ec); if (ec) return false;
+                    if (!copy(arr[0], v.x) || !copy(arr[1], v.y) || !copy(arr[2], v.z) || !copy(arr[3], v.w)) {
+                        return false;
+                    }
 
                     dst = v;
 
@@ -831,12 +1127,13 @@ namespace LL
                 const boost::json::array& arr = src.as_array();
                 if (arr.size() == 4)
                 {
-                    std::error_code ec;
-                    dst.x = arr[0].to_number<F32>(ec); if (ec) return false;
-                    dst.y = arr[1].to_number<F32>(ec); if (ec) return false;
-                    dst.z = arr[2].to_number<F32>(ec); if (ec) return false;
-                    dst.w = arr[3].to_number<F32>(ec); if (ec) return false;
+                    quat q;
 
+                    if (!copy(arr[0], q.x) || !copy(arr[1], q.y) || !copy(arr[2], q.z) || !copy(arr[3], q.w)) {
+                        return false;
+                    }
+
+                    dst = q;
                     return true;
                 }
             }
@@ -866,11 +1163,11 @@ namespace LL
                 const boost::json::array& arr = src.as_array();
                 if (arr.size() == 3)
                 {
-                    std::error_code ec;
                     vec3 t;
-                    t.x = arr[0].to_number<F32>(ec); if (ec) return false;
-                    t.y = arr[1].to_number<F32>(ec); if (ec) return false;
-                    t.z = arr[2].to_number<F32>(ec); if (ec) return false;
+
+                    if (!copy(arr[0], t.x) || !copy(arr[1], t.y) || !copy(arr[2], t.z)) {
+                        return false;
+                    }
 
                     dst = t;
                     return true;
@@ -900,10 +1197,11 @@ namespace LL
                 const boost::json::array& arr = src.as_array();
                 if (arr.size() == 2)
                 {
-                    std::error_code ec;
                     vec2 t;
-                    t.x = arr[0].to_number<F32>(ec); if (ec) return false;
-                    t.y = arr[1].to_number<F32>(ec); if (ec) return false;
+
+                    if (!copy(arr[0], t.x) || !copy(arr[1], t.y)) {
+                        return false;
+                    }
 
                     dst = t;
                     return true;
@@ -948,8 +1246,17 @@ namespace LL
         inline bool copy(const Value& src, F32& dst)
         {
             std::error_code ec;
-            F32 t = src.to_number<F32>(ec); if (ec) return false;
-            dst = t;
+            F64 t = src.to_number<F64>(ec);
+
+            // F32_MAX written as json text can read back a hair above it; anything short of
+            // halfway to the next float step still rounds to F32_MAX
+            constexpr F64 F32_ROUNDING_LIMIT = 0x1.ffffffp+127;
+
+            if (ec || t <= -F32_ROUNDING_LIMIT || t >= F32_ROUNDING_LIMIT) {
+                return false;
+            }
+
+            dst = (F32)llclamp(t, -(F64)F32_MAX, (F64)F32_MAX);
             return true;
         }
 
@@ -963,14 +1270,18 @@ namespace LL
 
         // U32
         template<>
+        // glTF allows an integer to be written as 0.0 or 0e0, which boost::json stores as a double
         inline bool copy(const Value& src, U32& dst)
         {
-            if (src.is_int64())
-            {
-                dst = (U32)src.get_int64();
-                return true;
+            std::error_code ec;
+            F64 t = src.to_number<F64>(ec);
+
+            if (ec || t != std::floor(t) || t < 0.0 || t > (F64)U32_MAX) {
+                return false;
             }
-            return false;
+
+            dst = (U32)t;
+            return true;
         }
 
         template<>
@@ -1001,9 +1312,13 @@ namespace LL
         template<>
         inline bool copy(const Value& src, Accessor::Type& dst)
         {
-            if (src.is_string())
+            static const EnumValidator valid = { { "SCALAR", "VEC2", "VEC3", "VEC4", "MAT2", "MAT3", "MAT4" } };
+
+            std::string type;
+
+            if (copy(src, type) && valid(type))
             {
-                dst = gltf_type_to_enum(src.get_string().c_str());
+                dst = gltf_type_to_enum(type);
                 return true;
             }
             return false;
@@ -1020,12 +1335,15 @@ namespace LL
         template<>
         inline bool copy(const Value& src, S32& dst)
         {
-            if (src.is_int64())
-            {
-                dst = (U32)src.get_int64();
-                return true;
+            std::error_code ec;
+            F64 t = src.to_number<F64>(ec);
+
+            if (ec || t != std::floor(t) || t < (F64)S32_MIN || t > (F64)S32_MAX) {
+                return false;
             }
-            return false;
+
+            dst = (S32)t;
+            return true;
         }
 
         template<>
@@ -1040,12 +1358,19 @@ namespace LL
         template<>
         inline bool copy(const Value& src, std::string& dst)
         {
-            if (src.is_string())
-            {
-                dst = src.get_string().c_str();
-                return true;
+            if (!src.is_string()) {
+                return false;
             }
-            return false;
+
+            const boost::json::string& text = src.get_string();
+
+            // a C string conversion would silently drop everything after an embedded NUL
+            if (std::find(text.begin(), text.end(), '\0') != text.end()) {
+                return false;
+            }
+
+            dst.assign(text.data(), text.size());
+            return true;
         }
 
         template<>
@@ -1072,9 +1397,7 @@ namespace LL
 
                     for (U32 i = 0; i < arr.size(); ++i)
                     {
-                        std::error_code ec;
-                        p[i] = arr[i].to_number<F32>(ec);
-                        if (ec)
+                        if (!copy(arr[i], p[i]))
                         {
                             return false;
                         }
@@ -1106,12 +1429,16 @@ namespace LL
         template<>
         inline bool copy(const Value& src, Material::AlphaMode& dst)
         {
-            if (src.is_string())
+            static const EnumValidator valid = { { "OPAQUE", "MASK", "BLEND" } };
+
+            std::string alpha_mode;
+
+            if (copy(src, alpha_mode) && valid(alpha_mode))
             {
-                dst = gltf_alpha_mode_to_enum(src.get_string().c_str());
+                dst = gltf_alpha_mode_to_enum(alpha_mode);
                 return true;
             }
-            return true;
+            return false;
         }
 
         template<>

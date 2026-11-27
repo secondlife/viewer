@@ -467,6 +467,9 @@ namespace LL
             std::vector<std::string> mUnsupportedExtensions;
             std::vector<std::string> mIgnoredExtensions;
 
+            // members that were present in the json but failed validation
+            std::vector<std::string> mInvalidFields;
+
             // prepare for first time use
             bool prep();
 

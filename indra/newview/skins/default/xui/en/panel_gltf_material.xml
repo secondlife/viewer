@@ -414,7 +414,7 @@
     <layout_panel
       auto_resize="false"
       user_resize="false"
-      height="422"
+      height="241"
       min_height="0"
       width="247"
       name="transmission_layout_pnl">
@@ -422,72 +422,10 @@
         border="true"
         follows="left|top"
         width="246"
-        height="180"
-        layout="topleft"
-        left="1"
-        top="5"
-        mouse_opaque="false"
-        name="transmission_texture_pnl">
-        <text
-          type="string"
-          font.style="BOLD"
-          length="1"
-          follows="left|top"
-          height="10"
-          layout="topleft"
-          left="10"
-          top="5"
-          width="128"
-          name="transmission_lbl">
-          Transmission:
-        </text>
-        <texture_picker
-          can_apply_immediately="true"
-          default_image_name="Default"
-          fallback_image="materials_ui_x_24.png"
-          allow_no_texture="true"
-          follows="left|top"
-          top_pad="8"
-          height="151"
-          layout="topleft"
-          left="10"
-          name="transmission_texture"
-          tool_tip="Transmission map. Red channel scales the transmission factor."
-          width="128" />
-        <text
-          type="string"
-          length="1"
-          follows="left|top"
-          height="10"
-          layout="topleft"
-          left_pad="5"
-          top="8"
-          width="96"
-          name="transmission_factor_lbl">
-          Transmission
-        </text>
-        <spinner
-          decimal_digits="3"
-          follows="left|top"
-          height="19"
-          increment="0.01"
-          initial_value="0"
-          layout="topleft"
-          left_delta="0"
-          top_pad="5"
-          min_val="0"
-          max_val="1"
-          name="transmission factor"
-          width="64"/>
-      </panel>
-      <panel
-        border="true"
-        follows="left|top"
-        width="246"
         height="236"
         layout="topleft"
         left="1"
-        top="185"
+        top="5"
         mouse_opaque="false"
         name="volume_texture_pnl">
         <text
@@ -514,7 +452,7 @@
           layout="topleft"
           left="10"
           name="thickness_texture"
-          tool_tip="Thickness map. Green channel scales the thickness factor."
+          tool_tip="Transmission and thickness map. Red channel scales the transmission factor, green channel scales the thickness factor."
           width="128" />
         <text
           type="string"
@@ -524,6 +462,31 @@
           layout="topleft"
           left_pad="5"
           top="8"
+          width="96"
+          name="transmission_factor_lbl">
+          Transmission
+        </text>
+        <spinner
+          decimal_digits="3"
+          follows="left|top"
+          height="19"
+          increment="0.01"
+          initial_value="0"
+          layout="topleft"
+          left_delta="0"
+          top_pad="5"
+          min_val="0"
+          max_val="1"
+          name="transmission factor"
+          width="64"/>
+        <text
+          type="string"
+          length="1"
+          follows="left|top"
+          height="10"
+          layout="topleft"
+          left_delta="0"
+          top_pad="5"
           width="96"
           name="thickness_factor_lbl">
           Thickness

@@ -229,8 +229,6 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
 
     F32 getTransmissionFactor();
     void setTransmissionFactor(F32 factor);
-    LLUUID getTransmissionId();
-    void setTransmissionId(const LLUUID& id);
 
     F32 getThicknessFactor();
     void setThicknessFactor(F32 factor);
@@ -286,7 +284,6 @@ private:
     LLTextureCtrl* mEmissiveTextureCtrl;
     LLTextureCtrl* mNormalTextureCtrl;
     LLTextureCtrl* mSpecularTextureCtrl;
-    LLTextureCtrl* mTransmissionTextureCtrl;
     LLTextureCtrl* mThicknessTextureCtrl;
     LLColorSwatchCtrl* mBaseColorCtrl;
     LLColorSwatchCtrl* mEmissiveColorCtrl;

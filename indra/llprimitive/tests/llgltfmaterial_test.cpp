@@ -53,8 +53,7 @@ namespace tut
         material.setOcclusionRoughnessMetallicId(LLUUID::generateNewID());
         material.setEmissiveId(LLUUID::generateNewID());
         material.setSpecularId(LLUUID::generateNewID());
-        material.setTransmissionId(LLUUID::generateNewID());
-        material.setThicknessId(LLUUID::generateNewID());
+        material.setTransmissionThicknessId(LLUUID::generateNewID());
     }
 
     void apply_test_material_texture_transforms(LLGLTFMaterial& material)
@@ -137,10 +136,10 @@ namespace tut
 #if LL_WINDOWS
         // If any fields are added/changed, these tests should be updated (consider also updating ASSET_VERSION in LLGLTFMaterial)
         // This test result will vary between compilers, so only test a single platform
-        ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 416);
+        ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 384);
 #endif
 #endif
-        ensure_equals("LLGLTFMaterial texture info count", (U32)LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT, 7);
+        ensure_equals("LLGLTFMaterial texture info count", (U32)LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT, 6);
     }
 
     // Test that occlusion and metallicRoughness are the same (They are different for asset validation. See lluploadmaterial.cpp)
@@ -148,6 +147,7 @@ namespace tut
     void llgltfmaterial_object_t::test<2>()
     {
         ensure_equals("LLGLTFMaterial occlusion does not differ from metallic roughness", LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS, LLGLTFMaterial::GLTF_TEXTURE_INFO_OCCLUSION);
+        ensure_equals("LLGLTFMaterial transmission does not differ from thickness", LLGLTFMaterial::GLTF_TEXTURE_INFO_THICKNESS, LLGLTFMaterial::GLTF_TEXTURE_INFO_TRANSMISSION);
     }
 
     // Ensure double sided and alpha mode overrides serialize as expected

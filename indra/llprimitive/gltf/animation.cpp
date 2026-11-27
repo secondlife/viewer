@@ -55,6 +55,11 @@ bool Animation::prep(Asset& asset)
 
     for (auto& channel : mRotationChannels)
     {
+        if (channel.mSampler < 0 || (size_t)channel.mSampler >= mSamplers.size()) {
+            LL_WARNS("GLTF") << "Invalid animation sampler index" << LL_ENDL;
+            return false;
+        }
+
         if (!channel.prep(asset, mSamplers[channel.mSampler]))
         {
             return false;
@@ -63,6 +68,11 @@ bool Animation::prep(Asset& asset)
 
     for (auto& channel : mTranslationChannels)
     {
+        if (channel.mSampler < 0 || (size_t)channel.mSampler >= mSamplers.size()) {
+            LL_WARNS("GLTF") << "Invalid animation sampler index" << LL_ENDL;
+            return false;
+        }
+
         if (!channel.prep(asset, mSamplers[channel.mSampler]))
         {
             return false;
@@ -71,6 +81,11 @@ bool Animation::prep(Asset& asset)
 
     for (auto& channel : mScaleChannels)
     {
+        if (channel.mSampler < 0 || (size_t)channel.mSampler >= mSamplers.size()) {
+            LL_WARNS("GLTF") << "Invalid animation sampler index" << LL_ENDL;
+            return false;
+        }
+
         if (!channel.prep(asset, mSamplers[channel.mSampler]))
         {
             return false;
@@ -125,16 +140,24 @@ void Animation::apply(Asset& asset, float time)
 
 bool Animation::Sampler::prep(Asset& asset)
 {
+    if (mInput < 0 || (size_t)mInput >= asset.mAccessors.size())
+    {
+        LL_WARNS("GLTF") << "Invalid accessor index" << LL_ENDL;
+        return false;
+    }
+
     Accessor& accessor = asset.mAccessors[mInput];
+
+    if (accessor.mMin.empty() || accessor.mMax.empty() || accessor.mCount < 0)
+    {
+        LL_WARNS("GLTF") << "Invalid animation input accessor" << LL_ENDL;
+        return false;
+    }
+
     mMinTime = (F32)accessor.mMin[0];
     mMaxTime = (F32)accessor.mMax[0];
 
-    mFrameTimes.resize(accessor.mCount);
-
-    LLStrider<F32> frame_times = mFrameTimes.data();
-    copy(asset, accessor, frame_times);
-
-    return true;
+    return copy(asset, accessor, mFrameTimes);
 }
 
 
@@ -245,9 +268,25 @@ void Animation::Sampler::getFrameInfo(Asset& asset, F32 time, U32& frameIndex, F
 
 bool Animation::RotationChannel::prep(Asset& asset, Animation::Sampler& sampler)
 {
+    if (sampler.mOutput < 0 || (size_t)sampler.mOutput >= asset.mAccessors.size())
+    {
+        LL_WARNS("GLTF") << "Invalid accessor index" << LL_ENDL;
+        return false;
+    }
+
     Accessor& accessor = asset.mAccessors[sampler.mOutput];
 
-    copy(asset, accessor, mRotations);
+    if (!copy(asset, accessor, mRotations)) {
+        return false;
+    }
+
+    // apply() indexes mNodes by the target and reads one output per frame
+    bool node_valid = mTarget.mNode >= 0 && (size_t)mTarget.mNode < asset.mNodes.size();
+
+    if (!node_valid || mRotations.empty() || mRotations.size() < sampler.mFrameTimes.size()) {
+        LL_WARNS("GLTF") << "Invalid animation channel" << LL_ENDL;
+        return false;
+    }
 
     return true;
 }
@@ -278,9 +317,24 @@ void Animation::RotationChannel::apply(Asset& asset, Sampler& sampler, F32 time)
 
 bool Animation::TranslationChannel::prep(Asset& asset, Animation::Sampler& sampler)
 {
+    if (sampler.mOutput < 0 || (size_t)sampler.mOutput >= asset.mAccessors.size())
+    {
+        LL_WARNS("GLTF") << "Invalid accessor index" << LL_ENDL;
+        return false;
+    }
+
     Accessor& accessor = asset.mAccessors[sampler.mOutput];
 
-    copy(asset, accessor, mTranslations);
+    if (!copy(asset, accessor, mTranslations)) {
+        return false;
+    }
+
+    bool node_valid = mTarget.mNode >= 0 && (size_t)mTarget.mNode < asset.mNodes.size();
+
+    if (!node_valid || mTranslations.empty() || mTranslations.size() < sampler.mFrameTimes.size()) {
+        LL_WARNS("GLTF") << "Invalid animation channel" << LL_ENDL;
+        return false;
+    }
 
     return true;
 }
@@ -312,9 +366,24 @@ void Animation::TranslationChannel::apply(Asset& asset, Sampler& sampler, F32 ti
 
 bool Animation::ScaleChannel::prep(Asset& asset, Animation::Sampler& sampler)
 {
+    if (sampler.mOutput < 0 || (size_t)sampler.mOutput >= asset.mAccessors.size())
+    {
+        LL_WARNS("GLTF") << "Invalid accessor index" << LL_ENDL;
+        return false;
+    }
+
     Accessor& accessor = asset.mAccessors[sampler.mOutput];
 
-    copy(asset, accessor, mScales);
+    if (!copy(asset, accessor, mScales)) {
+        return false;
+    }
+
+    bool node_valid = mTarget.mNode >= 0 && (size_t)mTarget.mNode < asset.mNodes.size();
+
+    if (!node_valid || mScales.empty() || mScales.size() < sampler.mFrameTimes.size()) {
+        LL_WARNS("GLTF") << "Invalid animation channel" << LL_ENDL;
+        return false;
+    }
 
     return true;
 }
@@ -462,8 +531,17 @@ bool Skin::prep(Asset& asset)
 {
     if (mInverseBindMatrices != INVALID_INDEX)
     {
+        if (mInverseBindMatrices < 0 || (size_t)mInverseBindMatrices >= asset.mAccessors.size())
+        {
+            LL_WARNS("GLTF") << "Invalid accessor index" << LL_ENDL;
+            return false;
+        }
+
         Accessor& accessor = asset.mAccessors[mInverseBindMatrices];
-        copy(asset, accessor, mInverseBindMatricesData);
+        if (!copy(asset, accessor, mInverseBindMatricesData))
+        {
+            return false;
+        }
     }
 
     return true;

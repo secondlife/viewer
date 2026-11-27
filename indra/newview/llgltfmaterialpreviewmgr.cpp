@@ -150,7 +150,6 @@ namespace
         textures[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS] = &material.mMetallicRoughnessTexture;
         textures[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE] = &material.mEmissiveTexture;
         textures[LLGLTFMaterial::GLTF_TEXTURE_INFO_SPECULAR] = &material.mSpecularTexture;
-        textures[LLGLTFMaterial::GLTF_TEXTURE_INFO_TRANSMISSION] = &material.mTransmissionTexture;
         textures[LLGLTFMaterial::GLTF_TEXTURE_INFO_THICKNESS] = &material.mThicknessTexture;
 
         LLGLTFPreviewTexture::MaterialLoadLevels levels;

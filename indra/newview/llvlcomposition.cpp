@@ -391,7 +391,6 @@ bool LLTerrainMaterials::materialTexturesReady(LLPointer<LLFetchedGLTFMaterial>&
         makeTextureReady(mat->mMetallicRoughnessTexture, boost);
     ready[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE] =
         mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].isNull() || makeTextureReady(mat->mEmissiveTexture, boost);
-    ready[LLGLTFMaterial::GLTF_TEXTURE_INFO_TRANSMISSION] = true;
     ready[LLGLTFMaterial::GLTF_TEXTURE_INFO_THICKNESS] = true;
 
     if (strict)

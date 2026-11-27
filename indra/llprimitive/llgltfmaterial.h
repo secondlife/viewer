@@ -101,8 +101,9 @@ public:
         GLTF_TEXTURE_INFO_OCCLUSION = GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS,
         GLTF_TEXTURE_INFO_EMISSIVE,
         GLTF_TEXTURE_INFO_SPECULAR,
-        GLTF_TEXTURE_INFO_TRANSMISSION,
         GLTF_TEXTURE_INFO_THICKNESS,
+        // *NOTE: Like ORM, transmission (red) and thickness (green) are one packed texture.
+        GLTF_TEXTURE_INFO_TRANSMISSION = GLTF_TEXTURE_INFO_THICKNESS,
 
         GLTF_TEXTURE_INFO_COUNT
     };
@@ -139,8 +140,7 @@ public:
     void setOcclusionRoughnessMetallicId(const LLUUID& id, bool for_override = false);
     void setEmissiveId(const LLUUID& id, bool for_override = false);
     void setSpecularId(const LLUUID& id, bool for_override = false);
-    void setTransmissionId(const LLUUID& id, bool for_override = false);
-    void setThicknessId(const LLUUID& id, bool for_override = false);
+    void setTransmissionThicknessId(const LLUUID& id, bool for_override = false);
 
     void setBaseColorFactor(const LLColor4& baseColor, bool for_override = false);
     void setAlphaCutoff(F32 cutoff, bool for_override = false);

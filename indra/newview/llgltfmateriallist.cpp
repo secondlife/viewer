@@ -292,13 +292,6 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
                                 mat->mDispersion = existing_override->mDispersion;
                             }
 
-                            if (existing_override->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_TRANSMISSION].notNull()
-                                && !od[i].has("tex"))
-                            {
-                                mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_TRANSMISSION] =
-                                    existing_override->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_TRANSMISSION];
-                            }
-
                             if (existing_override->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_THICKNESS].notNull()
                                 && !od[i].has("tex"))
                             {
