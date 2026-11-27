@@ -37,8 +37,8 @@
 	<text name="key_label">
 		Genvejstast:
 	</text>
-	<combo_box label="Ingen" name="modifier_combo" width="60"/>
-	<combo_box label="Ingen" left_delta="70" name="key_combo" width="60"/>
+	<combo_box label="Ingen" name="modifier_combo"/>
+	<combo_box label="Ingen" name="key_combo" width="60"/>
 	<text name="library_label">
 		Type:
 	</text>
