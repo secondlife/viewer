@@ -205,6 +205,7 @@ private:
     std::string                 mFilterText;
     std::string                 mFilterSubString;
     S32                         mItemCount = 0;
+    bool                        mCounterHighlighted = false;
     std::string                 mLastFilterText;
     std::string                 mItemCountString;
     S32                         mCategoryCount = 0;
