@@ -262,16 +262,17 @@ void LLCustomProcessor::Process(webrtc::AudioBuffer *audio)
 // LLWebRTCImpl implementation
 //
 
-void LLWebRTCAudioDeviceModule::SetTuning(bool tuning, bool mute)
+void LLWebRTCAudioDeviceModule::SetTuning(bool tuning, bool mute, AudioCategory category)
 {
     tuning_ = tuning;
     if (tuning)
     {
         // Ensure capture is running so the mic-level meter works, and stop rendering
         // the call while tuning.  The recording calls are no-ops if capture is already
-        // active (it may not be, with "stop capture while muted" enabled).
+        // active (it may not be, with "stop capture while muted" enabled), in which
+        // case it keeps its existing category; setTuningMode reconciles on exit.
         inner_->InitMicrophone();
-        inner_->InitRecording();
+        InitRecordingAs(category);
         inner_->StartRecording();
         inner_->StopPlayout();
     }
@@ -669,7 +670,8 @@ void LLWebRTCImpl::unsetDevicesObserver(LLWebRTCDevicesObserver *observer)
 // connection's audio is established.  With "stop capture while muted" disabled,
 // capture runs the whole time voice is enabled (never stopped for mute or between
 // calls, so the AEC never cold-starts -- no hiss on unmute), so this is a no-op
-// when already recording.  Device changes go through workerDeployDevices(), which stops
+// when already recording with the policy's capture category (it restarts
+// capture if the category doesn't match).  Device changes go through workerDeployDevices(), which stops
 // recording first to force a clean re-select; voice off goes through setVoiceEnabled(false).
 void LLWebRTCImpl::workerStartRecording()
 {
@@ -677,11 +679,31 @@ void LLWebRTCImpl::workerStartRecording()
     // it's already running (that would cause the unmute hiss).  With "stop
     // capture while muted", also hold it off while muted or with no connection's
     // audio is established.
-    if (!mDeviceModule || !mVoiceEnabled || mDeviceModule->Recording() ||
+    if (!mDeviceModule || !mVoiceEnabled ||
         (mStopCaptureOnMute.load() && !mTuningMode &&
         (mMute || !mAudioEstablished)))
     {
         return;
+    }
+    if (mDeviceModule->Recording())
+    {
+        if (workerCaptureMatchesPolicy())
+        {
+            return;
+        }
+        // Running with the wrong category (the policy changed): restart it.
+        auto current = mDeviceModule->RecordingCategory();
+        RTC_LOG(LS_INFO) << "workerStartRecording: restarting capture to change category from "
+                         << (current ? audioCategoryName(*current) : "unknown") << " to "
+                         << audioCategoryName(captureCategory());
+        mDeviceModule->ForceStopRecording();
+    }
+    else if (mDeviceModule->RecordingIsInitialized())
+    {
+        // Initialized but not started (e.g. an earlier start failed).
+        // InitRecording is a no-op on an initialized stream, so de-initialize
+        // first or the stale category would be kept.
+        mDeviceModule->ForceStopRecording();
     }
 
     int16_t recordingDevice = RECORD_DEVICE_DEFAULT;
@@ -733,9 +755,42 @@ void LLWebRTCImpl::workerStartRecording()
     // use only WebRTC's software APM.
     workerDisableBuiltInAudioProcessing();
     // With "stop capture while muted", capture as media; otherwise as communications.
-    mDeviceModule->ForceInitRecording(mStopCaptureOnMute.load() ? webrtc::AudioDeviceModule::AudioCategory::kMedia
-                                                                : webrtc::AudioDeviceModule::AudioCategory::kCommunications);
-    mDeviceModule->ForceStartRecording();
+    result = mDeviceModule->ForceInitRecording(captureCategory());
+    if (result != 0)
+    {
+        RTC_LOG(LS_WARNING) << "workerStartRecording: InitRecording(" << audioCategoryName(captureCategory())
+                            << ") failed " << result;
+    }
+    result = mDeviceModule->ForceStartRecording();
+    if (result != 0)
+    {
+        RTC_LOG(LS_WARNING) << "workerStartRecording: StartRecording failed " << result;
+    }
+}
+
+const char* LLWebRTCImpl::audioCategoryName(webrtc::AudioDeviceModule::AudioCategory category)
+{
+    switch (category)
+    {
+        case webrtc::AudioDeviceModule::AudioCategory::kMedia:
+            return "kMedia";
+        case webrtc::AudioDeviceModule::AudioCategory::kCommunications:
+            return "kCommunications";
+        default:
+            return "other";
+    }
+}
+
+webrtc::AudioDeviceModule::AudioCategory LLWebRTCImpl::captureCategory() const
+{
+    return mStopCaptureOnMute.load() ? webrtc::AudioDeviceModule::AudioCategory::kMedia
+                                     : webrtc::AudioDeviceModule::AudioCategory::kCommunications;
+}
+
+bool LLWebRTCImpl::workerCaptureMatchesPolicy() const
+{
+    return mDeviceModule && mDeviceModule->Recording() &&
+           mDeviceModule->RecordingCategory() == captureCategory();
 }
 
 // must be run in the worker thread.  Selects the configured playout device and
@@ -925,16 +980,18 @@ void LLWebRTCImpl::setStopCaptureOnMute(bool stop)
         {
             return;
         }
-        if (stop)
+        // On the worker thread, so use setCaptureRunning rather than
+        // intSetMute: the mute gain is owned by the main thread.
+        if (stop && (mMute || !mAudioEstablished))
         {
-            if (mMute || !mAudioEstablished)
-            {
-                intSetMute(true, MIC_CAPTURE_STOP_DELAY_MS);
-            }
+            setCaptureRunning(false, MIC_CAPTURE_STOP_DELAY_MS);
         }
         else
         {
-            intSetMute(false, 0);
+            // Capture should be running: make sure it is, with the new policy's
+            // category (kCommunications for always-record, kMedia otherwise).
+            // It's restarted only if the category doesn't match.
+            setCaptureRunning(true, 0);
         }
     });
 }
@@ -1118,12 +1175,39 @@ void LLWebRTCImpl::setTuningMode(bool enable)
     mWorkerThread->PostTask(
         [this]
         {
-            mDeviceModule->SetTuning(mTuningMode, mMute);
+            // Null once terminate() has run on the worker thread.
+            if (!mDeviceModule)
+            {
+                return;
+            }
+            // With voice disabled there's no call, so if tuning has to start
+            // capture, use kMedia: kCommunications can make Windows duck other
+            // apps' audio and switch Bluetooth headsets to their hands-free
+            // profile.  Capture is stopped again when tuning ends.
+            mDeviceModule->SetTuning(mTuningMode, mMute,
+                                     mVoiceEnabled ? captureCategory()
+                                                   : webrtc::AudioDeviceModule::AudioCategory::kMedia);
             if (!mTuningMode)
             {
-                if (mStopCaptureOnMute.load() && (mMute || !mAudioEstablished))
+                // On the worker thread, so use setCaptureRunning rather than
+                // intSetMute: the mute gain is owned by the main thread (and
+                // was restored by setTuningMode above).
+                if (!mVoiceEnabled)
                 {
-                    intSetMute(true, MIC_CAPTURE_STOP_DELAY_MS);
+                    // Tuning starts capture even with voice disabled, and
+                    // setCaptureRunning does nothing then, so release the mic here.
+                    mDeviceModule->ForceStopRecording();
+                }
+                else if (mStopCaptureOnMute.load() && (mMute || !mAudioEstablished))
+                {
+                    setCaptureRunning(false, MIC_CAPTURE_STOP_DELAY_MS);
+                }
+                else
+                {
+                    // Capture stays running.  Tuning may have started it, or the
+                    // policy may have changed while tuning (setStopCaptureOnMute
+                    // defers to us then), so make sure its category matches.
+                    setCaptureRunning(true, 0);
                 }
 
                 // Restore playout after tuning, gated on there being a
@@ -1225,7 +1309,12 @@ void LLWebRTCImpl::intSetMute(bool mute, int delay_ms)
         mPeerCustomProcessor->setGain(mMute ? 0.0f : mGain);
     }
 
-    if (mute && !mStopCaptureOnMute.load())
+    setCaptureRunning(!mute, delay_ms);
+}
+
+void LLWebRTCImpl::setCaptureRunning(bool run, int delay_ms)
+{
+    if (!run && !mStopCaptureOnMute.load())
     {
         return;
     }
@@ -1242,16 +1331,28 @@ void LLWebRTCImpl::intSetMute(bool mute, int delay_ms)
             return;
         }
 
-        mDeviceModule->ForceStopRecording();
         if (start)
         {
-            mDeviceModule->ForceInitRecording(mStopCaptureOnMute.load() ? webrtc::AudioDeviceModule::AudioCategory::kMedia
-                                                                        : webrtc::AudioDeviceModule::AudioCategory::kCommunications);
-            mDeviceModule->ForceStartRecording();
+            // Unmuting with capture already running (always-record mode, or a
+            // rapid mute/unmute that cancelled the delayed stop): it's left alone
+            // if its category matches the current policy, since stopping and
+            // restarting the device is audible and makes Bluetooth headsets
+            // renegotiate their profile.  Otherwise it's restarted.  The category
+            // is checked here, when the task runs, rather than when it's queued,
+            // so a policy change is still applied if this request superseded
+            // the one queued for it.  workerStartRecording does the full
+            // start -- selected device, built-in processing off -- and the
+            // category check.
+            workerStartRecording();
+        }
+        else if (mStopCaptureOnMute.load())
+        {
+            // (A delayed stop queued before switching to always-record is dropped.)
+            mDeviceModule->ForceStopRecording();
         }
     };
 
-    if (mute)
+    if (!run)
     {
         mWorkerThread->PostDelayedTask([setRecording]
         {

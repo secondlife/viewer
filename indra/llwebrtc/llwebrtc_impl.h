@@ -39,6 +39,7 @@
 #endif
 
 #include "llwebrtc.h"
+#include <optional>
 // WebRTC Includes
 #ifdef WEBRTC_WIN
 #pragma warning(push)
@@ -213,7 +214,11 @@ public:
     }
     bool    Initialized() const override { return inner_->Initialized(); }
 
-    int32_t ForceTerminate() { return inner_->Terminate(); }
+    int32_t ForceTerminate()
+    {
+        recording_category_.reset();
+        return inner_->Terminate();
+    }
 
     // --- Device enumeration/selection (forward) ---
     int16_t PlayoutDevices() override { return inner_->PlayoutDevices(); }
@@ -250,7 +255,18 @@ public:
         // while we hold capture off. The app initialises capture itself via ForceInitRecording.
         return 0;
     }
-    int32_t ForceInitRecording(AudioCategory category = AudioCategory::kMedia) { return inner_->InitRecording(category); }
+    int32_t ForceInitRecording(AudioCategory category = AudioCategory::kMedia) { return InitRecordingAs(category); }
+
+    // Category the recording stream was initialized with, or nullopt if capture
+    // isn't initialized or no tracked init has happened since ForceTerminate.
+    // All app-side inits go through InitRecordingAs (webrtc.lib's InitRecording
+    // is ignored above), and stopping capture de-initializes it, so this is
+    // current whenever capture is initialized.  Used to decide whether a
+    // running stream can be reused under the current policy.
+    std::optional<AudioCategory> RecordingCategory() const
+    {
+        return inner_->RecordingIsInitialized() ? recording_category_ : std::nullopt;
+    }
     bool    RecordingIsInitialized() const override { return inner_->RecordingIsInitialized(); }
     int32_t StartRecording() override {
         // ignore start recording as webrtc.lib will
@@ -346,14 +362,30 @@ public:
     float GetMicrophoneEnergy() { return audio_transport_.GetMicrophoneEnergy(); }
     void SetTuningMicGain(float gain) { audio_transport_.SetGain(gain); }
 
-    void  SetTuning(bool tuning, bool mute);
+    // category: used to initialize capture if tuning has to start it.
+    void  SetTuning(bool tuning, bool mute, AudioCategory category);
 
 protected:
     ~LLWebRTCAudioDeviceModule() override = default;
 
 private:
+    // All capture initialization goes through here so the category is tracked.
+    // The inner ADM's InitRecording is a no-op when capture is already
+    // initialized, so the category only changes on a fresh init.
+    int32_t InitRecordingAs(AudioCategory category)
+    {
+        bool    was_initialized = inner_->RecordingIsInitialized();
+        int32_t result          = inner_->InitRecording(category);
+        if (!was_initialized && result == 0 && inner_->RecordingIsInitialized())
+        {
+            recording_category_ = category;
+        }
+        return result;
+    }
+
     webrtc::scoped_refptr<webrtc::AudioDeviceModule> inner_;
     LLWebRTCAudioTransport                        audio_transport_;
+    std::optional<AudioCategory>                  recording_category_;
 
     bool tuning_;
 };
@@ -460,7 +492,19 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
 
     void setMute(bool mute, int delay_ms = 20) override;
 
+    // Applies the mute gain (from mMute) and then setCaptureRunning(!mute).
+    // Call from the main thread, which owns mMute.
     void intSetMute(bool mute, int delay_ms = 20);
+
+    // Starts capture, or stops it after delay_ms (stopping only applies with
+    // "stop capture while muted").  Leaves the mute gain alone, so it's safe to
+    // call from the worker thread.  On start, running capture is reused if it
+    // was initialized with the category the current policy wants (restarting
+    // it is disruptive, e.g. it makes Bluetooth headsets renegotiate);
+    // otherwise it's restarted with the right category.  The check is made
+    // when the queued task runs, so a later request that supersedes an earlier
+    // one still performs any needed category transition.
+    void setCaptureRunning(bool run, int delay_ms);
 
     //
     // AudioDeviceObserver
@@ -567,6 +611,12 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
 
     const webrtc::Environment                                  mEnv;
     void workerStartRecording();
+    // Capture category for the current policy: kMedia with "stop capture while
+    // muted", kCommunications otherwise.
+    webrtc::AudioDeviceModule::AudioCategory captureCategory() const;
+    static const char* audioCategoryName(webrtc::AudioDeviceModule::AudioCategory category);
+    // Worker thread.  True if capture is running with the policy's category.
+    bool workerCaptureMatchesPolicy() const;
     void workerStartPlayout();
     void workerDeployDevices(bool reset_module);
     // We always rely on WebRTC's internal (software APM) audio processing, so
@@ -600,7 +650,8 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     bool mBuiltinAEC;
 
     // accessors in native webrtc for devices aren't apparently implemented yet.
-    bool                                                       mTuningMode;
+    // Written on the main thread, read on the worker thread.
+    std::atomic<bool>                                          mTuningMode;
     std::string                                                mRecordingDevice;
     LLWebRTCVoiceDeviceList                                    mRecordingDeviceList;
 
@@ -614,9 +665,11 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceO
     bool                                                       mHaveDefaultPlayoutDeviceGuid{ false };
     bool                                                       mHaveDefaultRecordingDeviceGuid{ false };
 
-    bool                                                       mMute;
+    // Written on the main thread, read on the worker thread.
+    std::atomic<bool>                                          mMute;
     // Whether voice is enabled; gates whether the capture/playout devices run.
-    bool                                                       mVoiceEnabled;
+    // Written on the main thread, read on the worker thread.
+    std::atomic<bool>                                          mVoiceEnabled;
     float                                                      mGain;
     std::atomic<bool>                                          mStopCaptureOnMute{ false };
     // True once any connection's audio has been established, until the last
