@@ -2806,6 +2806,46 @@ void LLViewerRegion::cacheFullUpdateGLTFOverride(const LLGLTFOverrideCacheEntry 
     }
 }
 
+void LLViewerRegion::cachePartialUpdateGLTFOverride(const LLGLTFOverrideCacheEntry &override_data, const LLSD& all_sides)
+{
+    U32 local_id = override_data.mLocalId;
+    LLGLTFOverrideCacheEntry& entry = mImpl->mGLTFOverridesLLSD[local_id];
+    entry.mLocalId = local_id;
+    entry.mRegionHandle = override_data.mRegionHandle;
+
+    if (override_data.mObjectId.notNull()) {
+        entry.mObjectId = override_data.mObjectId;
+    }
+
+    std::set<S32> listed_sides;
+
+    for (LLSD::array_const_iterator iter = all_sides.beginArray(); iter != all_sides.endArray(); ++iter) {
+        listed_sides.insert(iter->asInteger());
+    }
+
+    // sides that are no longer listed have lost their override
+    for (auto iter = entry.mSides.begin(); iter != entry.mSides.end(); ) {
+        if (listed_sides.count(iter->first) == 0) {
+            entry.mGLTFMaterial.erase(iter->first);
+            iter = entry.mSides.erase(iter);
+        } else {
+            ++iter;
+        }
+    }
+
+    for (const auto& side : override_data.mSides) {
+        entry.mSides[side.first] = side.second;
+    }
+
+    for (const auto& side : override_data.mGLTFMaterial) {
+        entry.mGLTFMaterial[side.first] = side.second;
+    }
+
+    if (entry.mSides.empty()) {
+        mImpl->mGLTFOverridesLLSD.erase(local_id);
+    }
+}
+
 void LLViewerRegion::cacheGLTFOverrideSide(U32 local_id, const LLUUID& object_id, S32 side, LLGLTFMaterial* material)
 {
     auto& entry = mImpl->mGLTFOverridesLLSD[local_id];
@@ -3328,6 +3368,8 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("MapLayerGod");
     capabilityNames.append("MeshUploadFlag");
     capabilityNames.append("ModifyMaterialParams");
+    // tells the simulator this viewer reads ExtensionsV1 override data and partial override updates
+    capabilityNames.append("ModifyMaterialParamsV2");
     capabilityNames.append("ModifyRegion");
     capabilityNames.append("NavMeshGenerationStatus");
     capabilityNames.append("NewFileAgentInventory");

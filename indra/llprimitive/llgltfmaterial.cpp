@@ -1480,14 +1480,21 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
     bumpVersion();
 }
 
-void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& data) const
+void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& data, ExtensionFamily family) const
 {
     LL_PROFILE_ZONE_SCOPED;
     llassert(data.isUndefined());
 
+    // a receiver without ExtensionsV1 has four slots and does not bound what it reads
+    U32 texture_count = GLTF_TEXTURE_INFO_EMISSIVE + 1;
+
+    if (family >= GLTF_EXTENSION_V1) {
+        texture_count = GLTF_TEXTURE_INFO_COUNT;
+    }
+
     // make every effort to shave bytes here
 
-    for (U32 i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    for (U32 i = 0; i < texture_count; ++i)
     {
         const LLUUID& texture_id = mTextureId[i];
         const LLUUID& override_texture_id = override_mat.mTextureId[i];
@@ -1532,52 +1539,45 @@ void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& d
         data["ds"] = override_mat.mDoubleSided;
     }
 
-    if (override_mat.mEmissiveStrength != getDefaultEmissiveStrength())
-    {
-        data["es"] = override_mat.mEmissiveStrength;
+    if (family >= GLTF_EXTENSION_V1) {
+        if (override_mat.mEmissiveStrength != getDefaultEmissiveStrength()) {
+            data["es"] = override_mat.mEmissiveStrength;
+        }
+
+        if (override_mat.mSpecularFactor != getDefaultSpecularFactor()) {
+            data["sf"] = override_mat.mSpecularFactor;
+        }
+
+        if (override_mat.mSpecularColorFactor != getDefaultSpecularColorFactor()) {
+            data["sc"] = override_mat.mSpecularColorFactor.getValue();
+        }
+
+        if (override_mat.mIOR != getDefaultIOR()) {
+            data["ior"] = override_mat.mIOR;
+        }
+
+        if (override_mat.mTransmissionFactor != getDefaultTransmissionFactor()) {
+            data["tf"] = override_mat.mTransmissionFactor;
+        }
+
+        if (override_mat.mThicknessFactor != getDefaultThicknessFactor()) {
+            data["tk"] = override_mat.mThicknessFactor;
+        }
+
+        if (override_mat.mAttenuationDistance != getDefaultAttenuationDistance()) {
+            data["ad"] = override_mat.mAttenuationDistance;
+        }
+
+        if (override_mat.mAttenuationColor != getDefaultAttenuationColor()) {
+            data["at"] = override_mat.mAttenuationColor.getValue();
+        }
+
+        if (override_mat.mDispersion != getDefaultDispersion()) {
+            data["dp"] = override_mat.mDispersion;
+        }
     }
 
-    if (override_mat.mSpecularFactor != getDefaultSpecularFactor())
-    {
-        data["sf"] = override_mat.mSpecularFactor;
-    }
-
-    if (override_mat.mSpecularColorFactor != getDefaultSpecularColorFactor())
-    {
-        data["sc"] = override_mat.mSpecularColorFactor.getValue();
-    }
-
-    if (override_mat.mIOR != getDefaultIOR())
-    {
-        data["ior"] = override_mat.mIOR;
-    }
-
-    if (override_mat.mTransmissionFactor != getDefaultTransmissionFactor())
-    {
-        data["tf"] = override_mat.mTransmissionFactor;
-    }
-
-    if (override_mat.mThicknessFactor != getDefaultThicknessFactor())
-    {
-        data["tk"] = override_mat.mThicknessFactor;
-    }
-
-    if (override_mat.mAttenuationDistance != getDefaultAttenuationDistance())
-    {
-        data["ad"] = override_mat.mAttenuationDistance;
-    }
-
-    if (override_mat.mAttenuationColor != getDefaultAttenuationColor())
-    {
-        data["at"] = override_mat.mAttenuationColor.getValue();
-    }
-
-    if (override_mat.mDispersion != getDefaultDispersion())
-    {
-        data["dp"] = override_mat.mDispersion;
-    }
-
-    for (U32 i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    for (U32 i = 0; i < texture_count; ++i)
     {
         if (override_mat.mTextureTransform[i].mOffset != getDefaultTextureOffset())
         {
@@ -1603,7 +1603,10 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
 
     if (tex.isArray())
     {
-        for (int i = 0; i < tex.size(); ++i)
+        // a sender may list more entries than there are slots
+        S32 tex_count = llmin((S32)tex.size(), (S32)GLTF_TEXTURE_INFO_COUNT);
+
+        for (S32 i = 0; i < tex_count; ++i)
         {
             mTextureId[i] = tex[i].asUUID();
         }

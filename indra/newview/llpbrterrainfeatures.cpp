@@ -57,6 +57,13 @@ void LLPBRTerrainFeatures::queueModify(LLViewerRegion& region, const LLModifyReg
 
     LLSD updates = LLSD::emptyMap();
 
+    // a region without ExtensionsV1 is sent only the core override data
+    LLGLTFMaterial::ExtensionFamily family = LLGLTFMaterial::GLTF_EXTENSION_CORE;
+
+    if (region.pbrExtensionsV1Enabled()) {
+        family = LLGLTFMaterial::GLTF_EXTENSION_V1;
+    }
+
     LLSD override_updates = LLSD::emptyArray();
     for (S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
     {
@@ -64,7 +71,7 @@ void LLPBRTerrainFeatures::queueModify(LLViewerRegion& region, const LLModifyReg
         LLSD override_update;
         if (material_override)
         {
-            LLGLTFMaterial::sDefault.getOverrideLLSD(*material_override, override_update);
+            LLGLTFMaterial::sDefault.getOverrideLLSD(*material_override, override_update, family);
         }
         else
         {

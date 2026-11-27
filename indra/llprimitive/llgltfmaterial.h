@@ -214,7 +214,8 @@ public:
     // Get the given override on this LLGLTFMaterial as LLSD
     // override_mat -- the override source data
     // data -- output LLSD object (should be passed in empty)
-    void getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& data) const;
+    // family -- the extension family the receiver understands
+    void getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& data, ExtensionFamily family) const;
 
     // For base materials only (i.e. assets). Clears transforms to
     // default since they're not supported in assets yet.

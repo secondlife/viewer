@@ -378,6 +378,8 @@ public:
     eCacheUpdateResult cacheFullUpdate(LLViewerObject* objectp, LLDataPackerBinaryBuffer &dp, U32 flags);
 
     void cacheFullUpdateGLTFOverride(const LLGLTFOverrideCacheEntry &override_data);
+    // merges override_data into the cached entry; all_sides lists every side that still has an override
+    void cachePartialUpdateGLTFOverride(const LLGLTFOverrideCacheEntry &override_data, const LLSD& all_sides);
     void cacheGLTFOverrideSide(U32 local_id, const LLUUID& object_id, S32 side, LLGLTFMaterial* material);
 
     LLVOCacheEntry* getCacheEntryForOctree(U32 local_id);

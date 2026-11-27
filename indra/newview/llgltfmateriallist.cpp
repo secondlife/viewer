@@ -197,6 +197,11 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
         const LLSD& tes = data["te"];
         const LLSD& od = data["od"];
 
+        // a partial update lists every face that requires an override in "all";
+        // without it this is a legacy full update, where "te" is the complete set
+        const LLSD& all_tes = data["all"];
+        const bool partial_update = all_tes.isArray();
+
         constexpr U32 MAX_TES = 45;
         bool has_te[MAX_TES] = { false };
 
@@ -313,6 +318,19 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
                 }
             }
 
+            if (partial_update) {
+                // faces listed here but absent from this message arrive in another one
+                auto all_count = llmin(all_tes.size(), MAX_TES);
+
+                for (size_t i = 0; i < all_count; ++i) {
+                    S32 te = all_tes[i].asInteger();
+
+                    if (te >= 0 && te < (S32)MAX_TES) {
+                        has_te[te] = true;
+                    }
+                }
+            }
+
             if (obj)
             { // null out overrides on TEs that shouldn't have them
                 U32 count = llmin(obj->getNumTEs(), MAX_TES);
@@ -327,7 +345,12 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
                 }
             }
 
-            region->cacheFullUpdateGLTFOverride(cache);
+            if (partial_update) {
+                region->cachePartialUpdateGLTFOverride(cache, all_tes);
+            } else {
+                region->cacheFullUpdateGLTFOverride(cache);
+            }
+
             LL_DEBUGS("GLTF") << "GLTF Material Override: " << cache.mObjectId << " " << cache.mLocalId << " " << cache.mRegionHandle << " (sides:" << (cache.mSides.size()) << ")" << LL_ENDL;
         }
 
