@@ -73,6 +73,81 @@ const std::string FAVORITES("Favorites");
 static LLPanelInjector<LLPanelMainInventory> t_inventory("panel_main_inventory");
 
 ///----------------------------------------------------------------------------
+/// Calendar helpers for the "Years" field of the inventory filter
+///----------------------------------------------------------------------------
+
+namespace
+{
+    // Day count <-> civil date (UTC, integer math; Hinnant's public domain algorithms)
+    S64 days_from_civil(S32 y, U32 m, U32 d)
+    {
+        y -= (m <= 2) ? 1 : 0;
+        const S64 era = (y >= 0 ? y : y - 399) / 400;
+        const U32 yoe = static_cast<U32>(y - era * 400);
+        const U32 doy = (153 * (m > 2 ? m - 3 : m + 9) + 2) / 5 + d - 1;
+        const U32 doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+        return era * 146097 + static_cast<S64>(doe) - 719468;
+    }
+
+    void civil_from_days(S64 z, S32& y, U32& m, U32& d)
+    {
+        z += 719468;
+        const S64 era = (z >= 0 ? z : z - 146096) / 146097;
+        const U32 doe = static_cast<U32>(z - era * 146097);
+        const U32 yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
+        const U32 doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+        const U32 mp = (5 * doy + 2) / 153;
+        d = doy - (153 * mp + 2) / 5 + 1;
+        m = mp < 10 ? mp + 3 : mp - 9;
+        y = static_cast<S32>(static_cast<S64>(yoe) + era * 400 + (m <= 2 ? 1 : 0));
+    }
+
+    bool is_leap_year(S32 y)
+    {
+        return (y % 4 == 0 && y % 100 != 0) || y % 400 == 0;
+    }
+
+    // Days from the same date 'years' ago to 'now' (Feb 29 -> Feb 28 if needed)
+    S64 days_in_years_before(time_t now, S32 years)
+    {
+        if (years <= 0)
+        {
+            return 0;
+        }
+        const S64 today = static_cast<S64>(now) / 86400;
+        S32 y;
+        U32 m, d;
+        civil_from_days(today, y, m, d);
+        const S32 target_year = y - years;
+        if (m == 2 && d == 29 && !is_leap_year(target_year))
+        {
+            d = 28;
+        }
+        return today - days_from_civil(target_year, m, d);
+    }
+
+    // Inverse: split 'total_days' into whole calendar years plus remaining days.
+    // 'max_years' is the spinner limit: any excess time is kept in 'days' so the
+    // total duration is preserved when the floater is reopened.
+    void split_days_into_years(time_t now, S64 total_days, S32 max_years, S32& years, S64& days)
+    {
+        const S32 start_years = llmin(static_cast<S32>(total_days / 365), llmax(max_years, 0));
+        for (S32 y = start_years; y > 0; --y)
+        {
+            const S64 days_in_y = days_in_years_before(now, y);
+            if (days_in_y <= total_days)
+            {
+                years = y;
+                days = total_days - days_in_y;
+                return;
+            }
+        }
+        years = 0;
+        days = total_days;
+    }
+}
+
+///----------------------------------------------------------------------------
 /// LLFloaterInventoryFinder
 ///----------------------------------------------------------------------------
 
@@ -97,6 +172,7 @@ public:
     void selectNoTypes();
 private:
     LLPanelMainInventory*   mPanelMainInventory{ nullptr };
+    LLSpinCtrl*         mSpinSinceYears{ nullptr };  // optional
     LLSpinCtrl*         mSpinSinceDays{ nullptr };
     LLSpinCtrl*         mSpinSinceHours{ nullptr };
     LLCheckBoxCtrl*     mCreatorSelf{ nullptr };
@@ -1198,6 +1274,12 @@ bool LLFloaterInventoryFinder::postBuild()
     mSpinSinceDays = getChild<LLSpinCtrl>("spin_days_ago");
     mSpinSinceDays->setCommitCallback([this](LLUICtrl*, const LLSD&) { onTimeAgo(); });
 
+    mSpinSinceYears = findChild<LLSpinCtrl>("spin_years_ago");
+    if (mSpinSinceYears)
+    {
+        mSpinSinceYears->setCommitCallback([this](LLUICtrl*, const LLSD&) { onTimeAgo(); });
+    }
+
     mCreatorSelf = getChild<LLCheckBoxCtrl>("check_created_by_me");
     mCreatorOthers = getChild<LLCheckBoxCtrl>("check_created_by_others");
     mCreatorSelf->setCommitCallback(boost::bind(&LLFloaterInventoryFinder::onCreatorSelfFilterCommit, this));
@@ -1230,7 +1312,7 @@ bool LLFloaterInventoryFinder::postBuild()
 
 void LLFloaterInventoryFinder::onTimeAgo()
 {
-    if (mSpinSinceDays->get() || mSpinSinceHours->get())
+    if (mSpinSinceDays->get() || mSpinSinceHours->get() || (mSpinSinceYears && mSpinSinceYears->get()))
     {
         mCheckSinceLogoff->setValue(false);
 
@@ -1275,7 +1357,16 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
     U32 filter_types = (U32)mFilter->getFilterObjectTypes();
     LLInventoryFilter::EFolderShow show_folders = mFilter->getShowFolderState();
     F32 hours = mFilter->getHoursAgo();
-    U32 days = (U32)(hours / 24);
+    U32 total_days = (U32)(hours / 24);
+    U32 days = total_days;
+    S32 years = 0;
+    if (mSpinSinceYears)
+    {
+        S64 remaining_days = 0;
+        split_days_into_years(time_corrected(), total_days,
+                              (S32)mSpinSinceYears->getMaxValue(), years, remaining_days);
+        days = (U32)remaining_days;
+    }
     U32 date_search_direction = mFilter->getDateSearchDirection();
 
     LLInventoryFilter::EFilterCreatorType filter_creator = mFilter->getFilterCreatorType();
@@ -1304,8 +1395,12 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
     mCreatorOthers->setValue(show_created_by_others);
 
     mCheckSinceLogoff->setValue(mFilter->isSinceLogoff());
-    mSpinSinceHours->set(hours - days * 24);
+    mSpinSinceHours->set(hours - total_days * 24);
     mSpinSinceDays->set((F32)days);
+    if (mSpinSinceYears)
+    {
+        mSpinSinceYears->set((F32)years);
+    }
     mRadioDateSearchDirection->setSelectedIndex(date_search_direction);
 }
 
@@ -1424,6 +1519,10 @@ void LLFloaterInventoryFinder::draw()
     {
         mSpinSinceDays->set(0);
         mSpinSinceHours->set(0);
+        if (mSpinSinceYears)
+        {
+            mSpinSinceYears->set(0);
+        }
     }
     U32 days = (U32)mSpinSinceDays->get();
     F32 hours = mSpinSinceHours->get();
@@ -1438,7 +1537,13 @@ void LLFloaterInventoryFinder::draw()
         mSpinSinceHours->set((F32)hours);
         mSpinSinceHours->setFocus(true);
     }
-    hours += days * 24;
+    // Years are calendar years, converted to days from today's date
+    S64 total_days = days;
+    if (mSpinSinceYears)
+    {
+        total_days += days_in_years_before(time_corrected(), (S32)mSpinSinceYears->get());
+    }
+    hours += (F32)(total_days * 24);
 
     mPanelMainInventory->setFilterTextFromFilter();
     if (is_sf_mode && mPanelMainInventory->isGalleryViewMode())

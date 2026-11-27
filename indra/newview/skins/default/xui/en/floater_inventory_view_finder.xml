@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_minimize="false"
- height="486"
+ height="506"
  layout="topleft"
  name="Inventory Finder"
  help_topic="inventory_finder"
@@ -377,6 +377,29 @@
      width="80">
         Days
     </text>
+    <spinner
+     follows="left|top"
+     height="16"
+     increment="1"
+     initial_value="0"
+     layout="topleft"
+     max_val="100"
+     name="spin_years_ago"
+     top_pad="4"
+     left="8"
+     width="64" />
+    <text
+     name="label_years"
+     type="string"
+     length="1"
+     follows="left|top"
+     height="16"
+     layout="topleft"
+     left_pad="3"
+     top_delta="4"
+     width="80">
+        Years
+    </text>
     <button
      follows="top|right"
      height="20"
@@ -385,6 +408,6 @@
      layout="topleft"
      name="Close"
      right="-6"
-     top="454"
+     top="474"
      width="76" />
 </floater>
