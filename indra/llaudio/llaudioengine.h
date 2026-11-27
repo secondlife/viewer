@@ -42,6 +42,8 @@
 
 #include "lllistener.h"
 
+#include <unordered_map>
+
 const F32 LL_WIND_UPDATE_INTERVAL = 0.1f;
 const F32 LL_WIND_UNDERWATER_CENTER_FREQ = 20.f;
 
@@ -49,7 +51,7 @@ const F32 ATTACHED_OBJECT_TIMEOUT = 5.0f;
 const F32 DEFAULT_MIN_DISTANCE = 2.0f;
 
 #define LL_MAX_AUDIO_CHANNELS 30
-#define LL_MAX_AUDIO_BUFFERS 40 // Some extra for preloading, maybe?
+#define LL_MAX_AUDIO_BUFFERS 40 // Some extra for preloading
 
 class LLAudioSource;
 class LLAudioData;
@@ -137,7 +139,7 @@ public:
                       const LLVector3d &pos_global = LLVector3d::zero);
     void triggerSound(SoundData& soundData);
 
-    bool preloadSound(const LLUUID &id);
+    bool preloadSound(const LLUUID &id, bool pin_buffer = false);
 
     void addAudioSource(LLAudioSource *asp);
     void cleanupAudioSource(LLAudioSource *asp);
@@ -164,6 +166,12 @@ public:
     LLAudioBuffer *getFreeBuffer(); // Get a free buffer, or flush an existing one if you have to.
     LLAudioChannel *getFreeChannel(const F32 priority); // Get a free channel or flush an existing one if your priority is higher
     void cleanupBuffer(LLAudioBuffer *bufferp);
+
+    // Pinned buffers are allocated on demand (keyed by sound uuid) and are
+    // never reclaimed/evicted by getFreeBuffer()'s regular pool logic.
+    // They stay alive until explicitly unpinned or the engine shuts down.
+    LLAudioBuffer* getPinnedBuffer(const LLUUID& audio_uuid);
+    void cleanupPinnedBuffer(const LLUUID& audio_uuid);
 
     bool hasDecodedFile(const LLUUID &uuid);
     bool hasLocalFile(const LLUUID &uuid);
@@ -230,6 +238,9 @@ protected:
     // Buffers needs to change into a different data structure, as the number of buffers
     // that we have active should be limited by RAM usage, not count.
     std::array<LLAudioBuffer*, LL_MAX_AUDIO_BUFFERS> mBuffers;
+
+    // Pinned buffers (e.g. UI sounds), keyed by sound uuid.
+    std::unordered_map<LLUUID, LLAudioBuffer*> mPinnedBuffers;
 
     F32 mMasterGain;
     F32 mInternalGain;          // Actual gain set; either mMasterGain or 0 when mMuted is true.
@@ -334,6 +345,7 @@ protected:
     bool            mQueueSounds;
     bool            mPlayedOnce;
     bool            mCorrupted;
+    bool            mWaitingForLoad = false; // buffer isn't ready
     S32             mType;
     LLVector3d      mPositionGlobal;
     LLVector3       mVelocity;
@@ -364,33 +376,40 @@ class LLAudioData
   public:
     LLAudioData(const LLUUID &uuid);
     bool load();
+    void finishLoad(const std::vector<U8>& wav_data, U32 load_generation);
 
     LLUUID         getID() const { return mID; }
     LLAudioBuffer *getBuffer() const { return mBufferp; }
+    bool isLoadPending() const { return mPendingBufferp != nullptr; }
 
     bool hasLocalData() const { return mHasLocalData; }
     bool hasDecodedData() const { return mHasDecodedData; }
     bool hasCompletedDecode() const { return mHasCompletedDecode; }
     bool hasDecodeFailed() const { return mHasDecodeFailed; }
     bool hasWAVLoadFailed() const { return mHasWAVLoadFailed; }
+    bool isPinned() const { return mPinned; }
 
     void setHasLocalData(const bool hld) { mHasLocalData = hld; }
     void setHasDecodedData(const bool hdd) { mHasDecodedData = hdd; }
     void setHasCompletedDecode(const bool hcd) { mHasCompletedDecode = hcd; }
     void setHasDecodeFailed(const bool hdf) { mHasDecodeFailed = hdf; }
     void setHasWAVLoadFailed(const bool hwlf) { mHasWAVLoadFailed = hwlf; }
+    void setPinned(const bool pinned);
 
     friend class LLAudioEngine;  // Severe laziness, bad.
 
   protected:
     LLUUID         mID;
     LLAudioBuffer *mBufferp;             // If this data is being used by the audio system, a pointer to the buffer will be set here.
+    LLAudioBuffer *mPendingBufferp;
+    U32            mLoadGeneration;
     bool           mHasLocalData;        // Set true if the encoded sound asset file is available locally
     bool           mHasDecodedData;      // Set true if the decoded sound file is available on disk
     bool           mHasCompletedDecode;  // Set true when the sound is decoded
     bool           mHasDecodeFailed;     // Set true if decoding failed, meaning the sound asset is bad
     bool mHasWAVLoadFailed;  // Set true if loading the decoded WAV file failed, meaning the sound asset should be decoded instead if
                              // possible
+    bool           mPinned{ false };
 };
 
 
@@ -448,13 +467,18 @@ public:
     LLAudioBuffer();
     virtual ~LLAudioBuffer() {};
     virtual bool loadWAV(const std::string& filename) = 0;
+    virtual bool loadWAV(const std::vector<U8>& wav_data) = 0;
     virtual U32 getLength() = 0;
+
+    void setPinned(bool pinned) { mPinned = pinned; }
+    bool isPinned() const { return mPinned; }
 
     friend class LLAudioEngine;
     friend class LLAudioChannel;
     friend class LLAudioData;
 protected:
     bool mInUse;
+    bool mPinned{ false };
     LLAudioData *mAudioDatap;
     LLFrameTimer mLastUseTimer;
 };

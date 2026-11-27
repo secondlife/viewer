@@ -1899,7 +1899,8 @@ void LLWindowSDL::spawnWebBrowser(const std::string& escaped_url, bool async)
     S32 i;
     for (i = 0; i < gURLProtocolWhitelistCount; i++)
     {
-        if (escaped_url.find(gURLProtocolWhitelist[i]) != std::string::npos)
+        // The URL must start with the allowed scheme, not just contain it
+        if (escaped_url.find(gURLProtocolWhitelist[i]) == 0)
         {
             found = true;
             break;

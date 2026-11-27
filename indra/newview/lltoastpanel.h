@@ -58,6 +58,8 @@ public:
      */
     static LLToastPanel* buidPanelFromNotification(
             const LLNotificationPtr& notification);
+
+    static bool isNotificationContentTrusted(const LLNotificationPtr& notification);
 protected:
     LLNotificationPtr mNotification;
     void snapToMessageHeight(LLTextBase* message, S32 maxLineCount);

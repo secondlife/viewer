@@ -35,6 +35,8 @@
 #include "llwindgen.h"
 #include "llatomic.h"
 
+#include <mutex>
+
 class LLAudioEngine_OpenAL : public LLAudioEngine
 {
     public:
@@ -72,6 +74,7 @@ class LLAudioEngine_OpenAL : public LLAudioEngine
         static const float WIND_BUFFER_SIZE_SEC; // 1/20th sec
 
         ALCdevice* mALDevice;
+        std::mutex mALDeviceMutex;
 
         bool mHasReopenExt;
         LPALCREOPENDEVICESOFT mReopenDeviceSOFT;
@@ -114,6 +117,7 @@ class LLAudioBufferOpenAL : public LLAudioBuffer{
         virtual ~LLAudioBufferOpenAL();
 
         bool loadWAV(const std::string& filename);
+        bool loadWAV(const std::vector<U8>& wav_data);
         U32 getLength();
 
         friend class LLAudioChannelOpenAL;

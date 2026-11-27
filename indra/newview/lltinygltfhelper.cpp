@@ -3,7 +3,7 @@
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2022, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,6 +30,16 @@
 #include "llimage.h"
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
+
+namespace
+{
+    bool rejectImageLoad(tinygltf::Image*, const int, std::string*, std::string*,
+        int, int, const unsigned char*, int, void*)
+    {
+        // reject all image loads, we will handle them ourselves
+        return false;
+    }
+}
 
 static void strip_alpha_channel(LLPointer<LLImageRaw>& img)
 {
@@ -286,6 +296,24 @@ bool LLTinyGLTFHelper::saveModel(const std::string& filename, tinygltf::Model& m
     }
 
     return success;
+}
+
+bool LLTinyGLTFHelper::loadModelFromUntrustedString(const std::string& json, tinygltf::Model& model_out, std::string& warn_msg, std::string& error_msg)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    tinygltf::TinyGLTF loader;
+
+    loader.SetImageLoader(&rejectImageLoad, nullptr);
+    loader.SetFsCallbacks({
+        [](const std::string&, void*) { return false; },
+        [](const std::string& path, void*) { return path; },
+        [](std::vector<unsigned char>*, std::string*, const std::string&, void*) { return false; },
+        [](std::string*, const std::string&, const std::vector<unsigned char>&, void*) { return false; },
+        [](size_t*, std::string*, const std::string&, void*) { return false; },
+        nullptr
+    });
+
+    return loader.LoadASCIIFromString(&model_out, &error_msg, &warn_msg, json.c_str(), static_cast<unsigned int>(json.length()), "");
 }
 
 bool LLTinyGLTFHelper::getMaterialFromModel(

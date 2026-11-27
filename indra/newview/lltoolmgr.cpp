@@ -409,8 +409,11 @@ bool LLToolMgr::inBuildMode()
 {
     // when entering mouselook inEdit() immediately returns true before
     // cameraMouselook() actually starts returning true.  Also, appearance edit
-    // sets build mode to true, so let's exclude that.
+    // sets build mode to true, so let's exclude that.  Touching or dragging
+    // an object in world swaps in the grab tool only until the mouse is
+    // released, which is not building either hence !gGrabTransientTool.
     bool b=(inEdit()
+            && !gGrabTransientTool
             && !gAgentCamera.cameraMouselook()
             && mCurrentToolset != gFaceEditToolset);
 

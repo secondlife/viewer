@@ -443,17 +443,9 @@ void LLFloaterJoystick::onCommitJoystickEnabled(LLUICtrl*, void *joy_panel)
         joystick_enabled = true;
     }
     gSavedSettings.setBOOL("JoystickEnabled", joystick_enabled);
-    bool flycam_enabled = self->mCheckFlycamEnabled->get();
-
-    if (!joystick_enabled || !flycam_enabled)
-    {
-        // Turn off flycam
-        LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
-        if (joystick->getOverrideCamera())
-        {
-            joystick->toggleFlycam();
-        }
-    }
+    // Don't force the flycam off here: it's shared with keyboard and game
+    // controller input, and disabling this device (or its flycam option) only
+    // needs to stop its own input, which moveFlycam() and scanJoystick() check.
 
     LLViewerJoystick::getInstance()->saveDeviceIdToSettings();
 

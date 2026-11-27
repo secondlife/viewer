@@ -41,8 +41,6 @@
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
 #include "llversioninfo.h"
-#include "llslurl.h"
-#include "llstartup.h"
 #include "llfloaterreg.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
@@ -50,12 +48,18 @@
 #include "llviewerwindow.h"
 #include "llprogressview.h"
 #include "llsecapi.h"
+#include "llslurl.h"
 #include "llstartup.h"
 #include "llmachineid.h"
 #include "llevents.h"
 #include "llappviewer.h"
 #include "llsdserialize.h"
 #include "lltrans.h"
+
+#if LL_VELOPACK
+#include "llvvmquery.h"
+#include "llvelopack.h"
+#endif
 
 #include <boost/regex.hpp>
 #include <sstream>
@@ -404,7 +408,16 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
             "RequiredUpdate",
             args,
             LLSD(),
-            boost::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
+            boost::bind(&LLLoginInstance::handleLoginRequiredUpdate, this, _1, _2));
+
+#if LL_VELOPACK
+        // The viewer may have been sitting idle on the login screen for a
+        // while (or the user disabled/deferred an earlier optional-update
+        // prompt) such that Velopack's view of "is there an update" is
+        // stale. Rerequest.
+        velopack_set_silent(true); // suppress progress view until user dismisses the notification
+        initVVMUpdateCheck();
+#endif
     }
     else if(reason_response == "mfa_challenge")
     {
@@ -436,6 +449,18 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 
         LLNotificationsUtil::add("LoginFailedUnknown", LLSD::emptyMap(), LLSD::emptyMap(), boost::bind(&LLLoginInstance::handleLoginDisallowed, this, _1, _2));
     }
+}
+
+void LLLoginInstance::handleLoginRequiredUpdate(const LLSD& notification, const LLSD& response)
+{
+    attemptComplete();
+#if LL_VELOPACK
+    // If a required update started downloading silently in the background
+    // (see handleLoginFailure's "update" branch), reveal its progress view
+    // now that the user has dismissed the "RequiredUpdate" notification.
+    // No-op if no such silent download is in flight.
+    velopack_set_silent(false);
+#endif
 }
 
 void LLLoginInstance::handleLoginDisallowed(const LLSD& notification, const LLSD& response)

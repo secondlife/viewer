@@ -150,8 +150,7 @@ public:
     EStatus getStatus() const          {return mStatus;};
     void    setStatus(EStatus pStatus) {mStatus = pStatus;};
 
-    static std::map<S32, std::string> sTeleportStatusName;
-    static const std::string& statusName(EStatus status);
+    static const std::string statusName(EStatus status);
     virtual void toOstream(std::ostream& os) const;
 
     virtual bool canRestartTeleport();
@@ -164,11 +163,6 @@ protected:
 private:
     EStatus mStatus;
 };
-
-std::map<S32, std::string> LLTeleportRequest::sTeleportStatusName = { { kPending, "kPending" },
-                                                                      { kStarted, "kStarted" },
-                                                                      { kFailed, "kFailed" },
-                                                                      { kRestartPending, "kRestartPending"} };
 
 class LLTeleportRequestViaLandmark : public LLTeleportRequest
 {
@@ -5492,17 +5486,20 @@ void LLTeleportRequest::restartTeleport()
 }
 
 // TODO this enum -> name idiom should be in a common class rather than repeated various places.
-const std::string& LLTeleportRequest::statusName(EStatus status)
+const std::string LLTeleportRequest::statusName(EStatus status)
 {
-    static std::string invalid_status_str("INVALID");
-    auto iter = LLTeleportRequest::sTeleportStatusName.find(status);
-    if (iter != LLTeleportRequest::sTeleportStatusName.end())
+    switch (status)
     {
-        return iter->second;
-    }
-    else
-    {
-        return invalid_status_str;
+    case kPending:
+        return "kPending";
+    case kStarted:
+        return "kStarted";
+    case kFailed:
+        return "kFailed";
+    case kRestartPending:
+        return "kRestartPending";
+    default:
+        return "INVALID";
     }
 }
 

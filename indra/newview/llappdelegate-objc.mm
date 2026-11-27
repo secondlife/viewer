@@ -154,7 +154,11 @@
         return NSTerminateCancel;
     } else {
         // pumpMainLoop() returned true: it's done. Okay, done with frameTimer.
-        [frameTimer release];
+        if (frameTimer)
+        {
+            [frameTimer invalidate];
+            frameTimer = nil;
+        }
         cleanupViewer();
         return NSTerminateNow;
     }
@@ -167,7 +171,11 @@
     {
         // Once pumpMainLoop() reports that we're done, cancel frameTimer:
         // stop the repetitive calls.
-        [frameTimer release];
+        if (frameTimer)
+        {
+            [frameTimer invalidate];
+            frameTimer = nil;
+        }
         [[NSApplication sharedApplication] terminate:self];
     }
 }

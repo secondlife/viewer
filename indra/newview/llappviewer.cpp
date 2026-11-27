@@ -4890,7 +4890,10 @@ bool LLAppViewer::initCache()
         LLAppViewer::getPurgeDiskCacheThread()->start();
     }
 
-    LLSplashScreen::update(LLTrans::getString("StartupInitializingTextureCache"));
+    if (!gGPUBenchmarkMode)
+    {
+        LLSplashScreen::update(LLTrans::getString("StartupInitializingTextureCache"));
+    }
 
     // Init the texture cache
     // Allocate the remaining percent which is not allocated to the disk cache

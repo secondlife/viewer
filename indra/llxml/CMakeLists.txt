@@ -58,4 +58,5 @@ if (LL_TESTS)
             )
 
     LL_ADD_INTEGRATION_TEST(llcontrol "" "${test_libs}")
+    LL_ADD_INTEGRATION_TEST(llxmlnode "" "${test_libs}")
 endif (LL_TESTS)

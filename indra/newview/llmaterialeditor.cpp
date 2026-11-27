@@ -1390,7 +1390,7 @@ bool LLMaterialEditor::decodeAsset(const std::vector<char>& buffer)
 
                     tinygltf::Model model_in;
 
-                    if (loader.LoadASCIIFromString(&model_in, &error_msg, &warn_msg, data.c_str(), static_cast<unsigned int>(data.length()), ""))
+                    if (LLTinyGLTFHelper::loadModelFromUntrustedString(data, model_in, warn_msg, error_msg))
                     {
                         // assets are only supposed to have one item
                         // *NOTE: This duplicates some functionality from

@@ -494,6 +494,7 @@ public:
     void                    needsReflow(S32 index = 0);
 
     S32                     getLength() const { return static_cast<S32>(getWText().length()); }
+    bool                    isEmpty() const { return getWText().empty(); }
     S32                     getLineCount() const { return static_cast<S32>(mLineInfoList.size()); }
     S32                     removeFirstLine(); // returns removed length
 

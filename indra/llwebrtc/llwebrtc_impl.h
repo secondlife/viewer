@@ -659,6 +659,15 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
     // if not, we'll be reusing the peer connection for a reconnection
     void closeOnSignalingThread(bool webrtc_terminate);
 
+    // Final close for a connection the viewer has freed.  Signaling thread
+    // only.  Drops the observers (the viewer has let go of the connection, so
+    // nothing may call back into it), closes the webrtc peer connection if it
+    // is still open, and releases the factory.  A connection freed without
+    // shutdownConnection() otherwise keeps a live peer connection -- ICE
+    // gathering on the network thread -- that terminate() no longer tracks
+    // and so tears the webrtc threads down underneath.
+    void closeOnSignalingThreadForFree();
+
     // Drops this connection's reference to the peer connection factory once
     // it won't be used again.  Signaling thread only, while that thread is
     // still running: LLWebRTCImpl::terminate() relies on holding the last

@@ -140,20 +140,22 @@ LLXMLNode::LLXMLNode(const LLXMLNode& rhs) :
 }
 
 // returns a new copy of this node and all its children
-LLXMLNodePtr LLXMLNode::deepCopy()
+LLXMLNodePtr LLXMLNode::deepCopy() const
 {
     LLXMLNodePtr newnode = LLXMLNodePtr(new LLXMLNode(*this));
     if (mChildren.notNull())
     {
-        for (LLXMLChildList::iterator iter = mChildren->map.begin();
-             iter != mChildren->map.end(); ++iter)
+        // Walk the intrusive doubly-linked list (head/tail/mNext/mPrev)
+        // rather than mChildren->map to preserve insertion order.
+        // The map is keyed by LLStringTableEntry* pointer, not order.
+        for (LLXMLNodePtr child = mChildren->head; child.notNull(); child = child->mNext)
         {
-            LLXMLNodePtr temp_ptr_for_gcc(iter->second->deepCopy());
+            LLXMLNodePtr temp_ptr_for_gcc(child->deepCopy());
             newnode->addChild(temp_ptr_for_gcc);
         }
     }
-    for (LLXMLAttribList::iterator iter = mAttributes.begin();
-         iter != mAttributes.end(); ++iter)
+    for (LLXMLAttribList::const_iterator iter = mAttributes.begin();
+        iter != mAttributes.end(); ++iter)
     {
         LLXMLNodePtr temp_ptr_for_gcc(iter->second->deepCopy());
         newnode->addChild(temp_ptr_for_gcc);

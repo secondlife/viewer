@@ -3,7 +3,7 @@
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2022, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -40,11 +40,8 @@
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llcorehttputil.h"
-#include "llagent.h"
 #include "llvocache.h"
 #include "llworld.h"
-
-#include "tinygltf/tiny_gltf.h"
 
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>
@@ -575,7 +572,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
                                 LL_PROFILE_ZONE_SCOPED;
                                 tinygltf::TinyGLTF gltf;
 
-                                if (!gltf.LoadASCIIFromString(&asset_data->mModelIn, &error_msg, &warn_msg, data.c_str(), static_cast<U32>(data.length()), ""))
+                                if (!LLTinyGLTFHelper::loadModelFromUntrustedString(data, asset_data->mModelIn, warn_msg, error_msg))
                                 {
                                     LL_WARNS("GLTF") << "Failed to decode material asset: "
                                         << LL_NEWLINE

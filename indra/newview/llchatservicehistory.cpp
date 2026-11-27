@@ -2636,15 +2636,19 @@ bool LLChatServiceHistory::loadStitchedHistory(
 
     // Read and stitch off the main thread; maintenance requests are applied only if
     // the captured archive serial is still current.
+    // WorkQueue copies reply closures, so share the result until the main-thread
+    // callback can take its message list without copying its LLSD rows.
     return main->postTo(general,
         [id, agent_id, archive_path, legacy_paths, limit, epoch, serial, boundary,
          include_service, preview]()
         {
-            return readStitched(id, agent_id, archive_path, legacy_paths, limit, epoch,
-                                serial, boundary, include_service, preview);
+            return std::make_shared<HistoryResult>(
+                readStitched(id, agent_id, archive_path, legacy_paths, limit, epoch,
+                             serial, boundary, include_service, preview));
         },
-        [id, epoch, serial, callback](HistoryResult result)
+        [id, epoch, serial, callback](const std::shared_ptr<HistoryResult>& shared)
         {
+            HistoryResult& result = *shared;
             if (result.maintenance_needed && sRuntime.epoch == epoch)
             {
                 auto found = sRuntime.residents.find(id);
@@ -2762,7 +2766,7 @@ void LLChatServiceHistory::History::reload()
     const U64 token = ++mToken;
     const std::string legacy_stem = mLegacyStem;
     mLoading = loadStitchedHistory(mResidentID, legacy_stem, mLimit,
-        [handle = getHandle(), token, legacy_stem](const HistoryResult& result)
+        [handle = getHandle(), token, legacy_stem](HistoryResult& result)
         {
             History* self = handle.get();
             if (!self || token != self->mToken)
@@ -2787,7 +2791,8 @@ void LLChatServiceHistory::History::reload()
             }
 
             self->mArchiveSerial = result.archive_serial;
-            self->mHistory.setLoaded(result.messages);
+            // Transfer the message list into mHistory without copying its LLSD rows.
+            self->mHistory.setLoaded(std::move(result.messages));
             self->publish(snapshot);
         });
     // Open IMs fall back to plaintext when the queues are unavailable; Preview

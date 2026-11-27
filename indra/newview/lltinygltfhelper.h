@@ -3,7 +3,7 @@
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2022, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -43,6 +43,9 @@ namespace LLTinyGLTFHelper
 
     bool loadModel(const std::string& filename, tinygltf::Model& model_out);
     bool saveModel(const std::string& filename, tinygltf::Model& model_in);
+
+    // Parses GLTF material JSON, but discards any external resources referenced in the JSON.
+    bool loadModelFromUntrustedString(const std::string& json, tinygltf::Model& model_out, std::string& warn_msg, std::string& error_msg);
 
     bool getMaterialFromModel(
         const std::string& filename,
