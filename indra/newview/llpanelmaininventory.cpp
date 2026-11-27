@@ -1104,6 +1104,16 @@ void LLPanelMainInventory::updateItemcountText()
         mCounterCtrl->setValue(text);
         mCounterCtrl->setToolTip(text);
     }
+
+    // Highlight the count while a filter (not text) is active
+    const bool highlight = mActivePanel && getActivePanel() != mWornItemsPanel
+        && getCurrentFilter().isNonTextFilterActive();
+    if (mCounterHighlighted != highlight)
+    {
+        mCounterHighlighted = highlight;
+        mCounterCtrl->setColor(LLUIColorTable::instance().getColor(
+            highlight ? "FilterActiveColor" : "InventoryItemLinkColor"));
+    }
 }
 
 void LLPanelMainInventory::onFocusReceived()

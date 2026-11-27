@@ -361,6 +361,9 @@
      name="EffectColor"
      reference="White" />
      <color
+     name="FilterActiveColor"
+     reference="Yellow" />
+     <color
      name="FilterBackgroundColor"
      reference="Black" />
     <color

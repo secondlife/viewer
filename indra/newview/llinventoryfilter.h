@@ -335,6 +335,7 @@ public:
     // +-------------------------------------------------------------------+
     bool                isDefault() const;
     bool                isNotDefault() const;
+    bool                isNonTextFilterActive() const;
     void                markDefault();
     void                resetDefault();
 

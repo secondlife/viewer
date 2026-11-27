@@ -741,6 +741,20 @@ bool LLInventoryFilter::isNotDefault() const
     return not_default != 0;
 }
 
+// is any filter other than the search text changed from the default?
+bool LLInventoryFilter::isNonTextFilterActive() const
+{
+    return mFilterOps.mFilterObjectTypes != mDefaultFilterOps.mFilterObjectTypes
+        || mFilterOps.mFilterCategoryTypes != mDefaultFilterOps.mFilterCategoryTypes
+        || mFilterOps.mFilterWearableTypes != mDefaultFilterOps.mFilterWearableTypes
+        || mFilterOps.mFilterTypes != mDefaultFilterOps.mFilterTypes
+        || mFilterOps.mFilterLinks != mDefaultFilterOps.mFilterLinks
+        || mFilterOps.mPermissions != mDefaultFilterOps.mPermissions
+        || mFilterOps.mMinDate != mDefaultFilterOps.mMinDate
+        || mFilterOps.mMaxDate != mDefaultFilterOps.mMaxDate
+        || mFilterOps.mHoursAgo != mDefaultFilterOps.mHoursAgo;
+}
+
 bool LLInventoryFilter::isActive() const
 {
     return mFilterOps.mFilterObjectTypes != 0xffffffffffffffffULL
