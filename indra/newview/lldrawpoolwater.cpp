@@ -204,22 +204,22 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
 
     if (tex_a && (!tex_b || (tex_a == tex_b)))
     {
-        shader->bindTexture(LLViewerShaderMgr::BUMP_MAP, tex_a);
         tex_a->setFilteringOption(filter_mode);
+        shader->bindTexture(LLViewerShaderMgr::BUMP_MAP, tex_a);
         blend_factor = 0; // only one tex provided, no blending
     }
     else if (tex_b && !tex_a)
     {
-        shader->bindTexture(LLViewerShaderMgr::BUMP_MAP, tex_b);
         tex_b->setFilteringOption(filter_mode);
+        shader->bindTexture(LLViewerShaderMgr::BUMP_MAP, tex_b);
         blend_factor = 0; // only one tex provided, no blending
     }
     else if (tex_b != tex_a)
     {
-        shader->bindTexture(LLViewerShaderMgr::BUMP_MAP, tex_a);
         tex_a->setFilteringOption(filter_mode);
-        shader->bindTexture(LLViewerShaderMgr::BUMP_MAP2, tex_b);
         tex_b->setFilteringOption(filter_mode);
+        shader->bindTexture(LLViewerShaderMgr::BUMP_MAP, tex_a);
+        shader->bindTexture(LLViewerShaderMgr::BUMP_MAP2, tex_b);
     }
 
     shader->bindTexture(LLShaderMgr::WATER_EXCLUSIONTEX, &gPipeline.mWaterExclusionMask);

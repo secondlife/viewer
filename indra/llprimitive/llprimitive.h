@@ -109,11 +109,12 @@ public:
         PARAMS_EXTENDED_MESH = 0x70,
         PARAMS_RENDER_MATERIAL = 0x80,
         PARAMS_REFLECTION_PROBE = 0x90,
+        PARAMS_MAX = PARAMS_REFLECTION_PROBE,
     };
 
 public:
     U16 mType;
-    virtual ~LLNetworkData() {};
+    virtual ~LLNetworkData() = default;
     virtual bool pack(LLDataPacker &dp) const = 0;
     virtual bool unpack(LLDataPacker &dp) = 0;
     virtual bool operator==(const LLNetworkData& data) const = 0;
@@ -319,7 +320,7 @@ public:
     bool fromLLSD(LLSD& sd);
 
     void setSculptTexture(const LLUUID& texture_id, U8 sculpt_type);
-    LLUUID getSculptTexture() const         { return mSculptTexture; }
+    const LLUUID& getSculptTexture() const  { return mSculptTexture; }
     U8 getSculptType() const                { return mSculptType; }
 };
 
@@ -340,10 +341,10 @@ public:
     bool fromLLSD(LLSD& sd);
 
     void setLightTexture(const LLUUID& id) { mLightTexture = id; }
-    LLUUID getLightTexture() const         { return mLightTexture; }
+    const LLUUID& getLightTexture() const         { return mLightTexture; }
     bool isLightSpotlight() const         { return mLightTexture.notNull(); }
     void setParams(const LLVector3& params) { mParams = params; }
-    LLVector3 getParams() const            { return mParams; }
+    const LLVector3& getParams() const            { return mParams; }
 
 };
 
@@ -501,6 +502,9 @@ public:
     S32 unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num); // Variable num of blocks
     S32 unpackTEMessage(LLDataPacker &dp);
     S32 parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec);
+    // Same as above, but usable before an instance exists to derive the face count from
+    // (e.g. decoding a message for an object that hasn't been created yet).
+    static S32 parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec, U8 face_count);
     S32 applyParsedTEMessage(LLTEContents& tec);
 
 #ifdef CHECK_FOR_FINITE

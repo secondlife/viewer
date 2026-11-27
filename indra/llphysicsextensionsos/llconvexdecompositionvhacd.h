@@ -31,6 +31,7 @@
 #include "llconvexdecomposition.h"
 #include "llsingleton.h"
 #include "llmath.h"
+#include "llmutex.h"
 
 #include <vector>
 
@@ -323,14 +324,25 @@ private:
         std::vector<LLConvexMesh> mDecomposedHulls;
     };
 
-    std::unordered_map<int, LLDecompData> mDecompData;
+    using data_ptr_t = std::shared_ptr<LLDecompData>;
 
-    LLDecompData* mBoundDecomp = nullptr;
+    data_ptr_t getBoundDecomp();
 
-    VHACD::IVHACD* mVHACD = nullptr;
-    VHACDCallback  mVHACDCallback;
+    // MUST lock before accessing mDecompData mBoundDecompID or mNextDecompID
+    LLMutex mDecompDataMutex;
+
+    static constexpr int INVALID_DECOMP_ID = -1;
+
+    int mBoundDecompID = INVALID_DECOMP_ID;
+    int mNextDecompID = 0; // Only for use inside genDecomposition.
+
+    std::unordered_map<int, data_ptr_t> mDecompData;
+
     VHACDLogger    mVHACDLogger;
+
+    LLMutex mParamsMutex;
     VHACD::IVHACD::Parameters mVHACDParameters;
+    llcdCallbackFunc mCurrentCallbackFunc;
 
     LLConvexMesh mMeshFromHullData;
     LLConvexMesh mSingleHullMeshFromMeshData;

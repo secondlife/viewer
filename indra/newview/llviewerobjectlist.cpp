@@ -65,6 +65,7 @@
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
 #include "llkeyboard.h"
+#include "llmeshrepository.h"
 #include "u64.h"
 #include "llviewertexturelist.h"
 #include "lldatapacker.h"
@@ -173,7 +174,7 @@ bool LLViewerObjectList::removeFromLocalIDTable(LLViewerObject* objectp)
         U32 local_id = objectp->mLocalID;
         U64 indexid = (((U64)objectp->mRegionIndex) << 32) | (U64)local_id;
 
-        std::map<U64, LLUUID>::iterator iter = mIndexAndLocalIDToUUID.find(indexid);
+        auto iter = mIndexAndLocalIDToUUID.find(indexid);
         if (iter == mIndexAndLocalIDToUUID.end())
         {
             return false;
@@ -385,7 +386,7 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
         objectp->setLastUpdateType(OUT_FULL_COMPRESSED); //newly cached
         objectp->setLastUpdateCached(true);
     }
-    LLVOAvatar::cullAvatarsByPixelArea();
+    LLVOAvatar::setCullNeedsUpdate();
 
     return objectp;
 }
@@ -682,7 +683,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
         objectp->setLastUpdateType(update_type);
     }
 
-    LLVOAvatar::cullAvatarsByPixelArea();
+    LLVOAvatar::setCullNeedsUpdate();
 }
 
 void LLViewerObjectList::processCompressedObjectUpdate(LLMessageSystem *mesgsys,
@@ -1378,6 +1379,7 @@ void LLViewerObjectList::killObjects(LLViewerRegion *regionp)
 
 void LLViewerObjectList::killAllObjects()
 {
+    LL_PROFILE_ZONE_SCOPED;
     // Used only on global destruction.
 
     // Mass cleanup to not clear lists one item at a time
@@ -1398,7 +1400,12 @@ void LLViewerObjectList::killAllObjects()
         llassert((objectp == gAgentAvatarp) || objectp->isDead());
     }
 
-    cleanDeadObjects(false);
+    gMeshRepo.unregisterAllMeshes();
+
+    // Direct clear instead of cleanDeadObjects - all objects are already dead
+    mObjects.clear();
+    mDeadObjects.clear();
+    mNumDeadObjects = 0;
 
     if(!mObjects.empty())
     {

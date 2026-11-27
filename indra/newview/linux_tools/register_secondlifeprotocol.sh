@@ -6,43 +6,52 @@
 
 HANDLER="$1"
 
-RUN_PATH=`dirname "$0" || echo .`
+SCRIPTSRC=`readlink -f "$0" || echo "$0"`
+RUN_PATH=`dirname "${SCRIPTSRC}" || echo .`
+
+install_prefix="$(realpath -- "${RUN_PATH}/..")"
+
 cd "${RUN_PATH}/.."
 
 if [ -z "$HANDLER" ]; then
-    HANDLER=`pwd`/etc/handle_secondlifeprotocol.sh
+    HANDLER=$install_prefix/etc/handle_secondlifeprotocol.sh
 fi
 
-# Register handler for GNOME-aware apps
-LLGCONFTOOL2=gconftool-2
-if which ${LLGCONFTOOL2} >/dev/null; then
-    (${LLGCONFTOOL2} -s -t string /desktop/gnome/url-handlers/secondlife/command "${HANDLER} \"%s\"" && ${LLGCONFTOOL2} -s -t bool /desktop/gnome/url-handlers/secondlife/enabled true) || echo Warning: Did not register secondlife:// handler with GNOME: ${LLGCONFTOOL2} failed.
+function install_desktop_entry()
+{
+    local installation_prefix="$1"
+    local desktop_entries_dir="$2"
+
+    local desktop_entry="\
+[Desktop Entry]\n\
+Name=Second Life SLURL handler\n\
+Path=${installation_prefix}\n\
+Exec=${HANDLER} %u\n\
+Icon=${installation_prefix}/secondlife_icon.png\n\
+Terminal=false\n\
+Type=Application\n\
+StartupNotify=true\n\
+StartupWMClass="com.secondlife.indra.viewer"\n\
+NoDisplay=true\n\
+MimeType=x-scheme-handler/secondlife\n\
+X-Desktop-File-Install-Version=3.0"
+
+    echo " - Installing protocol entries in ${desktop_entries_dir}"
+    WORK_DIR=`mktemp -d`
+    PROTOCOL_HANDLER="secondlife-protocol.desktop"
+    echo -e $desktop_entry > "${WORK_DIR}/${PROTOCOL_HANDLER}" || "Failed to create desktop file!"
+    desktop-file-install --dir="${desktop_entries_dir}" "${WORK_DIR}/${PROTOCOL_HANDLER}" || "Failed to install desktop file!"
+    rm -r $WORK_DIR
+
+    xdg-mime default "${desktop_entries_dir}/${PROTOCOL_HANDLER}" x-scheme-handler/secondlife
+
+    update-desktop-database "${desktop_entries_dir}"
+}
+
+if [ "$UID" == "0" ]; then
+    # system-wide
+    install_desktop_entry "$install_prefix" /usr/local/share/applications
 else
-    echo Warning: Did not register secondlife:// handler with GNOME: ${LLGCONFTOOL2} not found.
+    # user-specific
+    install_desktop_entry "$install_prefix" "$HOME/.local/share/applications"
 fi
-
-# Register handler for KDE-aware apps
-for LLKDECONFIG in kde-config kde4-config; do
-    if [ `which $LLKDECONFIG` ]; then
-        LLKDEPROTODIR=`$LLKDECONFIG --path services | cut -d ':' -f 1`
-        if [ -d "$LLKDEPROTODIR" ]; then
-            LLKDEPROTOFILE=${LLKDEPROTODIR}/secondlife.protocol
-            cat > ${LLKDEPROTOFILE} <<EOF || echo Warning: Did not register secondlife:// handler with KDE: Could not write ${LLKDEPROTOFILE}
-[Protocol]
-exec=${HANDLER} '%u'
-protocol=secondlife
-input=none
-output=none
-helper=true
-listing=
-reading=false
-writing=false
-makedir=false
-deleting=false
-EOF
-        else
-            echo Warning: Did not register secondlife:// handler with KDE: Directory $LLKDEPROTODIR does not exist.
-        fi
-    fi
-done
-

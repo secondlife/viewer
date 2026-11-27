@@ -10,7 +10,7 @@
      mouse_opaque="false"
      scale_image="true"
      image_selected="PushButton_Selected_Press"
-     image_pressed="PushButton_Press"
+     image_pressed="PushButton_Selected"
      image_pressed_selected="PushButton_Selected_Press"
      image_unselected="PushButton_Off"
      image_disabled="PushButton_Disabled"

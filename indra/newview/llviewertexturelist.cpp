@@ -289,6 +289,8 @@ LLViewerTextureList::~LLViewerTextureList()
 void LLViewerTextureList::shutdown()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    mShuttingDown = true;
+
     // clear out preloads
     mImagePreloads.clear();
 
@@ -363,6 +365,7 @@ void LLViewerTextureList::shutdown()
     mImageList.clear();
 
     mInitialized = false ; //prevent loading textures again.
+    mShuttingDown = false;
 }
 
 void LLViewerTextureList::dump()
@@ -1096,7 +1099,17 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 
     while (!mCreateTextureList.empty())
     {
-        LLViewerFetchedTexture* imagep = mCreateTextureList.front();
+        // Hold a smart pointer to keep the texture alive throughout processing,
+        // even if side effects (e.g. pipeline rebuilds, GL operations) indirectly
+        // cause other references to be released. (see: #5426)
+        LLPointer<LLViewerFetchedTexture> imagep = mCreateTextureList.front();
+        mCreateTextureList.pop();
+
+        if (!imagep)
+        {
+            continue;
+        }
+
         llassert(imagep->mCreatePending);
 
         // desired discard may change while an image is being decoded. If the texture in VRAM is sufficient
@@ -1121,8 +1134,6 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
             LL_WARNS_ONCE("Texture") << "Texture will be downscaled immediately after loading." << LL_ENDL;
             imagep->scaleDown();
         }
-
-        mCreateTextureList.pop();
 
         if (create_timer.getElapsedTimeF32() > max_time)
         {
@@ -1155,7 +1166,8 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
             llassert(image->mDownScalePending);
 
             LLImageGL* img = image->getGLTexture();
-            if (img && img->getHasGLTexture())
+            // don't scale down while a new texture is being created, the pending upload would replace the result
+            if (img && img->getHasGLTexture() && !image->needsCreateTexture())
             {
                 img->scaleDown(image->getDesiredDiscardLevel());
             }
@@ -1191,15 +1203,29 @@ F32 LLViewerTextureList::updateImagesLoadingFastCache(F32 max_time)
 
     LLTimer timer;
     image_list_t::iterator enditer = mFastCacheList.begin();
-    for (image_list_t::iterator iter = mFastCacheList.begin();
-         iter != mFastCacheList.end();)
     {
-        image_list_t::iterator curiter = iter++;
-        enditer = iter;
-        LLViewerFetchedTexture *imagep = *curiter;
-        imagep->loadFromFastCache();
-        if (timer.getElapsedTimeF32() > max_time)
-            break;
+        // Prelock fast cache mutex to avoid waiting multiple times.
+        LLMutexTrylock fast_cache_lock(LLAppViewer::getTextureCache()->getFastCacheMutex());
+        if (!fast_cache_lock.isLocked())
+        {
+            // Cache is busy, skip this update cycle to avoid blocking the main thread.
+            //
+            // Generally fast cache operations are brief and rare in comparison to writing
+            // main texture body, but if disk is busy, it can get stuck for multiple
+            // seconds, waiting for that long is not practical.
+            // But some variant of a timed try lock for 0.1ms or less might be optimal.
+            return 0.0f;
+        }
+        for (image_list_t::iterator iter = mFastCacheList.begin();
+            iter != mFastCacheList.end();)
+        {
+            image_list_t::iterator curiter = iter++;
+            enditer = iter;
+            LLViewerFetchedTexture* imagep = *curiter;
+            imagep->loadFromFastCache();
+            if (timer.getElapsedTimeF32() > max_time)
+                break;
+        }
     }
     mFastCacheList.erase(mFastCacheList.begin(), enditer);
     return timer.getElapsedTimeF32();
@@ -1395,6 +1421,12 @@ bool LLViewerTextureList::createUploadFile(LLPointer<LLImageRaw> raw_image,
         raw_image->getComponents());
 
     LLPointer<LLImageJ2C> compressedImage = LLViewerTextureList::convertToUploadFile(scale_image, max_image_dimentions);
+    if (compressedImage.isNull())
+    {
+        LLImage::setLastError("Couldn't convert the image to jpeg2000.");
+        LL_INFOS() << "Couldn't convert to j2c, file : " << out_filename << LL_ENDL;
+        return false;
+    }
     if (compressedImage->getWidth() < min_image_dimentions || compressedImage->getHeight() < min_image_dimentions)
     {
         std::string reason = llformat("Images below %d x %d pixels are not allowed. Actual size: %d x %dpx",
@@ -1403,12 +1435,6 @@ bool LLViewerTextureList::createUploadFile(LLPointer<LLImageRaw> raw_image,
                                       compressedImage->getWidth(),
                                       compressedImage->getHeight());
         compressedImage->setLastError(reason);
-        return false;
-    }
-    if (compressedImage.isNull())
-    {
-        compressedImage->setLastError("Couldn't convert the image to jpeg2000.");
-        LL_INFOS() << "Couldn't convert to j2c, file : " << out_filename << LL_ENDL;
         return false;
     }
     if (!compressedImage->save(out_filename))
@@ -1587,6 +1613,7 @@ void LLViewerTextureList::processImageNotInDatabase(LLMessageSystem *msg,void **
 // guaranteed.
 void LLUIImageList::cleanUp()
 {
+    LLUIImage::cleanupClass();
     mUIImages.clear();
     mUITextureList.clear() ;
 }

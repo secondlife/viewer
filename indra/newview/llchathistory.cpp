@@ -107,6 +107,27 @@ public:
 };
 LLObjectIMHandler gObjectIMHandler;
 
+static LLXMLNodePtr getCachedChatHistoryXMLNode(const std::string& filename)
+{
+    typedef std::map<std::string, LLXMLNodePtr> xml_node_cache_t;
+    static xml_node_cache_t sCache;
+
+    xml_node_cache_t::const_iterator found = sCache.find(filename);
+    if (found != sCache.end())
+    {
+        return found->second->deepCopy();
+    }
+
+    LLXMLNodePtr root;
+    if (!LLUICtrlFactory::getLayeredXMLNode(filename, root) || root.isNull())
+    {
+        return LLXMLNodePtr();
+    }
+
+    sCache[filename] = root->deepCopy();
+    return root;
+}
+
 class LLChatHistoryHeader: public LLPanel
 {
 public:
@@ -131,7 +152,17 @@ public:
     static LLChatHistoryHeader* createInstance(const std::string& file_name)
     {
         LLChatHistoryHeader* pInstance = new LLChatHistoryHeader;
-        pInstance->buildFromFile(file_name);
+        // Chat can trigger frequently, cache the node.
+        LLXMLNodePtr root = getCachedChatHistoryXMLNode(file_name);
+        if (root.notNull())
+        {
+            pInstance->initPanelXML(root, NULL, NULL, LLPanel::getDefaultParams());
+            pInstance->setXMLFilename(file_name);
+        }
+        else
+        {
+            LL_WARNS() << "Couldn't parse chat history header from: " << file_name << LL_ENDL;
+        }
         return pInstance;
     }
 
@@ -174,6 +205,49 @@ public:
 
             LLFloaterSidePanelContainer::showPanel("people", "panel_people",
                 LLSD().with("people_panel_tab_name", "blocked_panel").with("blocked_to_select", getAvatarId()));
+        }
+        else if (level == "report_abuse")
+        {
+            std::string time_string;
+            if (mTime > 0) // have frame time
+            {
+                time_t current_time = time_corrected();
+                time_t message_time = (time_t)(current_time - LLFrameTimer::getElapsedSeconds() + mTime);
+
+                // Report abuse shouldn't use AM/PM, use 24-hour time
+                time_string = "[" + LLTrans::getString("TimeMonth") + "]/["
+                    + LLTrans::getString("TimeDay") + "]/["
+                    + LLTrans::getString("TimeYear") + "] ["
+                    + LLTrans::getString("TimeHour") + "]:["
+                    + LLTrans::getString("TimeMin") + "]";
+
+                LLSD substitution;
+
+                substitution["datetime"] = (S32)message_time;
+                LLStringUtil::format(time_string, substitution);
+            }
+            else
+            {
+                // From history. This might be empty or not full.
+                // See LLChatLogParser::parse
+                time_string = getChild<LLTextBox>("time_box")->getValue().asString();
+
+                // Just add current date if not full.
+                // Should be fine since both times are supposed to be SLT.
+                if (!time_string.empty() && time_string.size() < 7)
+                {
+                    time_string = "[" + LLTrans::getString("TimeMonth") + "]/["
+                        + LLTrans::getString("TimeDay") + "]/["
+                        + LLTrans::getString("TimeYear") + "] " + time_string;
+
+                    LLSD substitution;
+                    // To avoid adding today's date to yesterday's timestamp,
+                    // use creation time instead of current time
+                    substitution["datetime"] = (S32)mCreationTime;
+                    LLStringUtil::format(time_string, substitution);
+                }
+            }
+            LLFloaterReporter::showFromChatObj(getAvatarId(), time_string, mText);
         }
         else if (level == "unblock")
         {
@@ -461,7 +535,7 @@ public:
                 time_string = getChild<LLTextBox>("time_box")->getValue().asString();
 
                 // Just add current date if not full.
-                // Should be fine since both times are supposed to be stl
+                // Should be fine since both times are supposed to be SLT.
                 if (!time_string.empty() && time_string.size() < 7)
                 {
                     time_string = "[" + LLTrans::getString("TimeMonth") + "]/["
@@ -475,7 +549,7 @@ public:
                     LLStringUtil::format(time_string, substitution);
                 }
             }
-            LLFloaterReporter::showFromChat(mAvatarID, mFrom, time_string, mText);
+            LLFloaterReporter::showFromChatAv(mAvatarID, mFrom, time_string, mText);
         }
         else if(level == "block_unblock")
         {
@@ -1203,8 +1277,26 @@ void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
 
 LLView* LLChatHistory::getSeparator()
 {
-    LLPanel* separator = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>(mMessageSeparatorFilename, NULL, LLPanel::child_registry_t::instance());
-    return separator;
+    // Can be triggered frequently, so cache the node.
+    LLXMLNodePtr root = getCachedChatHistoryXMLNode(mMessageSeparatorFilename);
+    if (root.isNull())
+    {
+        LL_WARNS() << "Couldn't parse chat history separator from: " << mMessageSeparatorFilename << LL_ENDL;
+        return NULL;
+    }
+
+    LLView* view = LLUICtrlFactory::getInstance()->createFromXML(root, NULL, mMessageSeparatorFilename, LLPanel::child_registry_t::instance(), NULL);
+    if (view)
+    {
+        LLPanel* separator = dynamic_cast<LLPanel*>(view);
+        if (separator)
+        {
+            return separator;
+        }
+        // Should not fail
+        deleteView(view);
+    }
+    return nullptr;
 }
 
 LLView* LLChatHistory::getHeader(const LLChat& chat,const LLStyle::Params& style_params, const LLSD& args)
@@ -1223,6 +1315,16 @@ void LLChatHistory::onClickMoreText()
 void LLChatHistory::clear()
 {
     mLastFromName.clear();
+
+    // Inline views die on the mortician pass. Detach this transcript's current
+    // views now so a synchronous replay cannot draw old and replacement panels together.
+    const LLView* document_view = mEditor->getDocumentView();
+    const LLView::child_list_t document_children = *document_view->getChildList();
+    for (LLView* child : document_children)
+    {
+        mEditor->removeDocumentChild(child);
+    }
+
     mEditor->clear();
     mLastFromID = LLUUID::null;
 }
@@ -1327,7 +1429,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
         name_params.readonly_color(txt_color);
     }
 
-    bool prependNewLineState = mEditor->getText().size() != 0;
+    bool prependNewLineState = !mEditor->isEmpty();
 
     // compact mode: show a timestamp and name
     if (use_plain_text_chat_history)
@@ -1474,14 +1576,18 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
             bool create_toast = true;
             if (notification->getName() == "OfferFriendship")
             {
-                // We don't want multiple friendship offers to appear, this code checks if there are previous offers
-                // by iterating though all panels.
-                // Note: it might be better to simply add a "pending offer" flag somewhere
+                // Keep one actionable offer per sender without hiding requests from other residents.
+                const LLUUID from_id = notification->getPayload()["from_id"].asUUID();
                 for (auto& panel : LLToastNotifyPanel::instance_snapshot())
                 {
                     LLIMToastNotifyPanel * imtoastp = dynamic_cast<LLIMToastNotifyPanel *>(&panel);
                     const std::string& notification_name = panel.getNotificationName();
-                    if (notification_name == "OfferFriendship"
+                    LLNotificationPtr panel_notification = LLNotificationsUtil::find(panel.getID());
+                    // A synchronous transcript replay replaces panels already queued for deletion.
+                    if (!panel.isDead()
+                        && notification_name == "OfferFriendship"
+                        && panel_notification
+                        && panel_notification->getPayload()["from_id"].asUUID() == from_id
                         && panel.isControlPanelEnabled()
                         && imtoastp)
                     {

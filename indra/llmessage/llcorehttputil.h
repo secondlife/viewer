@@ -259,7 +259,7 @@ inline LLCore::HttpHandle requestPatchWithLLSD(LLCore::HttpRequest::ptr_t & requ
 ///                      +- ["url"]     - The URL used to make the call.
 ///                      +- ["headers"] - A map of name name value pairs with the HTTP headers.
 ///
-class HttpCoroHandler : public LLCore::HttpHandler
+class HttpCoroHandler : public LLCore::HttpHandler, public std::enable_shared_from_this<HttpCoroHandler>
 {
 public:
 
@@ -279,11 +279,12 @@ public:
 
 protected:
     /// this method may modify the status value
-    virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status) = 0;
-    virtual LLSD parseBody(LLCore::HttpResponse *response, bool &success) = 0;
+    virtual LLSD handleSuccess(LLCore::HttpResponse * response, LLCore::HttpStatus &status) const = 0;
+    virtual LLSD parseBody(LLCore::HttpResponse *response, bool &success) const = 0;
 
 private:
-    void buildStatusEntry(LLCore::HttpResponse *response, LLCore::HttpStatus status, LLSD &result);
+    void buildStatusEntry(LLCore::HttpResponse *response, LLCore::HttpStatus status, LLSD &result) const;
+    void replyPost(LLCore::HttpResponse* response, LLCore::HttpStatus& status, LLSD& result);
 
     LLEventStream &mReplyPump;
 };
@@ -467,6 +468,16 @@ public:
             headers);
     }
 
+
+    /// Execute a byte-range Get transaction (HTTP "Range:" header) on the
+    /// supplied URL and yield execution of the coroutine until a result is
+    /// available. Returns raw bytes under HTTP_RESULTS_RAW.
+    LLSD getRawRangeAndSuspend(LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        size_t offset, size_t len,
+        LLCore::HttpOptions::ptr_t options = std::make_shared<LLCore::HttpOptions>(),
+        LLCore::HttpHeaders::ptr_t headers = std::make_shared<LLCore::HttpHeaders>());
+
     /// These methods have the same behavior as @getAndSuspend() however they are
     /// expecting the server to return the results formatted in a JSON string.
     /// On a successful GET call the JSON results will be converted into LLSD
@@ -482,7 +493,6 @@ public:
             std::make_shared<LLCore::HttpOptions>(),
             headers);
     }
-
 
     /// Execute a DELETE transaction on the supplied URL and yield execution of
     /// the coroutine until a result is available.

@@ -26,6 +26,7 @@
 #ifndef LL_LLUUID_H
 #define LL_LLUUID_H
 
+#include <functional>
 #include <iostream>
 #include <set>
 #include <vector>
@@ -103,6 +104,8 @@ public:
     friend LL_COMMON_API std::ostream&   operator<<(std::ostream& s, const LLUUID &uuid);
     friend LL_COMMON_API std::istream&   operator>>(std::istream& s, LLUUID &uuid);
 
+    void to_chars(char* out) const;
+    void to_wchars(wchar_t* out) const;
     void toString(std::string& out) const;
     void toCompressedString(std::string& out) const;
 
@@ -116,7 +119,8 @@ public:
     // words. HB
     inline U64 getDigest64() const
     {
-        U64* tmp = (U64*)mData;
+        U64 tmp[2];
+        memcpy(tmp, mData, sizeof(tmp));
         return tmp[0] ^ tmp[1];
     }
 
@@ -176,15 +180,27 @@ namespace std
     {
         inline size_t operator()(const LLUUID& id) const noexcept
         {
-            return (size_t)id.getDigest64();
+            size_t h = 0;
+            // Golden ratio hash with avalanche mixing
+            // Process 8 bytes at a time by manually constructing 64-bit values
+            // Shift by 31: mixes upper half into lower half for better bit distribution
+            // Shift by 47: ensures highest bits influence final hash output
+            for (int i = 0; i < UUID_BYTES; i += 8) {
+                size_t chunk = (size_t)id.mData[i] | ((size_t)id.mData[i+1] << 8) |
+                               ((size_t)id.mData[i+2] << 16) | ((size_t)id.mData[i+3] << 24) |
+                               ((size_t)id.mData[i+4] << 32) | ((size_t)id.mData[i+5] << 40) |
+                               ((size_t)id.mData[i+6] << 48) | ((size_t)id.mData[i+7] << 56);
+                h ^= (chunk * 0x9e3779b97f4a7c15ULL) ^ (h >> 31) ^ (h >> 47);
+            }
+            return h;
         }
     };
 }
 
-// For use with boost containers.
+// For use with boost::container_hash
 inline size_t hash_value(const LLUUID& id) noexcept
 {
-    return (size_t)id.getDigest64();
+    return std::hash<LLUUID>{}(id);
 }
 
 #endif // LL_LLUUID_H

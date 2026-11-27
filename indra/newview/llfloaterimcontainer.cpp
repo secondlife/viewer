@@ -39,6 +39,7 @@
 #include "llavatariconctrl.h"
 #include "llavatarnamecache.h"
 #include "llcallbacklist.h"
+#include "llchatservicehistory.h"
 #include "lldonotdisturbnotificationstorage.h"
 #include "llgroupactions.h"
 #include "llgroupiconctrl.h"
@@ -57,6 +58,8 @@
 #include "llsdserialize.h"
 #include "llviewermenu.h" // is_agent_mappable
 #include "llviewerobjectlist.h"
+#include "llvoavatar.h"
+#include "llnearbyvoicemoderation.h"
 
 
 const S32 EVENTS_PER_IDLE_LOOP_CURRENT_SESSION = 80;
@@ -90,6 +93,7 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
 
     mAutoResize = false;
     LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::IM, this);
+    LLNearbyVoiceModeration::getInstance();
 }
 
 LLFloaterIMContainer::~LLFloaterIMContainer()
@@ -152,18 +156,36 @@ void LLFloaterIMContainer::sessionIDUpdated(const LLUUID& old_session_id, const 
 {
     // The general strategy when a session id is modified is to delete all related objects and create them anew.
 
+    // The conversation floater can be active while participant widgets are selected.
+    // Preserve that state separately so the new conversation widget can be selected
+    // after the server replaces an outgoing ad-hoc session id.
+    const bool was_active = old_session_id == getSelectedSession();
+
     // Note however that the LLFloaterIMSession has its session id updated through a call to sessionInitReplyReceived()
     // and do not need to be deleted and recreated (trying this creates loads of problems). We do need however to suppress
     // its related mSessions record as it's indexed with the wrong id.
-    // Grabbing the updated LLFloaterIMSession and readding it in mSessions will eventually be done by addConversationListItem().
     mSessions.erase(old_session_id);
 
-    // Delete the model and participants related to the old session
-    bool change_focus = removeConversationListItem(old_session_id);
+    // Remove the old conversation widget without changing focus - we'll immediately re-add with
+    // the new id and select it, avoiding an unnecessary focus switch to an adjacent conversation.
+    bool was_selected = removeConversationListItem(old_session_id, false);
 
     // Create a new conversation with the new id
-    addConversationListItem(new_session_id, change_focus);
+    addConversationListItem(new_session_id, was_selected);
     LLFloaterIMSessionTab::addToHost(new_session_id);
+
+    // addToHost is a no-op for already-hosted floaters, so mSessions won't be
+    // updated by addFloater. Re-register manually so message flash works.
+    LLFloaterIMSessionTab* conversp = LLFloaterIMSessionTab::findConversation(new_session_id);
+    if (conversp && mSessions.find(new_session_id) == mSessions.end())
+    {
+        mSessions[new_session_id] = conversp->getHandle();
+    }
+
+    if (was_active)
+    {
+        selectConversationPair(new_session_id, true, false, true);
+    }
 }
 
 
@@ -354,7 +376,7 @@ void LLFloaterIMContainer::addFloater(LLFloater* floaterp,
         icon = LLUICtrlFactory::instance().create<LLGroupIconCtrl>(icon_params);
         icon_id = session_id;
 
-        mSessions[session_id] = floaterp;
+        mSessions[session_id] = floaterp->getHandle();
         floaterp->mCloseSignal.connect(boost::bind(&LLFloaterIMContainer::onCloseFloater, this, session_id));
     }
     else
@@ -366,7 +388,7 @@ void LLFloaterIMContainer::addFloater(LLFloater* floaterp,
         icon = LLUICtrlFactory::instance().create<LLAvatarIconCtrl>(icon_params);
         icon_id = avatar_id;
 
-        mSessions[session_id] = floaterp;
+        mSessions[session_id] = floaterp->getHandle();
         floaterp->mCloseSignal.connect(boost::bind(&LLFloaterIMContainer::onCloseFloater, this, session_id));
     }
 
@@ -393,10 +415,11 @@ void LLFloaterIMContainer::onCloseFloater(LLUUID& id)
 void LLFloaterIMContainer::onNewMessageReceived(const LLSD& data)
 {
     LLUUID session_id = data["session_id"].asUUID();
-    LLFloater* floaterp = get_ptr_in_map(mSessions, session_id);
+    avatarID_panel_map_t::iterator iter = mSessions.find(session_id);
+    LLFloater* floaterp = (iter != mSessions.end()) ? iter->second.get() : nullptr;
     LLFloater* current_floater = LLMultiFloater::getActiveFloater();
 
-    if(floaterp && current_floater && floaterp != current_floater)
+    if (floaterp && floaterp != current_floater)
     {
         if(LLMultiFloater::isFloaterFlashing(floaterp))
             LLMultiFloater::setFloaterFlashing(floaterp, false);
@@ -530,6 +553,33 @@ void LLFloaterIMContainer::idleUpdate()
                 mGeneralTitleInUse = !needs_override;
                 setTitle(needs_override ? conversation_floaterp->getTitle() : mGeneralTitle);
             }
+        const LLConversationItem* nearby_session = getSessionModel(LLUUID());
+        if (nearby_session)
+        {
+            LLSpeakerMgr* speaker_mgr = (LLSpeakerMgr*)(LLLocalSpeakerMgr::getInstance());
+
+            LLFolderViewModelItemCommon::child_list_t::const_iterator current_participant_model = nearby_session->getChildrenBegin();
+            LLFolderViewModelItemCommon::child_list_t::const_iterator end_participant_model = nearby_session->getChildrenEnd();
+            while (current_participant_model != end_participant_model)
+            {
+                LLConversationItemParticipant* participant_model =
+                        dynamic_cast<LLConversationItemParticipant*>((*current_participant_model).get());
+                if (participant_model)
+                {
+                    bool show_moderator_options = LLNearbyVoiceModeration::getInstance()->isNearbyChatModerator();
+                    LLUUID participant_id = participant_model->getUUID();
+                    if (participant_id != gAgentID)
+                    {
+                        // Don't show moderator options if participant is not connected to the same spatial channel
+                        LLSpeaker* speakerp = speaker_mgr->findSpeaker(participant_id).get();
+                        show_moderator_options &= speakerp && speakerp->isInVoiceChannel();
+                    }
+                    participant_model->setModeratorOptionsVisible(show_moderator_options);
+                }
+
+                current_participant_model++;
+            }
+        }
         }
 
         mParticipantRefreshTimer.setTimerExpirySec(1.0f);
@@ -1365,6 +1415,13 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
         }
         else if("chat_history" == command)
         {
+            // The deletion latch hides every local history source until its durable
+            // sweep completes.
+            if (LLChatServiceHistory::historySuppressed())
+            {
+                return;
+            }
+
             if (selectedIDS.size() > 0)
             {
                 if(conversationItem->getType() == LLConversationItem::CONV_SESSION_GROUP)
@@ -1400,7 +1457,10 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
         {
             if("chat_history" == command)
             {
-                LLFloaterReg::showInstance("preview_conversation", LLSD(LLUUID::null), true);
+                if (!LLChatServiceHistory::historySuppressed())
+                {
+                    LLFloaterReg::showInstance("preview_conversation", LLSD(LLUUID::null), true);
+                }
             }
 }
     }
@@ -1475,6 +1535,11 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
     //Enable Chat history item for ad-hoc and group conversations
     if ("can_chat_history" == item && uuids.size() > 0)
     {
+        // History is unavailable while an account-wide deletion is pending.
+        if (LLChatServiceHistory::historySuppressed())
+        {
+            return false;
+        }
         //Disable menu item if selected participant is user agent
         if(uuids.front() != gAgentID)
         {
@@ -1494,7 +1559,7 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
             else
             {
                 bool is_group = (getCurSelectedViewModelItem()->getType() == LLConversationItem::CONV_SESSION_GROUP);
-                return LLLogChat::isTranscriptExist(uuids.front(),is_group);
+                return LLLogChat::isTranscriptExist(uuids.front(), is_group);
             }
         }
     }
@@ -1526,7 +1591,7 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
 
     if ("can_chat_history" == item && is_single_select)
     {
-        return LLLogChat::isTranscriptExist(uuids.front(),false);
+        return LLLogChat::isTranscriptExist(uuids.front(), false);
     }
 
     // Handle options that are applicable to all including the user agent
@@ -1685,6 +1750,10 @@ bool LLFloaterIMContainer::visibleContextMenuItem(const LLSD& userdata)
     {
         return isMuted(conversation_item->getUUID());
     }
+    else if ("can_allow_text_chat" == item)
+    {
+        return !isNearbyChatSpeakerSelected();
+    }
 
     return true;
 }
@@ -1692,7 +1761,7 @@ bool LLFloaterIMContainer::visibleContextMenuItem(const LLSD& userdata)
 void LLFloaterIMContainer::showConversation(const LLUUID& session_id)
 {
     setVisibleAndFrontmost(false);
-    selectConversationPair(session_id, true);
+    selectConversationPair(session_id, true, true, true);
 
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
     if (session_floater)
@@ -1738,13 +1807,13 @@ void LLFloaterIMContainer::selectNextConversationByID(const LLUUID& uuid)
 }
 
 // Synchronous select the conversation item and the conversation floater
-bool LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater/*=true*/)
+bool LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater/*=true*/, bool force_select_widget/*=false*/)
 {
     bool handled = true;
     LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::findConversation(session_id);
 
     /* widget processing */
-    if (select_widget && mConversationsRoot->getSelectedCount() <= 1)
+    if (select_widget && (force_select_widget || mConversationsRoot->getSelectedCount() <= 1))
     {
         LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,session_id);
         if (widget && widget->getParentFolder())
@@ -1948,7 +2017,7 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
     mConversationEventQueue.erase(uuid);
 
     // Don't let the focus fall IW, select and refocus on the first conversation in the list
-    if (change_focus && isInVisibleChain())
+    if (change_focus && is_widget_selected && isInVisibleChain())
     {
         setFocus(true);
         if (new_selection)
@@ -2014,9 +2083,27 @@ LLConversationViewParticipant* LLFloaterIMContainer::createConversationViewParti
 
 bool LLFloaterIMContainer::enableModerateContextMenuItem(const std::string& userdata, bool is_self)
 {
-    // only group moderators can perform actions related to this "enable callback"
-    if (!isGroupModerator())
+    if (LLNearbyVoiceModeration::getInstance()->isNearbyChatModerator() && isNearbyChatSpeakerSelected())
     {
+        // Determine here which actions are allowed
+        if ("can_moderate_voice" == userdata)
+        {
+            return true;
+        }
+        else if (("can_mute" == userdata))
+        {
+            return !is_self;
+        }
+        else if ("can_unmute" == userdata)
+        {
+            return true;
+        }
+
+        return false;
+    }
+    else if (!isGroupModerator())
+    {
+        // only group moderators can perform actions related to this "enable callback"
         return false;
     }
 
@@ -2149,7 +2236,35 @@ void LLFloaterIMContainer::banSelectedMember(const LLUUID& participant_uuid)
 
 void LLFloaterIMContainer::moderateVoice(const std::string& command, const LLUUID& userID)
 {
-    if (!gAgent.getRegion()) return;
+    if (!gAgent.getRegion())
+    {
+        return;
+    }
+
+    if (isNearbyChatSpeakerSelected())
+    {
+        if ("selected" == command)
+        {
+            // Request a mute/unmute using a capability request via the simulator
+            LLNearbyVoiceModeration::getInstance()->requestMuteIndividual(userID, !isMuted(userID));
+        }
+        else
+        if ("mute_all" == command)
+        {
+            // Send the mute_all request to the server
+            const bool mute_state = true;
+            LLNearbyVoiceModeration::getInstance()->requestMuteAll(mute_state);
+        }
+        else
+        if ("unmute_all" == command)
+        {
+            // Send the unmute_all request to the server
+            const bool mute_state = false;
+            LLNearbyVoiceModeration::getInstance()->requestMuteAll(mute_state);
+        }
+
+        return;
+    }
 
     if (command.compare("selected"))
     {
@@ -2265,6 +2380,31 @@ LLSpeaker * LLFloaterIMContainer::getSpeakerOfSelectedParticipant(LLSpeakerMgr *
     }
 
     return speaker_managerp->findSpeaker(participant_itemp->getUUID());
+}
+
+bool LLFloaterIMContainer::isNearbyChatSpeakerSelected()
+{
+    LLFolderViewItem *selectedItem = mConversationsRoot->getCurSelectedItem();
+    if (!selectedItem)
+    {
+        LL_WARNS() << "Current selected item is null" << LL_ENDL;
+        return NULL;
+    }
+
+    conversations_widgets_map::const_iterator iter = mConversationsWidgets.begin();
+    conversations_widgets_map::const_iterator end = mConversationsWidgets.end();
+    const LLUUID * conversation_uuidp = NULL;
+    while(iter != end)
+    {
+        if (iter->second == selectedItem || iter->second == selectedItem->getParentFolder())
+        {
+            conversation_uuidp = &iter->first;
+            break;
+        }
+        ++iter;
+    }
+    // Nearby chat ID is LLUUID::null
+    return conversation_uuidp->isNull();
 }
 
 void LLFloaterIMContainer::toggleAllowTextChat(const LLUUID& participant_uuid)

@@ -171,7 +171,6 @@ size_t LLMeshOptimizer::generateRemapMultiU32(
     // but providing indices helps with removing unused vertices
     U64 indeces_cmp = indices ? index_count : vertex_count;
 
-    // meshopt_generateVertexRemapMulti will throw an assert if (indices[i] >= vertex_count)
     return meshopt_generateVertexRemapMulti(&remap[0], indices, indeces_cmp, vertex_count, streams, sizeof(streams) / sizeof(streams[0]));
 }
 

@@ -52,6 +52,11 @@ bool LLWindowCallbacks::handleUnicodeChar(llwchar uni_char, MASK mask)
     return false;
 }
 
+bool LLWindowCallbacks::keyboardFocusAcceptsText()
+{
+    return false;
+}
+
 
 bool LLWindowCallbacks::handleMouseDown(LLWindow *window, const LLCoordGL pos, MASK mask)
 {
@@ -66,6 +71,18 @@ bool LLWindowCallbacks::handleMouseUp(LLWindow *window, const LLCoordGL pos, MAS
 void LLWindowCallbacks::handleMouseLeave(LLWindow *window)
 {
     return;
+}
+
+void LLWindowCallbacks::handlePreCloseRequest()
+{
+}
+
+void LLWindowCallbacks::handleCloseRequestCanceled()
+{
+}
+
+void LLWindowCallbacks::handleSuspendRequest()
+{
 }
 
 bool LLWindowCallbacks::handleCloseRequest(LLWindow *window, bool from_user)
@@ -144,6 +161,10 @@ void LLWindowCallbacks::handleResize(LLWindow *window, const S32 width, const S3
 {
 }
 
+void LLWindowCallbacks::handleRequestResolutionUpdate(LLWindow* window)
+{
+}
+
 void LLWindowCallbacks::handleFocus(LLWindow *window)
 {
      LL_WARNS("COCOA") << "Called handleFocus proto" << LL_ENDL;
@@ -163,9 +184,24 @@ bool LLWindowCallbacks::handlePaint(LLWindow *window, const S32 x, const S32 y,
     return false;
 }
 
-bool LLWindowCallbacks::handleDoubleClick(LLWindow *window, const LLCoordGL pos, MASK mask)
+bool LLWindowCallbacks::handleLeftMouseDoubleClick(LLWindow *window, const LLCoordGL pos, MASK mask)
 {
     return false;
+}
+
+bool LLWindowCallbacks::handleRightMouseDoubleClick(LLWindow* window, const LLCoordGL pos, MASK mask)
+{
+    // Fallback to right mouse events for double click in case
+    // some platforms don't support or implement double click events
+    handleMouseMove(window, pos, mask);
+    return handleRightMouseDown(window, pos, mask);
+}
+
+bool LLWindowCallbacks::handleMiddleMouseDoubleClick(LLWindow* window, const LLCoordGL pos, MASK mask)
+{
+    // Fallback to middle mouse events for double click in case
+    // some platforms don't support or implement double click events
+    return handleMiddleMouseDown(window, pos, mask);
 }
 
 void LLWindowCallbacks::handleWindowBlock(LLWindow *window)
@@ -190,7 +226,7 @@ bool LLWindowCallbacks::handleTimerEvent(LLWindow *window)
     return false;
 }
 
-bool LLWindowCallbacks::handleDeviceChange(LLWindow *window)
+bool LLWindowCallbacks::handleDeviceChange(LLWindow *window, const std::string& change_type)
 {
     return false;
 }

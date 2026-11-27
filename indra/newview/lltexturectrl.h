@@ -374,7 +374,7 @@ public:
     static void     onBtnNone(void* userdata);
     void            onSelectionChange(const std::deque<LLFolderViewItem*> &items, bool user_action);
     static void     onApplyImmediateCheck(LLUICtrl* ctrl, void* userdata);
-    void            onTextureSelect(const LLTextureEntry& te);
+    void            onPipetteSelect(LLPointer<LLViewerObject>& object, S32 te_index);
 
     static void     onModeSelect(LLUICtrl* ctrl, void *userdata);
     static void     onBtnAdd(void* userdata);
@@ -456,6 +456,8 @@ private:
     floater_commit_callback mOnFloaterCommitCallback;
     set_image_asset_id_callback mSetImageAssetIDCallback;
     set_on_update_image_stats_callback mOnUpdateImageStatsCallback;
+
+    boost::signals2::scoped_connection  mPipetteConnection;
 
     bool mBakeTextureEnabled;
     bool mLocalTextureEnabled;

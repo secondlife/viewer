@@ -112,6 +112,8 @@ public:
 
     void setAvatarId(const LLUUID& avatar_id) override;
 
+    void reshape(S32 width, S32 height, bool called_from_parent = true) override;
+
     void setPickId(const LLUUID& id) { mPickId = id; }
     virtual LLUUID& getPickId() { return mPickId; }
 
@@ -228,13 +230,14 @@ public:
 
 protected:
 
-    LLTextureCtrl*      mSnapshotCtrl;
-    LLLineEditor*       mPickName;
-    LLTextEditor*       mPickDescription;
-    LLButton*           mSetCurrentLocationButton;
-    LLButton*           mSaveButton;
-    LLButton*           mCreateButton;
-    LLButton*           mCancelButton;
+    LLTextureCtrl*      mSnapshotCtrl = nullptr;
+    LLLineEditor*       mPickName = nullptr;
+    LLTextEditor*       mPickDescription = nullptr;
+    LLLineEditor*       mPickLocation = nullptr;
+    LLButton*           mSetCurrentLocationButton = nullptr;
+    LLButton*           mSaveButton = nullptr;
+    LLButton*           mCreateButton = nullptr;
+    LLButton*           mCancelButton = nullptr;
 
     LLVector3d mPosGlobal;
     LLUUID mParcelId;

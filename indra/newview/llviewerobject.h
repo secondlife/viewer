@@ -25,8 +25,7 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLVIEWEROBJECT_H
-#define LL_LLVIEWEROBJECT_H
+#pragma once
 
 #include <map>
 #include <unordered_map>
@@ -126,13 +125,15 @@ class LLViewerObject
 protected:
     virtual ~LLViewerObject(); // use unref()
 
+private:
     // TomY: Provide for a list of extra parameter structures, mapped by structure name
     struct ExtraParameter
     {
-        bool in_use;
-        LLNetworkData *data;
+        bool is_invalid = false;
+        bool* in_use = nullptr;
+        LLNetworkData* data = nullptr;
     };
-    std::unordered_map<U16, ExtraParameter*> mExtraParameterList;
+    std::vector<ExtraParameter> mExtraParameterList;
 
 public:
     typedef std::list<LLPointer<LLViewerObject> > child_list_t;
@@ -367,7 +368,7 @@ public:
 
     /*virtual*/ void    setNumTEs(const U8 num_tes);
     /*virtual*/ void    setTE(const U8 te, const LLTextureEntry &texture_entry);
-    void updateTEMaterialTextures(U8 te);
+    bool updateTEMaterialTextures(U8 te);
     /*virtual*/ S32     setTETexture(const U8 te, const LLUUID &uuid);
     /*virtual*/ S32     setTENormalMap(const U8 te, const LLUUID &uuid);
     /*virtual*/ S32     setTESpecularMap(const U8 te, const LLUUID &uuid);
@@ -425,10 +426,12 @@ public:
     virtual F32 getStreamingCost() const;
     virtual bool getCostData(LLMeshCostData& costs) const;
     virtual U32 getTriangleCount(S32* vcount = NULL) const;
+    virtual U32 getLODTriangleCount(S32 lod);
     virtual U32 getHighLODTriangleCount();
     F32 recursiveGetScaledSurfaceArea() const;
 
     U32 recursiveGetTriangleCount(S32* vcount = NULL) const;
+    void recursiveGetLODTriangleCount(S32 &high_lod, S32 &medium_lod, S32 &low_lod, S32 &lowest_lod);
 
     void setObjectCost(F32 cost);
     F32 getObjectCost();
@@ -547,7 +550,20 @@ public:
     // save a script, which involves removing the old one, and rezzing
     // in the new one. This method should be called with the asset id
     // of the new and old script AFTER the bytecode has been saved.
-    void saveScript(const LLViewerInventoryItem* item, bool active, bool is_new);
+    // The simulator treats the script as new when item->getAssetUUID().isNull() is true; in that case
+    // template_id will be used (if non-null) to copy an existing script asset, otherwise the
+    // script subtype in the item will be used to select the correct template.
+    void saveScript(const LLViewerInventoryItem* item, bool active, bool is_new, const LLUUID& template_id);
+
+    void createInventoryItem(
+        LLAssetType::EType asset_type,
+        LLInventoryType::EType inventory_type,
+        U8 sub_type,
+        const std::string& name,
+        const std::string& description,
+        const LLPermissions& permissions,
+        const LLSD& params,
+        std::function<void(bool, const LLSD&)> callback);
 
     // move an inventory item out of the task and into agent
     // inventory. This operation is based on messaging. No permissions
@@ -620,6 +636,11 @@ public:
     void setPhysicsDensity(F32 density);
     void setPhysicsRestitution(F32 restitution);
 
+    static void markObjectsForUpdate(const LLUUID& owner_id);
+    static void removeObjectFromPendingUpdate(LLViewerObject* obj);
+    static bool isObjectInPendingUpdate(const LLUUID& owner_id, LLViewerObject* obj);
+    void requestObjectUpdate();
+
     virtual void dump() const;
     static U32      getNumZombieObjects()           { return sNumZombieObjects; }
 
@@ -630,10 +651,16 @@ public:
     void dirtySpatialGroup() const;
     virtual void dirtyMesh();
 
-    virtual LLNetworkData* getParameterEntry(U16 param_type) const;
-    virtual bool setParameterEntry(U16 param_type, const LLNetworkData& new_value, bool local_origin);
-    virtual bool getParameterEntryInUse(U16 param_type) const;
-    virtual bool setParameterEntryInUse(U16 param_type, bool in_use, bool local_origin);
+    LLFlexibleObjectData* getFlexibleObjectData() const { return mFlexibleObjectDataInUse ? mFlexibleObjectData.get() : nullptr; }
+    LLLightParams* getLightParams() const { return mLightParamsInUse ? mLightParams.get() : nullptr; }
+    LLSculptParams* getSculptParams() const { return mSculptParamsInUse ? mSculptParams.get() : nullptr; }
+    LLLightImageParams* getLightImageParams() const { return mLightImageParamsInUse ? mLightImageParams.get() : nullptr; }
+    LLExtendedMeshParams* getExtendedMeshParams() const { return mExtendedMeshParamsInUse ? mExtendedMeshParams.get() : nullptr; }
+    LLRenderMaterialParams* getRenderMaterialParams() const { return mRenderMaterialParamsInUse ? mRenderMaterialParams.get() : nullptr; }
+    LLReflectionProbeParams* getReflectionProbeParams() const { return mReflectionProbeParamsInUse ? mReflectionProbeParams.get() : nullptr; }
+
+    bool setParameterEntry(U16 param_type, const LLNetworkData& new_value, bool local_origin);
+    bool setParameterEntryInUse(U16 param_type, bool in_use, bool local_origin);
     // Called when a parameter is changed
     virtual void parameterChanged(U16 param_type, bool local_origin);
     virtual void parameterChanged(U16 param_type, LLNetworkData* data, bool in_use, bool local_origin);
@@ -675,8 +702,40 @@ private:
     bool isAssetInInventory(LLViewerInventoryItem* item, LLAssetType::EType type);
 
     ExtraParameter* createNewParameterEntry(U16 param_type);
-    ExtraParameter* getExtraParameterEntry(U16 param_type) const;
-    ExtraParameter* getExtraParameterEntryCreate(U16 param_type);
+
+    static bool isValidExtraParamType(U16 param_type)
+    {
+        return param_type >= LLNetworkData::PARAMS_FLEXIBLE
+            && param_type <= LLNetworkData::PARAMS_MAX
+            && (param_type & 0xF) == 0;
+    }
+    const ExtraParameter& getExtraParameterEntry(U16 param_type) const
+    {
+        llassert(isValidExtraParamType(param_type));
+        return mExtraParameterList[U32(param_type >> 4) - 1];
+    }
+    ExtraParameter& getExtraParameterEntry(U16 param_type)
+    {
+        llassert(isValidExtraParamType(param_type));
+        return mExtraParameterList[U32(param_type >> 4) - 1];
+    }
+    ExtraParameter* getExtraParameterEntryCreate(U16 param_type)
+    {
+        if (isValidExtraParamType(param_type))
+        {
+            ExtraParameter& param = getExtraParameterEntry(param_type);
+            if (!param.is_invalid)
+            {
+                if (!param.data)
+                {
+                    ExtraParameter* new_entry = createNewParameterEntry(param_type);
+                    return new_entry;
+                }
+                return &param;
+            }
+        }
+        return nullptr;
+    }
     bool unpackParameterEntry(U16 param_type, LLDataPacker *dp);
 
     // This function checks to see if the given media URL has changed its version
@@ -695,6 +754,8 @@ private:
     void fetchInventoryDelayed(const F64 &time_seconds);
     static void fetchInventoryDelayedCoro(const LLUUID task_inv, const F64 time_seconds);
     static void fetchInventoryFromCapCoro(const LLUUID task_inv);
+    static void createInventoryItemCoro(const std::string cap_url, const LLSD body,
+                                        std::function<void(bool, const LLSD&)> callback);
 
 public:
     //
@@ -749,7 +810,23 @@ private:
     // Grabbed from UPDATE_FLAGS
     U32             mFlags;
 
+    bool mFlexibleObjectDataInUse = false,
+        mLightParamsInUse = false,
+        mSculptParamsInUse = false,
+        mLightImageParamsInUse = false,
+        mExtendedMeshParamsInUse = false,
+        mRenderMaterialParamsInUse = false,
+        mReflectionProbeParamsInUse = false;
+    std::unique_ptr<LLFlexibleObjectData> mFlexibleObjectData;
+    std::unique_ptr<LLLightParams> mLightParams;
+    std::unique_ptr<LLSculptParams> mSculptParams;
+    std::unique_ptr<LLLightImageParams> mLightImageParams;
+    std::unique_ptr<LLExtendedMeshParams> mExtendedMeshParams;
+    std::unique_ptr<LLRenderMaterialParams> mRenderMaterialParams;
+    std::unique_ptr<LLReflectionProbeParams> mReflectionProbeParams;
+
     static std::map<std::string, U32> sObjectDataMap;
+    static std::unordered_map<LLUUID, std::vector<LLViewerObject*>> sPendingUpdatesByOwner;
 public:
     // Sent to sim in UPDATE_FLAGS, received in ObjectPhysicsProperties
     U8              mPhysicsShapeType;
@@ -1056,5 +1133,3 @@ public:
     virtual void updateDrawable(bool force_damped);
 };
 
-
-#endif

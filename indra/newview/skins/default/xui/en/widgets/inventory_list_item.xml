@@ -17,7 +17,7 @@
   <worn_style
    font="SansSerifSmall"
    font.style="BOLD"
-   color="EmphasisColor" />
+   color="WornOutfitTextColor" />
   <item_icon
     height="16"
     follows="top|left"

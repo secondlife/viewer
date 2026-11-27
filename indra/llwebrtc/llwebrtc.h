@@ -38,6 +38,7 @@
 #ifndef LLWEBRTC_H
 #define LLWEBRTC_H
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -55,6 +56,7 @@
 
 namespace llwebrtc
 {
+typedef std::map<std::string, std::map<std::string, std::string>> LLWebRTCStatsMap;
 
 class LLWebRTCLogCallback
 {
@@ -151,6 +153,18 @@ class LLWebRTCDeviceInterface
     virtual void setCaptureDevice(const std::string& id) = 0;
     virtual void setRenderDevice(const std::string& id) = 0;
 
+    // Enable/disable the audio devices, set when voice is enabled/disabled.
+    // The capture (microphone) and playout (speaker) devices only run while this
+    // is enabled, so neither is held open when the user has voice off.  While
+    // enabled, capture normally stays running across calls and mute/unmute so the
+    // AEC never cold-starts (no unmute hiss), unless setStopCaptureOnMute() is on;
+    // playout still only runs when there's a connection to render.
+    virtual void setVoiceEnabled(bool enable) = 0;
+    // When true, capture is stopped while muted (or with no connection) and
+    // restarted on unmute, so Bluetooth headsets aren't held in call mode.
+    // May cause a brief hiss on unmute.
+    virtual void setStopCaptureOnMute(bool stop) = 0;
+
     // Device observers for device change callbacks.
     virtual void setDevicesObserver(LLWebRTCDevicesObserver *observer) = 0;
     virtual void unsetDevicesObserver(LLWebRTCDevicesObserver *observer) = 0;
@@ -240,6 +254,8 @@ class LLWebRTCSignalingObserver
     // Called when the data channel has been established and data
     // transfer can begin.
     virtual void OnDataChannelReady(LLWebRTCDataInterface *data_interface) = 0;
+
+    virtual void OnStatsDelivered(const LLWebRTCStatsMap& stats_data) {}
 };
 
 // LLWebRTCPeerConnectionInterface representsd a connection to a peer,
@@ -273,6 +289,8 @@ class LLWebRTCPeerConnectionInterface
     virtual void unsetSignalingObserver(LLWebRTCSignalingObserver* observer) = 0;
 
     virtual void AnswerAvailable(const std::string &sdp) = 0;
+
+    virtual void gatherConnectionStats() = 0;
 };
 
 // The following define the dynamic linked library
@@ -284,10 +302,20 @@ LLSYMEXPORT void init(LLWebRTCLogCallback* logSink);
 // And should be terminated as part of shutdown.
 LLSYMEXPORT void terminate();
 
-// Return an interface for device management.
+// Return an interface for device management, or nullptr if the library isn't
+// initialized (before init() or after terminate()).
 LLSYMEXPORT LLWebRTCDeviceInterface* getDeviceInterface();
 
 // Allocate and free peer connections.
+//
+// Before init() or after terminate(), newPeerConnection() returns nullptr and
+// freePeerConnection() does nothing.
+//
+// terminate() closes and destroys every connection still allocated, so once
+// it has started, any LLWebRTCPeerConnectionInterface pointer -- and the
+// audio and data interfaces obtained from it -- is dangling.  Don't call
+// anything on them; passing one to freePeerConnection() afterwards is safe,
+// since it's ignored without being touched.
 LLSYMEXPORT LLWebRTCPeerConnectionInterface* newPeerConnection();
 LLSYMEXPORT void freePeerConnection(LLWebRTCPeerConnectionInterface *connection);
 }

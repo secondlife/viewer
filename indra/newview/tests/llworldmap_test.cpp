@@ -54,10 +54,22 @@ LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(const LLUUID&,
                                                                   LLGLint, LLGLenum, LLHost ) { return NULL; }
 
 // Stub related map calls
+
+// Records each sendMapBlockRequest call for inspection in tests
+struct MapBlockRequest
+{
+    U16 min_x, min_y, max_x, max_y;
+};
+static std::vector<MapBlockRequest> gMapBlockRequests;
+
 LLWorldMapMessage::LLWorldMapMessage() { }
 LLWorldMapMessage::~LLWorldMapMessage() { }
 void LLWorldMapMessage::sendItemRequest(U32 type, U64 handle) { }
-void LLWorldMapMessage::sendMapBlockRequest(U16 min_x, U16 min_y, U16 max_x, U16 max_y, bool return_nonexistent) { }
+void LLWorldMapMessage::sendMapBlockRequest(U16 min_x, U16 min_y, U16 max_x, U16 max_y, bool return_nonexistent)
+{
+    MapBlockRequest req = { min_x, min_y, max_x, max_y };
+    gMapBlockRequests.push_back(req);
+}
 
 LLWorldMipmap::LLWorldMipmap() { }
 LLWorldMipmap::~LLWorldMipmap() { }
@@ -517,5 +529,64 @@ namespace tut
         // Test 26 : reset tracking
         mWorld->cancelTracking();
         ensure("LLWorldMap::cancelTracking() at end test failed", mWorld->isTracking() == false);
+    }
+    // Test updateRegions() request grouping, size limits, and bounds
+    template<> template<>
+    void worldmap_object_t::test<4>()
+    {
+        // Test 27 : 1x1 block (4x4 = 16 regions) - single small request within bounds
+        mWorld->reset();
+        gMapBlockRequests.clear();
+        mWorld->updateRegions(0, 0, 3, 3);
+        ensure("updateRegions 1x1 block: expected 1 request", gMapBlockRequests.size() == 1);
+        {
+            const MapBlockRequest& req = gMapBlockRequests[0];
+            ensure("updateRegions 1x1 block: min_x", req.min_x == 0);
+            ensure("updateRegions 1x1 block: min_y", req.min_y == 0);
+            ensure("updateRegions 1x1 block: max_x", req.max_x == 3);
+            ensure("updateRegions 1x1 block: max_y", req.max_y == 3);
+            S32 regions = (req.max_x - req.min_x + 1) * (req.max_y - req.min_y + 1);
+            ensure("updateRegions 1x1 block: must not exceed 64 regions", regions <= 64);
+        }
+
+        // Test 28 : 2x2 blocks (8x8 = 64 regions) - single request at the 64-region limit
+        mWorld->reset();
+        gMapBlockRequests.clear();
+        mWorld->updateRegions(0, 0, 7, 7);
+        ensure("updateRegions 2x2 blocks: expected 1 request", gMapBlockRequests.size() == 1);
+        {
+            const MapBlockRequest& req = gMapBlockRequests[0];
+            ensure("updateRegions 2x2 blocks: min_x", req.min_x == 0);
+            ensure("updateRegions 2x2 blocks: min_y", req.min_y == 0);
+            ensure("updateRegions 2x2 blocks: max_x", req.max_x == 7);
+            ensure("updateRegions 2x2 blocks: max_y", req.max_y == 7);
+            S32 regions = (req.max_x - req.min_x + 1) * (req.max_y - req.min_y + 1);
+            ensure("updateRegions 2x2 blocks: must not exceed 64 regions", regions <= 64);
+        }
+
+        // Test 29 : 4x4 blocks (16x16 = 256 total regions) - must split into multiple requests
+        //           each spanning a 4x1 strip (64 regions), none exceeding the server limit
+        mWorld->reset();
+        gMapBlockRequests.clear();
+        mWorld->updateRegions(0, 0, 15, 15);
+        ensure("updateRegions 4x4 blocks: expected 4 requests", gMapBlockRequests.size() == 4);
+        for (size_t i = 0; i < gMapBlockRequests.size(); ++i)
+        {
+            const MapBlockRequest& req = gMapBlockRequests[i];
+            S32 regions = (req.max_x - req.min_x + 1) * (req.max_y - req.min_y + 1);
+            ensure("updateRegions 4x4 blocks: each request must not exceed 64 regions", regions <= 64);
+            // Requests must stay within the requested area (0..15)
+            ensure("updateRegions 4x4 blocks: max_x in bounds", req.max_x <= 15);
+            ensure("updateRegions 4x4 blocks: max_y in bounds", req.max_y <= 15);
+        }
+        // Each request covers one horizontal strip of 4 blocks (rows 0..3, 4..7, 8..11, 12..15)
+        ensure("updateRegions 4x4 blocks: request[0] min_y", gMapBlockRequests[0].min_y == 0);
+        ensure("updateRegions 4x4 blocks: request[0] max_y", gMapBlockRequests[0].max_y == 3);
+        ensure("updateRegions 4x4 blocks: request[1] min_y", gMapBlockRequests[1].min_y == 4);
+        ensure("updateRegions 4x4 blocks: request[1] max_y", gMapBlockRequests[1].max_y == 7);
+        ensure("updateRegions 4x4 blocks: request[2] min_y", gMapBlockRequests[2].min_y == 8);
+        ensure("updateRegions 4x4 blocks: request[2] max_y", gMapBlockRequests[2].max_y == 11);
+        ensure("updateRegions 4x4 blocks: request[3] min_y", gMapBlockRequests[3].min_y == 12);
+        ensure("updateRegions 4x4 blocks: request[3] max_y", gMapBlockRequests[3].max_y == 15);
     }
 }

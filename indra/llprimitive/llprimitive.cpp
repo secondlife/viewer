@@ -1370,6 +1370,12 @@ bool LLPrimitive::packTEMessage(LLDataPacker &dp) const
 
 S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec)
 {
+    return parseTEMessage(mesgsys, block_name, block_num, tec, getNumTEs());
+}
+
+// static
+S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec, U8 face_count)
+{
     S32 retval = 0;
     // temp buffer for material ID processing
     // data will end up in tec.material_id[]
@@ -1403,7 +1409,7 @@ S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name
     tec.packed_buffer[tec.size] = 0x00;
     ++tec.size;
 
-    tec.face_count = llmin((U32)getNumTEs(),(U32)LLTEContents::MAX_TES);
+    tec.face_count = llmin((U32)face_count,(U32)LLTEContents::MAX_TES);
 
     U8 *cur_ptr = tec.packed_buffer;
     LL_DEBUGS("TEXTUREENTRY") << "Texture Entry with buffere sized: " << tec.size << LL_ENDL;
@@ -1515,7 +1521,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
     S32 size;
     U32 face_count = 0;
 
-    if (!dp.unpackBinaryData(packed_buffer, size, "TextureEntry"))
+    if (!dp.unpackBinaryData(packed_buffer, MAX_TE_BUFFER, size, "TextureEntry"))
     {
         retval = TEM_INVALID;
         LL_WARNS() << "Bad texture entry block!  Abort!" << LL_ENDL;

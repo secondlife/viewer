@@ -7,10 +7,10 @@
   select_on_focus="true"
   text_tentative_color="TextFgTentativeColor"
   highlight_text_field="true"
-  background_image="TextField_Search_Off"
-  background_image_disabled="TextField_Search_Disabled"
-  background_image_focused="TextField_Search_Active"
-  background_image_highlight="TextField_Search_Highlight">
+  background_image="TextField_Off"
+  background_image_disabled="TextField_Disabled"
+  background_image_focused="TextField_Active"
+  background_image_highlight="TextField_Highlight">
   <search_button label=""
     top_pad="4"
     left_pad="4"

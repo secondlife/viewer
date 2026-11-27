@@ -95,8 +95,12 @@ bool LLMultiFloater::closeAllFloaters()
     S32 lastTabCount = mTabContainer->getTabCount();
     while (tabToClose < mTabContainer->getTabCount())
     {
-        LLFloater* first_floater = (LLFloater*)mTabContainer->getPanelByIndex(tabToClose);
-        first_floater->closeFloater();
+        LLFloater* first_floater = dynamic_cast<LLFloater*>(mTabContainer->getPanelByIndex(tabToClose));
+        if (first_floater)
+        {
+            first_floater->closeFloater();
+        }
+
         if(lastTabCount == mTabContainer->getTabCount())
         {
             //Tab did not actually close, possibly due to a pending Save Confirmation dialog..
@@ -309,7 +313,11 @@ void LLMultiFloater::removeFloater(LLFloater* floaterp)
 
     updateResizeLimits();
 
-    tabOpen((LLFloater*)mTabContainer->getCurrentPanel(), false);
+    LLFloater* tab_floaterp = dynamic_cast<LLFloater*>(mTabContainer->getCurrentPanel());
+    if (tab_floaterp)
+    {
+        tabOpen(tab_floaterp, false);
+    }
 }
 
 void LLMultiFloater::tabOpen(LLFloater* opened_floater, bool from_click)
@@ -387,7 +395,7 @@ bool LLMultiFloater::addChild(LLView* child, S32 tab_group)
 
 LLFloater* LLMultiFloater::getActiveFloater()
 {
-    return (LLFloater*)mTabContainer->getCurrentPanel();
+    return dynamic_cast<LLFloater*>(mTabContainer->getCurrentPanel());
 }
 
 S32 LLMultiFloater::getFloaterCount() const
@@ -512,7 +520,7 @@ void LLMultiFloater::computeResizeLimits(S32& new_min_width, S32& new_min_height
     // possibly increase minimum size constraint due to children's minimums.
     for (S32 tab_idx = 0; tab_idx < mTabContainer->getTabCount(); ++tab_idx)
     {
-        LLFloater* floaterp = (LLFloater*)mTabContainer->getPanelByIndex(tab_idx);
+        LLFloater* floaterp = dynamic_cast<LLFloater*>(mTabContainer->getPanelByIndex(tab_idx));
         if (floaterp)
         {
             new_min_width = llmax(new_min_width, floaterp->getMinWidth() + LLPANEL_BORDER_WIDTH * 2);

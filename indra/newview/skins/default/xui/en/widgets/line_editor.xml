@@ -11,7 +11,7 @@
 			 text_pad_left="2"
              text_readonly_color="TextFgReadOnlyColor"
              text_tentative_color="TextFgTentativeColor"
-			 highlight_color="EmphasisColor"
+			 highlight_color="SelectionColor"
 			 preedit_bg_color="White"
              mouse_opaque="true"
              name="line_editor"

@@ -138,7 +138,9 @@
                     min_val_x="-30"
                     max_val_x="30"
                     min_val_y="-30"
-                    max_val_y="30" 
+                    max_val_y="30"
+                    increment_x="0.01f"
+                    increment_y="0.01f"
                     logarithmic="true"/>
 
             <text

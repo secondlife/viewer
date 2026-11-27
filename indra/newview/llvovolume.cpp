@@ -250,10 +250,12 @@ LLVOVolume::~LLVOVolume()
     delete mVolumeImpl;
     mVolumeImpl = NULL;
 
-    gMeshRepo.unregisterMesh(this);
+    unregisterOldMeshAndSkin();
 
     if(!mMediaImplList.empty())
     {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_MEDIA("delete volume media list");
+
         for(U32 i = 0 ; i < mMediaImplList.size() ; i++)
         {
             if(mMediaImplList[i].notNull())
@@ -351,7 +353,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
     U8 sculpt_type = 0;
     if (isSculpted())
     {
-        LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+        LLSculptParams *sculpt_params = getSculptParams();
         if (sculpt_params)
         {
             sculpt_id = sculpt_params->getSculptTexture();
@@ -407,6 +409,11 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
                     }
 
                     gPipeline.markTextured(mDrawable);
+                    if (LLSpatialGroup* group = mDrawable->getSpatialGroup())
+                    {
+                        group->dirtyGeom();
+                        gPipeline.markRebuild(group);
+                    }
                     mFaceMappingChanged = true;
                     mTexAnimMode = 0;
                 }
@@ -511,6 +518,11 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
                 }
 
                 gPipeline.markTextured(mDrawable);
+                if (LLSpatialGroup* group = mDrawable->getSpatialGroup())
+                {
+                    group->dirtyGeom();
+                    gPipeline.markRebuild(group);
+                }
                 mFaceMappingChanged = true;
                 mTexAnimMode = 0;
             }
@@ -924,7 +936,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 
     if (getLightTextureID().notNull())
     {
-        LLLightImageParams* params = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
+        LLLightImageParams* params = getLightImageParams();
         LLUUID id = params->getLightTexture();
         mLightTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE);
         if (mLightTexture.notNull())
@@ -1048,6 +1060,28 @@ LLDrawable *LLVOVolume::createDrawable(LLPipeline *pipeline)
     return mDrawable;
 }
 
+// Inverse of gMeshRepo.loadMesh and gMeshRepo.getSkinInfo, combined into one function
+// Assume a Collada mesh never changes after being set.
+void LLVOVolume::unregisterOldMeshAndSkin()
+{
+    if (mVolumep)
+    {
+        const LLVolumeParams& params = mVolumep->getParams();
+        if ((params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
+        {
+            // object is being deleted, so it will no longer need to request
+            // meshes.
+            for (S32 lod = 0; lod != LLVolumeLODGroup::NUM_LODS; ++lod)
+            {
+                gMeshRepo.unregisterMesh(this, params, lod);
+            }
+            // This volume may or may not have a skin
+            gMeshRepo.unregisterSkinInfo(params.getSculptID(), this);
+        }
+    }
+}
+
+
 bool LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bool unique_volume)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
@@ -1082,7 +1116,7 @@ bool LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
         setParameterEntryInUse(LLNetworkData::PARAMS_FLEXIBLE, true, false);
         if (!mVolumeImpl)
         {
-            LLFlexibleObjectData* data = (LLFlexibleObjectData*)getParameterEntry(LLNetworkData::PARAMS_FLEXIBLE);
+            LLFlexibleObjectData* data = getFlexibleObjectData();
             mVolumeImpl = new LLVolumeImplFlexible(this, data);
         }
     }
@@ -1193,7 +1227,7 @@ void LLVOVolume::updateSculptTexture()
 
     if (isSculpted() && !isMesh())
     {
-        LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+        LLSculptParams *sculpt_params = getSculptParams();
         if (sculpt_params)
         {
             LLUUID id = sculpt_params->getSculptTexture();
@@ -1229,7 +1263,35 @@ void LLVOVolume::updateSculptTexture()
 
 void LLVOVolume::updateVisualComplexity()
 {
-    LLVOAvatar* avatar = getAvatarAncestor();
+    LLVOAvatar* avatar = nullptr;
+    LLViewerObject* pobj = (LLViewerObject*)getParent();
+    LLViewerObject* lobj = this;
+    while (pobj)
+    {
+        avatar = pobj->asAvatar();
+        if (avatar)
+        {
+            break;
+        }
+        lobj = pobj;
+        pobj = (LLViewerObject*)pobj->getParent();
+    }
+
+    if (avatar)
+    {
+        // mark parent as dirty, complexity will be updated recursively.
+        avatar->markAttachmentComplexityDirty(lobj->getID());
+    }
+    LLVOAvatar* rigged_avatar = getAvatar();
+    if (rigged_avatar && (rigged_avatar != avatar))
+    {
+        // This might be wrong. Control avatars update each run,
+        // due to lack of dirty mechanics, and this might be
+        // where we should implement and call
+        // markControlAvatarComplexityDirty() if !isAttachment().
+        rigged_avatar->markAttachmentComplexityDirty(lobj->getID());
+    }
+    /*LLVOAvatar* avatar = getAvatarAncestor();
     if (avatar)
     {
         avatar->updateVisualComplexity();
@@ -1238,7 +1300,7 @@ void LLVOVolume::updateVisualComplexity()
     if(rigged_avatar && (rigged_avatar != avatar))
     {
         rigged_avatar->updateVisualComplexity();
-    }
+    }*/
 }
 
 void LLVOVolume::notifyMeshLoaded()
@@ -3053,7 +3115,7 @@ void LLVOVolume::setLightTextureID(LLUUID id)
         {
             old_texturep->removeVolume(LLRender::LIGHT_TEX, this);
         }
-        LLLightImageParams* param_block = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
+        LLLightImageParams* param_block = getLightImageParams();
         if (param_block && param_block->getLightTexture() != id)
         {
             param_block->setLightTexture(id);
@@ -3083,7 +3145,7 @@ void LLVOVolume::setLightTextureID(LLUUID id)
 
 void LLVOVolume::setSpotLightParams(LLVector3 params)
 {
-    LLLightImageParams* param_block = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
+    LLLightImageParams* param_block = getLightImageParams();
     if (param_block && param_block->getParams() != params)
     {
         param_block->setParams(params);
@@ -3125,7 +3187,7 @@ void LLVOVolume::setLightSRGBColor(const LLColor3& color)
 
 void LLVOVolume::setLightLinearColor(const LLColor3& color)
 {
-    LLLightParams *param_block = (LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+    LLLightParams *param_block = getLightParams();
     if (param_block)
     {
         if (param_block->getLinearColor() != color)
@@ -3140,7 +3202,7 @@ void LLVOVolume::setLightLinearColor(const LLColor3& color)
 
 void LLVOVolume::setLightIntensity(F32 intensity)
 {
-    LLLightParams *param_block = (LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+    LLLightParams *param_block = getLightParams();
     if (param_block)
     {
         if (param_block->getLinearColor().mV[3] != intensity)
@@ -3153,7 +3215,7 @@ void LLVOVolume::setLightIntensity(F32 intensity)
 
 void LLVOVolume::setLightRadius(F32 radius)
 {
-    LLLightParams *param_block = (LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+    LLLightParams *param_block = getLightParams();
     if (param_block)
     {
         if (param_block->getRadius() != radius)
@@ -3166,7 +3228,7 @@ void LLVOVolume::setLightRadius(F32 radius)
 
 void LLVOVolume::setLightFalloff(F32 falloff)
 {
-    LLLightParams *param_block = (LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+    LLLightParams *param_block = getLightParams();
     if (param_block)
     {
         if (param_block->getFalloff() != falloff)
@@ -3179,7 +3241,7 @@ void LLVOVolume::setLightFalloff(F32 falloff)
 
 void LLVOVolume::setLightCutoff(F32 cutoff)
 {
-    LLLightParams *param_block = (LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+    LLLightParams *param_block = getLightParams();
     if (param_block)
     {
         if (param_block->getCutoff() != cutoff)
@@ -3194,7 +3256,7 @@ void LLVOVolume::setLightCutoff(F32 cutoff)
 
 bool LLVOVolume::getIsLight() const
 {
-    mIsLight = getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT);
+    mIsLight = getLightParams() != nullptr;
     return mIsLight;
 }
 
@@ -3210,7 +3272,7 @@ LLColor3 LLVOVolume::getLightSRGBBaseColor() const
 
 LLColor3 LLVOVolume::getLightLinearBaseColor() const
 {
-    const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+    const LLLightParams *param_block = getLightParams();
     if (param_block)
     {
         return LLColor3(param_block->getLinearColor());
@@ -3223,7 +3285,7 @@ LLColor3 LLVOVolume::getLightLinearBaseColor() const
 
 LLColor3 LLVOVolume::getLightLinearColor() const
 {
-    const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+    const LLLightParams *param_block = getLightParams();
     if (param_block)
     {
         return LLColor3(param_block->getLinearColor()) * param_block->getLinearColor().mV[3];
@@ -3241,33 +3303,27 @@ LLColor3 LLVOVolume::getLightSRGBColor() const
     return ret;
 }
 
-LLUUID LLVOVolume::getLightTextureID() const
+const LLUUID& LLVOVolume::getLightTextureID() const
 {
-    if (getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT_IMAGE))
+    const LLLightImageParams *param_block = getLightImageParams();
+    if (param_block)
     {
-        const LLLightImageParams *param_block = (const LLLightImageParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
-        if (param_block)
-        {
-            return param_block->getLightTexture();
-        }
+        return param_block->getLightTexture();
     }
 
     return LLUUID::null;
 }
 
 
-LLVector3 LLVOVolume::getSpotLightParams() const
+const LLVector3& LLVOVolume::getSpotLightParams() const
 {
-    if (getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT_IMAGE))
+    const LLLightImageParams *param_block = getLightImageParams();
+    if (param_block)
     {
-        const LLLightImageParams *param_block = (const LLLightImageParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
-        if (param_block)
-        {
-            return param_block->getParams();
-        }
+        return param_block->getParams();
     }
 
-    return LLVector3();
+    return LLVector3::zero;
 }
 
 F32 LLVOVolume::getSpotLightPriority() const
@@ -3304,8 +3360,8 @@ void LLVOVolume::updateSpotLightPriority()
 
 bool LLVOVolume::isLightSpotlight() const
 {
-    LLLightImageParams* params = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
-    if (params && getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT_IMAGE))
+    const LLLightImageParams* params = getLightImageParams();
+    if (params)
     {
         return params->isLightSpotlight();
     }
@@ -3315,7 +3371,7 @@ bool LLVOVolume::isLightSpotlight() const
 
 LLViewerTexture* LLVOVolume::getLightTexture()
 {
-    LLUUID id = getLightTextureID();
+    const LLUUID& id = getLightTextureID();
 
     if (id.notNull())
     {
@@ -3326,7 +3382,7 @@ LLViewerTexture* LLVOVolume::getLightTexture()
     }
     else
     {
-        mLightTexture = NULL;
+        mLightTexture = nullptr;
     }
 
     return mLightTexture;
@@ -3334,7 +3390,7 @@ LLViewerTexture* LLVOVolume::getLightTexture()
 
 F32 LLVOVolume::getLightIntensity() const
 {
-    const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+    const LLLightParams *param_block = getLightParams();
     if (param_block)
     {
         return param_block->getLinearColor().mV[3];
@@ -3347,7 +3403,7 @@ F32 LLVOVolume::getLightIntensity() const
 
 F32 LLVOVolume::getLightRadius() const
 {
-    const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+    const LLLightParams *param_block = getLightParams();
     if (param_block)
     {
         return param_block->getRadius();
@@ -3360,7 +3416,7 @@ F32 LLVOVolume::getLightRadius() const
 
 F32 LLVOVolume::getLightFalloff(const F32 fudge_factor) const
 {
-    const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+    const LLLightParams *param_block = getLightParams();
     if (param_block)
     {
         return param_block->getFalloff() * fudge_factor;
@@ -3373,7 +3429,7 @@ F32 LLVOVolume::getLightFalloff(const F32 fudge_factor) const
 
 F32 LLVOVolume::getLightCutoff() const
 {
-    const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+    const LLLightParams *param_block = getLightParams();
     if (param_block)
     {
         return param_block->getCutoff();
@@ -3386,7 +3442,7 @@ F32 LLVOVolume::getLightCutoff() const
 
 bool LLVOVolume::isReflectionProbe() const
 {
-    return getParameterEntryInUse(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    return getReflectionProbeParams() != nullptr;
 }
 
 bool LLVOVolume::setIsReflectionProbe(bool is_probe)
@@ -3411,7 +3467,7 @@ bool LLVOVolume::setIsReflectionProbe(bool is_probe)
 
 bool LLVOVolume::setReflectionProbeAmbiance(F32 ambiance)
 {
-    LLReflectionProbeParams* param_block = (LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    LLReflectionProbeParams* param_block = getReflectionProbeParams();
     if (param_block)
     {
         if (param_block->getAmbiance() != ambiance)
@@ -3427,7 +3483,7 @@ bool LLVOVolume::setReflectionProbeAmbiance(F32 ambiance)
 
 bool LLVOVolume::setReflectionProbeNearClip(F32 near_clip)
 {
-    LLReflectionProbeParams* param_block = (LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    LLReflectionProbeParams* param_block = getReflectionProbeParams();
     if (param_block)
     {
         if (param_block->getClipDistance() != near_clip)
@@ -3443,7 +3499,7 @@ bool LLVOVolume::setReflectionProbeNearClip(F32 near_clip)
 
 bool LLVOVolume::setReflectionProbeIsBox(bool is_box)
 {
-    LLReflectionProbeParams* param_block = (LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    LLReflectionProbeParams* param_block = getReflectionProbeParams();
     if (param_block)
     {
         if (param_block->getIsBox() != is_box)
@@ -3459,7 +3515,7 @@ bool LLVOVolume::setReflectionProbeIsBox(bool is_box)
 
 bool LLVOVolume::setReflectionProbeIsDynamic(bool is_dynamic)
 {
-    LLReflectionProbeParams* param_block = (LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    LLReflectionProbeParams* param_block = getReflectionProbeParams();
     if (param_block)
     {
         if (param_block->getIsDynamic() != is_dynamic)
@@ -3475,7 +3531,7 @@ bool LLVOVolume::setReflectionProbeIsDynamic(bool is_dynamic)
 
 bool LLVOVolume::setReflectionProbeIsMirror(bool is_mirror)
 {
-    LLReflectionProbeParams *param_block = (LLReflectionProbeParams *) getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    LLReflectionProbeParams* param_block = getReflectionProbeParams();
     if (param_block)
     {
         if (param_block->getIsMirror() != is_mirror)
@@ -3498,7 +3554,7 @@ bool LLVOVolume::setReflectionProbeIsMirror(bool is_mirror)
 
 F32 LLVOVolume::getReflectionProbeAmbiance() const
 {
-    const LLReflectionProbeParams* param_block = (const LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    const LLReflectionProbeParams* param_block = getReflectionProbeParams();
     if (param_block)
     {
         return param_block->getAmbiance();
@@ -3511,7 +3567,7 @@ F32 LLVOVolume::getReflectionProbeAmbiance() const
 
 F32 LLVOVolume::getReflectionProbeNearClip() const
 {
-    const LLReflectionProbeParams* param_block = (const LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    const LLReflectionProbeParams* param_block = getReflectionProbeParams();
     if (param_block)
     {
         return param_block->getClipDistance();
@@ -3524,7 +3580,7 @@ F32 LLVOVolume::getReflectionProbeNearClip() const
 
 bool LLVOVolume::getReflectionProbeIsBox() const
 {
-    const LLReflectionProbeParams* param_block = (const LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    const LLReflectionProbeParams* param_block = getReflectionProbeParams();
     if (param_block)
     {
         return param_block->getIsBox();
@@ -3535,7 +3591,7 @@ bool LLVOVolume::getReflectionProbeIsBox() const
 
 bool LLVOVolume::getReflectionProbeIsDynamic() const
 {
-    const LLReflectionProbeParams* param_block = (const LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    const LLReflectionProbeParams* param_block = getReflectionProbeParams();
     if (param_block)
     {
         return param_block->getIsDynamic();
@@ -3546,8 +3602,7 @@ bool LLVOVolume::getReflectionProbeIsDynamic() const
 
 bool LLVOVolume::getReflectionProbeIsMirror() const
 {
-    const LLReflectionProbeParams *param_block =
-        (const LLReflectionProbeParams *) getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    const LLReflectionProbeParams* param_block = getReflectionProbeParams();
     if (param_block)
     {
         return param_block->getIsMirror();
@@ -3568,7 +3623,7 @@ U32 LLVOVolume::getVolumeInterfaceID() const
 
 bool LLVOVolume::isFlexible() const
 {
-    if (getParameterEntryInUse(LLNetworkData::PARAMS_FLEXIBLE))
+    if (getFlexibleObjectData())
     {
         LLVolume* volume = getVolume();
         if (volume && volume->getParams().getPathParams().getCurveType() != LL_PCODE_PATH_FLEXIBLE)
@@ -3587,7 +3642,7 @@ bool LLVOVolume::isFlexible() const
 
 bool LLVOVolume::isSculpted() const
 {
-    if (getParameterEntryInUse(LLNetworkData::PARAMS_SCULPT))
+    if (getSculptParams())
     {
         return true;
     }
@@ -3599,7 +3654,7 @@ bool LLVOVolume::isMesh() const
 {
     if (isSculpted())
     {
-        LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+        const LLSculptParams *sculpt_params = getSculptParams();
         if (sculpt_params)
         {
             U8 sculpt_type = sculpt_params->getSculptType();
@@ -3617,7 +3672,7 @@ bool LLVOVolume::isMesh() const
 
 bool LLVOVolume::hasLightTexture() const
 {
-    if (getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT_IMAGE))
+    if (getLightImageParams())
     {
         return true;
     }
@@ -3737,8 +3792,7 @@ bool LLVOVolume::isRiggedMesh() const
 //----------------------------------------------------------------------------
 U32 LLVOVolume::getExtendedMeshFlags() const
 {
-    const LLExtendedMeshParams *param_block =
-        (const LLExtendedMeshParams *)getParameterEntry(LLNetworkData::PARAMS_EXTENDED_MESH);
+    const LLExtendedMeshParams *param_block = getExtendedMeshParams();
     if (param_block)
     {
         return param_block->getFlags();
@@ -3783,8 +3837,7 @@ void LLVOVolume::setExtendedMeshFlags(U32 flags)
     {
         bool in_use = true;
         setParameterEntryInUse(LLNetworkData::PARAMS_EXTENDED_MESH, in_use, true);
-        LLExtendedMeshParams *param_block =
-            (LLExtendedMeshParams *)getParameterEntry(LLNetworkData::PARAMS_EXTENDED_MESH);
+        LLExtendedMeshParams *param_block = (LLExtendedMeshParams *)getExtendedMeshParams();
         if (param_block)
         {
             param_block->setFlags(flags);
@@ -4402,7 +4455,7 @@ U32 LLVOVolume::getTriangleCount(S32* vcount) const
     return count;
 }
 
-U32 LLVOVolume::getHighLODTriangleCount()
+U32 LLVOVolume::getLODTriangleCount(S32 lod)
 {
     U32 ret = 0;
 
@@ -4410,16 +4463,16 @@ U32 LLVOVolume::getHighLODTriangleCount()
 
     if (!isSculpted())
     {
-        LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), 3);
+        LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), lod);
         ret = ref->getNumTriangles();
         LLPrimitive::getVolumeManager()->unrefVolume(ref);
     }
     else if (isMesh())
     {
-        LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), 3);
+        LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), lod);
         if (!ref->isMeshAssetLoaded() || ref->getNumVolumeFaces() == 0)
         {
-            gMeshRepo.loadMesh(this, volume->getParams(), LLModel::LOD_HIGH);
+            gMeshRepo.loadMesh(this, volume->getParams(), lod);
         }
         ret = ref->getNumTriangles();
         LLPrimitive::getVolumeManager()->unrefVolume(ref);
@@ -4430,6 +4483,11 @@ U32 LLVOVolume::getHighLODTriangleCount()
     }
 
     return ret;
+}
+
+U32 LLVOVolume::getHighLODTriangleCount()
+{
+    return getLODTriangleCount(LLModel::LOD_HIGH);
 }
 
 //static
@@ -5968,7 +6026,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                                     bool should_render = true;
                                     if (gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND)
                                     {
-                                        if (gltf_mat->mBaseColor.mV[3] == 0.0f)
+                                        if (gltf_mat->mBaseColor.mV[3] == 0.0f && !LLDrawPoolAlpha::sShowDebugAlpha)
                                         {
                                             should_render = false;
                                         }

@@ -64,11 +64,22 @@ class ViewerManifest(LLManifest):
         super(ViewerManifest, self).construct()
         self.path(src="../../scripts/messages/message_template.msg", dst="app_settings/message_template.msg")
 
+        # ... and the lsl/lua script definition files (needed at build time and packaging)
+        pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
+        with self.prefix(src=os.path.join(pkgdir, 'lsl_definitions'), dst="app_settings/syntax_default"):
+            self.path("*.txt")
+            self.path("*.yaml")
+            self.path("*.xml")
+            self.path("*.json")
+            self.path("*.luau")
+            self.path("*.yml")
+
         if self.is_packaging_viewer():
             with self.prefix(src_dst="app_settings"):
                 self.exclude("logcontrol.xml")
                 self.exclude("logcontrol-dev.xml")
                 self.path("*.ini")
+                self.path("*.txt")
                 self.path("*.xml")
 
                 # include the entire shaders directory recursively
@@ -92,7 +103,7 @@ class ViewerManifest(LLManifest):
                 with self.prefix(src=pkgdir):
                     self.path("dictionaries")
 
-                # include the extracted packages information (see BuildPackagesInfo.cmake)
+                # include the extracted packages information
                 self.path(src=os.path.join(self.args['build'],"packages-info.txt"), dst="packages-info.txt")
                 # CHOP-955: If we have "sourceid" or "viewer_channel" in the
                 # build process environment, generate it into
@@ -133,6 +144,9 @@ class ViewerManifest(LLManifest):
                                  "settings_install.xml",
                                  src="environment")
 
+            # Include the full Luau license in the packaged viewer.
+            with self.prefix(src=pkgdir):
+                self.path("LICENSES/luau.txt")
 
             with self.prefix(src_dst="character"):
                 self.path("*.llm")
@@ -259,9 +273,10 @@ class ViewerManifest(LLManifest):
         global CHANNEL_VENDOR_BASE
         channel_type=self.channel_type()
         if channel_type == 'release':
-            return CHANNEL_VENDOR_BASE
+            app_suffix='Viewer'
         else:
-            return CHANNEL_VENDOR_BASE + ' ' + self.channel_variant()
+            app_suffix=self.channel_variant()
+        return CHANNEL_VENDOR_BASE + ' ' + app_suffix
 
     def exec_name(self):
         return "SecondLifeViewer"
@@ -539,18 +554,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
                                                 '*.bat',
                                                 '*.tar.xz')))
 
-            with self.prefix(src=os.path.join(pkgdir, "VMP")):
-                # include the compiled launcher scripts so that it gets included in the file_list
-                self.path('SLVersionChecker.exe')
-
-            with self.prefix(dst="vmp_icons"):
-                with self.prefix(src=self.icon_path()):
-                    self.path("secondlife.ico")
-                #VMP  Tkinter icons
-                with self.prefix(src="vmp_icons"):
-                    self.path("*.png")
-                    self.path("*.gif")
-
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
                                         'llplugin', 'slplugin', self.args['configuration']),
@@ -587,13 +590,8 @@ class Windows_x86_64_Manifest(ViewerManifest):
             self.path_optional("vcruntime140_1.dll")
             self.path_optional("vcruntime140_threads.dll")
 
-            # SLVoice executable
-            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
-                self.path("SLVoice.exe")
-
-            # Vivox libraries
-            self.path("vivoxsdk_x64.dll")
-            self.path("ortp_x64.dll")
+            # SDL3
+            self.path("SDL3.dll")
 
             # BugSplat
             if self.args.get('bugsplat'):
@@ -764,6 +762,126 @@ class Windows_x86_64_Manifest(ViewerManifest):
         return '\n'.join(result)
 
     def package_finish(self):
+        # Check if we should use Velopack instead of NSIS
+        # Note: as of 2026.01's release, we will be building with Velopack's one click install.
+        # We maintain the legacy NSIS packaging mainly for TPVs at this point.
+        if self.args.get('velopack', 'OFF') == 'ON':
+            self.velopack_package_finish()
+            return
+
+        # NSIS packaging (legacy)
+        self.nsis_package_finish()
+
+    def velopack_package_finish(self):
+        # packId determines install folder: %LocalAppData%\{packId}
+        # Uses same naming as NSIS INSTNAME for channel separation
+        pack_id = self.app_name_oneword()  # "SecondLife", "SecondLifeBeta", etc.
+        # Velopack requires SemVer2. Use major.minor.patch-buildnumber so that
+        # Velopack can distinguish builds and order them correctly.
+        pack_version = '.'.join(self.args['version'][:3])
+        if len(self.args['version']) > 3 and self.args['version'][3]:
+            pack_version += '-' + self.args['version'][3]
+        pack_title = pack_id  #Wrapper exe, don't use spaces
+        pack_dir = self.get_dst_prefix()
+        main_exe = self.final_exe()
+        installer_base = self.installer_base_name()
+        exclude_pattern = r'.*\.pdb|.*\.map|.*\.bat|.*\.exp|.*\.lib|.*\.nsi|.*\.tar\.xz|secondlife-bin\..*|.*_Setup\.exe|.*-Setup\.exe'
+
+        # Channel-specific icon for the Velopack installer.
+        # CMake copies icons/{channel}/secondlife.ico to res/ll_icon.ico at configure time.
+        # Try the CMake-generated copy first, fall back to the source icon.
+        icon_path = os.path.join(self.get_src_prefix(), 'res', 'll_icon.ico')
+        if not os.path.exists(icon_path):
+            icon_path = os.path.join(self.get_src_prefix(), self.icon_path(), 'secondlife.ico')
+
+        # In CI, defer Velopack packaging to the sign step where Azure credentials
+        # are available. Emit metadata as GitHub outputs so the sign step can run
+        # vpk pack with --signTemplate, producing a package with signed executables.
+        if os.getenv('GITHUB_ACTIONS'):
+            # Copy the icon into pack_dir so it's included in the Windows-app artifact
+            icon_filename = ''
+            if os.path.exists(icon_path):
+                icon_filename = os.path.basename(icon_path)
+                icon_dest = os.path.join(pack_dir, icon_filename)
+                shutil.copy2(icon_path, icon_dest)
+                print("Copied icon %s to %s" % (icon_path, icon_dest))
+            else:
+                print("WARNING: Icon not found at %s" % icon_path)
+
+            # Emit metadata for the sign step
+            self.set_github_output('velopack_pack_id', pack_id)
+            self.set_github_output('velopack_pack_version', pack_version)
+            self.set_github_output('velopack_pack_title', pack_title)
+            self.set_github_output('velopack_main_exe', main_exe)
+            self.set_github_output('velopack_icon', icon_filename)
+            self.set_github_output('velopack_installer_base', installer_base)
+            self.set_github_output('velopack_exclude', exclude_pattern)
+            # Set package_file so llmanifest's touched.bat logic doesn't crash
+            self.package_file = installer_base + '_Setup.exe'
+            print("CI mode: Velopack packaging deferred to sign step")
+            return
+
+        # Local builds: run vpk pack directly (unsigned)
+        vpk_args = [
+            'vpk', 'pack',
+            '--packId', pack_id,
+            '--packVersion', pack_version,
+            '--packDir', pack_dir,
+            '--mainExe', main_exe,
+            '--packTitle', pack_title,
+            '--exclude', exclude_pattern,
+            # Suppress Velopack's built-in shortcut creation; we create our own
+            # shortcuts in llvelopack.cpp on_after_install hook instead.
+            '--shortcuts', '',
+        ]
+
+        # Add icon — CMake copies the channel-appropriate secondlife.ico to res/ll_icon.ico
+        if os.path.exists(icon_path):
+            print("Using icon: %s" % icon_path)
+            vpk_args.extend(['--icon', icon_path])
+        else:
+            print("WARNING: Icon not found at %s — Setup.exe will have no icon" % icon_path)
+
+        print("Running Velopack packaging: %s" % ' '.join(vpk_args))
+
+        # Run vpk command
+        import subprocess
+        result = subprocess.run(vpk_args, cwd=os.path.dirname(pack_dir), capture_output=True, text=True)
+        if result.stdout:
+            print("vpk stdout: %s" % result.stdout)
+        if result.stderr:
+            print("vpk stderr: %s" % result.stderr)
+        if result.returncode != 0:
+            raise ManifestError("Velopack packaging failed with code %d" % result.returncode)
+
+        # Velopack outputs to a Releases directory
+        releases_dir = os.path.join(os.path.dirname(pack_dir), 'Releases')
+
+        # Move the setup exe INTO pack_dir so it's included in the Windows-app artifact
+        # IMPORTANT: Use hyphen format (-Setup.exe) to avoid the *_Setup.exe exclusion pattern
+        # in viewer_app output (line ~538). The underscore pattern excludes NSIS installers
+        # which are rebuilt during signing, but Velopack installers are created here.
+        # Velopack creates: {packId}-win-Setup.exe
+        velopack_setup = os.path.join(releases_dir, '%s-win-Setup.exe' % pack_id)
+        self.package_file = installer_base + '_Setup.exe'
+        our_setup = os.path.join(pack_dir, self.package_file)
+        if os.path.exists(velopack_setup):
+            shutil.move(velopack_setup, our_setup)
+            print("Moved %s to %s" % (velopack_setup, our_setup))
+
+        # Rename the portable zip to include the version number
+        # Velopack creates: {packId}-win-Portable.zip
+        velopack_portable = os.path.join(releases_dir, '%s-win-Portable.zip' % pack_id)
+        if os.path.exists(velopack_portable):
+            our_portable = os.path.join(releases_dir, installer_base + '_Portable.zip')
+            shutil.move(velopack_portable, our_portable)
+            print("Moved %s to %s" % (velopack_portable, our_portable))
+
+        # Output the Releases directory path for artifact upload (contains nupkg, RELEASES for updates)
+        self.set_github_output('velopack_releases', releases_dir)
+
+    def nsis_package_finish(self):
+        """Package the viewer using NSIS installer (legacy)"""
         # a standard map of strings for replacing in the templates
         substitution_strings = {
             'version' : '.'.join(self.args['version']),
@@ -780,7 +898,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
         substitution_strings['installer_file'] = installer_file
 
         version_vars = """
-        !define INSTEXE "SLVersionChecker.exe"
+        !define INSTEXE "%(final_exe)s"
         !define VERSION "%(version_short)s"
         !define VERSION_LONG "%(version)s"
         !define VERSION_DASHES "%(version_dashes)s"
@@ -875,7 +993,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
             # Remember where we parked this car.
             with self.prefix(src=relpkgdir, dst="Frameworks"):
                 self.path("libndofdev.dylib")
-
+                self.path("libSDL3.dylib") # gamecontrol
 
                 if self.args.get('bugsplat'):
                     self.path2basename(relpkgdir, "BugsplatMac.framework")
@@ -966,15 +1084,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 with self.prefix(src=self.icon_path(), dst="") :
                     self.path("secondlife.icns")
 
-                # Copy in the updater script and helper modules
-                self.path(src=os.path.join(pkgdir, 'VMP'), dst="updater")
-
-                with self.prefix(src="", dst=os.path.join("updater", "icons")):
-                    self.path2basename(self.icon_path(), "secondlife.ico")
-                    with self.prefix(src="vmp_icons", dst=""):
-                        self.path("*.png")
-                        self.path("*.gif")
-
                 with self.prefix(src_dst="cursors_mac"):
                     self.path("*.tif")
 
@@ -1039,16 +1148,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 # Need to get the llcommon dll from any of the build directories as well.
                 libfile_parent = self.get_dst_prefix()
                 dylibs=[]
-                # SLVoice executable
-                with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
-                    self.path("SLVoice")
-
-                # Vivox libraries
-                for libfile in (
-                                'libortp.dylib',
-                                'libvivoxsdk.dylib',
-                                ):
-                    self.path2basename(relpkgdir, libfile)
 
                 # Discord social SDK
                 if self.args['discord'] == 'ON':
@@ -1126,6 +1225,123 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                             arcname=self.app_name() + ".app")
             self.set_github_output_path('viewer_app', tarpath)
 
+        # Generate Velopack update packages if enabled
+        # This creates the nupkg and RELEASES files needed for auto-updates
+        # Distribution is still via DMG, but updates use Velopack
+        if self.args.get('velopack', 'OFF') == 'ON':
+            self.velopack_package_finish()
+
+    def velopack_package_finish(self):
+        """Generate Velopack update packages for macOS.
+
+        This creates the nupkg and releases.json files needed for auto-updates.
+        Distribution is still via DMG - Velopack only handles the update infrastructure.
+        """
+        # packId determines install identification - same as Windows for consistency
+        pack_id = self.app_name_oneword()  # "SecondLife", "SecondLifeBeta", etc.
+        # Velopack requires SemVer2. Use major.minor.patch-buildnumber so that
+        # Velopack can distinguish builds and order them correctly.
+        pack_version = '.'.join(self.args['version'][:3])
+        if len(self.args['version']) > 3 and self.args['version'][3]:
+            pack_version += '-' + self.args['version'][3]
+        pack_title = self.app_name()  # Display name with spaces
+
+        # The .app bundle path (e.g., "/path/to/Second Life Release.app")
+        app_bundle = self.get_dst_prefix()
+        # Bundle ID from args (e.g., "com.secondlife.viewer")
+        bundle_id = self.args.get('bundleid', 'com.secondlife.indra.viewer')
+
+        # Icon path for macOS
+        icon_path = os.path.join(self.get_src_prefix(), self.icon_path(), 'secondlife.icns')
+
+        # The main executable inside Contents/MacOS/ is named after the channel
+        main_exe = self.channel()
+
+        # In CI, defer Velopack packaging to the sign step where code signing
+        # credentials are available. Emit metadata as GitHub outputs so the
+        # sign step can run vpk pack after signing the app bundle.
+        if os.getenv('GITHUB_ACTIONS'):
+            self.set_github_output('velopack_mac_pack_id', pack_id)
+            self.set_github_output('velopack_mac_pack_version', pack_version)
+            self.set_github_output('velopack_mac_pack_title', pack_title)
+            self.set_github_output('velopack_mac_main_exe', main_exe)
+            self.set_github_output('velopack_mac_bundle_id', bundle_id)
+            print("CI mode: macOS Velopack packaging deferred to sign step")
+            return
+
+        # Local builds: run vpk pack directly (unsigned)
+
+        # Parent directory containing the .app bundle - this is where we run vpk from
+        # and where the Releases directory will be created
+        work_dir = os.path.dirname(app_bundle)
+
+        # Output directory for releases - clean it first to avoid version conflicts
+        releases_dir = os.path.join(work_dir, 'Releases')
+        if os.path.exists(releases_dir):
+            print("Cleaning existing Releases directory: %s" % releases_dir)
+            shutil.rmtree(releases_dir)
+
+        # Build vpk command for macOS
+        # See: https://docs.velopack.io/reference/cli/content/vpk-osx
+        vpk_args = [
+            'vpk', 'pack',
+            '--packId', pack_id,
+            '--packVersion', pack_version,
+            '--packDir', app_bundle,
+            '--packTitle', pack_title,
+            '--mainExe', main_exe,  # Executable name inside Contents/MacOS/
+            '--bundleId', bundle_id,
+            '--outputDir', releases_dir,
+            '--noInst',  # Don't generate .pkg installer - we use DMG for distribution
+            '--verbose',  # Show detailed output
+        ]
+
+        # Add icon if exists
+        if os.path.exists(icon_path):
+            vpk_args.extend(['--icon', icon_path])
+
+        print("Running Velopack packaging for macOS:")
+        print("  Command: %s" % ' '.join(vpk_args))
+        print("  Working directory: %s" % work_dir)
+        print("  App bundle: %s" % app_bundle)
+        print("  Main executable: %s" % main_exe)
+
+        # Run vpk command
+        result = subprocess.run(vpk_args, cwd=work_dir, capture_output=True, text=True)
+
+        # Always print output for debugging
+        if result.stdout:
+            print("vpk stdout:\n%s" % result.stdout)
+        if result.stderr:
+            print("vpk stderr:\n%s" % result.stderr)
+
+        if result.returncode != 0:
+            raise ManifestError("Velopack packaging failed with code %d" % result.returncode)
+
+        # Verify the Releases directory was created and contains expected files
+        if not os.path.exists(releases_dir):
+            raise ManifestError("Velopack releases directory not found: %s" % releases_dir)
+
+        # List what was created
+        releases_contents = os.listdir(releases_dir)
+        print("Velopack releases directory contents: %s" % releases_contents)
+
+        # Verify we have the expected files (nupkg and releases JSON)
+        nupkg_files = [f for f in releases_contents if f.endswith('.nupkg')]
+        json_files = [f for f in releases_contents if f.endswith('.json')]
+
+        if not nupkg_files:
+            raise ManifestError("No .nupkg files found in releases directory")
+        if not json_files:
+            raise ManifestError("No releases JSON files found in releases directory")
+
+        print("Generated %d nupkg file(s): %s" % (len(nupkg_files), nupkg_files))
+        print("Generated %d JSON file(s): %s" % (len(json_files), json_files))
+
+        # Output the Releases directory path for artifact upload
+        self.set_github_output('velopack_releases', releases_dir)
+        print("Velopack releases directory: %s" % releases_dir)
+
 
 class LinuxManifest(ViewerManifest):
     build_data_json_platform = 'lnx'
@@ -1134,33 +1350,33 @@ class LinuxManifest(ViewerManifest):
         super(LinuxManifest, self).construct()
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
+        if "package_dir" in self.args:
+            pkgdir = self.args['package_dir']
+
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
         self.path("licenses-linux.txt","licenses.txt")
         with self.prefix("linux_tools"):
-            self.path("client-readme.txt","README-linux.txt")
-            self.path("client-readme-voice.txt","README-linux-voice.txt")
-            self.path("client-readme-joystick.txt","README-linux-joystick.txt")
             self.path("wrapper.sh","secondlife")
             with self.prefix(dst="etc"):
                 self.path("handle_secondlifeprotocol.sh")
                 self.path("register_secondlifeprotocol.sh")
                 self.path("refresh_desktop_app_entry.sh")
-                self.path("launch_url.sh")
             self.path("install.sh")
 
         with self.prefix(dst="bin"):
             self.path("secondlife-bin","do-not-directly-run-secondlife-bin")
-            self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
             self.path2basename("../llplugin/slplugin", "SLPlugin")
             #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
-            with self.prefix(src="../viewer_components/manager", dst=""):
-                self.path("*.py")
+            #with self.prefix(src="../viewer_components/manager", dst=""):
+            #    self.path("*.py")
 
         # recurses, packaged again
         self.path("res-sdl")
 
+        # We  copy ll_icon.BMP in CMakeLists.txt to newview/res-sdl and this will let the above self.path step take  care of copying
+        # the correct branded icon
         # Get the icons based on the channel type
         icon_path = self.icon_path()
         print("DEBUG: icon_path '%s'" % icon_path)
@@ -1169,31 +1385,68 @@ class LinuxManifest(ViewerManifest):
             with self.prefix(dst="res-sdl") :
                 self.path("secondlife_256.BMP","ll_icon.BMP")
 
+        with self.prefix(src=os.path.join(self.args['build'], os.pardir, "llwebrtc" ), dst="lib"):
+            self.path("libllwebrtc.so")
+
         # plugins
-        with self.prefix(src="../media_plugins", dst="bin/llplugin"):
-            self.path("gstreamer010/libmedia_plugin_gstreamer010.so",
-                      "libmedia_plugin_gstreamer.so")
-            self.path2basename("libvlc", "libmedia_plugin_libvlc.so")
+        with self.prefix(dst="bin/llplugin"):
+            with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins')):
+                with self.prefix(src='cef'):
+                    self.path("libmedia_plugin_cef.so")
 
-        with self.prefix(src=os.path.join(pkgdir, 'lib', 'vlc', 'plugins'), dst="bin/llplugin/vlc/plugins"):
-            self.path( "plugins.dat" )
-            self.path( "*/*.so" )
+                # Media plugins - LibVLC
+                with self.prefix(src='libvlc'):
+                    self.path("libmedia_plugin_libvlc.so")
 
-        with self.prefix(src=os.path.join(pkgdir, 'lib' ), dst="lib"):
-            self.path( "libvlc*.so*" )
+                # GStreamer 1.0 Media Plugin
+                with self.prefix(src='gstreamer10'):
+                    self.path("libmedia_plugin_gstreamer10.so")
 
-        # llcommon
-        if not self.path("../llcommon/libllcommon.so", "lib/libllcommon.so"):
-            print("Skipping llcommon.so (assuming llcommon was linked statically)")
+                # Media plugins - Example (useful for debugging - not shipped with release viewer)
+                if self.channel_type() != 'release':
+                    with self.prefix(src='example'):
+                        self.path("libmedia_plugin_example.so")
+
+
+        with self.prefix(src=os.path.join(pkgdir, 'lib', 'release'), dst="lib"):
+            self.path( "libcef.so" )
+            self.path( "libEGL*" )
+            self.path( "libvulkan*" )
+            self.path( "libvk_swiftshader*" )
+            self.path( "libGLESv2*" )
+
+        with self.prefix(src=os.path.join(pkgdir, 'bin', 'release'), dst="bin"):
+            self.path( "chrome-sandbox" )
+            self.path( "dullahan_host" )
+
+        with self.prefix(src=os.path.join(pkgdir, 'lib', 'release'), dst="bin"):
+            self.path( "v8_context_snapshot.bin" )
+            self.path( "vk_swiftshader_icd.json")
+
+        with self.prefix(src=os.path.join(pkgdir, 'lib', 'release'), dst="lib"):
+            self.path( "v8_context_snapshot.bin" )
+            self.path( "vk_swiftshader_icd.json")
+
+        with self.prefix(src=os.path.join(pkgdir, 'resources'), dst="lib"):
+            self.path( "chrome_100_percent.pak" )
+            self.path( "chrome_200_percent.pak" )
+            self.path( "resources.pak" )
+            self.path( "icudtl.dat" )
+
+        with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst=os.path.join('lib', 'locales')):
+            self.path("*.pak")
 
         self.path("featuretable_linux.txt")
         self.path("cube.dae")
 
-        with self.prefix(src=pkgdir):
+        with self.prefix(src=pkgdir, dst="bin"):
             self.path("ca-bundle.crt")
 
     def package_finish(self):
         installer_name = self.installer_base_name()
+
+        # When running as a GitHub Action job, RUNNER_TEMP is defined as the tmp dir
+        RUNNER_TEMP = os.getenv('RUNNER_TEMP')
 
         self.strip_binaries()
 
@@ -1209,8 +1462,18 @@ class LinuxManifest(ViewerManifest):
         # temporarily move directory tree so that it has the right
         # name in the tarfile
         realname = self.get_dst_prefix()
-        tempname = self.build_path_of(installer_name)
-        self.run_command(["mv", realname, tempname])
+        versionedName = self.build_path_of(installer_name)
+
+        tarName = versionedName + ".tar.xz"
+
+        # If using a github runner we divert packaging a little. Considering this wil be a VM/docker image
+        # we can just pack the final installer into RUNNER_TEMP and not into the usual stop we'd pick when
+        # not building a GHA release
+        if RUNNER_TEMP:
+            tarName = os.path.join(RUNNER_TEMP, self.package_file)
+
+        self.run_command(["mv", realname, versionedName])
+
         try:
             # only create tarball if it's a release build.
             if self.args['buildtype'].lower() == 'release':
@@ -1218,87 +1481,30 @@ class LinuxManifest(ViewerManifest):
                 # security etc.
                 self.run_command(['tar', '-C', self.get_build_prefix(),
                                   '--numeric-owner', '-cJf',
-                                 tempname + '.tar.xz', installer_name])
+                                 tarName, installer_name])
+                self.set_github_output_path('viewer_app', tarName)
             else:
                 print("Skipping %s.tar.xz for non-Release build (%s)" % \
                       (installer_name, self.args['buildtype']))
         finally:
-            self.run_command(["mv", tempname, realname])
+            self.run_command(["mv", versionedName, realname])
 
     def strip_binaries(self):
         if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
-            print("* Going strip-crazy on the packaged binaries, since this is a RELEASE build")
+            print("* Going strip-crazy on the packaged binaries, since this is a Release build")
             # makes some small assumptions about our packaged dir structure
             self.run_command(
                 ["find"] +
                 [os.path.join(self.get_dst_prefix(), dir) for dir in ('bin', 'lib')] +
                 ['-type', 'f', '!', '-name', '*.py',
+                 '!', '-name', '*.pak',
+                 '!', '-name', '*.bin',
+                 '!', '-name', '*.dat',
+                 '!', '-name', '*.crt',
+                 '!', '-name', '*.dll',
+                 '!', '-name', '*.lib',
+                 '!', '-name', '*.json',
                  '!', '-name', 'update_install', '-exec', 'strip', '-S', '{}', ';'])
-
-class Linux_i686_Manifest(LinuxManifest):
-    address_size = 32
-
-    def construct(self):
-        super(Linux_i686_Manifest, self).construct()
-
-        pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
-        relpkgdir = os.path.join(pkgdir, "lib", "release")
-        debpkgdir = os.path.join(pkgdir, "lib", "debug")
-
-        with self.prefix(src=relpkgdir, dst="lib"):
-            self.path("libdb*.so")
-            self.path("libuuid.so*")
-            self.path("libSDL-1.2.so.*")
-            self.path("libdirectfb-1.*.so.*")
-            self.path("libfusion-1.*.so.*")
-            self.path("libdirect-1.*.so.*")
-            self.path("libopenjp2.so*")
-            self.path("libdirectfb-1.4.so.5")
-            self.path("libfusion-1.4.so.5")
-            self.path("libdirect-1.4.so.5*")
-            self.path("libalut.so*")
-            self.path("libopenal.so*")
-            self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
-            # KLUDGE: As of 2012-04-11, the 'fontconfig' package installs
-            # libfontconfig.so.1.4.4, along with symlinks libfontconfig.so.1
-            # and libfontconfig.so. Before we added support for library-file
-            # wildcards, though, this self.path() call specifically named
-            # libfontconfig.so.1.4.4 WITHOUT also copying the symlinks. When I
-            # (nat) changed the call to self.path("libfontconfig.so.*"), we
-            # ended up with the libfontconfig.so.1 symlink in the target
-            # directory as well. But guess what! At least on Ubuntu 10.04,
-            # certain viewer fonts look terrible with libfontconfig.so.1
-            # present in the target directory. Removing that symlink suffices
-            # to improve them. I suspect that means we actually do better when
-            # the viewer fails to find our packaged libfontconfig.so*, falling
-            # back on the system one instead -- but diagnosing and fixing that
-            # is a bit out of scope for the present project. Meanwhile, this
-            # particular wildcard specification gets us exactly what the
-            # previous call did, without having to explicitly state the
-            # version number.
-            self.path("libfontconfig.so.*.*")
-
-            # Include libfreetype.so. but have it work as libfontconfig does.
-            self.path("libfreetype.so.*.*")
-
-            try:
-                self.path("libtcmalloc.so*") #formerly called google perf tools
-                pass
-            except:
-                print("tcmalloc files not found, skipping")
-                pass
-
-        # Vivox runtimes
-        with self.prefix(src=relpkgdir, dst="bin"):
-            self.path("SLVoice")
-        with self.prefix(src=relpkgdir, dst="lib"):
-            self.path("libortp.so")
-            self.path("libsndfile.so.1")
-            #self.path("libvivoxoal.so.1") # no - we'll re-use the viewer's own OpenAL lib
-            self.path("libvivoxsdk.so")
-
-        self.strip_binaries()
-
 
 class Linux_x86_64_Manifest(LinuxManifest):
     address_size = 64
@@ -1306,9 +1512,23 @@ class Linux_x86_64_Manifest(LinuxManifest):
     def construct(self):
         super(Linux_x86_64_Manifest, self).construct()
 
-        # support file for valgrind debug tool
-        self.path("secondlife-i686.supp")
+        pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
+        if "package_dir" in self.args:
+            pkgdir = self.args['package_dir']
 
+        relpkgdir = os.path.join(pkgdir, "lib", "release")
+        #debpkgdir = os.path.join(pkgdir, "lib", "debug")
+
+        with self.prefix(src=relpkgdir, dst="lib"):
+            self.path("libSDL*.so.*")
+
+            self.path("libalut.so*")
+            self.path("libopenal.so*")
+
+            if self.args['discord'] == 'ON':
+                self.path("libdiscord_partner_sdk.so*")
+
+        self.strip_binaries()
 ################################################################
 
 if __name__ == "__main__":
@@ -1323,6 +1543,7 @@ if __name__ == "__main__":
         dict(name='discord', description="""Indication discord social sdk libraries are needed""", default='OFF'),
         dict(name='openal', description="""Indication openal libraries are needed""", default='OFF'),
         dict(name='tracy', description="""Indication tracy profiler is enabled""", default='OFF'),
+        dict(name='velopack', description="""Use Velopack installer instead of NSIS""", default='OFF'),
         ]
     try:
         main(extra=extra_arguments)

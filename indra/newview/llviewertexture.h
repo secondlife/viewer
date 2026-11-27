@@ -116,7 +116,6 @@ public:
     static void updateClass();
     static bool isSystemMemoryLow();
     static bool isSystemMemoryCritical();
-    static F32 getSystemMemoryBudgetFactor();
 
     LLViewerTexture(bool usemipmaps = true);
     LLViewerTexture(const LLUUID& id, bool usemipmaps) ;
@@ -405,6 +404,7 @@ public:
     bool        isFullyLoaded() const;
 
     bool        hasFetcher() const { return mHasFetcher;}
+    bool        needsCreateTexture() const { return mNeedsCreateTexture.CurrentValue(); }
     bool        isFetching() const { return mIsFetching;}
     void        setCanUseHTTP(bool can_use_http) {mCanUseHTTP = can_use_http;}
 

@@ -28,8 +28,6 @@
 #define LL_LLLOGININSTANCE_H
 
 #include "lleventdispatcher.h"
-#include "lleventapi.h"
-#include <memory>                   // std::shared_ptr
 #include "llsecapi.h"
 class LLLogin;
 class LLEventStream;
@@ -72,18 +70,15 @@ public:
     void saveMFAHash(LLSD const& response);
 
 private:
-    typedef std::shared_ptr<LLEventAPI::Response> ResponsePtr;
     void constructAuthParams(LLPointer<LLCredential> user_credentials);
-    void updateApp(bool mandatory, const std::string& message);
-    bool updateDialogCallback(const LLSD& notification, const LLSD& response);
 
     bool handleLoginEvent(const LLSD& event);
     void handleLoginFailure(const LLSD& event);
     void handleLoginSuccess(const LLSD& event);
     void handleDisconnect(const LLSD& event);
     void handleIndeterminate(const LLSD& event);
+    void handleLoginRequiredUpdate(const LLSD& notification, const LLSD& response);
     void handleLoginDisallowed(const LLSD& notification, const LLSD& response);
-    void syncWithUpdater(ResponsePtr resp, const LLSD& notification, const LLSD& response);
 
     bool handleTOSResponse(bool v, const std::string& key);
     void showMFAChallange(const std::string& message);

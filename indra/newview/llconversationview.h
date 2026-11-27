@@ -94,7 +94,8 @@ public:
     void setHighlightState(bool hihglight_state);
 
     LLFloater* getSessionFloater();
-    bool isInActiveVoiceChannel() { return mIsInActiveVoiceChannel; }
+    bool isInActiveVoiceChannel();
+    void updateConversationIndicators();
 
     bool highlightFriendTitle(LLConversationItem* vmi);
 

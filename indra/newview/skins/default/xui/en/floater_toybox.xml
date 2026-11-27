@@ -16,7 +16,6 @@
   width="650">
   <text
     follows="left|top"
-    font="SansSerifMedium"
     valign="top"
     halign="left"
     height="20"
@@ -31,7 +30,6 @@
   </text>
   <text
     follows="left|top"
-    font="SansSerifMedium"
     valign="top"
     halign="left"
     height="20"
@@ -49,7 +47,7 @@
     button_display_mode="icons_with_text"
     follows="all"
     left="20"
-    button_icon_and_text.button_width.max="140"
+    button_icon_and_text.button_width.max="172"
     button_icon_and_text.button_width.min="70"
     name="toybox_toolbar"
     pad_left="5"

@@ -43,6 +43,7 @@
 #include "llviewernetwork.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
+#include "llviewerjointattachment.h"
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
 #include "llsdutil.h"
@@ -195,11 +196,26 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         &LLAgentListener::getNearbyObjectsList,
         llsd::map("reply", LLSD()));
 
+    add("getAttachedObjectsList",
+        "Return attached objects list with information about each object\n"
+        "reply contains \"attachments\" result key",
+        &LLAgentListener::getAttachedObjectsList,
+        llsd::map("reply", LLSD()));
+
     add("getAgentScreenPos",
         "Return screen position of the [\"avatar_id\"] avatar or own avatar if not specified\n"
         "reply contains \"x\", \"y\" coordinates and \"onscreen\" flag to indicate if it's actually in within the current window\n"
         "avatar render position is used as the point",
         &LLAgentListener::getAgentScreenPos,
+        llsd::map("reply", LLSD()));
+
+    add("getCamera",
+        "Send information about the viewer camera's current state on [\"reply\"]:\n"
+        "[\"position\"]: array of [x, y, z] camera position in agent coordinates\n"
+        "[\"rotation\"]: array of [x, y, z, w] camera rotation quaternion\n"
+        "[\"fov\"]: vertical field of view, in radians\n"
+        "[\"focus_position\"]: array of [x, y, z] camera focus position in agent coordinates",
+        &LLAgentListener::getCamera,
         llsd::map("reply", LLSD()));
 }
 
@@ -654,12 +670,21 @@ void LLAgentListener::setFollowCamParams(const LLSD& event) const
 
 void LLAgentListener::setFollowCamActive(LLSD const & event) const
 {
-    LLFollowCamMgr::getInstance()->setCameraActive(gAgentID, event["active"]);
+    const bool active = event["active"].asBoolean();
+    LLFollowCamMgr::getInstance()->setCameraActive(gAgentID, active);
+    if (!active && !LLFollowCamMgr::getInstance()->getActiveFollowCamParams())
+    {
+        gAgentCamera.notifyFollowCamParamsCleared();
+    }
 }
 
 void LLAgentListener::removeFollowCamParams(LLSD const & event) const
 {
     LLFollowCamMgr::getInstance()->removeFollowCamParams(gAgentID);
+    if (!LLFollowCamMgr::getInstance()->getActiveFollowCamParams())
+    {
+        gAgentCamera.notifyFollowCamParamsCleared();
+    }
 }
 
 LLViewerInventoryItem* get_anim_item(LLEventAPI::Response &response, const LLSD &event_data)
@@ -772,6 +797,41 @@ void LLAgentListener::getNearbyObjectsList(LLSD const& event_data)
     }
 }
 
+void LLAgentListener::getAttachedObjectsList(LLSD const& event_data)
+{
+    Response response(LLSD(), event_data);
+    response["attachments"] = LLSD::emptyArray();
+
+    if (!isAgentAvatarValid())
+    {
+        return;
+    }
+
+    for (const auto& [attachment_point_index, attachment_point] : gAgentAvatarp->mAttachmentPoints)
+    {
+        if (!attachment_point)
+        {
+            continue;
+        }
+
+        for (const auto& attachment_object_ptr : attachment_point->mAttachedObjects)
+        {
+            if (LLViewerObject* attachment_object = attachment_object_ptr.get())
+            {
+                response["attachments"].append(llsd::map(
+                    "object_id", attachment_object->getID(),
+                    "inventory_item_id", attachment_object->getAttachmentItemID(),
+                    "name", attachment_object->getAttachmentItemName(),
+                    "attachment_point", attachment_point->getName(),
+                    "attachment_point_index", attachment_point_index,
+                    "position", ll_sd_from_vector3(attachment_object->getPosition()),
+                    "rotation", ll_sd_from_quaternion(attachment_object->getRotation()),
+                    "is_temporary", attachment_object->isTempAttachment()));
+            }
+        }
+    }
+}
+
 void LLAgentListener::getAgentScreenPos(LLSD const& event_data)
 {
     Response response(LLSD(), event_data);
@@ -797,4 +857,15 @@ void LLAgentListener::getAgentScreenPos(LLSD const& event_data)
     response["onscreen"] = LLViewerCamera::getInstance()->projectPosAgentToScreen(render_pos, screen_pos, false);
     response["x"] = screen_pos.mX;
     response["y"] = screen_pos.mY;
+}
+
+void LLAgentListener::getCamera(LLSD const& event_data)
+{
+    Response response(LLSD(), event_data);
+    LLViewerCamera* camera = LLViewerCamera::getInstance();
+
+    response["position"] = ll_sd_from_vector3(camera->getOrigin());
+    response["rotation"] = ll_sd_from_quaternion(camera->getQuaternion());
+    response["fov"] = camera->getView();
+    response["focus_position"] = ll_sd_from_vector3(mAgent.getPosAgentFromGlobal(gAgentCamera.getFocusGlobal()));
 }

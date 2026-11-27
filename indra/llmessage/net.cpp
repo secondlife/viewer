@@ -326,7 +326,7 @@ S32 receive_packet(int hSocket, char * receiveBuffer)
             return 0;
         if (WSAECONNRESET == WSAGetLastError())
             return 0;
-        LL_INFOS() << "receivePacket() failed, Error: " << WSAGetLastError() << LL_ENDL;
+        LL_INFOS() << "receive_packet() failed, Error: " << WSAGetLastError() << LL_ENDL;
     }
 
     return nRet;

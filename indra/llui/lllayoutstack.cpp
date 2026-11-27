@@ -48,17 +48,21 @@ static LLLayoutStack::LayoutStackRegistry::Register<LLLayoutPanel> register_layo
 LLLayoutPanel::Params::Params()
 :   expanded_min_dim("expanded_min_dim", 0),
     min_dim("min_dim", -1),
+    max_dim("max_dim", -1),
     user_resize("user_resize", false),
     auto_resize("auto_resize", true)
 {
     addSynonym(min_dim, "min_width");
     addSynonym(min_dim, "min_height");
+    addSynonym(max_dim, "max_width");
+    addSynonym(max_dim, "max_height");
 }
 
 LLLayoutPanel::LLLayoutPanel(const Params& p)
 :   LLPanel(p),
     mExpandedMinDim(p.expanded_min_dim.isProvided() ? p.expanded_min_dim : p.min_dim),
     mMinDim(p.min_dim),
+    mMaxDim(p.max_dim),
     mAutoResize(p.auto_resize),
     mUserResize(p.user_resize),
     mCollapsed(false),
@@ -75,6 +79,7 @@ LLLayoutPanel::LLLayoutPanel(const Params& p)
     {
         mVisibleAmt = 0.f;
     }
+    setMaxDim(mMaxDim);
 }
 
 void LLLayoutPanel::initFromParams(const Params& p)
@@ -113,6 +118,8 @@ S32 LLLayoutPanel::getTargetDim() const
 
 void LLLayoutPanel::setTargetDim(S32 value)
 {
+    value = llmin(value, mMaxDim);
+
     LLRect new_rect(getRect());
     if (mOrientation == LLLayoutStack::HORIZONTAL)
     {
@@ -145,6 +152,7 @@ void LLLayoutPanel::setOrientation( LLView::EOrientation orientation )
         setMinDim(layout_dim);
     }
     mTargetDim = llmax(layout_dim, getMinDim());
+    mTargetDim = llmin(mTargetDim, mMaxDim);
 }
 
 void LLLayoutPanel::setVisible( bool visible )
@@ -167,6 +175,7 @@ void LLLayoutPanel::reshape( S32 width, S32 height, bool called_from_parent /*= 
     if (!mIgnoreReshape && !mAutoResize)
     {
         mTargetDim = (mOrientation == LLLayoutStack::HORIZONTAL) ? width : height;
+        mTargetDim = llmin(mTargetDim, mMaxDim);
         LLLayoutStack* stackp = dynamic_cast<LLLayoutStack*>(getParent());
         if (stackp)
         {
@@ -439,6 +448,7 @@ void LLLayoutStack::updateLayout()
                 F32 fraction_to_distribute = (panelp->mFractionalSize * panelp->getAutoResizeFactor()) / (total_visible_fraction);
                 S32 delta = ll_round((F32)space_to_distribute * fraction_to_distribute);
                 panelp->mTargetDim += delta;
+                panelp->mTargetDim = llmin(panelp->mTargetDim, panelp->mMaxDim);
                 remaining_space -= delta;
             }
         }
@@ -455,6 +465,7 @@ void LLLayoutStack::updateLayout()
         {
             S32 space_for_panel = remaining_space > 0 ? 1 : -1;
             panelp->mTargetDim += space_for_panel;
+            panelp->mTargetDim = llmin(panelp->mTargetDim, panelp->mMaxDim);
             remaining_space -= space_for_panel;
         }
     }

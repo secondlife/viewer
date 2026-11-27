@@ -29,13 +29,13 @@
 #include "linden_common.h"
 #include "../test/lltut.h"
 
+#include <bit>
 #include "llcrc.h"
 #include "llrand.h"
 #include "lluuid.h"
 
 #include "../llline.h"
 #include "../llmath.h"
-#include "../llsphere.h"
 #include "../v3math.h"
 
 namespace tut
@@ -168,6 +168,107 @@ namespace tut
         angle =  llsimple_angle(angle);
         ensure("llsimple_angle  value 1", (angle <=F_PI && angle >= -F_PI));
     }
+
+    template<> template<>
+    void math_object::test<12>()
+    {
+        ensure("is_zero +0", is_zero(0.f));
+        ensure("is_zero -0", is_zero(-0.f));
+        ensure("is_zero smallest denormal", !is_zero(std::numeric_limits<F32>::denorm_min()));
+        ensure("is_zero 1", !is_zero(1.f));
+        ensure("is_zero -1", !is_zero(-1.f));
+        ensure("is_zero infinity", !is_zero(std::numeric_limits<F32>::infinity()));
+        ensure("is_zero NaN", !is_zero(std::numeric_limits<F32>::quiet_NaN()));
+
+        static_assert(is_zero(-0.f));
+        static_assert(is_approx_equal(1.f, 1.f));
+        static_assert(is_approx_equal(1.0, 1.0));
+    }
+
+    template<> template<>
+    void math_object::test<13>()
+    {
+        auto f32_add_ulps = [](F32 v, U32 n)
+        {
+            return std::bit_cast<F32>(std::bit_cast<U32>(v) + n);
+        };
+
+        constexpr F32 inf   = std::numeric_limits<F32>::infinity();
+        constexpr F32 nan   = std::numeric_limits<F32>::quiet_NaN();
+        constexpr F32 d_min = std::numeric_limits<F32>::denorm_min();
+        constexpr F32 f_max = std::numeric_limits<F32>::max();
+        constexpr F32 f_low = std::numeric_limits<F32>::lowest();
+
+        ensure("f32 identical", is_approx_equal(1.f, 1.f));
+        ensure("f32 +1 ulp", is_approx_equal(1.f, f32_add_ulps(1.f, 1)));
+        ensure("f32 -1 ulp", is_approx_equal(f32_add_ulps(1.f, 1), 1.f));
+        ensure("f32 +2 ulp", !is_approx_equal(1.f, f32_add_ulps(1.f, 2)));
+        ensure("f32 negative +1 ulp", is_approx_equal(-1.f, f32_add_ulps(-1.f, 1)));
+        ensure("f32 negative +2 ulp", !is_approx_equal(-1.f, f32_add_ulps(-1.f, 2)));
+        ensure("f32 exponent boundary", is_approx_equal(1.f, std::nextafter(1.f, 0.f)));
+        ensure("f32 opposite sign", !is_approx_equal(1.f, -1.f));
+        ensure("f32 unrelated", !is_approx_equal(1.f, 2.f));
+
+        ensure("f32 +0 vs -0", is_approx_equal(0.f, -0.f));
+        ensure("f32 +denorm vs +0", is_approx_equal(d_min, 0.f));
+        ensure("f32 -denorm vs +0", is_approx_equal(-d_min, 0.f));
+        ensure("f32 -denorm vs -0", is_approx_equal(-d_min, -0.f));
+        ensure("f32 +denorm vs -denorm is 2 ulp", !is_approx_equal(d_min, -d_min));
+
+        ensure("f32 NaN vs NaN", !is_approx_equal(nan, nan));
+        ensure("f32 NaN vs 1", !is_approx_equal(nan, 1.f));
+        ensure("f32 1 vs NaN", !is_approx_equal(1.f, nan));
+        ensure("f32 NaN vs inf", !is_approx_equal(nan, inf));
+
+        ensure("f32 +inf vs +inf", is_approx_equal(inf, inf));
+        ensure("f32 -inf vs -inf", is_approx_equal(-inf, -inf));
+        ensure("f32 +inf vs -inf", !is_approx_equal(inf, -inf));
+        ensure("f32 +inf vs max", !is_approx_equal(inf, f_max));
+        ensure("f32 -inf vs lowest", !is_approx_equal(-inf, f_low));
+    }
+
+    template<> template<>
+    void math_object::test<14>()
+    {
+        auto f64_add_ulps = [](F64 v, U64 n)
+        {
+            return std::bit_cast<F64>(std::bit_cast<U64>(v) + n);
+        };
+
+        constexpr F64 inf   = std::numeric_limits<F64>::infinity();
+        constexpr F64 nan   = std::numeric_limits<F64>::quiet_NaN();
+        constexpr F64 d_min = std::numeric_limits<F64>::denorm_min();
+        constexpr F64 f_max = std::numeric_limits<F64>::max();
+        constexpr F64 f_low = std::numeric_limits<F64>::lowest();
+
+        ensure("f64 identical", is_approx_equal(1.0, 1.0));
+        ensure("f64 +1 ulp", is_approx_equal(1.0, f64_add_ulps(1.0, 1)));
+        ensure("f64 -1 ulp", is_approx_equal(f64_add_ulps(1.0, 1), 1.0));
+        ensure("f64 +2 ulp", !is_approx_equal(1.0, f64_add_ulps(1.0, 2)));
+        ensure("f64 negative +1 ulp", is_approx_equal(-1.0, f64_add_ulps(-1.0, 1)));
+        ensure("f64 negative +2 ulp", !is_approx_equal(-1.0, f64_add_ulps(-1.0, 2)));
+        ensure("f64 opposite sign", !is_approx_equal(1.0, -1.0));
+
+        ensure("f64 2^32 ulp apart", !is_approx_equal(1.0, f64_add_ulps(1.0, U64(1) << 32)));
+        ensure("f64 2^32+1 ulp apart", !is_approx_equal(1.0, f64_add_ulps(1.0, (U64(1) << 32) + 1)));
+
+        ensure("f64 +0 vs -0", is_approx_equal(0.0, -0.0));
+        ensure("f64 +denorm vs +0", is_approx_equal(d_min, 0.0));
+        ensure("f64 -denorm vs +0", is_approx_equal(-d_min, 0.0));
+        ensure("f64 -denorm vs -0", is_approx_equal(-d_min, -0.0));
+        ensure("f64 +denorm vs -denorm is 2 ulp", !is_approx_equal(d_min, -d_min));
+
+        ensure("f64 NaN vs NaN", !is_approx_equal(nan, nan));
+        ensure("f64 NaN vs 1", !is_approx_equal(nan, 1.0));
+        ensure("f64 1 vs NaN", !is_approx_equal(1.0, nan));
+        ensure("f64 NaN vs inf", !is_approx_equal(nan, inf));
+
+        ensure("f64 +inf vs +inf", is_approx_equal(inf, inf));
+        ensure("f64 -inf vs -inf", is_approx_equal(-inf, -inf));
+        ensure("f64 +inf vs -inf", !is_approx_equal(inf, -inf));
+        ensure("f64 +inf vs max", !is_approx_equal(inf, f_max));
+        ensure("f64 -inf vs lowest", !is_approx_equal(-inf, f_low));
+    }
 }
 
 namespace tut
@@ -275,166 +376,6 @@ namespace tut
         c2.update((U8*)TEST_BUFFER2, sizeof(TEST_BUFFER2) - 1);
 
         ensure_equals("crc update 2", c1.getCRC(), c2.getCRC());
-    }
-}
-
-namespace tut
-{
-    struct sphere_data
-    {
-    };
-    typedef test_group<sphere_data> sphere_test;
-    typedef sphere_test::object sphere_object;
-    tut::sphere_test tsphere("LLSphere");
-
-    template<> template<>
-    void sphere_object::test<1>()
-    {
-        // test LLSphere::contains() and ::overlaps()
-        S32 number_of_tests = 10;
-        for (S32 test = 0; test < number_of_tests; ++test)
-        {
-            LLVector3 first_center(1.f, 1.f, 1.f);
-            F32 first_radius = 3.f;
-            LLSphere first_sphere( first_center, first_radius );
-
-            F32 half_millimeter = 0.0005f;
-            LLVector3 direction( ll_frand(2.f) - 1.f, ll_frand(2.f) - 1.f, ll_frand(2.f) - 1.f);
-            direction.normalize();
-
-            F32 distance = ll_frand(first_radius - 2.f * half_millimeter);
-            LLVector3 second_center = first_center + distance * direction;
-            F32 second_radius = first_radius - distance - half_millimeter;
-            LLSphere second_sphere( second_center, second_radius );
-            ensure("first sphere should contain the second", first_sphere.contains(second_sphere));
-            ensure("first sphere should overlap the second", first_sphere.overlaps(second_sphere));
-
-            distance = first_radius + ll_frand(first_radius);
-            second_center = first_center + distance * direction;
-            second_radius = distance - first_radius + half_millimeter;
-            second_sphere.set( second_center, second_radius );
-            ensure("first sphere should NOT contain the second", !first_sphere.contains(second_sphere));
-            ensure("first sphere should overlap the second", first_sphere.overlaps(second_sphere));
-
-            distance = first_radius + ll_frand(first_radius) + half_millimeter;
-            second_center = first_center + distance * direction;
-            second_radius = distance - first_radius - half_millimeter;
-            second_sphere.set( second_center, second_radius );
-            ensure("first sphere should NOT contain the second", !first_sphere.contains(second_sphere));
-            ensure("first sphere should NOT overlap the second", !first_sphere.overlaps(second_sphere));
-        }
-    }
-
-    template<> template<>
-    void sphere_object::test<2>()
-    {
-        skip("See SNOW-620.  Neither the test nor the code being tested seem good.  Also sim-only.");
-
-        // test LLSphere::getBoundingSphere()
-        S32 number_of_tests = 100;
-        S32 number_of_spheres = 10;
-        F32 sphere_center_range = 32.f;
-        F32 sphere_radius_range = 5.f;
-
-        for (S32 test = 0; test < number_of_tests; ++test)
-        {
-            // gegnerate a bunch of random sphere
-            std::vector< LLSphere > sphere_list;
-            for (S32 sphere_count=0; sphere_count < number_of_spheres; ++sphere_count)
-            {
-                LLVector3 direction( ll_frand(2.f) - 1.f, ll_frand(2.f) - 1.f, ll_frand(2.f) - 1.f);
-                direction.normalize();
-                F32 distance = ll_frand(sphere_center_range);
-                LLVector3 center = distance * direction;
-                F32 radius = ll_frand(sphere_radius_range);
-                LLSphere sphere( center, radius );
-                sphere_list.push_back(sphere);
-            }
-
-            // compute the bounding sphere
-            LLSphere bounding_sphere = LLSphere::getBoundingSphere(sphere_list);
-
-            // make sure all spheres are inside the bounding sphere
-            {
-                std::vector< LLSphere >::const_iterator sphere_itr;
-                for (sphere_itr = sphere_list.begin(); sphere_itr != sphere_list.end(); ++sphere_itr)
-                {
-                    ensure("sphere should be contained by the bounding sphere", bounding_sphere.contains(*sphere_itr));
-                }
-            }
-
-            // TODO -- improve LLSphere::getBoundingSphere() to the point where
-            // we can reduce the 'expansion' in the two tests below to about
-            // 2 mm or less
-
-            F32 expansion = 0.005f;
-            // move all spheres out a little bit
-            // and count how many are NOT contained
-            {
-                std::vector< LLVector3 > uncontained_directions;
-                std::vector< LLSphere >::iterator sphere_itr;
-                for (sphere_itr = sphere_list.begin(); sphere_itr != sphere_list.end(); ++sphere_itr)
-                {
-                    LLVector3 direction = sphere_itr->getCenter() - bounding_sphere.getCenter();
-                    direction.normalize();
-
-                    sphere_itr->setCenter( sphere_itr->getCenter() + expansion * direction );
-                    if (! bounding_sphere.contains( *sphere_itr ) )
-                    {
-                        uncontained_directions.push_back(direction);
-                    }
-                }
-                ensure("when moving spheres out there should be at least two uncontained spheres",
-                        uncontained_directions.size() > 1);
-
-                /* TODO -- when the bounding sphere algorithm is improved we can open up this test
-                 * at the moment it occasionally fails when the sphere collection is tight and small
-                 * (2 meters or less)
-                if (2 == uncontained_directions.size() )
-                {
-                    // if there were only two uncontained spheres then
-                    // the two directions should be nearly opposite
-                    F32 dir_dot = uncontained_directions[0] * uncontained_directions[1];
-                    ensure("two uncontained spheres should lie opposite the bounding center", dir_dot < -0.95f);
-                }
-                */
-            }
-
-            // compute the new bounding sphere
-            bounding_sphere = LLSphere::getBoundingSphere(sphere_list);
-
-            // increase the size of all spheres a little bit
-            // and count how many are NOT contained
-            {
-                std::vector< LLVector3 > uncontained_directions;
-                std::vector< LLSphere >::iterator sphere_itr;
-                for (sphere_itr = sphere_list.begin(); sphere_itr != sphere_list.end(); ++sphere_itr)
-                {
-                    LLVector3 direction = sphere_itr->getCenter() - bounding_sphere.getCenter();
-                    direction.normalize();
-
-                    sphere_itr->setRadius( sphere_itr->getRadius() + expansion );
-                    if (! bounding_sphere.contains( *sphere_itr ) )
-                    {
-                        uncontained_directions.push_back(direction);
-                    }
-                }
-                ensure("when boosting sphere radii there should be at least two uncontained spheres",
-                        uncontained_directions.size() > 1);
-
-                /* TODO -- when the bounding sphere algorithm is improved we can open up this test
-                 * at the moment it occasionally fails when the sphere collection is tight and small
-                 * (2 meters or less)
-                if (2 == uncontained_directions.size() )
-                {
-                    // if there were only two uncontained spheres then
-                    // the two directions should be nearly opposite
-                    F32 dir_dot = uncontained_directions[0] * uncontained_directions[1];
-                    ensure("two uncontained spheres should lie opposite the bounding center", dir_dot < -0.95f);
-                }
-                */
-            }
-        }
     }
 }
 

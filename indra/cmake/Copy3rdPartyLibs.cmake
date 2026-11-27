@@ -29,34 +29,12 @@ endmacro()
 ###################################################################
 if(WINDOWS)
     #*******************************
-    # VIVOX - *NOTE: no debug version
-    set(vivox_lib_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
-
-    # ND, it seems there is no such thing defined. At least when building a viewer
-    # Does this maybe matter on some LL buildserver? Otherwise this and the snippet using slvoice_src_dir
-    # can all go
-    if( ARCH_PREBUILT_BIN_RELEASE )
-        set(slvoice_src_dir "${ARCH_PREBUILT_BIN_RELEASE}")
-    endif()
-    set(slvoice_files SLVoice.exe )
-    if (ADDRESS_SIZE EQUAL 64)
-        list(APPEND vivox_libs
-            vivoxsdk_x64.dll
-            ortp_x64.dll
-            )
-    else (ADDRESS_SIZE EQUAL 64)
-        list(APPEND vivox_libs
-            vivoxsdk.dll
-            ortp.dll
-            )
-    endif (ADDRESS_SIZE EQUAL 64)
-
-    #*******************************
     # Misc shared libs
 
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         openjp2.dll
+        SDL3.dll
         )
 
     # Filenames are different for 32/64 bit BugSplat file and we don't
@@ -98,6 +76,9 @@ if(WINDOWS)
     elseif (MSVC_VERSION GREATER_EQUAL 1930 AND MSVC_VERSION LESS 1950) # Visual Studio 2022
         set(MSVC_VER 140)
         set(MSVC_TOOLSET_VER 143)
+    elseif (MSVC_VERSION GREATER_EQUAL 1950 AND MSVC_VERSION LESS 1970) # Visual Studio 2026
+        set(MSVC_VER 140)
+        set(MSVC_TOOLSET_VER 145)
     else (MSVC80)
         MESSAGE(WARNING "New MSVC_VERSION ${MSVC_VERSION} of MSVC: adapt Copy3rdPartyLibs.cmake")
     endif (MSVC80)
@@ -135,6 +116,7 @@ if(WINDOWS)
             msvcp${MSVC_VER}_atomic_wait.dll
             msvcp${MSVC_VER}_codecvt_ids.dll
             msvcr${MSVC_VER}.dll
+            vccorlib${MSVC_VER}.dll
             vcruntime${MSVC_VER}.dll
             vcruntime${MSVC_VER}_1.dll
             vcruntime${MSVC_VER}_threads.dll
@@ -159,18 +141,13 @@ if(WINDOWS)
     endforeach()
 
 elseif(DARWIN)
-    set(vivox_lib_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
-    set(slvoice_files SLVoice)
-    set(vivox_libs
-        libortp.dylib
-        libvivoxsdk.dylib
-       )
     set(debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}")
     set(debug_files
        )
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         libndofdev.dylib
+        libSDL3.dylib
        )
 
     if (TARGET ll::discord_sdk)
@@ -188,15 +165,6 @@ elseif(LINUX)
     set(SHARED_LIB_STAGING_DIR_RELWITHDEBINFO   "${SHARED_LIB_STAGING_DIR}")
     set(SHARED_LIB_STAGING_DIR_RELEASE          "${SHARED_LIB_STAGING_DIR}")
 
-    set(vivox_lib_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
-    set(vivox_libs
-        libsndfile.so.1
-        libortp.so
-        libvivoxoal.so.1
-        libvivoxsdk.so
-        )
-    set(slvoice_files SLVoice)
-
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
     # or ARCH_PREBUILT_DIRS
     set(debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}")
@@ -211,23 +179,14 @@ elseif(LINUX)
 
      if( USE_AUTOBUILD_3P )
          list( APPEND release_files
-                 libatk-1.0.so
-                 libfreetype.so.6.6.2
-                 libfreetype.so.6
-                 libopenjp2.so
-                 libuuid.so.16
-                 libuuid.so.16.0.22
-                 libfontconfig.so.1.8.0
-                 libfontconfig.so.1
-                 libgmodule-2.0.so
-                 libgobject-2.0.so
-                 )
+                libSDL3.so
+                libSDL3.so.0
+                libSDL3.so.0.2.24
+                )
      endif()
 
 else(WINDOWS)
     message(STATUS "WARNING: unrecognized platform for staging 3rd party libs, skipping...")
-    set(vivox_lib_dir "${CMAKE_SOURCE_DIR}/newview/vivox-runtime/i686-linux")
-    set(vivox_libs "")
     # *TODO - update this to use LIBS_PREBUILT_DIR and LL_ARCH_DIR variables
     # or ARCH_PREBUILT_DIRS
     set(debug_src_dir "${CMAKE_SOURCE_DIR}/../libraries/i686-linux/lib/debug")
@@ -248,26 +207,6 @@ endif(WINDOWS)
 ################################################################
 # Done building the file lists, now set up the copy commands.
 ################################################################
-
-# Curiously, slvoice_files are only copied to SHARED_LIB_STAGING_DIR_RELEASE.
-# It's unclear whether this is oversight or intentional, but anyway leave the
-# single copy_if_different command rather than using to_staging_dirs.
-
-if( slvoice_src_dir )
-    copy_if_different(
-            ${slvoice_src_dir}
-            "${SHARED_LIB_STAGING_DIR_RELEASE}"
-            out_targets
-            ${slvoice_files}
-    )
-    list(APPEND third_party_targets ${out_targets})
-endif()
-
-to_staging_dirs(
-    ${vivox_lib_dir}
-    third_party_targets
-    ${vivox_libs}
-    )
 
 to_staging_dirs(
     ${release_src_dir}

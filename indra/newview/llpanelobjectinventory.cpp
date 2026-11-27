@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -897,8 +897,20 @@ public:
                        const std::string& name) :
         LLTaskInvFVBridge(panel, uuid, name) {}
 
+    LLUIImagePtr getIcon() const override;
+
     //static bool enableIfCopyable( void* userdata );
 };
+
+// virtual
+LLUIImagePtr LLTaskScriptBridge::getIcon() const
+{
+    // Pass the item's flags so the script subtype (e.g. SST_LUA) is honored
+    // and the correct icon (Inv_Script vs Inv_Script_Luau) is selected.
+    LLInventoryItem* item = findItem();
+    U32 misc_flag = item ? item->getFlags() : 0;
+    return LLInventoryIcon::getIcon(mAssetType, mInventoryType, misc_flag, false);
+}
 
 class LLTaskLSLBridge : public LLTaskScriptBridge
 {
@@ -1337,6 +1349,14 @@ LLPanelObjectInventory::LLPanelObjectInventory(const LLPanelObjectInventory::Par
 // Destroys the object
 LLPanelObjectInventory::~LLPanelObjectInventory()
 {
+    if (mFolders)
+    {
+        mFolders->cancelRenaming();
+        if (LLEditMenuHandler::gEditMenuHandler == mFolders)
+        {
+            LLEditMenuHandler::gEditMenuHandler = NULL;
+        }
+    }
     if (!gIdleCallbacks.deleteFunction(idle, this))
     {
         LL_WARNS() << "LLPanelObjectInventory::~LLPanelObjectInventory() failed to delete callback" << LL_ENDL;
@@ -1385,6 +1405,15 @@ void LLPanelObjectInventory::clearContents()
     }
 
     clearItemIDs();
+
+    if (mFolders)
+    {
+        mFolders->cancelRenaming();
+        if (LLEditMenuHandler::gEditMenuHandler == mFolders)
+        {
+            LLEditMenuHandler::gEditMenuHandler = NULL;
+        }
+    }
 
     if( mScroller )
     {
@@ -1611,7 +1640,6 @@ void LLPanelObjectInventory::createViewsForCategory(LLInventoryObject::object_li
                     params.name = obj->getName();
                     params.root = mFolders;
                     params.listener = bridge;
-                    params.tool_tip = params.name;
                     params.font_color = item_color;
                     params.font_highlight_color = item_color;
                     view = LLUICtrlFactory::create<LLFolderViewFolder>(params);
@@ -1625,7 +1653,6 @@ void LLPanelObjectInventory::createViewsForCategory(LLInventoryObject::object_li
                     params.listener = bridge;
                     params.creation_date = bridge->getCreationDate();
                     params.rect = LLRect();
-                    params.tool_tip = params.name;
                     params.font_color = item_color;
                     params.font_highlight_color = item_color;
                     view = LLUICtrlFactory::create<LLFolderViewItem>(params);
@@ -1770,6 +1797,14 @@ void LLPanelObjectInventory::draw()
 
 void LLPanelObjectInventory::deleteAllChildren()
 {
+    if (mFolders)
+    {
+        mFolders->cancelRenaming();
+        if (LLEditMenuHandler::gEditMenuHandler == mFolders)
+        {
+            LLEditMenuHandler::gEditMenuHandler = NULL;
+        }
+    }
     mScroller = NULL;
     mFolders = NULL;
     LLView::deleteAllChildren();
@@ -1830,7 +1865,7 @@ void LLPanelObjectInventory::onFocusReceived()
 
 LLFolderViewItem* LLPanelObjectInventory::getItemByID( const LLUUID& id )
 {
-    std::map<LLUUID, LLFolderViewItem*>::iterator map_it = mItemMap.find(id);
+    auto map_it = mItemMap.find(id);
     if (map_it != mItemMap.end())
     {
         return map_it->second;

@@ -36,11 +36,14 @@ class LLFloaterMarketplace:
 
 public:
     void openMarketplace();
+    void openMarketplaceURL(const std::string& url);
+    bool static isMarketplaceURL(const std::string& url);
 
 private:
     LLFloaterMarketplace(const LLSD& key);
     ~LLFloaterMarketplace();
     bool postBuild() override;
+    void onOpen(const LLSD& key) override;
     void onClose(bool app_quitting) override;
 };
 

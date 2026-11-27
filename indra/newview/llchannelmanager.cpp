@@ -140,6 +140,7 @@ void LLChannelManager::onLoginCompleted()
         }
         else
         {
+            mStartUpToastInited = true;
             gViewerWindow->getRootView()->addChild(mStartUpChannel);
 
             // init channel's position and size

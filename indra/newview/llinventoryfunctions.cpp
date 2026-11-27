@@ -634,12 +634,6 @@ bool get_is_item_worn(const LLUUID& id, const LLViewerInventoryItem* item)
         return false;
     }
 
-    // Consider the item as worn if it has links in COF.
-    if (LLAppearanceMgr::instance().isLinkedInCOF(id))
-    {
-        return true;
-    }
-
     switch(item->getType())
     {
         case LLAssetType::AT_OBJECT:
@@ -2555,7 +2549,7 @@ bool get_is_favorite(const LLUUID& obj_id)
         return obj && obj->getIsFavorite();
     }
 
-    return object->getIsFavorite();
+    return object && object->getIsFavorite();
 }
 
 void set_favorite(const LLUUID& obj_id, bool favorite)
@@ -3677,8 +3671,21 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
             return;
         }
         const LLUUID& parent_uuid = first_item->getParentUUID();
+        // Never in Marketplace Listings: the plain move skips the marketplace bookkeeping
+        const LLUUID marketplace_id = gInventory.getMarketplaceListingsUUID();
+        if (gInventory.isObjectDescendentOf(parent_uuid, marketplace_id))
+        {
+            return;
+        }
+
         for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
         {
+            // Nor the Marketplace Listings folder itself, which sits outside it
+            if (*it == marketplace_id)
+            {
+                return;
+            }
+
             LLInventoryObject *item = gInventory.getObject(*it);
             if (!item || item->getParentUUID() != parent_uuid)
             {
@@ -3883,6 +3890,10 @@ void LLInventoryAction::fileUploadLocation(const LLUUID& dest_id, const std::str
     else if (action == "upload_bulk")
     {
         LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2, true, dest_id), LLFilePicker::FFLOAD_ALL, true);
+    }
+    else if (action == "upload_bulk_folder")
+    {
+        (new LLDirPickerThread(boost::bind(&start_bulk_folder_upload_after_pick, _1, _2, dest_id), ""))->getFile();
     }
 }
 

@@ -99,7 +99,7 @@
  font.name="SansSerifSmall"
  name="test_text10"
  tool_tip="text">
-    SansSerifSmall
+    SansSerif
     The 华文细黑 brown fox ヒラキjumped over the lazy dog.
   </text>
   <text
@@ -111,7 +111,7 @@
    font.name="SansSerifMedium"
    name="test_text11"
    tool_tip="text">
-    SansSerif
+    SansSerifMedium
     The 华文细黑 brown fox ヒラキjumped over the lazy dog.
   </text>
   <text

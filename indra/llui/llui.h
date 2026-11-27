@@ -114,7 +114,7 @@ class LLUI : public LLSimpleton<LLUI>
 {
     LOG_CLASS(LLUI);
 public:
-    typedef std::map<std::string, LLControlGroup*, std::less<> > settings_map_t;
+    typedef std::unordered_map<std::string, LLControlGroup*, ll::string_hash, std::equal_to<>> settings_map_t;
 
     LLUI(const settings_map_t &settings,
                            LLImageProviderInterface* image_provider,

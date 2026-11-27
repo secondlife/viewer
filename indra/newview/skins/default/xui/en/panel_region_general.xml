@@ -33,6 +33,28 @@
         unknown
     </text>
     <text
+     follows="right|top"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     top_delta="0"
+     right="-100"
+     name="estate_id_lbl"
+     width="80">
+        Estate ID:
+    </text>
+    <line_editor
+     follows="right|top"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     top_delta="0"
+     name="estate_id"
+     enabled="false"
+     right="-10"
+     initial_value="unknown"
+     width="85" />
+    <text
      follows="left|top"
      font="SansSerif"
      height="20"
@@ -45,15 +67,48 @@
     </text>
     <text
      follows="left|top"
-     font="SansSerif"
+     font="SansSerifSmall"
      height="20"
      layout="topleft"
-     left_delta="50"
+     left_delta="53"
      name="version_channel_text"
-     top_delta="0"
+     top_delta="1"
      width="400">
         unknown
     </text>
+    <text
+     follows="right|top"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     top_delta="-1"
+     right="-100"
+     name="grid_position_lbl"
+     width="80">
+        Grid Position:
+    </text>
+    <line_editor
+     follows="right|top"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     right="-55"
+     name="grid_position_x"
+     enabled="false"
+     top_delta="0"
+     default_text="n/a"
+     width="40" />
+    <line_editor
+     follows="right|top"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     right="-10"
+     name="grid_position_y"
+     enabled="false"
+     top_delta="0"
+     default_text="n/a"
+     width="40" />
     <text
      follows="left|top"
      font="SansSerif"
@@ -101,21 +156,14 @@
      tool_tip="Extend access checks upwards to prevent flying over a parcel"
      top="110"
      width="90" />
-  <check_box
-     height="20"
-     label="Allow Damage"
-     layout="topleft"
-     left="10"
-     name="allow_damage_check"
-     top="130"
-     width="80" />
+
     <check_box
      height="20"
      label="Restrict Pushing"
      layout="topleft"
      left="10"
      name="restrict_pushobject"
-     top="150"
+     top="130"
      width="80" />
     <check_box
      height="20"
@@ -123,7 +171,7 @@
      layout="topleft"
      left="10"
      name="allow_land_resell_check"
-     top="170"
+     top="150"
      width="80" />
     <check_box
      height="20"
@@ -131,7 +179,7 @@
      layout="topleft"
      left="10"
      name="allow_parcel_changes_check"
-     top="190"
+     top="170"
      width="80" />
     <check_box
      height="20"
@@ -140,7 +188,7 @@
      left="10"
      name="block_parcel_search_check"
      tool_tip="Let people see this region and its parcels in search results"
-     top="210"
+     top="190"
      width="80" />
 	<spinner
      decimal_digits="0"
@@ -286,4 +334,30 @@
         <button.commit_callback
          function="RegionInfo.ManageRestart" />
     </button>
+    <text
+     follows="left|top"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     left="250"
+     name="combat_status_text"
+     top="160"
+     width="220">
+        Combat is disabled
+    </text>
+    <button
+     follows="left|top"
+     height="20"
+     label="Combat settings..."
+     layout="topleft"
+     left_delta="0"
+     name="combat_settings_btn"
+     top_pad="5"
+     width="160" />
+    <string name="combat_enabled_text">
+        Combat is enabled
+    </string>
+    <string name="combat_disabled_text">
+        Combat is disabled
+    </string>
 </panel>

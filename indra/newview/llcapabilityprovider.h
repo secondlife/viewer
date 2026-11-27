@@ -37,12 +37,12 @@
 class LLCapabilityProvider
 {
 public:
-    virtual ~LLCapabilityProvider() {}
+    virtual ~LLCapabilityProvider() = default;
     /**
      * Get a capability URL, given a capability name. Returns empty string if
      * no such capability is defined on this provider.
      */
-    virtual std::string getCapability(const std::string& name) const = 0;
+    virtual std::string getCapability(std::string_view name) const = 0;
     /**
      * Get host to which to send that capability request.
      */

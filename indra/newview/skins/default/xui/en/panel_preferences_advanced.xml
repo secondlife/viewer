@@ -13,18 +13,6 @@
      name="aspect_ratio_text">
         [NUM]:[DEN]
     </panel.string>
-  <text
-   type="string"
-   length="1"
-   follows="left|top"
-   height="12"
-   layout="topleft"
-   left="33"
-   name="Cache:"
-   top_pad="10"
-   width="100">
-    Cache:
-  </text>
   <spinner
    control_name="CacheSize"
    decimal_digits="0"
@@ -33,14 +21,14 @@
    increment="64"
    initial_value="1024"
    label="Cache size (896 - 32768MB)"
-   label_width="150"
+   label_width="170"
    layout="topleft"
-   left="80"
+   left="33"
    max_val="32768"
    min_val="896"
    top_pad="10"
    name="cachesizespinner"
-   width="210" />
+   width="230" />
   <text
    type="string"
    length="1"
@@ -59,7 +47,7 @@
    label="Clear Cache"
    label_selected="Clear Cache"
    layout="topleft"
-   left_pad="20"
+   left_pad="25"
    name="clear_cache"
    top_delta="0"
    width="100">
@@ -72,7 +60,7 @@
    follows="left|top"
    height="10"
    layout="topleft"
-   left="80"
+   left="33"
    name="Cache location"
    top_pad="5"
    width="300">
@@ -86,7 +74,7 @@
    font="SansSerif"
    height="23"
    layout="topleft"
-   left="80"
+   left="33"
    max_length_bytes="4096"
    name="cache_location"
    top_pad="5"
@@ -113,7 +101,7 @@
     left_pad="3"
     name="default_cache_location"
     top_delta="0"
-    width="100">
+    width="104">
     <button.commit_callback
      function="Pref.ResetCache" />
   </button>
@@ -169,43 +157,6 @@
    name="hud_scale_slider"
    top_pad="-14"
    width="250" />
-    <check_box
-     control_name="ShowScriptErrors"
-     follows="left|top"
-     height="20"
-     label="Show script errors in:"
-     layout="topleft"
-     left="30"
-     top_pad="10" 
-     name="show_script_errors"
-     width="256" />
-    <radio_group
-     enabled_control="ShowScriptErrors"
-     control_name="ShowScriptErrorsLocation"
-     follows="top|left"
-     height="16"
-     layout="topleft"
-     left_delta="50"
-     name="show_location"
-     top_pad="5"
-     width="364">
-        <radio_item
-         height="16"
-         label="Nearby chat"
-         layout="topleft"
-         left="3"
-         name="0"
-         top="0"
-         width="315" />
-        <radio_item
-         height="16"
-         label="Separate window"
-         layout="topleft"
-         left_delta="175"
-         name="1"
-         top_delta="0"
-         width="315" />
-    </radio_group>
 
     <check_box
      control_name="AllowMultipleViewers"
@@ -266,9 +217,21 @@
      name="default_creation_permissions"
      height="20"
      left="30"
-     top_pad="16"
+     top_pad="10"
      width="200">
     <button.commit_callback
      function="Pref.PermsDefault" />
+  </button>
+  <button
+    follows="top|left"
+    layout="topleft"
+    label="Script Development"
+    name="scripting_development"
+    height="20"
+    left="30"
+    top_pad="10"
+    width="200">
+    <button.commit_callback
+      function="Pref.Scripting" />
   </button>
 </panel>

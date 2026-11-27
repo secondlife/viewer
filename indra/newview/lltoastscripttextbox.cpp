@@ -42,8 +42,13 @@ LLToastScriptTextbox::LLToastScriptTextbox(const LLNotificationPtr& notification
 {
     buildFromFile( "panel_notify_textbox.xml");
 
+    // llTextBox: its text is written by a user-made script, so its links are only
+    // trusted when the sending object is attached to our own avatar
+    bool is_content_trusted = isNotificationContentTrusted(notification);
+
     mInfoText = getChild<LLTextEditor>("text_editor_box");
     mInfoText->setMaxTextLength(LLToastPanel::MAX_TEXT_LENGTH);
+    mInfoText->setContentTrusted(is_content_trusted);
     mInfoText->setValue(notification->getMessage());
 
     getChild<LLButton>("ignore_btn")->setClickedCallback(boost::bind(&LLToastScriptTextbox::onClickIgnore, this));
@@ -55,6 +60,7 @@ LLToastScriptTextbox::LLToastScriptTextbox(const LLNotificationPtr& notification
 
     LLViewerTextEditor* pMessageText = getChild<LLViewerTextEditor>("message");
     pMessageText->clear();
+    pMessageText->setContentTrusted(is_content_trusted);
 
     LLStyle::Params style;
     style.font = pMessageText->getFont();

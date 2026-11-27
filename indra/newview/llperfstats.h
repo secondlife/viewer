@@ -223,7 +223,7 @@ namespace LLPerfStats
         static void updateMeanFrameTime(U64 tot_frame_time_raw);
 // StatsArray is a uint64_t for each possible statistic type.
         using StatsArray    = std::array<uint64_t, static_cast<size_t>(LLPerfStats::StatType_t::STATS_COUNT)>;
-        using StatsMap      = std::unordered_map<LLUUID, StatsArray, boost::hash<LLUUID>>;
+        using StatsMap      = std::unordered_map<LLUUID, StatsArray>;
         using StatsTypeMatrix = std::array<StatsMap, static_cast<size_t>(LLPerfStats::ObjType_t::OT_COUNT)>;
         using StatsSummaryArray = std::array<StatsArray, static_cast<size_t>(LLPerfStats::ObjType_t::OT_COUNT)>;
 

@@ -237,7 +237,11 @@ bool handleRenderTransparentWaterChanged(const LLSD& newvalue)
         gPipeline.createGLBuffers();
         LLViewerShaderMgr::instance()->setShaders();
     }
-    LLWorld::getInstance()->updateWaterObjects();
+
+    if (LLWorld* world = LLWorld::getInstance())
+    {
+        world->updateWaterObjects();
+    }
     return true;
 }
 
@@ -293,9 +297,14 @@ static bool handleLUTBufferChanged(const LLSD& newvalue)
     return true;
 }
 
-static bool handleAnisotropicChanged(const LLSD& newvalue)
+static bool handleAnisotropicFilteringChanged(const LLSD& newval)
 {
-    LLImageGL::sGlobalUseAnisotropic = newvalue.asBoolean();
+    F32 val = static_cast<F32>(newval.asReal());
+    if (val > gGLManager.mMaxAnisotropy)
+    {
+        val = llclamp(val, 0.f, gGLManager.mMaxAnisotropy);
+    }
+    LLRender::sAnisotropicFilteringLevel = val;
     LLImageGL::dirtyTexOptions();
     return true;
 }
@@ -315,6 +324,12 @@ static bool handleVSyncChanged(const LLSD& newvalue)
     }
 
     return true;
+}
+
+static bool validateAnisotropicFiltering(const LLSD& val)
+{
+    S32 filter_level = val.asInteger();
+    return filter_level == 0 || filter_level == 2 || filter_level == 4 || filter_level == 8 || filter_level == 16;
 }
 
 static bool handleVolumeLODChanged(const LLSD& newvalue)
@@ -422,6 +437,12 @@ static bool handleJoystickChanged(const LLSD& newvalue)
     return true;
 }
 
+static bool handleJoystickEnabledChanged(const LLSD& newvalue)
+{
+    LLViewerJoystick::getInstance()->setNeedsReset(true);
+    return true;
+}
+
 static bool handleUseOcclusionChanged(const LLSD& newvalue)
 {
     LLPipeline::sUseOcclusion = (newvalue.asBoolean()
@@ -432,16 +453,6 @@ static bool handleUseOcclusionChanged(const LLSD& newvalue)
 static bool handleUploadBakedTexOldChanged(const LLSD& newvalue)
 {
     LLPipeline::sForceOldBakedUpload = newvalue.asBoolean();
-    return true;
-}
-
-
-static bool handleWLSkyDetailChanged(const LLSD&)
-{
-    if (gSky.mVOWLSkyp.notNull())
-    {
-        gSky.mVOWLSkyp->updateGeometry(gSky.mVOWLSkyp->mDrawable);
-    }
     return true;
 }
 
@@ -526,9 +537,52 @@ static bool handleDebugViewsChanged(const LLSD& newvalue)
 
 static bool handleLogFileChanged(const LLSD& newvalue)
 {
+    // UserLogFile
     std::string log_filename = newvalue.asString();
+
+    if (LLAppViewer::instance()->isSecondInstance())
+    {
+        // Second instances should not write to the primary
+        // instance's log file. Generate a unique dump log filename instead
+        if (log_filename.empty())
+        {
+            // Restore defaults.
+            log_filename = gDirUtilp->getDumpLogsDirPath(gDirUtilp->getDumpDirSessionUUID().asString() + ".log");
+        }
+        else
+        {
+            const LLUUID& uid = gDirUtilp->getDumpDirSessionUUID(); std::string dir;
+            std::string base(log_filename);
+
+            size_t slash_pos = log_filename.find_last_of("/\\");
+            if (slash_pos != std::string::npos)
+            {
+                dir = log_filename.substr(0, slash_pos + 1);
+                base = log_filename.substr(slash_pos + 1);
+            }
+
+            size_t dot_pos = base.find_last_of('.');
+            if (dot_pos != std::string::npos)
+            {
+                base = base.substr(0, dot_pos) + "_" + uid.asString() + base.substr(dot_pos);
+            }
+            else
+            {
+                base += "_" + uid.asString();
+            }
+
+            log_filename = dir + base;
+        }
+    }
+    else if (log_filename.empty())
+    {
+        // Restore default log filename if user clears the setting
+        log_filename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log");
+    }
+
     LLFile::remove(log_filename);
     LLError::logToFile(log_filename);
+
     LL_INFOS() << "Logging switched to " << log_filename << LL_ENDL;
     return true;
 }
@@ -813,6 +867,7 @@ void setting_setup_signal_listener(LLControlGroup& group, const std::string& set
 
 void settings_setup_listeners()
 {
+    LL_PROFILE_ZONE_SCOPED;
     setting_setup_signal_listener(gSavedSettings, "FirstPersonAvatarVisible", handleRenderAvatarMouselookChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderFarClip", handleRenderFarClipChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderTerrainScale", handleTerrainScaleChanged);
@@ -829,10 +884,12 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "RenderUIBuffer", handleWindowResized);
     setting_setup_signal_listener(gSavedSettings, "RenderDepthOfField", handleReleaseGLBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderFSAAType", handleReleaseGLBufferChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderHighPrecisionPostProcess", handleReleaseGLBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderSpecularResX", handleLUTBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderSpecularResY", handleLUTBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderSpecularExponent", handleLUTBufferChanged);
-    setting_setup_signal_listener(gSavedSettings, "RenderAnisotropic", handleAnisotropicChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderAnisotropicLevel", handleAnisotropicFilteringChanged);
+    gSavedSettings.getControl("RenderAnisotropicLevel")->getValidateSignal()->connect(boost::bind(&validateAnisotropicFiltering, _2));
     setting_setup_signal_listener(gSavedSettings, "RenderShadowResolutionScale", handleShadowsResized);
     setting_setup_signal_listener(gSavedSettings, "RenderGlow", handleReleaseGLBufferChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderGlow", handleSetShaderChanged);
@@ -889,7 +946,8 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "MuteVoice", handleAudioVolumeChanged);
     setting_setup_signal_listener(gSavedSettings, "MuteAmbient", handleAudioVolumeChanged);
     setting_setup_signal_listener(gSavedSettings, "MuteUI", handleAudioVolumeChanged);
-    setting_setup_signal_listener(gSavedSettings, "WLSkyDetail", handleWLSkyDetailChanged);
+    setting_setup_signal_listener(gSavedSettings, "JoystickEnabled", handleJoystickEnabledChanged);
+    setting_setup_signal_listener(gSavedSettings, "JoystickFlycamEnabled", handleJoystickEnabledChanged);
     setting_setup_signal_listener(gSavedSettings, "JoystickAxis0", handleJoystickChanged);
     setting_setup_signal_listener(gSavedSettings, "JoystickAxis1", handleJoystickChanged);
     setting_setup_signal_listener(gSavedSettings, "JoystickAxis2", handleJoystickChanged);

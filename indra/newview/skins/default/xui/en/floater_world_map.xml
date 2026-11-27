@@ -109,7 +109,7 @@
     </panel>
     <panel
      follows="right|top"
-     height="126"
+     height="150"
      top_pad="4"
      width="238"
      left="1"
@@ -167,7 +167,7 @@
      follows="top|right"
      halign="left"
      height="16"
-     top_delta="-2"
+     top_delta="-5"
      left_pad="7"
      layout="topleft"
      name="person_label"
@@ -181,9 +181,9 @@
      layout="topleft"
      left="3"
      name="infohub_chk"
-     top_pad="3"
+     top_pad="7"
      width="22" />
-         <icon
+    <icon
      follows="top|right"
      height="16"
      image_name="map_infohub.tga"
@@ -191,7 +191,7 @@
      left_pad="0"
      mouse_opaque="true"
      name="infohub"
-     top_delta="0"
+     top_delta="-3"
      width="16" />
  <text
      type="string"
@@ -199,7 +199,7 @@
      follows="top|right"
      halign="left"
      height="16"
-     top_delta="2"
+     top_delta="0"
      left_pad="3"
      layout="topleft"
      name="infohub_label"
@@ -213,7 +213,7 @@
      layout="topleft"
      left="3"
      name="land_for_sale_chk"
-     top_pad="2"
+     top_pad="8"
      width="22" />
     <icon
      follows="top|right"
@@ -222,16 +222,16 @@
      layout="topleft"
      mouse_opaque="true"
      name="landforsale"
-     top_delta="0"
+     top_delta="-3"
      left_pad="0"
      width="16" />
-         <text
+    <text
      type="string"
      length="1"
      follows="top|right"
      halign="left"
      height="16"
-     top_delta="2"
+     top_delta="1"
      left_pad="3"
      layout="topleft"
      name="land_sale_label"
@@ -257,7 +257,7 @@
      layout="topleft"
      left_pad="0"
      name="auction_label"
-     top_delta="3"
+     top_delta="1"
      width="170">
         land auction
     </text>
@@ -270,7 +270,7 @@
      mouse_opaque="true"
      name="square2_owner"
      left="20"
-     top_pad="-5"
+     top_pad="-2"
      width="16" />
     <text
      type="string"
@@ -280,10 +280,34 @@
      layout="topleft"
      left_pad="0"
      name="by_owner_label"
-     top_delta="3"
+     top_delta="0"
      width="100">
        by owner
     </text>
+
+    <check_box
+     name="grid_coords_chk"
+     control_name="MapShowGridCoords"
+     layout="topleft"
+     follows="top|right"
+     top_pad="5"
+     left="3"
+     height="16"
+     width="22"
+    />
+    <text
+     name="grid_coords_label"
+     type="string"
+     layout="topleft"
+     follows="top|right"
+     top_delta="-2"
+     left_pad="2"
+     height="16"
+     width="220"
+     halign="left"
+     length="1" >
+       Show grid map coordinates
+     </text>
 
     <button
      follows="top|right"
@@ -333,7 +357,7 @@
      height="16"
      layout="topleft"
      left="135"
-     top_pad="1"
+     top_pad="5"
      name="event_chk"
      width="22" />
          <icon
@@ -343,6 +367,7 @@
      layout="topleft"
      mouse_opaque="true"
      name="event"
+     top_delta="-2"
      left_pad="0"
      width="18" />
       <text
@@ -351,7 +376,7 @@
      follows="top|right"
      halign="left"
      height="16"
-     top_delta="2"
+     top_delta="0"
      left_pad="3"
      layout="topleft"
      name="pg_label"
@@ -367,7 +392,7 @@
      layout="topleft"
      left="135"
      name="events_mature_chk"
-     top_pad="3"
+     top_pad="7"
      width="22" />
     <icon
      follows="top|right"
@@ -376,16 +401,16 @@
      layout="topleft"
      mouse_opaque="true"
      name="events_mature_icon"
-     top_delta="0"
+     top_delta="-2"
      left_pad="0"
      width="18" />
-           <text
+    <text
      type="string"
      length="1"
      follows="top|right"
      halign="left"
      height="16"
-     top_delta="2"
+     top_delta="0"
      left_pad="3"
      layout="topleft"
      name="events_mature_label"
@@ -400,7 +425,7 @@
      layout="topleft"
      left="135"
      name="events_adult_chk"
-     top_pad="3"
+     top_pad="7"
      width="22" />
     <icon
      follows="top|right"
@@ -410,15 +435,15 @@
      left_pad="0"
      mouse_opaque="true"
      name="events_adult_icon"
-     top_delta="0"
+     top_delta="-2"
      width="18" />
-                <text
+    <text
      type="string"
      length="1"
      follows="top|right"
      halign="left"
      height="16"
-     top_delta="2"
+     top_delta="0"
      left_pad="3"
      layout="topleft"
      name="events_adult_label"
@@ -455,7 +480,7 @@
 
     <panel
      follows="right|top|bottom"
-	 height="235"
+	 height="220"
 	 top_pad="0"
 	 width="238"
 	 name="layout_panel_4">
@@ -573,7 +598,7 @@
      draw_stripes="false"
      bg_writeable_color="MouseGray"
      follows="all"
-     height="145"
+     height="130"
      layout="topleft"
      left="28"
      name="search_results"
@@ -612,7 +637,6 @@
       Location:
       </text>
       <spinner
-        control_name="Teleport_Coordinate_X"
         decimal_digits="0"
         follows="right|bottom"
         height="23"
@@ -628,7 +652,6 @@
           function="WMap.Coordinates" />
       </spinner>
       <spinner
-        control_name="Teleport_Coordinate_Y"
         decimal_digits="0"
         follows="right|bottom"
         height="23"
@@ -644,7 +667,6 @@
           function="WMap.Coordinates" />
       </spinner>
       <spinner
-        control_name="Teleport_Coordinate_Z"
         decimal_digits="0"
         follows="right|bottom"
         height="23"

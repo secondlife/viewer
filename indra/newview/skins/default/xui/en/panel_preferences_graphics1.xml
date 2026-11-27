@@ -104,7 +104,7 @@
     layout="topleft"
     left="65"
     name="FasterText"
-    top_pad="4"
+    top_pad="10"
     width="80">
       Faster
   </text>
@@ -114,14 +114,14 @@
     follows="left|top"
     height="12"
     layout="topleft"
-    left_delta="360"
+    left_delta="363"
     name="BetterText"
     top_delta="0"
     width="100">
       Better
   </text>
   <icon
-    color="DkGray"
+    color="DkGray0"
     height="14"
     image_name="Rounded_Square"
     layout="topleft"
@@ -130,7 +130,7 @@
     top_delta="-2"
     width="2" />
   <icon
-    color="DkGray"
+    color="DkGray0"
     height="14"
     image_name="Rounded_Square"
     layout="topleft"
@@ -138,7 +138,7 @@
     name="LowMidGraphicsDivet"
     width="2" />
   <icon
-    color="DkGray"
+    color="DkGray0"
     height="14"
     image_name="Rounded_Square"
     layout="topleft"
@@ -147,7 +147,7 @@
     top_delta="0"
     width="2" />
   <icon
-    color="DkGray"
+    color="DkGray0"
     height="14"
     image_name="Rounded_Square"
     layout="topleft"
@@ -156,7 +156,7 @@
     top_delta="0"
     width="2" />
   <icon
-    color="DkGray"
+    color="DkGray0"
     height="14"
     image_name="Rounded_Square"
     layout="topleft"
@@ -165,7 +165,7 @@
     top_delta="0"
     width="2" />
   <icon
-    color="DkGray"
+    color="DkGray0"
     height="14"
     image_name="Rounded_Square"
     layout="topleft"
@@ -174,7 +174,7 @@
     top_delta="0"
     width="2" />
   <icon
-    color="DkGray"
+    color="DkGray0"
     height="14"
     image_name="Rounded_Square"
     layout="topleft"
@@ -216,15 +216,15 @@
     min_val="64"
     max_val="512"
     name="DrawDistance"
-    top_delta="40"
-    width="427" />
+    top_delta="34"
+    width="428" />
   <text
     type="string"
     length="1"
     follows="left|top"
     height="12"
     layout="topleft"
-    left_delta="427"
+    left_delta="425"
     name="DrawDistanceMeterText2"
     top_delta="0"
     width="128">
@@ -286,7 +286,7 @@
     initial_value="101"
     increment="1"
     label="Avatar maximum complexity:"
-    label_width="165"
+    label_width="187"
     layout="topleft"
     left="30"
     min_val="1"
@@ -294,7 +294,7 @@
     name="IndirectMaxComplexity"
     show_text="false"
     top_delta="28"
-    width="300">
+    width="394">
     <slider.commit_callback
       function="Pref.UpdateIndirectMaxComplexity"
       parameter="IndirectMaxComlexityText" />
@@ -306,7 +306,7 @@
     height="16"
     layout="topleft"
     top_delta="0"
-    left_delta="304"
+    left_delta="398"
     text_readonly_color="LabelDisabledColor"
     name="IndirectMaxComplexityText"
     width="65">
@@ -329,7 +329,7 @@
     label_width="240"
     left="30"
     top_delta="20"
-    width="393">
+    width="394">
       <slider.commit_callback
         function="Pref.UpdateIndirectMaxNonImpostors"
         parameter="IndirectNonImpostorsText" />
@@ -341,7 +341,7 @@
     height="16"
     layout="topleft"
     top_delta="0"
-    left_delta="397"
+    left_delta="398"
     text_readonly_color="LabelDisabledColor"
     name="IndirectMaxNonImpostorsText"
     width="65">
@@ -369,7 +369,7 @@
     increment="0.1"
     initial_value="160"
     label="Brightness (exposure)"
-    label_width="145"
+    label_width="187"
     layout="topleft"
     left="30"
     min_val="0.5"
@@ -377,7 +377,7 @@
     name="RenderExposure"
     show_text="true"
     top_pad="14"
-    width="260">
+    width="424">
   </slider>
 
 <!-- End of Basic Settings block -->

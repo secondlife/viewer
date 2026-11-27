@@ -48,6 +48,28 @@
       <menu_item_call.on_click
        function="Object.ShowOriginal" />
     </menu_item_call>
+    <menu_item_call
+     label="Add to favorites"
+     layout="topleft"
+     name="Add to favorites">
+        <menu_item_call.on_click
+         function="Object.SetFavorite"
+         parameter="Add" />
+        <menu_item_call.on_visible
+         function="Object.EnableFavorites"
+         parameter="Add"/>
+    </menu_item_call>
+    <menu_item_call
+     label="Remove from favorites"
+     layout="topleft"
+     name="Remove from favorites">
+        <menu_item_call.on_click
+         function="Object.SetFavorite"
+         parameter="Remove" />
+        <menu_item_call.on_visible
+         function="Object.EnableFavorites"
+         parameter="Remove" />
+    </menu_item_call>
     <menu_item_separator
      layout="topleft" />
 

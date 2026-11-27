@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llviewerobject.h"
+#include "llscripteditorws.h"
 
 #include "llaudioengine.h"
 #include "indra_constants.h"
@@ -130,6 +131,7 @@ F64Seconds  LLViewerObject::sPhaseOutUpdateInterpolationTime(2.0);  // For motio
 F64Seconds  LLViewerObject::sMaxRegionCrossingInterpolationTime(1.0);// For motion interpolation: don't interpolate over this time on region crossing
 
 std::map<std::string, U32> LLViewerObject::sObjectDataMap;
+std::unordered_map<LLUUID, std::vector<LLViewerObject*>> LLViewerObject::sPendingUpdatesByOwner;
 
 // The maximum size of an object extra parameters binary (packed) block
 #define MAX_OBJECT_PARAMS_SIZE 1024
@@ -310,6 +312,7 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
     mAttachmentItemID(LLUUID::null),
     mLastUpdateType(OUT_UNKNOWN),
     mLastUpdateCached(false),
+    mExtraParameterList(LLNetworkData::PARAMS_MAX >> 4),
     mCachedMuteListUpdateTime(0),
     mCachedOwnerInMuteList(false),
     mRiggedAttachedWarned(false)
@@ -367,15 +370,6 @@ LLViewerObject::~LLViewerObject()
     }
 
     // Delete memory associated with extra parameters.
-    std::unordered_map<U16, ExtraParameter*>::iterator iter;
-    for (iter = mExtraParameterList.begin(); iter != mExtraParameterList.end(); ++iter)
-    {
-        if(iter->second != NULL)
-        {
-            delete iter->second->data;
-            delete iter->second;
-        }
-    }
     mExtraParameterList.clear();
 
     for_each(mNameValuePairs.begin(), mNameValuePairs.end(), DeletePairedPointer()) ;
@@ -425,6 +419,13 @@ void LLViewerObject::markDead()
     {
         LL_PROFILE_ZONE_SCOPED;
         //LL_INFOS() << "Marking self " << mLocalID << " as dead." << LL_ENDL;
+
+        // If this is a published root prim, notify the WS extension before teardown.
+        auto ws_server = LLScriptEditorWSServer::getServer();
+        if (ws_server && ws_server->isObjectPublished(mID))
+        {
+            ws_server->unpublishObject(mID, "deleted");
+        }
 
         // Root object of this hierarchy unlinks itself.
         if (getParent())
@@ -528,6 +529,8 @@ void LLViewerObject::markDead()
             mReflectionProbe->mViewerObject = nullptr;
             mReflectionProbe = nullptr;
         }
+
+        removeObjectFromPendingUpdate(this);
 
         sNumZombieObjects++;
     }
@@ -748,6 +751,18 @@ void LLViewerObject::setNameValueList(const std::string& name_value_list)
         }
         start = end+1;
     }
+
+    if (auto ws_server = LLScriptEditorWSServer::getServer())
+    {
+        LLNameValue* nv_name = getNVPair("Name");
+        LLNameValue* nv_desc = getNVPair("Desc");
+        if (nv_name || nv_desc)
+        {
+            std::string obj_name = nv_name ? nv_name->getString() : "";
+            std::string obj_desc = nv_desc ? nv_desc->getString() : "";
+            ws_server->onObjectPropertyChanged(mID, obj_name, obj_desc);
+        }
+    }
 }
 
 bool LLViewerObject::isAnySelected() const
@@ -940,6 +955,24 @@ void LLViewerObject::addChild(LLViewerObject *childp)
         {
             mSeatCount++;
         }
+        else
+        {
+            if (auto ws_server = LLScriptEditorWSServer::getServer())
+            {
+                // If the child was itself a published root, unpublish it — it is now a child prim
+                if (ws_server->isObjectPublished(childp->getID()))
+                {
+                    ws_server->unpublishObject(childp->getID(), "linked");
+                }
+
+                // If our root is a published object, notify of the structural change
+                LLUUID root_id = getRootEdit()->getID();
+                if (ws_server->isObjectPublished(root_id))
+                {
+                    ws_server->onLinksetChildAdded(root_id, childp);
+                }
+            }
+        }
     }
 }
 
@@ -982,6 +1015,18 @@ void LLViewerObject::removeChild(LLViewerObject *childp)
         LLSelectMgr::getInstance()->deselectObjectAndFamily(childp);
         bool add_to_end = true;
         LLSelectMgr::getInstance()->selectObjectAndFamily(childp, add_to_end);
+    }
+
+    // Notify WS server of linkset structure change
+    if (!isDead() && !childp->isDead() && !childp->isAvatar())
+    {
+        if (auto ws_server = LLScriptEditorWSServer::getServer())
+        {
+            if (ws_server->isObjectPublished(getID()))
+            {
+                ws_server->onLinksetChildRemoved(getID(), childp->getID());
+            }
+        }
     }
 }
 
@@ -1508,10 +1553,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                 unpackParticleSource(block_num, owner_id);
 
                 // Mark all extra parameters not used
-                std::unordered_map<U16, ExtraParameter*>::iterator iter;
-                for (iter = mExtraParameterList.begin(); iter != mExtraParameterList.end(); ++iter)
+                for (auto& entry : mExtraParameterList)
                 {
-                    iter->second->in_use = false;
+                    if (entry.in_use) *entry.in_use = false;
                 }
 
                 // Unpack extra parameters
@@ -1535,7 +1579,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                         U16 param_type;
                         S32 param_size;
                         dp.unpackU16(param_type, "param_type");
-                        dp.unpackBinaryData(param_block, param_size, "param_data");
+                        dp.unpackBinaryData(param_block, MAX_OBJECT_PARAMS_SIZE, param_size, "param_data");
                         //LL_INFOS() << "Param type: " << param_type << ", Size: " << param_size << LL_ENDL;
                         LLDataPackerBinaryBuffer dp2(param_block, param_size);
                         unpackParameterEntry(param_type, &dp2);
@@ -1543,12 +1587,13 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     delete[] buffer;
                 }
 
-                for (iter = mExtraParameterList.begin(); iter != mExtraParameterList.end(); ++iter)
+                for (size_t i = 0; i < mExtraParameterList.size(); ++i)
                 {
-                    if (!iter->second->in_use)
+                    auto& entry = mExtraParameterList[i];
+                    if (entry.in_use && !*entry.in_use)
                     {
                         // Send an update message in case it was formerly in use
-                        parameterChanged(iter->first, iter->second->data, false, false);
+                        parameterChanged(((U16)i + 1) << 4, entry.data, false, false);
                     }
                 }
 
@@ -1791,7 +1836,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     dp->unpackU32(size, "ScratchPadSize");
                     delete [] mData;
                     mData = new U8[size];
-                    dp->unpackBinaryData((U8 *)mData, sp_size, "PartData");
+                    dp->unpackBinaryData((U8 *)mData, size, sp_size, "PartData");
                 }
                 else
                 {
@@ -1850,10 +1895,9 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                 }
 
                 // Mark all extra parameters not used
-                std::unordered_map<U16, ExtraParameter*>::iterator iter;
-                for (iter = mExtraParameterList.begin(); iter != mExtraParameterList.end(); ++iter)
+                for (auto& entry : mExtraParameterList)
                 {
-                    iter->second->in_use = false;
+                    if (entry.in_use) *entry.in_use = false;
                 }
 
                 // Unpack extra params
@@ -1865,18 +1909,19 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                     U16 param_type;
                     S32 param_size;
                     dp->unpackU16(param_type, "param_type");
-                    dp->unpackBinaryData(param_block, param_size, "param_data");
+                    dp->unpackBinaryData(param_block, MAX_OBJECT_PARAMS_SIZE, param_size, "param_data");
                     //LL_INFOS() << "Param type: " << param_type << ", Size: " << param_size << LL_ENDL;
                     LLDataPackerBinaryBuffer dp2(param_block, param_size);
                     unpackParameterEntry(param_type, &dp2);
                 }
 
-                for (iter = mExtraParameterList.begin(); iter != mExtraParameterList.end(); ++iter)
+                for (size_t i = 0; i < mExtraParameterList.size(); ++i)
                 {
-                    if (!iter->second->in_use)
+                    auto& entry = mExtraParameterList[i];
+                    if (entry.in_use && !*entry.in_use)
                     {
                         // Send an update message in case it was formerly in use
-                        parameterChanged(iter->first, iter->second->data, false, false);
+                        parameterChanged(((U16)i + 1) << 4, entry.data, false, false);
                     }
                 }
 
@@ -2770,10 +2815,15 @@ void LLViewerObject::doUpdateInventory(
 // save a script, which involves removing the old one, and rezzing
 // in the new one. This method should be called with the asset id
 // of the new and old script AFTER the bytecode has been saved.
-void LLViewerObject::saveScript(
-    const LLViewerInventoryItem* item,
-    bool active,
-    bool is_new)
+// When creating a new script, the asset should be null.  The server
+// will create the new script based on the script_language (LSL or Lua)
+// If a template_id is provided, the new script will be a copy of that item.
+//
+// *IMPORTANT* If template_id is provided, it must be the ITEM ID of a
+// copy/mod-able script in the user's inventory. The simulator will verify
+// permissions.
+void LLViewerObject::saveScript(const LLViewerInventoryItem* item,
+    bool active, bool is_new, const LLUUID& template_id)
 {
     /*
      * XXXPAM Investigate not making this copy.  Seems unecessary, but I'm unsure about the
@@ -2802,10 +2852,102 @@ void LLViewerObject::saveScript(
     msg->addBOOLFast(_PREHASH_Enabled, enabled);
     msg->nextBlockFast(_PREHASH_InventoryBlock);
     task_item->packMessage(msg);
+
+    // This is a completely new script (no asset id) and we've provided a template.
+    // Note that the script subtype on the template will override any subtype on the item.
+    if (task_item->getAssetUUID().isNull() && template_id.notNull())
+    {
+        msg->nextBlock("NewScriptInfo");
+        msg->addUUID("TemplateID", template_id);
+    }
+
     msg->sendReliable(mRegionp->getHost());
 
     // do the internal logic
     doUpdateInventory(task_item, TASK_INVENTORY_ITEM_KEY, is_new);
+}
+
+void LLViewerObject::createInventoryItem(
+    LLAssetType::EType asset_type,
+    LLInventoryType::EType inventory_type,
+    U8 sub_type,
+    const std::string& name,
+    const std::string& description,
+    const LLPermissions& permissions,
+    const LLSD& params,
+    std::function<void(bool, const LLSD&)> callback)
+{
+    if (!mRegionp)
+    {
+        if (callback) callback(false, LLSD().with("message", "No region"));
+        return;
+    }
+
+    std::string cap_url = mRegionp->getCapability("CreateTaskInventoryItem");
+    if (cap_url.empty())
+    {
+        if (callback) callback(false, LLSD().with("message", "Capability not available"));
+        return;
+    }
+
+    LLSD body;
+    body["object_id"]      = mID;
+    body["inventory_type"] = (S32)inventory_type;
+    body["asset_type"]     = (S32)asset_type;
+    body["sub_type"]       = (S32)sub_type;
+    body["name"]           = name;
+    body["description"]    = description;
+
+    LLSD perm_llsd;
+    perm_llsd["base"]       = (S32)permissions.getMaskBase();
+    perm_llsd["owner"]      = (S32)permissions.getMaskOwner();
+    perm_llsd["everyone"]   = (S32)permissions.getMaskEveryone();
+    perm_llsd["group"]      = (S32)permissions.getMaskGroup();
+    perm_llsd["next_owner"] = (S32)permissions.getMaskNextOwner();
+    body["permissions"]     = perm_llsd;
+
+    if (params.isDefined())
+    {
+        body["params"] = params;
+    }
+
+    LLCoros::instance().launch("LLViewerObject::createInventoryItemCoro",
+        boost::bind(&LLViewerObject::createInventoryItemCoro, cap_url, body, callback));
+}
+
+// static
+void LLViewerObject::createInventoryItemCoro(
+    const std::string cap_url, const LLSD body,
+    std::function<void(bool, const LLSD&)> callback)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter =
+        std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("CreateTaskInventoryItem", httpPolicy);
+    LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, cap_url, body);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    bool success = static_cast<bool>(status) && result["success"].asBoolean();
+
+    if (success)
+    {
+        LLUUID object_id = body["object_id"].asUUID();
+        LLViewerObject* obj = gObjectList.findObject(object_id);
+        if (obj)
+        {
+            ++obj->mExpectedInventorySerialNum;
+            obj->dirtyInventory();
+            obj->requestInventory();
+        }
+    }
+
+    if (callback)
+    {
+        callback(success, result);
+    }
 }
 
 void LLViewerObject::moveInventory(const LLUUID& folder_id,
@@ -3215,6 +3357,7 @@ S32 LLFilenameAndTask::sCount = 0;
 // static
 void LLViewerObject::processTaskInv(LLMessageSystem* msg, void** user_data)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     LLUUID task_id;
     msg->getUUIDFast(_PREHASH_InventoryData, _PREHASH_TaskID, task_id);
     LLViewerObject* object = gObjectList.findObject(task_id);
@@ -4038,6 +4181,11 @@ U32 LLViewerObject::getTriangleCount(S32* vcount) const
     return 0;
 }
 
+U32 LLViewerObject::getLODTriangleCount(S32 lod)
+{
+    return 0;
+}
+
 U32 LLViewerObject::getHighLODTriangleCount()
 {
     return 0;
@@ -4057,6 +4205,27 @@ U32 LLViewerObject::recursiveGetTriangleCount(S32* vcount) const
         }
     }
     return total_tris;
+}
+
+void LLViewerObject::recursiveGetLODTriangleCount(S32& high_lod, S32& medium_lod, S32& low_lod, S32& lowest_lod)
+{
+    high_lod = (S32)getLODTriangleCount(LLModel::LOD_HIGH);
+    medium_lod = (S32)getLODTriangleCount(LLModel::LOD_MEDIUM);
+    low_lod = (S32)getLODTriangleCount(LLModel::LOD_LOW);
+    lowest_lod = (S32)getLODTriangleCount(LLModel::LOD_IMPOSTOR);
+    LLViewerObject::const_child_list_t& child_list = getChildren();
+    for (LLViewerObject::const_child_list_t::const_iterator iter = child_list.begin();
+        iter != child_list.end(); ++iter)
+    {
+        LLViewerObject* childp = *iter;
+        if (childp)
+        {
+            high_lod += (S32)childp->getLODTriangleCount(LLModel::LOD_HIGH);
+            medium_lod += (S32)childp->getLODTriangleCount(LLModel::LOD_MEDIUM);
+            low_lod += (S32)childp->getLODTriangleCount(LLModel::LOD_LOW);
+            lowest_lod += (S32)childp->getLODTriangleCount(LLModel::LOD_IMPOSTOR);
+        }
+    }
 }
 
 // This is using the stored surface area for each volume (which
@@ -4183,7 +4352,7 @@ void LLViewerObject::boostTexturePriority(bool boost_children /* = true */)
 
     if (isSculpted() && !isMesh())
     {
-        LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+        LLSculptParams *sculpt_params = getSculptParams();
         if (sculpt_params)
         {
             LLUUID sculpt_id = sculpt_params->getSculptTexture();
@@ -4626,7 +4795,7 @@ const LLVector3 LLViewerObject::getRenderPosition() const
         }
     }
 
-    if (mDrawable.isNull() || mDrawable->getGeneration() < 0)
+    if (mDrawable.isNull())
     {
         return getPositionAgent();
     }
@@ -4655,9 +4824,10 @@ const LLQuaternion LLViewerObject::getRenderRotation() const
     }
     else
     {
-        if (!mDrawable->isRoot())
+        LLDrawable* parent = mDrawable->getParent();
+        if (!mDrawable->isRoot() && parent)
         {
-            ret = getRotation() * LLQuaternion(mDrawable->getParent()->getWorldMatrix());
+            ret = getRotation() * LLQuaternion(parent->getWorldMatrix());
         }
         else
         {
@@ -5239,7 +5409,7 @@ void LLViewerObject::setTE(const U8 te, const LLTextureEntry& texture_entry)
     updateTEMaterialTextures(te);
 }
 
-void LLViewerObject::updateTEMaterialTextures(U8 te)
+bool LLViewerObject::updateTEMaterialTextures(U8 te)
 {
     if (getTE(te)->getMaterialParams().notNull())
     {
@@ -5252,6 +5422,7 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
 
     LLFetchedGLTFMaterial* mat = (LLFetchedGLTFMaterial*) getTE(te)->getGLTFRenderMaterial();
     llassert(mat == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(getTE(te)->getGLTFRenderMaterial()) != nullptr);
+    LLFetchedGLTFMaterial* const old_mat = mat;
     LLUUID mat_id = getRenderMaterialID(te);
     if (mat == nullptr && mat_id.notNull())
     {
@@ -5279,9 +5450,10 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
         getTE(te)->setGLTFMaterial(nullptr);
     }
 
-    auto fetch_texture = [this](const LLUUID& id)
+    auto fetch_texture = [this](const LLUUID& id, LLPointer<LLViewerTexture>& local_bake)
     {
         LLViewerFetchedTexture* img = nullptr;
+        local_bake = nullptr;
         if (id.notNull())
         {
             if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(id))
@@ -5289,6 +5461,13 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
                  // TODO -- fall back to LLTextureEntry::mGLTFRenderMaterial when overriding with baked texture
                 LLViewerTexture* viewerTexture = getBakedTextureForMagicId(id);
                 img = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : nullptr;
+
+                // While appearance is being edited the bake is composited locally instead of
+                // fetched, render that one so the edits show live.
+                if (!img)
+                {
+                    local_bake = viewerTexture;
+                }
             }
             else
             {
@@ -5300,17 +5479,32 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
         return img;
     };
 
+    bool changed = mat != old_mat;
+
+    // Refetches one slot and notes whether its fetched or local bake binding changed
+    auto update_slot = [&](LLPointer<LLViewerFetchedTexture>& fetched, S32 index)
+    {
+        LLPointer<LLViewerTexture>& local_bake = mat->mLocalBakeTextures[index];
+        const LLPointer<LLViewerFetchedTexture> old_fetched = fetched;
+        const LLPointer<LLViewerTexture> old_local_bake = local_bake;
+        fetched = fetch_texture(mat->mTextureId[index], local_bake);
+        changed |= fetched != old_fetched || local_bake != old_local_bake;
+    };
+
     if (mat != nullptr)
     {
-        mat->mBaseColorTexture = fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR]);
-        mat->mNormalTexture = fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL]);
-        mat->mMetallicRoughnessTexture = fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS]);
-        mat->mEmissiveTexture= fetch_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE]);
+        update_slot(mat->mBaseColorTexture, LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR);
+        update_slot(mat->mNormalTexture, LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL);
+        update_slot(mat->mMetallicRoughnessTexture, LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS);
+        update_slot(mat->mEmissiveTexture, LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE);
     }
+
+    return changed;
 }
 
 void LLViewerObject::refreshBakeTexture()
 {
+    bool pbr_bake_refreshed = false;
     for (int face_index = 0; face_index < getNumTEs(); face_index++)
     {
         LLTextureEntry* tex_entry = getTE(face_index);
@@ -5320,6 +5514,25 @@ void LLViewerObject::refreshBakeTexture()
             LLViewerTexture* bakedTexture = getBakedTextureForMagicId(image_id);
             changeTEImage(face_index, bakedTexture);
         }
+
+        // PBR materials can use bakes regardless of the diffuse texture.
+        const LLGLTFMaterial* render_mat = tex_entry ? tex_entry->getGLTFRenderMaterial() : nullptr;
+        if (render_mat)
+        {
+            for (const LLUUID& texture_id : render_mat->mTextureId)
+            {
+                if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(texture_id))
+                {
+                    pbr_bake_refreshed |= updateTEMaterialTextures((U8)face_index);
+                    break;
+                }
+            }
+        }
+    }
+
+    if (pbr_bake_refreshed && mDrawable.notNull())
+    {
+        gPipeline.markTextured(mDrawable);
     }
 }
 
@@ -6494,7 +6707,7 @@ bool LLViewerObject::unpackParameterEntry(U16 param_type, LLDataPacker *dp)
     if (param)
     {
         param->data->unpack(*dp);
-        param->in_use = true;
+        *param->in_use = true;
         parameterChanged(param_type, param->data, true, false);
         return true;
     }
@@ -6506,108 +6719,82 @@ bool LLViewerObject::unpackParameterEntry(U16 param_type, LLDataPacker *dp)
 
 LLViewerObject::ExtraParameter* LLViewerObject::createNewParameterEntry(U16 param_type)
 {
-    LLNetworkData* new_block = NULL;
+    LLNetworkData* new_block = nullptr;
+    bool* in_use = NULL;
     switch (param_type)
     {
       case LLNetworkData::PARAMS_FLEXIBLE:
       {
-          new_block = new LLFlexibleObjectData();
+          mFlexibleObjectData = std::make_unique<LLFlexibleObjectData>();
+          new_block = mFlexibleObjectData.get();
+          in_use = &mFlexibleObjectDataInUse;
           break;
       }
       case LLNetworkData::PARAMS_LIGHT:
       {
-          new_block = new LLLightParams();
+          mLightParams = std::make_unique<LLLightParams>();
+          new_block = mLightParams.get();
+          in_use = &mLightParamsInUse;
           break;
       }
       case LLNetworkData::PARAMS_SCULPT:
       {
-          new_block = new LLSculptParams();
+          mSculptParams = std::make_unique<LLSculptParams>();
+          new_block = mSculptParams.get();
+          in_use = &mSculptParamsInUse;
           break;
       }
       case LLNetworkData::PARAMS_LIGHT_IMAGE:
       {
-          new_block = new LLLightImageParams();
+          mLightImageParams = std::make_unique<LLLightImageParams>();
+          new_block = mLightImageParams.get();
+          in_use = &mLightImageParamsInUse;
           break;
       }
       case LLNetworkData::PARAMS_EXTENDED_MESH:
       {
-          new_block = new LLExtendedMeshParams();
+          mExtendedMeshParams = std::make_unique<LLExtendedMeshParams>();
+          new_block = mExtendedMeshParams.get();
+          in_use = &mExtendedMeshParamsInUse;
           break;
       }
       case LLNetworkData::PARAMS_RENDER_MATERIAL:
       {
-          new_block = new LLRenderMaterialParams();
+          mRenderMaterialParams = std::make_unique<LLRenderMaterialParams>();
+          new_block = mRenderMaterialParams.get();
+          in_use = &mRenderMaterialParamsInUse;
           break;
       }
       case LLNetworkData::PARAMS_REFLECTION_PROBE:
       {
-          new_block = new LLReflectionProbeParams();
+          mReflectionProbeParams = std::make_unique<LLReflectionProbeParams>();
+          new_block = mReflectionProbeParams.get();
+          in_use = &mReflectionProbeParamsInUse;
           break;
       }
       default:
       {
-          LL_INFOS_ONCE() << "Unknown param type: " << param_type << LL_ENDL;
+          LL_INFOS_ONCE() << "Unknown param type. (" << llformat("0x%2x", param_type) << ")" << LL_ENDL;
           break;
       }
     };
 
-    if (new_block)
+    if (isValidExtraParamType(param_type))
     {
-        ExtraParameter* new_entry = new ExtraParameter;
-        new_entry->data = new_block;
-        new_entry->in_use = false; // not in use yet
-        llassert(mExtraParameterList[param_type] == nullptr); // leak -- redundantly allocated parameter entry
-        mExtraParameterList[param_type] = new_entry;
-        return new_entry;
+        ExtraParameter& entry = mExtraParameterList[U32(param_type >> 4) - 1];
+        if (new_block)
+        {
+            entry.in_use = in_use;
+            *entry.in_use = false; // not in use yet
+            entry.data = new_block;
+            return &entry;
+        }
+        else
+        {
+            entry.is_invalid = true;
+        }
     }
-    return NULL;
-}
-
-LLViewerObject::ExtraParameter* LLViewerObject::getExtraParameterEntry(U16 param_type) const
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VIEWER;
-    std::unordered_map<U16, ExtraParameter*>::const_iterator itor = mExtraParameterList.find(param_type);
-    if (itor != mExtraParameterList.end())
-    {
-        return itor->second;
-    }
-    return NULL;
-}
-
-LLViewerObject::ExtraParameter* LLViewerObject::getExtraParameterEntryCreate(U16 param_type)
-{
-    ExtraParameter* param = getExtraParameterEntry(param_type);
-    if (!param)
-    {
-        param = createNewParameterEntry(param_type);
-    }
-    return param;
-}
-
-LLNetworkData* LLViewerObject::getParameterEntry(U16 param_type) const
-{
-    ExtraParameter* param = getExtraParameterEntry(param_type);
-    if (param)
-    {
-        return param->data;
-    }
-    else
-    {
-        return NULL;
-    }
-}
-
-bool LLViewerObject::getParameterEntryInUse(U16 param_type) const
-{
-    ExtraParameter* param = getExtraParameterEntry(param_type);
-    if (param)
-    {
-        return param->in_use;
-    }
-    else
-    {
-        return false;
-    }
+    return nullptr;
 }
 
 bool LLViewerObject::setParameterEntry(U16 param_type, const LLNetworkData& new_value, bool local_origin)
@@ -6615,11 +6802,11 @@ bool LLViewerObject::setParameterEntry(U16 param_type, const LLNetworkData& new_
     ExtraParameter* param = getExtraParameterEntryCreate(param_type);
     if (param)
     {
-        if (param->in_use && new_value == *(param->data))
+        if (*(param->in_use) && new_value == *(param->data))
         {
             return false;
         }
-        param->in_use = true;
+        *param->in_use = true;
         param->data->copy(new_value);
         parameterChanged(param_type, param->data, true, local_origin);
         return true;
@@ -6635,22 +6822,28 @@ bool LLViewerObject::setParameterEntry(U16 param_type, const LLNetworkData& new_
 // Should always return true.
 bool LLViewerObject::setParameterEntryInUse(U16 param_type, bool in_use, bool local_origin)
 {
-    ExtraParameter* param = getExtraParameterEntryCreate(param_type);
-    if (param && param->in_use != in_use)
+    if (isValidExtraParamType(param_type))
     {
-        param->in_use = in_use;
-        parameterChanged(param_type, param->data, in_use, local_origin);
-        return true;
+        ExtraParameter* param = (in_use ? getExtraParameterEntryCreate(param_type) : &getExtraParameterEntry(param_type));
+        if (param && param->data && *param->in_use != in_use)
+        {
+            *param->in_use = in_use;
+            parameterChanged(param_type, param->data, in_use, local_origin);
+            return true;
+        }
     }
     return false;
 }
 
 void LLViewerObject::parameterChanged(U16 param_type, bool local_origin)
 {
-    ExtraParameter* param = getExtraParameterEntry(param_type);
-    if (param)
+    if (isValidExtraParamType(param_type))
     {
-        parameterChanged(param_type, param->data, param->in_use, local_origin);
+        const ExtraParameter& param = getExtraParameterEntry(param_type);
+        if (param.data)
+        {
+            parameterChanged(param_type, param.data, *param.in_use, local_origin);
+        }
     }
 }
 
@@ -6698,7 +6891,7 @@ void LLViewerObject::parameterChanged(U16 param_type, LLNetworkData* data, bool 
     {
         if (param_type == LLNetworkData::PARAMS_RENDER_MATERIAL)
         {
-            const LLRenderMaterialParams* params = in_use ? (LLRenderMaterialParams*)getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL) : nullptr;
+            const LLRenderMaterialParams* params = in_use ? getRenderMaterialParams() : nullptr;
             setRenderMaterialIDs(params, local_origin);
         }
     }
@@ -7491,7 +7684,7 @@ LLVOAvatar* LLViewerObject::getAvatar() const
 
 bool LLViewerObject::hasRenderMaterialParams() const
 {
-    return getParameterEntryInUse(LLNetworkData::PARAMS_RENDER_MATERIAL);
+    return mRenderMaterialParamsInUse;
 }
 
 void LLViewerObject::setHasRenderMaterialParams(bool has_materials)
@@ -7513,7 +7706,7 @@ void LLViewerObject::setHasRenderMaterialParams(bool has_materials)
 
 const LLUUID& LLViewerObject::getRenderMaterialID(U8 te) const
 {
-    LLRenderMaterialParams* param_block = (LLRenderMaterialParams*)getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL);
+    const LLRenderMaterialParams* param_block = getRenderMaterialParams();
     if (param_block)
     {
         return param_block->getMaterial(te);
@@ -7554,7 +7747,7 @@ void LLViewerObject::setRenderMaterialID(S32 te_in, const LLUUID& id, bool updat
     start_idx = llmax(start_idx, 0);
     end_idx = llmin(end_idx, (S32) getNumTEs());
 
-    LLRenderMaterialParams* param_block = (LLRenderMaterialParams*)getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL);
+    LLRenderMaterialParams* param_block = getRenderMaterialParams();
     if (!param_block && id.notNull())
     { // block doesn't exist, but it will need to
         param_block = (LLRenderMaterialParams*)createNewParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL)->data;
@@ -7782,6 +7975,61 @@ bool LLViewerObject::isReachable()
     return false;
 }
 
+void LLViewerObject::markObjectsForUpdate(const LLUUID& owner_id)
+{
+    sPendingUpdatesByOwner.erase(owner_id);
+    for (S32 i = 0; i < gObjectList.getNumObjects(); ++i)
+    {
+        LLViewerObject* obj = gObjectList.getObject(i);
+        if (!obj || obj->isDead() || obj->isAvatar() || obj->permYouOwner())
+        {
+            continue;
+        }
+        sPendingUpdatesByOwner[owner_id].push_back(obj);
+    }
+}
+
+void LLViewerObject::removeObjectFromPendingUpdate(LLViewerObject* obj)
+{
+    for (auto& [owner_id, objects] : sPendingUpdatesByOwner)
+    {
+        objects.erase(std::remove(objects.begin(), objects.end(), obj), objects.end());
+    }
+}
+
+bool LLViewerObject::isObjectInPendingUpdate(const LLUUID& owner_id, LLViewerObject* obj)
+{
+    if (!obj)
+    {
+        return false;
+    }
+    auto it = sPendingUpdatesByOwner.find(owner_id);
+    if (it != sPendingUpdatesByOwner.end())
+    {
+        const auto& objects = it->second;
+        return std::find(objects.begin(), objects.end(), obj) != objects.end();
+    }
+    return false;
+}
+
+void LLViewerObject::requestObjectUpdate()
+{
+    if (LLViewerRegion* regionp = getRegion())
+    {
+        LLMessageSystem* msg = gMessageSystem;
+        msg->newMessageFast(_PREHASH_RequestMultipleObjects);
+        msg->nextBlockFast(_PREHASH_AgentData);
+        msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+        msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+        msg->nextBlockFast(_PREHASH_ObjectData);
+        msg->addU8Fast(_PREHASH_CacheMissType, 0);
+        msg->addU32Fast(_PREHASH_ID, getLocalID());
+        msg->sendReliable(regionp->getHost());
+
+        removeObjectFromPendingUpdate(this);
+    }
+}
+
 class ObjectPhysicsProperties : public LLHTTPNode
 {
 public:
@@ -7834,4 +8082,3 @@ public:
 
 LLHTTPRegistration<ObjectPhysicsProperties>
     gHTTPRegistrationObjectPhysicsProperties("/message/ObjectPhysicsProperties");
-

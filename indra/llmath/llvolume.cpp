@@ -52,10 +52,15 @@
 #include "llmeshoptimizer.h"
 #include "lltimer.h"
 #include "llvolumeoctree.h"
+#include "workqueue.h"
 
 #include "mikktspace/mikktspace.hh"
 
 #include "meshoptimizer/meshoptimizer.h"
+
+#if LL_WINDOWS
+#include <llexception.h> //SEH
+#endif
 
 #define DEBUG_SILHOUETTE_BINORMALS 0
 #define DEBUG_SILHOUETTE_NORMALS 0 // TomY: Use this to display normals using the silhouette
@@ -912,7 +917,7 @@ bool LLProfile::generate(const LLProfileParams& params, bool path_open,F32 detai
                 case LL_PCODE_HOLE_CIRCLE:
                 case LL_PCODE_HOLE_SAME:
                 default:
-                    addHole(params, true, circle_detail, 0, hollow, 1.f);
+                    addHole(params, false, circle_detail, 0, hollow, 1.f);
                     break;
                 }
             }
@@ -2292,30 +2297,149 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
-    //input stream is now pointing at a zlib compressed block of LLSD
-    //decompress block
-    LLSD mdl;
-    U32 uzip_result = LLUZipHelper::unzip_llsd(mdl, is, size);
-    if (uzip_result != LLUZipHelper::ZR_OK)
+    // Sanity-check before even trying to decompress
+    constexpr S32 MAX_MESH_COMPRESSED_SIZE = 128 * 1024 * 1024; // 128 MB
+    const LLUUID& mesh_id = getParams().getSculptID();
+
+    if (size <= 0 || size > MAX_MESH_COMPRESSED_SIZE)
     {
-        LL_DEBUGS("MeshStreaming") << "Failed to unzip LLSD blob for LoD with code " << uzip_result << " , will probably fetch from sim again." << LL_ENDL;
+        LL_WARNS("MeshStreaming") << "Rejecting implausible compressed mesh size " << size
+            << " for mesh id " << mesh_id << LL_ENDL;
         return false;
     }
-    return unpackVolumeFacesInternal(mdl);
+
+    //input stream is now pointing at a zlib compressed block of LLSD
+    //decompress block
+    try
+    {
+        LLSD mdl;
+        U32 uzip_result = LLUZipHelper::unzip_llsd(mdl, is, size);
+        if (uzip_result != LLUZipHelper::ZR_OK)
+        {
+            LL_DEBUGS("MeshStreaming") << "Failed to unzip LLSD blob for LoD with code " << uzip_result << " , will probably fetch from sim again." << LL_ENDL;
+            return false;
+        }
+        return unpackVolumeFacesInternal(mdl);
+    }
+    catch (const std::bad_alloc&)
+    {
+        constexpr S32 SMALL_MESH_THRESHOLD = 4000;
+        if (size < SMALL_MESH_THRESHOLD)
+        {
+            // showOutOfMemory and LL_ERRS must run on the main thread.
+            // Post to mainloop WorkQueue, mirroring LLThread::tryRun().
+            LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+            bool done = false;
+            if (main_queue)
+            {
+                const LLUUID mesh_id_copy = mesh_id; // capture by value for the lambda
+                done = main_queue->post([mesh_id_copy, size]()
+                {
+                    LLError::LLUserWarningMsg::showOutOfMemory();
+                    LL_ERRS("MeshStreaming") << "Out of memory unpacking mesh id " << mesh_id_copy
+                        << " of compressed size " << size << LL_ENDL;
+                });
+            }
+            if (!done)
+            {
+                // No main queue available (e.g. during shutdown)
+                LL_WARNS("MeshStreaming") << "Out of memory unpacking mesh id " << mesh_id
+                    << " of compressed size " << size << " (main queue unavailable)" << LL_ENDL;
+            }
+        }
+        else
+        {
+            LL_WARNS("MeshStreaming") << "Out of memory unpacking mesh id " << mesh_id
+                << " of compressed size " << size << LL_ENDL;
+        }
+        return false;
+    }
+    catch (const std::exception& e)
+    {
+        LL_WARNS("MeshStreaming") << "Exception unpacking mesh id " << mesh_id
+            << " of compressed size " << size << ": " << e.what() << LL_ENDL;
+        return false;
+    }
+    catch (...)
+    {
+        LL_WARNS("MeshStreaming") << "Unknown exception unpacking mesh id " << mesh_id
+            << " of compressed size " << size << LL_ENDL;
+        return false;
+    }
 }
 
 bool LLVolume::unpackVolumeFaces(U8* in_data, S32 size)
 {
-    //input data is now pointing at a zlib compressed block of LLSD
-    //decompress block
-    LLSD mdl;
-    U32 uzip_result = LLUZipHelper::unzip_llsd(mdl, in_data, size);
-    if (uzip_result != LLUZipHelper::ZR_OK)
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
+    constexpr S32 MAX_MESH_COMPRESSED_SIZE = 128 * 1024 * 1024; // 128 MB
+    const LLUUID& mesh_id = getParams().getSculptID();
+
+    if (!in_data || size <= 0 || size > MAX_MESH_COMPRESSED_SIZE)
     {
-        LL_DEBUGS("MeshStreaming") << "Failed to unzip LLSD blob for LoD with code " << uzip_result << " , will probably fetch from sim again." << LL_ENDL;
+        LL_WARNS("MeshStreaming") << "Rejecting implausible compressed mesh size " << size
+            << " for mesh id " << mesh_id << LL_ENDL;
         return false;
     }
-    return unpackVolumeFacesInternal(mdl);
+
+    //input data is now pointing at a zlib compressed block of LLSD
+    //decompress block
+    try
+    {
+        LLSD mdl;
+        U32 uzip_result = LLUZipHelper::unzip_llsd(mdl, in_data, size);
+        if (uzip_result != LLUZipHelper::ZR_OK)
+        {
+            LL_DEBUGS("MeshStreaming") << "Failed to unzip LLSD blob for LoD, mesh id " << mesh_id
+                << ", code " << uzip_result << " , will probably fetch from sim again." << LL_ENDL;
+            return false;
+        }
+        return unpackVolumeFacesInternal(mdl);
+    }
+    catch (const std::bad_alloc&)
+    {
+        constexpr S32 SMALL_MESH_THRESHOLD = 4000;
+        if (size < SMALL_MESH_THRESHOLD)
+        {
+            // showOutOfMemory and LL_ERRS must run on the main thread.
+            // Post to mainloop WorkQueue, mirroring LLThread::tryRun().
+            LL::WorkQueue::ptr_t main_queue = LL::WorkQueue::getInstance("mainloop");
+            bool done = false;
+            if (main_queue)
+            {
+                const LLUUID mesh_id_copy = mesh_id; // capture by value for the lambda
+                done = main_queue->post([mesh_id_copy, size]()
+                {
+                    LLError::LLUserWarningMsg::showOutOfMemory();
+                    LL_ERRS("MeshStreaming") << "Out of memory unpacking mesh id " << mesh_id_copy
+                        << " of compressed size " << size << LL_ENDL;
+                });
+            }
+            if (!done)
+            {
+                // No main queue available (e.g. during shutdown)
+                LL_WARNS("MeshStreaming") << "Out of memory unpacking mesh id " << mesh_id
+                    << " of compressed size " << size << " (main queue unavailable)" << LL_ENDL;
+            }
+        }
+        else
+        {
+            LL_WARNS("MeshStreaming") << "Out of memory unpacking mesh id " << mesh_id
+                << " of compressed size " << size << LL_ENDL;
+        }
+        return false;
+    }
+    catch (const std::exception& e)
+    {
+        LL_WARNS("MeshStreaming") << "Exception unpacking mesh id " << mesh_id
+            << " of compressed size " << size << ": " << e.what() << LL_ENDL;
+        return false;
+    }
+    catch (...)
+    {
+        LL_WARNS("MeshStreaming") << "Unknown exception unpacking mesh id " << mesh_id
+            << " of compressed size " << size << LL_ENDL;
+        return false;
+    }
 }
 
 bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
@@ -2348,7 +2472,9 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
 
             const LLSD::Binary& pos = mdl[i]["Position"].asBinary();
             const LLSD::Binary& norm = mdl[i]["Normal"].asBinary();
+#if 0 // keep this code for now in case we decide to add support for on-the-wire tangents
             const LLSD::Binary& tangent = mdl[i]["Tangent"].asBinary();
+#endif
             const LLSD::Binary& tc = mdl[i]["TexCoord0"].asBinary();
             const LLSD::Binary& idx = mdl[i]["TriangleList"].asBinary();
 
@@ -2383,11 +2509,31 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
 
             //copy out vertices
             U32 num_verts = static_cast<U32>(pos.size())/(3*2);
+            if (num_verts == 0)
+            {
+                LL_WARNS() << "Zero vertices for face index: " << i << LL_ENDL;
+                face.resizeIndices(3);
+                face.resizeVertices(1);
+                face.mPositions->clear();
+                face.mNormals->clear();
+                face.mTexCoords->setZero();
+                memset(face.mIndices, 0, sizeof(U16) * 3);
+                continue;
+            }
+
+            if (num_verts > 65535) // U16 indices
+            {
+                LL_WARNS() << "Invalid vertex count " << num_verts << " exceeds maximum for face index: " << i << LL_ENDL;
+                mVolumeFaces.clear();
+                return false;
+            }
+
             face.resizeVertices(num_verts);
 
             if (num_verts > 0 && !face.mPositions)
             {
                 LL_WARNS() << "Failed to allocate " << num_verts << " vertices for face index: " << i << " Total: " << face_count << LL_ENDL;
+                face.resizeVertices(0);
                 face.resizeIndices(0);
                 continue;
             }
@@ -4943,9 +5089,17 @@ LLVolumeFace::LLVolumeFace(const LLVolumeFace& src)
     mOctree(NULL),
     mOctreeTriangles(NULL)
 {
-    mExtents = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*3);
-    mCenter = mExtents+2;
-    *this = src;
+    try
+    {
+        mExtents = (LLVector4a*)ll_aligned_malloc_16(sizeof(LLVector4a) * 3);
+        mCenter = mExtents + 2;
+        *this = src;
+    }
+    catch (std::bad_alloc&)
+    {
+        LLError::LLUserWarningMsg::showOutOfMemory();
+        LL_ERRS("LLVolume") << "Bad memory allocation in LLVolumeFace" << LL_ENDL;
+    }
 }
 
 LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
@@ -5163,7 +5317,7 @@ void LLVolumeFace::remap()
     // Documentation for meshopt_generateVertexRemapMulti claims that remap should use vertice count
     // but all examples use indice count. There are out of bounds crashes when using vertice count.
     // To be on the safe side use bigger of the two.
-    std::vector<unsigned int> remap(llmax(mNumIndices, mNumVertices));
+    std::vector<unsigned int> remap(llmax(mNumIndices, mNumVertices), 0);
     S32 remap_vertices_count = static_cast<S32>(LLMeshOptimizer::generateRemapMultiU16(&remap[0],
         mIndices,
         mNumIndices,
@@ -5662,6 +5816,28 @@ struct MikktData
     }
 };
 
+#if LL_WINDOWS
+static void genTangSpaceCPP(mikk::Mikktspace<MikktData>& ctx)
+{
+    ctx.genTangSpace();
+}
+static bool genTangSpaceSEH(mikk::Mikktspace<MikktData>& ctx)
+{
+    __try
+    {
+        genTangSpaceCPP(ctx);
+        return true;
+    }
+    __except (msc_exception_filter(GetExceptionCode(), GetExceptionInformation()))
+    {
+        // Likely low memory or bad input; abort tangent generation for this
+        // mesh and let the caller decide how to proceed.
+        // (C++ exceptions like std::bad_alloc are not handled here)
+        return false;
+    }
+}
+#endif
+
 bool LLVolumeFace::cacheOptimize(bool gen_tangents)
 { //optimize for vertex cache according to Forsyth method:
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
@@ -5669,19 +5845,71 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
     mOptimized = true;
 
     if (gen_tangents && mNormals && mTexCoords)
-    { // generate mikkt space tangents before cache optimizing since the index buffer may change
+    {
+        if (!mPositions || !mIndices || mNumVertices <= 0 || mNumIndices <= 0)
+        {
+            LL_WARNS_ONCE("LLVolume") << "Invalid volume face data for tangent generation: "
+                << "mPositions=" << (void*)mPositions
+                << ", mIndices=" << (void*)mIndices
+                << ", mNumVertices=" << mNumVertices
+                << ", mNumIndices=" << mNumIndices << LL_ENDL;
+            return false;
+        }
+
+        if (mNumIndices % 3 != 0)
+        {
+            LL_WARNS_ONCE("LLVolume") << "Non-triangulated mesh, mNumIndices=" << mNumIndices << LL_ENDL;
+            return false;
+        }
+
+        for (S32 i = 0; i < mNumIndices; ++i)
+        {
+            if (mIndices[i] >= mNumVertices)
+            {
+                LL_WARNS_ONCE("LLVolume") << "Out of bounds index detected: mIndices[" << i << "]="
+                    << mIndices[i] << " >= mNumVertices=" << mNumVertices << LL_ENDL;
+                return false;
+            }
+        }
+
+        if (mNormalizedScale.mV[0] == 0.0f || mNormalizedScale.mV[1] == 0.0f || mNormalizedScale.mV[2] == 0.0f)
+        {
+            LL_WARNS_ONCE("LLVolume") << "Invalid normalized scale: " << mNormalizedScale << LL_ENDL;
+            return false;
+        }
+
+        // generate mikkt space tangents before cache optimizing since the index buffer may change
         // a bit of a hack to do this here, but this function gets called exactly once for the lifetime of a mesh
         // and is executed on a background thread
         MikktData data(this);
         mikk::Mikktspace ctx(data);
+        bool tangent_ok = false;
         try
         {
+#if LL_WINDOWS
+            tangent_ok = genTangSpaceSEH(ctx);
+            if (!tangent_ok)
+            {
+                LL_WARNS_ONCE("LLVolume") << "SEH exception in Mikktspace::genTangSpace()" << LL_ENDL;
+            }
+#else
             ctx.genTangSpace();
+            tangent_ok = true;
+#endif
         }
         catch (std::bad_alloc&)
         {
             LLError::LLUserWarningMsg::showOutOfMemory();
-            LL_ERRS("LLCoros") << "Bad memory allocation in MikktData::genTangSpace" << LL_ENDL;
+            LL_ERRS("LLVolume") << "Bad memory allocation in MikktData::genTangSpace" << LL_ENDL;
+        }
+        catch (...)
+        {
+            LL_WARNS_ONCE("LLVolume") << "Mikktspace::genTangSpace() failed" << LL_ENDL;
+        }
+
+        if (!tangent_ok)
+        {
+            return false;
         }
 
 
@@ -5703,7 +5931,7 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
         catch (std::bad_alloc&)
         {
             LLError::LLUserWarningMsg::showOutOfMemory();
-            LL_ERRS("LLCoros") << "Failed to allocate memory for remap: " << (S32)data.p.size() << LL_ENDL;
+            LL_ERRS("LLVOLUME") << "Failed to allocate memory for remap: " << (S32)data.p.size() << LL_ENDL;
         }
 
         U32 stream_count = data.w.empty() ? 4 : 5;
@@ -5720,7 +5948,7 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
             catch (std::bad_alloc&)
             {
                 LLError::LLUserWarningMsg::showOutOfMemory();
-                LL_ERRS("LLCoros") << "Failed to allocate memory for VertexRemap: " << (S32)data.p.size() << LL_ENDL;
+                LL_ERRS("LLVolume") << "Failed to allocate memory for VertexRemap: " << (S32)data.p.size() << LL_ENDL;
             }
         }
 
@@ -5732,7 +5960,7 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
             if (mNumVertices == 0)
             {
                 LLError::LLUserWarningMsg::showOutOfMemory();
-                LL_ERRS("LLCoros") << "Failed to allocate memory for resizeVertices(" << vert_count << ")" << LL_ENDL;
+                LL_ERRS("LLVolume") << "Failed to allocate memory for resizeVertices(" << vert_count << ")" << LL_ENDL;
             }
 
             if (!data.w.empty())

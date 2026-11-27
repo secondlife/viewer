@@ -73,6 +73,7 @@ void send_generic_message(const std::string& method,
 
 void process_generic_message(LLMessageSystem* msg, void**)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     LLUUID agent_id;
     msg->getUUID("AgentData", "AgentID", agent_id);
     if (agent_id != gAgent.getID())
@@ -95,6 +96,7 @@ void process_generic_message(LLMessageSystem* msg, void**)
 
 void process_generic_streaming_message(LLMessageSystem* msg, void**)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     LLGenericStreamingMessage data;
     data.unpack(msg);
     switch (data.mMethod)
@@ -110,6 +112,7 @@ void process_generic_streaming_message(LLMessageSystem* msg, void**)
 
 void process_large_generic_message(LLMessageSystem* msg, void**)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     LLUUID agent_id;
     msg->getUUID("AgentData", "AgentID", agent_id);
     if (agent_id != gAgent.getID())

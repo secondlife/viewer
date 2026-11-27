@@ -93,6 +93,7 @@
 #include "llinitparam.h"
 #include "llinstancetracker.h"
 #include "llmortician.h"
+#include "llmutex.h"
 #include "llnotificationptr.h"
 #include "llpointer.h"
 #include "llrefcount.h"
@@ -945,7 +946,7 @@ public:
     typedef std::vector<std::string> TemplateNames;
     TemplateNames getTemplateNames() const;  // returns a list of notification names
 
-    typedef std::map<std::string, LLNotificationTemplatePtr, std::less<>> TemplateMap;
+    typedef std::unordered_map<std::string, LLNotificationTemplatePtr, ll::string_hash, std::equal_to<>> TemplateMap;
 
     TemplateMap::const_iterator templatesBegin() { return mTemplates.begin(); }
     TemplateMap::const_iterator templatesEnd() { return mTemplates.end(); }
@@ -991,7 +992,7 @@ private:
 
     LLNotificationMap mUniqueNotifications;
 
-    typedef std::map<std::string, std::string, std::less<>> GlobalStringMap;
+    typedef std::unordered_map<std::string, std::string, ll::string_hash, std::equal_to<>> GlobalStringMap;
     GlobalStringMap mGlobalStrings;
 
     bool mIgnoreAllNotifications;
@@ -1093,6 +1094,8 @@ public:
     typedef std::vector<LLNotificationPtr> history_list_t;
     history_list_t::iterator beginHistory() { sortHistory(); return mHistory.begin(); }
     history_list_t::iterator endHistory() { return mHistory.end(); }
+    history_list_t::reverse_iterator rBeginHistory() { sortHistory(); return mHistory.rbegin(); }
+    history_list_t::reverse_iterator rEndHistory() { return mHistory.rend(); }
 
 private:
     struct sortByTime
@@ -1133,4 +1136,3 @@ private:
 };
 
 #endif//LL_LLNOTIFICATIONS_H
-

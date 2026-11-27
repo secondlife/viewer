@@ -9,7 +9,7 @@
  bg_opaque_image="Inspector_Background" 
  can_close="false"
  can_minimize="false"
- height="158"
+ height="188"
  layout="topleft"
  name="inspect_group"
  single_instance="true"
@@ -47,7 +47,7 @@
   </text>
   <text
    follows="all"
-   height="45"
+   height="65"
    left="8"
    name="group_details"
    use_ellipses="true"
@@ -80,7 +80,7 @@ L$123 to join
    height="23"
    label="Join"
    left="8"
-   top="125"
+   top="156"
    name="join_btn"
    width="103"
    commit_callback.function="InspectGroup.Join"/>
@@ -89,7 +89,7 @@ L$123 to join
    height="23"
    label="Leave"
    left="8"
-   top="125"
+   top="156"
    name="leave_btn"
    width="103"
    commit_callback.function="InspectGroup.Leave"/>
@@ -98,7 +98,7 @@ L$123 to join
      height="23"
      label="View Profile"
      name="view_profile_btn"
-     top="125"
+     top="156"
      left="117"
      width="103"
      commit_callback.function="InspectGroup.ViewProfile" />

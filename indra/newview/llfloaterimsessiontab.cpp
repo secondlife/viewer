@@ -48,6 +48,7 @@
 #include "llfloaterimnearbychat.h"
 #include "llgroupiconctrl.h"
 #include "lllayoutstack.h"
+#include "llnotificationsutil.h"
 #include "llpanelemojicomplete.h"
 #include "lltoolbarview.h"
 
@@ -327,6 +328,8 @@ bool LLFloaterIMSessionTab::postBuild()
 
     setOpenPositioning(LLFloaterEnums::POSITIONING_RELATIVE);
 
+    updateUniqueName();
+
     mSaveRect = isNearbyChat()
                     &&  !gSavedPerAccountSettings.getBOOL("NearbyChatIsNotTornOff");
     initRectControl();
@@ -390,6 +393,22 @@ bool LLFloaterIMSessionTab::postBuild()
 LLParticipantList* LLFloaterIMSessionTab::getParticipantList()
 {
     return dynamic_cast<LLParticipantList*>(LLFloaterIMContainer::getInstance()->getSessionModel(mSessionID));
+}
+
+void LLFloaterIMSessionTab::updateUniqueName()
+{
+    if (isNearbyChat())
+    {
+        return;
+    }
+
+    LLUUID name_id = mSessionID;
+    if (mSession && mSession->isP2PSessionType())
+    {
+        name_id = mSession->mOtherParticipantID;
+    }
+
+    setName("panel_im_" + name_id.asString());
 }
 
 // virtual
@@ -934,7 +953,7 @@ void LLFloaterIMSessionTab::hideOrShowTitle()
 
 void LLFloaterIMSessionTab::updateSessionName(const std::string& name)
 {
-    mInputEditor->setLabel(LLTrans::getString("IM_to_label") + " " + name);
+    mInputEditor->setLabel(name);
 }
 
 void LLFloaterIMSessionTab::updateChatIcon(const LLUUID& id)
@@ -1051,6 +1070,14 @@ void LLFloaterIMSessionTab::reshapeChatLayoutPanel()
 // static
 void LLFloaterIMSessionTab::processChatHistoryStyleUpdate(bool clean_messages/* = false*/)
 {
+    if (clean_messages)
+    {
+        // Model-owned direct history is reloaded once, including sessions without a floater.
+        LLIMModel::instance().reloadDirectHistories();
+    }
+
+    // P2P floaters render the model reload above; other floaters retain their
+    // existing clean-and-reload behavior.
     LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("impanel");
     for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin();
             iter != inst_list.end(); ++iter)
@@ -1058,7 +1085,11 @@ void LLFloaterIMSessionTab::processChatHistoryStyleUpdate(bool clean_messages/* 
         LLFloaterIMSession* floater = dynamic_cast<LLFloaterIMSession*>(*iter);
         if (floater)
         {
-            floater->reloadMessages(clean_messages);
+            LLIMModel::LLIMSession* session =
+                LLIMModel::instance().findIMSession(floater->mSessionID);
+            const bool reload_model = clean_messages &&
+                (!session || !session->isP2P());
+            floater->reloadMessages(reload_model);
         }
     }
 
@@ -1416,4 +1447,21 @@ bool LLFloaterIMSessionTab::handleKeyHere(KEY key, MASK mask )
         }
     }
     return handled;
+}
+
+void LLFloaterIMSessionTab::onClickCloseBtn(bool app_quitting)
+{
+    bool is_ad_hoc = (mSession ? mSession->isAdHocSessionType() : false);
+    if (is_ad_hoc && !app_quitting)
+    {
+        LLNotificationsUtil::add("ConfirmLeaveAdhoc", LLSD(), LLSD(), [this](const LLSD& notification, const LLSD& response)
+        {
+            if (0 == LLNotificationsUtil::getSelectedOption(notification, response))
+                closeFloater();
+        });
+    }
+    else
+    {
+        closeFloater();
+    }
 }

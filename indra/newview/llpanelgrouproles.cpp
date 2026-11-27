@@ -53,6 +53,7 @@
 #include "llviewerwindow.h"
 #include "llfocusmgr.h"
 #include "llviewercontrol.h"
+#include "llviewerregion.h"
 
 #include "roles_constants.h"
 
@@ -541,6 +542,19 @@ bool LLPanelGroupSubTab::matchesActionSearchFilter(std::string action)
     }
 }
 
+// Powers the viewer knows about but the current region has not enabled
+// via SimulatorFeatures; these are hidden from the abilities lists.
+static U64 get_unsupported_powers()
+{
+    U64 unsupported = 0;
+    LLViewerRegion* region = gAgent.getRegion();
+    if (!region || !region->groupChatPostLinksEnabled())
+    {
+        unsupported |= GP_SESSION_POST_LINKS;
+    }
+    return unsupported;
+}
+
 void LLPanelGroupSubTab::buildActionsList(LLScrollListCtrl* ctrl,
                                           U64 allowed_by_some,
                                           U64 allowed_by_all,
@@ -582,8 +596,9 @@ void LLPanelGroupSubTab::buildActionCategory(LLScrollListCtrl* ctrl,
                                              bool is_owner_role)
 {
     LL_DEBUGS() << "Building role list for: " << action_set->mActionSetData->mName << LL_ENDL;
+    U64 unsupported_powers = get_unsupported_powers();
     // See if the allow mask matches anything in this category.
-    if (show_all || (allowed_by_some & action_set->mActionSetData->mPowerBit))
+    if (show_all || (allowed_by_some & action_set->mActionSetData->mPowerBit & ~unsupported_powers))
     {
         // List all the actions in this category that at least some members have.
         LLSD row;
@@ -619,6 +634,12 @@ void LLPanelGroupSubTab::buildActionCategory(LLScrollListCtrl* ctrl,
 
         for ( ; ra_it != ra_end; ++ra_it)
         {
+            // Skip abilities the current region doesn't support.
+            if (unsupported_powers & (*ra_it)->mPowerBit)
+            {
+                continue;
+            }
+
             // See if anyone has these action.
             if (!show_all && !(allowed_by_some & (*ra_it)->mPowerBit))
             {
@@ -1938,9 +1959,11 @@ LLPanelGroupRolesSubTab::LLPanelGroupRolesSubTab()
     mRolesList(NULL),
     mAssignedMembersList(NULL),
     mAllowedActionsList(NULL),
+    mActionDescription(NULL),
     mRoleName(NULL),
     mRoleTitle(NULL),
     mRoleDescription(NULL),
+    mMembersNotLoadedLbl(NULL),
     mMemberVisibleCheck(NULL),
     mDeleteRoleButton(NULL),
     mCopyRoleButton(NULL),
@@ -1969,6 +1992,7 @@ bool LLPanelGroupRolesSubTab::postBuildSubTab(LLView* root)
     mAssignedMembersList = parent->getChild<LLNameListCtrl>("role_assigned_members");
     mAllowedActionsList = parent->getChild<LLScrollListCtrl>("role_allowed_actions");
     mActionDescription  = parent->getChild<LLTextEditor>("role_action_description");
+    mMembersNotLoadedLbl = parent->getChild<LLUICtrl>("members_not_loaded");
 
     mRoleName = parent->getChild<LLLineEditor>("role_name");
     mRoleTitle = parent->getChild<LLLineEditor>("role_title");
@@ -2199,12 +2223,18 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
         }
     }
 
-    if ((GC_ROLE_MEMBER_DATA == gc || GC_MEMBER_DATA == gc)
-        && gdatap
-        && gdatap->isMemberDataComplete()
-        && gdatap->isRoleMemberDataComplete())
+    if (gdatap && gdatap->isMemberDataComplete())
     {
-        buildMembersList();
+        if ((GC_ROLE_MEMBER_DATA == gc || GC_MEMBER_DATA == gc)
+            && gdatap->isRoleMemberDataComplete())
+        {
+            buildMembersList();
+        }
+        mMembersNotLoadedLbl->setVisible(false);
+    }
+    else
+    {
+        mMembersNotLoadedLbl->setVisible(true);
     }
 }
 
@@ -3224,6 +3254,12 @@ void LLPanelGroupBanListSubTab::setBanCount(U32 ban_count)
 
 void LLPanelGroupBanListSubTab::populateBanList()
 {
+    if (mGroupID.isNull())
+    {
+        mBanList->deleteAllItems();
+        return;
+    }
+
     LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(mGroupID);
     if(!gdatap)
     {

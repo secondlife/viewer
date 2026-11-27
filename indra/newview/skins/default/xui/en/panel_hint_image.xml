@@ -4,7 +4,6 @@
  height="40"
  layout="topleft">
   <text name="hint_title"
-        font="SansSerifMedium" 
         left="8"
         right="290"
         top="8"

@@ -44,7 +44,7 @@
      layout="topleft"
      left_pad="5"
      name="group_name"
-     top="6"
+     top="4"
      use_ellipses="true"
      value="Unknown"
      width="242" />

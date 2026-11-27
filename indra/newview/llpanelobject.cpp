@@ -625,7 +625,7 @@ void LLPanelObject::getState( )
         }
 
 
-        if (objectp->getParameterEntryInUse(LLNetworkData::PARAMS_SCULPT))
+        if (objectp->getSculptParams())
         {
             selected_item = MI_SCULPT;
             //LLFirstUse::useSculptedPrim();
@@ -1078,7 +1078,7 @@ void LLPanelObject::getState( )
 
 
         LLUUID id;
-        LLSculptParams *sculpt_params = (LLSculptParams *)objectp->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+        LLSculptParams *sculpt_params = objectp->getSculptParams();
 
 
         if (sculpt_params) // if we have a legal sculpt param block for this object:
@@ -1246,13 +1246,13 @@ void LLPanelObject::onCommitParametric( LLUICtrl* ctrl, void* userdata )
     if (selected_type == MI_SCULPT)
     {
         self->mObject->setParameterEntryInUse(LLNetworkData::PARAMS_SCULPT, true, true);
-        LLSculptParams *sculpt_params = (LLSculptParams *)self->mObject->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+        LLSculptParams *sculpt_params = self->mObject->getSculptParams();
         if (sculpt_params)
             volume_params.setSculptID(sculpt_params->getSculptTexture(), sculpt_params->getSculptType());
     }
     else
     {
-        LLSculptParams *sculpt_params = (LLSculptParams *)self->mObject->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+        LLSculptParams *sculpt_params = self->mObject->getSculptParams();
         if (sculpt_params)
             self->mObject->setParameterEntryInUse(LLNetworkData::PARAMS_SCULPT, false, true);
     }
@@ -2264,24 +2264,21 @@ void LLPanelObject::onCopyParams()
     mClipboardParams["volume_params"] = params.asLLSD();
 
     // Sculpted Prim
-    if (objectp->getParameterEntryInUse(LLNetworkData::PARAMS_SCULPT))
+    LLSculptParams *sculpt_params = objectp->getSculptParams();
+    if (sculpt_params)
     {
-        LLSculptParams *sculpt_params = (LLSculptParams *)objectp->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-        if (sculpt_params)
+        LLUUID texture_id = sculpt_params->getSculptTexture();
+        if (get_can_copy_texture(texture_id))
         {
-            LLUUID texture_id = sculpt_params->getSculptTexture();
-            if (get_can_copy_texture(texture_id))
-            {
-                LL_DEBUGS("FloaterTools") << "Recording texture" << LL_ENDL;
-                mClipboardParams["sculpt"]["id"] = texture_id;
-            }
-            else
-            {
-                mClipboardParams["sculpt"]["id"] = SCULPT_DEFAULT_TEXTURE;
-            }
-
-            mClipboardParams["sculpt"]["type"] = sculpt_params->getSculptType();
+            LL_DEBUGS("FloaterTools") << "Recording texture" << LL_ENDL;
+            mClipboardParams["sculpt"]["id"] = texture_id;
         }
+        else
+        {
+            mClipboardParams["sculpt"]["id"] = SCULPT_DEFAULT_TEXTURE;
+        }
+
+        mClipboardParams["sculpt"]["type"] = sculpt_params->getSculptType();
     }
 }
 
@@ -2304,7 +2301,7 @@ void LLPanelObject::onPasteParams()
     }
     else
     {
-        LLSculptParams *sculpt_params = (LLSculptParams *)objectp->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+        LLSculptParams *sculpt_params = objectp->getSculptParams();
         if (sculpt_params)
         {
             objectp->setParameterEntryInUse(LLNetworkData::PARAMS_SCULPT, false, true);

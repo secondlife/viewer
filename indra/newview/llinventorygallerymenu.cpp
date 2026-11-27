@@ -334,18 +334,25 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata)
     }
     else if ("copy_slurl" == action)
     {
-        boost::function<void(LLLandmark*)> copy_slurl_cb = [](LLLandmark* landmark)
+        std::function<void(LLLandmark*)> copy_slurl_cb = [](LLLandmark* landmark)
         {
             LLVector3d global_pos;
             landmark->getGlobalPos(global_pos);
-            boost::function<void(std::string& slurl)> copy_slurl_to_clipboard_cb = [](const std::string& slurl)
+            if (!global_pos.isExactlyZero())
             {
-               gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(slurl));
-               LLSD args;
-               args["SLURL"] = slurl;
-               LLNotificationsUtil::add("CopySLURL", args);
-            };
-            LLLandmarkActions::getSLURLfromPosGlobal(global_pos, copy_slurl_to_clipboard_cb, true);
+                std::function<void(std::string& slurl)> copy_slurl_to_clipboard_cb = [](const std::string& slurl)
+                {
+                    gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(slurl));
+                    LLSD args;
+                    args["SLURL"] = slurl;
+                    LLNotificationsUtil::add("CopySLURL", args);
+                };
+                LLLandmarkActions::getSLURLfromPosGlobal(global_pos, copy_slurl_to_clipboard_cb, true);
+            }
+            else
+            {
+                LLNotificationsUtil::add("LandmarkLocationUnknown");
+            }
         };
         LLLandmark* landmark = LLLandmarkActions::getLandmark(mUUIDs.front(), copy_slurl_cb);
         if (landmark)
@@ -1021,7 +1028,10 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
             disabled_items.push_back(std::string("create_new"));
         }
 
-        if (is_agent_inventory && !mRootFolder)
+        // Not in Marketplace Listings, same reason as the inventory panel menu
+        const LLUUID marketplace_id = gInventory.getMarketplaceListingsUUID();
+        const bool is_in_marketplace = marketplace_id.notNull() && gInventory.isObjectDescendentOf(selected_id, marketplace_id);
+        if (is_agent_inventory && !mRootFolder && !is_in_marketplace)
         {
             items.push_back(std::string("New folder from selected"));
             items.push_back(std::string("Subfolder Separator"));

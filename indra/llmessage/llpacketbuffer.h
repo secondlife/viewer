@@ -38,6 +38,17 @@ public:
     LLPacketBuffer(S32 hSocket);    // receive a packet
     ~LLPacketBuffer();
 
+    // Custom copy/move: mData is a fixed NET_BUFFER_SIZE array, but only
+    // the first mSize bytes are ever live/meaningful. A defaulted copy or
+    // move would transfer the full array, so these are written to only
+    // touch the live mSize bytes. This matters because LLPacketBuffer
+    // can get copied multiple times per packet.
+
+    LLPacketBuffer(const LLPacketBuffer& other);
+    LLPacketBuffer& operator=(const LLPacketBuffer& other);
+    LLPacketBuffer(LLPacketBuffer&& other) noexcept;
+    LLPacketBuffer& operator=(LLPacketBuffer&& other) noexcept;
+
     S32         getSize() const                 { return mSize; }
     const char  *getData() const                { return mData; }
     LLHost      getHost() const                 { return mHost; }
@@ -46,11 +57,18 @@ public:
     void init(S32 hSocket);
     void init(const char* buffer, S32 data_size, const LLHost& host);
 
+    // Whether LLCircuitData::checkPacketInID() has already been run for this
+    // packet (done at socket-read time, before this packet was sorted into
+    // the high/low priority inbound queue).
+    bool    getPacketIDChecked() const          { return mPacketIDChecked; }
+    void    setPacketIDChecked(bool checked)    { mPacketIDChecked = checked; }
+
 protected:
     char    mData[NET_BUFFER_SIZE]; // packet data       /* Flawfinder : ignore */
     S32     mSize;                  // size of buffer in bytes
     LLHost  mHost;                  // source/dest IP and port
     LLHost  mReceivingIF;           // source/dest IP and port
+    bool    mPacketIDChecked = false;
 };
 
 #endif

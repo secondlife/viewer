@@ -98,6 +98,7 @@ public:
     /*virtual*/ void updateAddedCategory(LLUUID cat_id);
     /*virtual*/ void updateRemovedCategory(LLUUID cat_id);
     /*virtual*/ void updateChangedCategoryName(LLViewerInventoryCategory *cat, std::string name);
+    /*virtual*/ bool updateOneOutfit(); // bulk processing, scheduled by observer when updates are needed
 
     /*virtual*/ bool hasItemSelected();
     /*virtual*/ bool canWearSelected();
@@ -190,6 +191,7 @@ private:
     typedef item_num_map_t::value_type                  item_numb_map_value_t;
     item_num_map_t                                      mItemIndexMap;
     std::map<S32, LLOutfitGalleryItem*>                 mIndexToItemMap;
+    std::set<LLUUID>                                  mPendingOutfitRefreshes;
 
 
     LLInventoryCategoriesObserver*  mOutfitsObserver;

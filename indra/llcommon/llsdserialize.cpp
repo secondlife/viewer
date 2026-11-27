@@ -32,6 +32,9 @@
 #include "llstreamtools.h" // for fullread
 
 #include <iostream>
+#include <cstdarg>
+#include <locale.h>
+#include <vector>
 #include "apr_base64.h"
 
 #include <boost/iostreams/device/array.hpp>
@@ -64,6 +67,159 @@ const std::string LLSD_NOTATION_HEADER("llsd/notation");
 //used to deflate a gzipped asset (currently used for navmeshes)
 #define windowBits 15
 #define ENABLE_ZLIB_GZIP 32
+
+namespace
+{
+    // Locale-independent formatting/parsing support, scoped strictly to LLSD
+    // serialization. This intentionally does NOT touch llformat()/global
+    // setlocale() state - LLSD text (XML/Notation) must always use '.' as
+    // the decimal separator and no digit grouping, regardless of the
+    // process's ambient locale, both for correctness (LLSD is a wire/file
+    // format, not user-facing text) and to avoid a known MSVC STL/CRT crash
+    // where a non-classic locale's num_put facet can overflow an internal
+    // sprintf_s buffer.
+    //
+    // NOTE: llformat() itself is left untouched - some of its callers may
+    // intentionally want locale-specific (user-facing) output, so changing
+    // its behavior globally needs separate, careful consideration.
+#if LL_WINDOWS
+    using classic_locale_t = _locale_t;
+    classic_locale_t make_classic_locale() { return _create_locale(LC_ALL, "C"); }
+    void free_classic_locale(classic_locale_t l) { if (l) _free_locale(l); }
+#else
+    using classic_locale_t = locale_t;
+    classic_locale_t make_classic_locale() { return newlocale(LC_ALL_MASK, "C", (locale_t)0); }
+    void free_classic_locale(classic_locale_t l) { if (l) freelocale(l); }
+#endif
+
+    struct ClassicLocaleHolder
+    {
+        classic_locale_t handle;
+        ClassicLocaleHolder() : handle(make_classic_locale()) {}
+        ~ClassicLocaleHolder() { free_classic_locale(handle); }
+        ClassicLocaleHolder(const ClassicLocaleHolder&) = delete;
+        ClassicLocaleHolder& operator=(const ClassicLocaleHolder&) = delete;
+    };
+
+    classic_locale_t llsd_thread_classic_locale()
+    {
+        static thread_local ClassicLocaleHolder sLocale;
+        return sLocale.handle;
+    }
+
+#if LL_LINUX
+    // glibc has no vsnprintf_l(); uselocale() is the POSIX thread-local
+    // equivalent, scoped here via a depth counter so nested/recursive LLSD
+    // format_impl()/doParse() calls only pay the uselocale() cost once per
+    // top-level call, not once per value.
+    thread_local int tLLSDClassicLocaleDepth = 0;
+    thread_local locale_t tLLSDPrevLocale = (locale_t)0;
+#endif
+
+    // vsnprintf using the classic "C" locale, regardless of ambient
+    // setlocale()/thread locale state. Thread-safe: each thread has its own
+    // cached locale object; no shared mutable state is mutated by this call
+    // itself (Linux relies on an active LLSDClassicLocaleGuard having
+    // already called uselocale() for this thread - see below).
+    int llsd_classic_vsnprintf(char* buffer, size_t size, const char* fmt, va_list args)
+    {
+        classic_locale_t loc = llsd_thread_classic_locale();
+        if (!loc)
+        {
+            return vsnprintf(buffer, size, fmt, args);
+        }
+#if LL_WINDOWS
+        return _vsnprintf_s_l(buffer, size, _TRUNCATE, fmt, loc, args);
+#elif LL_DARWIN
+        return vsnprintf_l(buffer, size, loc, fmt, args);
+#else
+        // LL_LINUX: correctness here depends on LLSDClassicLocaleGuard
+        // having called uselocale(loc) for the current thread already.
+        return vsnprintf(buffer, size, fmt, args);
+#endif
+    }
+
+    std::string llsd_format_classic(const char* fmt, ...)
+    {
+#if LL_WINDOWS
+        classic_locale_t loc = llsd_thread_classic_locale();
+        va_list args;
+        va_start(args, fmt);
+        int n = loc ? _vscprintf_l(fmt, loc, args) : _vscprintf(fmt, args);
+        va_end(args);
+        if (n < 0)
+        {
+            return std::string();
+        }
+        std::vector<char> buffer(static_cast<size_t>(n) + 1);
+        va_start(args, fmt);
+        llsd_classic_vsnprintf(buffer.data(), buffer.size(), fmt, args);
+        va_end(args);
+        return std::string(buffer.data(), static_cast<size_t>(n));
+#else
+        char buffer[256]; /* Flawfinder: ignore */
+        va_list args;
+        va_start(args, fmt);
+        int n = llsd_classic_vsnprintf(buffer, sizeof(buffer), fmt, args);
+        va_end(args);
+        if (n < 0)
+        {
+            return std::string();
+        }
+        if (static_cast<size_t>(n) >= sizeof(buffer))
+        {
+            std::vector<char> big(n + 1);
+            va_start(args, fmt);
+            llsd_classic_vsnprintf(big.data(), big.size(), fmt, args);
+            va_end(args);
+            return std::string(big.data(), n);
+        }
+        return std::string(buffer, n);
+#endif
+    }
+}
+
+// RAII guard: forces the classic "C" locale for the duration of its scope,
+// for both llsd_format_classic() (C runtime formatting) and any std::ostream/
+// std::istream passed to imbueClassic(). Scoped once per top-level
+// LLSDFormatter::format()/LLSDParser::parse() call - see those for usage.
+LLSDParser::LLSDClassicLocaleGuard::LLSDClassicLocaleGuard()
+{
+#if LL_LINUX
+    if (tLLSDClassicLocaleDepth++ == 0)
+    {
+        tLLSDPrevLocale = uselocale(llsd_thread_classic_locale());
+    }
+#endif
+}
+
+LLSDParser::LLSDClassicLocaleGuard::LLSDClassicLocaleGuard(std::ios_base& stream)
+    : mStream(&stream)
+    , mPrevStreamLocale(stream.getloc())
+{
+#if LL_LINUX
+    if (tLLSDClassicLocaleDepth++ == 0)
+    {
+        tLLSDPrevLocale = uselocale(llsd_thread_classic_locale());
+    }
+#endif
+    mStream->imbue(std::locale::classic());
+}
+
+LLSDParser::LLSDClassicLocaleGuard::~LLSDClassicLocaleGuard()
+{
+    if (mStream)
+    {
+        mStream->imbue(mPrevStreamLocale);
+    }
+#if LL_LINUX
+    if (--tLLSDClassicLocaleDepth == 0)
+    {
+        uselocale(tLLSDPrevLocale);
+        tLLSDPrevLocale = (locale_t)0;
+    }
+#endif
+}
 
 // If we published this in llsdserialize.h, we could use it in the
 // implementation of LLSDOStreamer's operator<<().
@@ -389,6 +545,7 @@ LLSDParser::~LLSDParser()
 
 S32 LLSDParser::parse(std::istream& istr, LLSD& data, llssize max_bytes, S32 max_depth)
 {
+    LLSDClassicLocaleGuard locale_guard(istr);
     mCheckLimits = LLSDSerialize::SIZE_UNLIMITED != max_bytes;
     mMaxBytesLeft = max_bytes;
     return doParse(istr, data, max_depth);
@@ -398,6 +555,7 @@ S32 LLSDParser::parse(std::istream& istr, LLSD& data, llssize max_bytes, S32 max
 // Parse using routine to get() lines, faster than parse()
 S32 LLSDParser::parseLines(std::istream& istr, LLSD& data)
 {
+    LLSDClassicLocaleGuard locale_guard(istr);
     mCheckLimits = false;
     mParseLines = true;
     return doParse(istr, data);
@@ -775,7 +933,8 @@ S32 LLSDNotationParser::parseMap(std::istream& istr, LLSD& map, S32 max_depth) c
                     // There must be a value for every key, thus
                     // child_count must be greater than 0.
                     parse_count += count;
-                    map.insert(name, child);
+                    map.insert(std::move(name), std::move(child)); // Move as name will be filled on next iteration
+                    name.clear();
                 }
                 else
                 {
@@ -822,7 +981,7 @@ S32 LLSDNotationParser::parseArray(std::istream& istr, LLSD& array, S32 max_dept
             else
             {
                 parse_count += count;
-                array.append(child);
+                array.append(std::move(child));
             }
             c = get(istr);
         }
@@ -841,7 +1000,7 @@ bool LLSDNotationParser::parseString(std::istream& istr, LLSD& data) const
     auto count = deserialize_string(istr, value, mMaxBytesLeft);
     if(PARSE_FAILURE == count) return false;
     account(count);
-    data = value;
+    data = std::move(value);
     return true;
 }
 
@@ -872,10 +1031,10 @@ bool LLSDNotationParser::parseBinary(std::istream& istr, LLSD& data) const
         if(len)
         {
             value.resize(len);
-            account(fullread(istr, (char *)&value[0], len));
+            account(fullread(istr, (char*)value.data(), len));
         }
         c = get(istr); // strip off the trailing double-quote
-        data = value;
+        data = std::move(value);
     }
     else if(0 == strncmp("b64", buf, 3))
     {
@@ -885,7 +1044,7 @@ bool LLSDNotationParser::parseBinary(std::istream& istr, LLSD& data) const
         std::stringstream coded_stream;
         get(istr, *(coded_stream.rdbuf()), '\"');
         c = get(istr);
-        std::string encoded(coded_stream.str());
+        std::string encoded(std::move(coded_stream).str());
         S32 len = apr_base64_decode_len(encoded.c_str());
         std::vector<U8> value;
         if(len)
@@ -894,7 +1053,7 @@ bool LLSDNotationParser::parseBinary(std::istream& istr, LLSD& data) const
             len = apr_base64_decode_binary(&value[0], encoded.c_str());
             value.resize(len);
         }
-        data = value;
+        data = std::move(value);
     }
     else if(0 == strncmp("b16", buf, 3))
     {
@@ -925,7 +1084,7 @@ bool LLSDNotationParser::parseBinary(std::istream& istr, LLSD& data) const
             // copy the data out of the byte buffer
             value.insert(value.end(), byte_buffer, write);
         }
-        data = value;
+        data = std::move(value);
     }
     else
     {
@@ -1077,7 +1236,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) con
         }
         else
         {
-            data = value;
+            data = std::move(value);
             account(cnt);
         }
         if(istr.fail())
@@ -1094,7 +1253,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) con
         std::string value;
         if(parseString(istr, value))
         {
-            data = value;
+            data = std::move(value);
         }
         else
         {
@@ -1159,7 +1318,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) con
                 value.resize(size);
                 account(fullread(istr, (char*)&value[0], size));
             }
-            data = value;
+            data = std::move(value);
         }
         if(istr.fail())
         {
@@ -1218,7 +1377,7 @@ S32 LLSDBinaryParser::parseMap(std::istream& istr, LLSD& map, S32 max_depth) con
             // There must be a value for every key, thus child_count
             // must be greater than 0.
             parse_count += child_count;
-            map.insert(name, child);
+            map.insert(std::move(name), std::move(child));
         }
         else
         {
@@ -1238,13 +1397,12 @@ S32 LLSDBinaryParser::parseMap(std::istream& istr, LLSD& map, S32 max_depth) con
 
 S32 LLSDBinaryParser::parseArray(std::istream& istr, LLSD& array, S32 max_depth) const
 {
-    array = LLSD::emptyArray();
     U32 value_nbo = 0;
     read(istr, (char*)&value_nbo, sizeof(U32));      /*Flawfinder: ignore*/
     S32 size = (S32)ntohl(value_nbo);
 
-    // *FIX: This would be a good place to reserve some space in the
-    // array...
+    // Preallocate array to avoid incremental allocation
+    array = LLSD::emptyReservedArray(size);
 
     S32 parse_count = 0;
     S32 count = 0;
@@ -1260,7 +1418,7 @@ S32 LLSDBinaryParser::parseArray(std::istream& istr, LLSD& array, S32 max_depth)
         if(child_count)
         {
             parse_count += child_count;
-            array.append(child);
+            array.append(std::move(child));
         }
         ++count;
         c = istr.peek();
@@ -1279,18 +1437,15 @@ bool LLSDBinaryParser::parseString(
     std::istream& istr,
     std::string& value) const
 {
-    // *FIX: This is memory inefficient.
     U32 value_nbo = 0;
     read(istr, (char*)&value_nbo, sizeof(U32));      /*Flawfinder: ignore*/
     S32 size = (S32)ntohl(value_nbo);
     if(mCheckLimits && (size > mMaxBytesLeft)) return false;
     if(size < 0) return false;
-    std::vector<char> buf;
     if(size)
     {
-        buf.resize(size);
-        account(fullread(istr, &buf[0], size));
-        value.assign(buf.begin(), buf.end());
+        value.resize(size);
+        account(fullread(istr, value.data(), size));
     }
     return true;
 }
@@ -1322,18 +1477,26 @@ void LLSDFormatter::realFormat(const std::string& format)
 
 S32 LLSDFormatter::format(const LLSD& data, std::ostream& ostr) const
 {
+    LLSDParser::LLSDClassicLocaleGuard locale_guard(ostr);
     // pass options captured by constructor
     return format(data, ostr, mOptions);
 }
 
 S32 LLSDFormatter::format(const LLSD& data, std::ostream& ostr, EFormatterOptions options) const
 {
+    LLSDParser::LLSDClassicLocaleGuard locale_guard(ostr);
     return format_impl(data, ostr, options, 0);
 }
 
 void LLSDFormatter::formatReal(LLSD::Real real, std::ostream& ostr) const
 {
-    std::string buffer = llformat(mRealFormat.c_str(), real);
+    if (mRealFormat.empty())
+    {
+        // Assumes ostr.imbue was called for locale independence.
+        ostr << real;
+        return;
+    }
+    std::string buffer = llsd_format_classic(mRealFormat.c_str(), real);
     ostr << buffer;
 }
 
@@ -1424,11 +1587,7 @@ S32 LLSDNotationFormatter::format_impl(const LLSD& data, std::ostream& ostr,
 
     case LLSD::TypeBoolean:
         if(mBoolAlpha ||
-#if( LL_WINDOWS || __GNUC__ > 2)
            (ostr.flags() & std::ios::boolalpha)
-#else
-           (ostr.flags() & 0x0100)
-#endif
             )
         {
             ostr << (data.asBoolean()
@@ -1785,7 +1944,7 @@ llssize deserialize_string_delim(
         }
     }
 
-    value = write_buffer.str();
+    value = std::move(write_buffer).str();
     return count;
 }
 
@@ -1806,15 +1965,12 @@ llssize deserialize_string_raw(
     {
         // We probably have a valid raw string. determine
         // the size, and read it.
-        // *FIX: This is memory inefficient.
-        auto len = strtol(buf + 1, NULL, 0);
+        auto len = strtol(buf + 1, nullptr, 0);
         if((max_bytes>0)&&(len>max_bytes)) return LLSDParser::PARSE_FAILURE;
-        std::vector<char> buf;
         if(len)
         {
-            buf.resize(len);
-            count += fullread(istr, (char *)&buf[0], len);
-            value.assign(buf.begin(), buf.end());
+            value.resize(len);
+            count += fullread(istr, value.data(), len);
         }
         c = istr.get();
         ++count;
@@ -2170,7 +2326,7 @@ std::string zip_llsd(LLSD& data)
         return std::string();
     }
 
-    std::string source = llsd_strm.str();
+    std::string source = std::move(llsd_strm).str();
 
     U8 out[CHUNK];
 
@@ -2397,6 +2553,7 @@ U8* unzip_llsdNavMesh( bool& valid, size_t& outsize, std::istream& is, S32 size 
         {
         case Z_NEED_DICT:
             ret = Z_DATA_ERROR;
+            [[fallthrough]];
         case Z_DATA_ERROR:
         case Z_MEM_ERROR:
             inflateEnd(&strm);

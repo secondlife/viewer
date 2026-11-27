@@ -34,7 +34,6 @@
 #include <list>
 #include <unordered_map>
 #include <boost/function.hpp>
-#include <boost/unordered_map.hpp>
 
 #include "llerror.h"
 #include "llstl.h"
@@ -46,7 +45,6 @@ namespace LLTypeTags
     template <typename INNER_TYPE, int _SORT_ORDER>
     struct TypeTagBase
     {
-        typedef void        is_tag_t;
         typedef INNER_TYPE  inner_t;
         static const int    SORT_ORDER=_SORT_ORDER;
     };
@@ -69,16 +67,10 @@ namespace LLTypeTags
         typedef typename REST::template Cons<Swap<ITEM, typename REST::inner_t>::value_t>::value_t value_t;
     };
 
-    template<typename T, typename SORTABLE = void>
+    template<typename T>
     struct IsSortable
     {
         static const bool value = false;
-    };
-
-    template<typename T>
-    struct IsSortable<T, typename T::is_tag_t>
-    {
-        static const bool value = true;
     };
 
     template<typename ITEM, typename REST, bool IS_REST_SORTABLE = IsSortable<REST>::value>
@@ -267,7 +259,7 @@ namespace LLInitParam
     private:
         struct Inaccessable{};
     public:
-        typedef std::map<std::string, T> value_name_map_t;
+        typedef std::unordered_map<std::string, T> value_name_map_t;
         typedef Inaccessable name_t;
         typedef TypeValues<T> type_value_t;
         typedef ParamValue<typename LLTypeTags::Sorted<T>::value_t> param_value_t;
@@ -294,7 +286,7 @@ namespace LLInitParam
 
         static std::vector<std::string>* getPossibleValues()
         {
-            return NULL;
+            return nullptr;
         }
 
         void assignNamedValue(const Inaccessable& name)
@@ -310,7 +302,7 @@ namespace LLInitParam
             return param_value_t::getValue();
         }
 
-        static value_name_map_t* getValueNames() {return NULL;}
+        static value_name_map_t* getValueNames() { return nullptr; }
     };
 
     // helper class to implement name value lookups
@@ -321,7 +313,7 @@ namespace LLInitParam
     {
         typedef TypeValuesHelper<T, DERIVED_TYPE, IS_SPECIALIZED> self_t;
     public:
-        typedef typename std::map<std::string, T> value_name_map_t;
+        typedef typename std::unordered_map<std::string, T> value_name_map_t;
         typedef std::string name_t;
         typedef self_t type_value_t;
         typedef ParamValue<typename LLTypeTags::Sorted<T>::value_t> param_value_t;
@@ -497,9 +489,9 @@ namespace LLInitParam
         typedef bool (*parser_write_func_t)(Parser& parser, const void*, name_stack_t&);
         typedef std::function<void (name_stack_t&, S32, S32, const possible_values_t*)>   parser_inspect_func_t;
 
-        typedef std::map<const std::type_info*, parser_read_func_t>     parser_read_func_map_t;
-        typedef std::map<const std::type_info*, parser_write_func_t>    parser_write_func_map_t;
-        typedef std::map<const std::type_info*, parser_inspect_func_t>  parser_inspect_func_map_t;
+        typedef std::unordered_map<std::type_index, parser_read_func_t>           parser_read_func_map_t;
+        typedef std::unordered_map<std::type_index, parser_write_func_t>          parser_write_func_map_t;
+        typedef std::unordered_map<std::type_index, parser_inspect_func_t>        parser_inspect_func_map_t;
 
     public:
 
@@ -514,7 +506,7 @@ namespace LLInitParam
 
         template <typename T> bool readValue(T& param, typename std::enable_if_t<!std::is_enum_v<T>>* dummy = 0)
         {
-            parser_read_func_map_t::iterator found_it = mParserReadFuncs->find(&typeid(T));
+            parser_read_func_map_t::iterator found_it = mParserReadFuncs->find(typeid(T));
             if (found_it != mParserReadFuncs->end())
             {
                 return found_it->second(*this, (void*)&param);
@@ -525,14 +517,14 @@ namespace LLInitParam
 
         template <typename T> bool readValue(T& param, typename std::enable_if_t<std::is_enum_v<T> >* dummy = 0)
         {
-            parser_read_func_map_t::iterator found_it = mParserReadFuncs->find(&typeid(T));
+            parser_read_func_map_t::iterator found_it = mParserReadFuncs->find(typeid(T));
             if (found_it != mParserReadFuncs->end())
             {
                 return found_it->second(*this, (void*)&param);
             }
             else
             {
-                found_it = mParserReadFuncs->find(&typeid(S32));
+                found_it = mParserReadFuncs->find(typeid(S32));
                 if (found_it != mParserReadFuncs->end())
                 {
                     S32 int_value;
@@ -546,7 +538,7 @@ namespace LLInitParam
 
         template <typename T> bool writeValue(const T& param, name_stack_t& name_stack)
         {
-            parser_write_func_map_t::iterator found_it = mParserWriteFuncs->find(&typeid(T));
+            parser_write_func_map_t::iterator found_it = mParserWriteFuncs->find(typeid(T));
             if (found_it != mParserWriteFuncs->end())
             {
                 return found_it->second(*this, (const void*)&param, name_stack);
@@ -557,7 +549,7 @@ namespace LLInitParam
         // dispatch inspection to registered inspection functions, for each parameter in a param block
         template <typename T> bool inspectValue(name_stack_t& name_stack, S32 min_count, S32 max_count, const possible_values_t* possible_values)
         {
-            parser_inspect_func_map_t::iterator found_it = mParserInspectFuncs->find(&typeid(T));
+            parser_inspect_func_map_t::iterator found_it = mParserInspectFuncs->find(typeid(T));
             if (found_it != mParserInspectFuncs->end())
             {
                 found_it->second(name_stack, min_count, max_count, possible_values);
@@ -574,16 +566,16 @@ namespace LLInitParam
 
     protected:
         template <typename T>
-        void registerParserFuncs(parser_read_func_t read_func, parser_write_func_t write_func = NULL)
+        void registerParserFuncs(parser_read_func_t read_func, parser_write_func_t write_func = nullptr)
         {
-            mParserReadFuncs->insert(std::make_pair(&typeid(T), read_func));
-            mParserWriteFuncs->insert(std::make_pair(&typeid(T), write_func));
+            mParserReadFuncs->emplace(typeid(T), read_func);
+            mParserWriteFuncs->emplace(typeid(T), write_func);
         }
 
         template <typename T>
         void registerInspectFunc(parser_inspect_func_t inspect_func)
         {
-            mParserInspectFuncs->insert(std::make_pair(&typeid(T), inspect_func));
+            mParserInspectFuncs->emplace(typeid(T), inspect_func);
         }
 
         bool                mParseSilently;
@@ -614,7 +606,7 @@ namespace LLInitParam
     {
         struct UserData
         {
-            virtual ~UserData() {}
+            virtual ~UserData() = default;
         };
 
         typedef bool(*merge_func_t)(Param&, const Param&, bool);
@@ -665,7 +657,7 @@ namespace LLInitParam
         void aggregateBlockData(BlockDescriptor& src_block_data);
         void addParam(ParamDescriptorPtr param, const char* name);
 
-        typedef boost::unordered_map<const std::string, ParamDescriptorPtr>                     param_map_t;
+        typedef std::unordered_map<std::string, ParamDescriptorPtr, ll::string_hash, std::equal_to<>> param_map_t;
         typedef std::vector<ParamDescriptorPtr>                                                 param_list_t;
         typedef std::list<ParamDescriptorPtr>                                                   all_params_list_t;
         typedef std::vector<std::pair<param_handle_t, ParamDescriptor::validation_func_t> >     param_validation_list_t;
@@ -679,38 +671,26 @@ namespace LLInitParam
         class BaseBlock*                mCurrentBlockPtr;       // pointer to block currently being constructed
     };
 
-        //TODO: implement in terms of owned_ptr
-        template<typename T>
+    // TODO: implement in terms of owned_ptr
+    template<typename T>
     class LazyValue
+    {
+    public:
+        LazyValue() = default;
+
+        ~LazyValue() { delete mPtr; }
+
+        LazyValue(const T& value) { mPtr = new T(value); }
+
+        LazyValue(const LazyValue& other) : mPtr(nullptr) { *this = other; }
+
+        LazyValue& operator=(const LazyValue& other)
         {
-        public:
-        LazyValue()
-                : mPtr(NULL)
-            {}
-
-        ~LazyValue()
-            {
-                delete mPtr;
-            }
-
-        LazyValue(const T& value)
-            {
-            mPtr = new T(value);
-        }
-
-        LazyValue(const LazyValue& other)
-        :   mPtr(NULL)
-                {
-            *this = other;
-                }
-
-        LazyValue& operator = (const LazyValue& other)
-                {
             if (!other.mPtr)
             {
                 delete mPtr;
-                    mPtr = NULL;
-                }
+                mPtr = nullptr;
+            }
             else
             {
                 if (!mPtr)
@@ -721,23 +701,21 @@ namespace LLInitParam
                 {
                     *mPtr = *(other.mPtr);
                 }
-                }
-                return *this;
             }
+            return *this;
+        }
 
         bool operator==(const LazyValue& other) const
         {
-            if (empty() || other.empty()) return false;
+            if (empty() || other.empty())
+                return false;
             return *mPtr == *other.mPtr;
         }
 
-            bool empty() const
-            {
-                return mPtr == NULL;
-            }
+        bool empty() const { return mPtr == nullptr; }
 
-            void set(const T& other)
-            {
+        void set(const T& other)
+        {
             if (!mPtr)
             {
                 mPtr = new T(other);
@@ -748,36 +726,26 @@ namespace LLInitParam
             }
         }
 
-            const T& get() const
-            {
-            return *ensureInstance();
-            }
+        const T& get() const { return *ensureInstance(); }
 
-            T& get()
+        T& get() { return *ensureInstance(); }
+
+        operator const T&() const { return get(); }
+
+    private:
+        // lazily allocate an instance of T
+        T* ensureInstance() const
+        {
+            if (mPtr == nullptr)
             {
-            return *ensureInstance();
+                mPtr = new T();
+            }
+            return mPtr;
         }
 
-        operator const T&() const
-        {
-            return get();
-            }
-
-        private:
-            // lazily allocate an instance of T
-            T* ensureInstance() const
-            {
-                if (mPtr == NULL)
-                {
-                    mPtr = new T();
-                }
-                return mPtr;
-            }
-
-        private:
-
-            mutable T* mPtr;
-        };
+    private:
+        mutable T* mPtr = nullptr;
+    };
 
     // root class of all parameter blocks
 
@@ -864,7 +832,7 @@ namespace LLInitParam
             mParamProvided(false)
         {}
 
-        virtual ~BaseBlock() {}
+        virtual ~BaseBlock() = default;
         bool submitValue(Parser::name_stack_t& name_stack, Parser& p, bool silent=false);
 
         param_handle_t getHandleFromParam(const Param* param) const;
@@ -1792,8 +1760,13 @@ namespace LLInitParam
 
         // implicit conversion
         operator const container_t&() const { return mValues; }
+        operator container_t&() { return mValues; }
         // explicit conversion
         const container_t& operator()() const { return mValues; }
+        container_t& operator()() { return mValues; }
+        // direct Nth item access
+        const typename NAME_VALUE_LOOKUP::type_value_t& operator()(size_t index) const { return mValues[index]; }
+        typename NAME_VALUE_LOOKUP::type_value_t& operator()(size_t index) { return mValues[index]; }
 
         iterator begin() { return mValues.begin(); }
         iterator end() { return mValues.end(); }
@@ -2123,13 +2096,13 @@ namespace LLInitParam
         class Multiple : public TypedParam<T, NAME_VALUE_LOOKUP, true>
         {
             typedef TypedParam<T, NAME_VALUE_LOOKUP, true>  super_t;
-            typedef Multiple<T, RANGE, NAME_VALUE_LOOKUP>                           self_t;
-            typedef typename super_t::container_t                                   container_t;
+            typedef Multiple<T, RANGE, NAME_VALUE_LOOKUP>   self_t;
+            typedef typename super_t::container_t           container_t;
             typedef typename super_t::value_t               value_t;
 
         public:
-            typedef typename super_t::iterator                                      iterator;
-            typedef typename super_t::const_iterator                                const_iterator;
+            typedef typename super_t::iterator              iterator;
+            typedef typename super_t::const_iterator        const_iterator;
 
             using super_t::operator();
             using super_t::operator const container_t&;
@@ -2855,5 +2828,27 @@ namespace LLInitParam
     };
 }
 
+namespace LLTypeTags
+{
+    // After BaseBlock so Sequential, Atomic, and Lazy are in scope.
+    template<typename T>
+    struct IsSortable<LLInitParam::BaseBlock::Sequential<T> >
+    {
+        static const bool value = true;
+    };
+
+    template<typename T>
+    struct IsSortable<LLInitParam::BaseBlock::Atomic<T> >
+    {
+        static const bool value = true;
+    };
+
+    template<typename T, typename BLOCK_T>
+    struct IsSortable<LLInitParam::BaseBlock::Lazy<T, BLOCK_T> >
+    {
+        static const bool value = true;
+    };
+}
 
 #endif // LL_LLPARAM_H
+

@@ -4,7 +4,7 @@
 *
 * $LicenseInfo:firstyear=2001&license=viewerlgpl$
 * Second Life Viewer Source Code
-* Copyright (C) 2010, Linden Research, Inc.
+* Copyright (C) 2026, Linden Research, Inc.
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -28,6 +28,7 @@
 #include "llflashtimer.h"
 
 #include "linden_common.h"
+#include "llapp.h"
 #include "llfolderviewitem.h"
 #include "llfolderview.h"
 #include "llfolderviewmodel.h"
@@ -158,9 +159,11 @@ LLFolderViewItem::Params::Params()
     icon_width("icon_width", 0),
     text_pad("text_pad", 0),
     text_pad_right("text_pad_right", 0),
+    text_pad_top("text_pad_top", 1),
     single_folder_mode("single_folder_mode", false),
     double_click_override("double_click_override", false),
     arrow_size("arrow_size", 0),
+    arrow_pad_top("arrow_pad_top", 1),
     max_folder_item_overlap("max_folder_item_overlap", 0)
 { }
 
@@ -187,7 +190,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
     mItemHeight(p.item_height),
     mControlLabelRotation(0.f),
     mDragAndDropTarget(false),
-    mLabel(utf8str_to_wstring(p.name)),
+    mLabel(utf8str_to_wstring(p.name)), // will be immediately reset in postBuild()
     mRoot(p.root),
     mViewModelItem(p.listener),
     mIsMouseOverTitle(false),
@@ -200,7 +203,9 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
     mIconWidth(p.icon_width),
     mTextPad(p.text_pad),
     mTextPadRight(p.text_pad_right),
+    mTextPadTop(p.text_pad_top),
     mArrowSize(p.arrow_size),
+    mArrowPadTop(p.arrow_pad_top),
     mSingleFolderMode(p.single_folder_mode),
     mMaxFolderItemOverlap(p.max_folder_item_overlap),
     mDoubleClickOverride(p.double_click_override)
@@ -229,7 +234,11 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 // Destroys the object
 LLFolderViewItem::~LLFolderViewItem()
 {
-    mViewModelItem = NULL;
+    if (mViewModelItem)
+    {
+        mViewModelItem->setFolderViewItem(nullptr);
+        mViewModelItem = nullptr;
+    }
     gFocusMgr.removeKeyboardFocusWithoutCallback(this);
 }
 
@@ -239,21 +248,19 @@ bool LLFolderViewItem::postBuild()
     llassert(vmi); // not supposed to happen, if happens, find out why and fix
     if (vmi)
     {
-        // getDisplayName() is expensive (due to internal getLabelSuffix() and name building)
-        // it also sets search strings so it requires a filter reset
+        // First getDisplayName() is expensive due to internal
+        // lazy getLabelSuffix(), it is however needed as it sets
+        // search string, which can later determine visibility.
+        // Refreshing a search string also requires a filter reset.
         mLabel = utf8str_to_wstring(vmi->getDisplayName());
         mIsFavorite = vmi->isFavorite() && !vmi->isItemInTrash();
-        setToolTip(vmi->getName());
 
         // Dirty the filter flag of the model from the view (CHUI-849)
         vmi->dirtyFilter();
     }
 
-    // Don't do full refresh on constructor if it is possible to avoid
+    // Don't do full refresh on constructor if it is possible to avoid,
     // it significantly slows down bulk view creation.
-    // Todo: Ideally we need to move getDisplayName() out of constructor as well.
-    // Like: make a logic that will let filter update search string,
-    // while LLFolderViewItem::arrange() updates visual part
     mSuffixNeedsRefresh = true;
     mLabelWidthDirty = true;
     return true;
@@ -353,12 +360,16 @@ bool LLFolderViewItem::isPotentiallyVisible(S32 filter_generation)
 
 void LLFolderViewItem::refresh()
 {
-    LLFolderViewModelItem& vmi = *getViewModelItem();
+    LLFolderViewModelItem* vmi_ptr = getViewModelItem();
+    if (!vmi_ptr)
+    {
+        return;
+    }
+    LLFolderViewModelItem& vmi = *vmi_ptr;
 
     mLabel = utf8str_to_wstring(vmi.getDisplayName());
     mLabelFontBuffer.reset();
     mIsFavorite = vmi.isFavorite() && !vmi.isItemInTrash();
-    setToolTip(vmi.getName());
     // icons are slightly expensive to get, can be optimized
     // see LLInventoryIcon::getIcon()
     mIcon = vmi.getIcon();
@@ -385,6 +396,10 @@ void LLFolderViewItem::refresh()
 void LLFolderViewItem::refreshSuffix()
 {
     LLFolderViewModelItem const* vmi = getViewModelItem();
+    if (!vmi)
+    {
+        return;
+    }
 
     // icons are slightly expensive to get, can be optimized
     // see LLInventoryIcon::getIcon()
@@ -563,7 +578,15 @@ bool LLFolderViewItem::isRemovable()
 
 void LLFolderViewItem::destroyView()
 {
-    getRoot()->removeFromSelectionList(this);
+    LLFolderView* root = getRoot();
+    if (root)
+    {
+        root->removeFromSelectionList(this);
+        if (root->getRenameItem() == this)
+        {
+            root->cancelRenaming();
+        }
+    }
 
     if (mParentFolder)
     {
@@ -616,6 +639,19 @@ const std::string& LLFolderViewItem::getName( void ) const
 {
     static const std::string noName("");
     return getViewModelItem() ? getViewModelItem()->getName() : noName;
+}
+
+const std::string LLFolderViewItem::getToolTip() const
+{
+    // Return the item name as tooltip without storing it
+    if (!LLView::sDebugUnicode)
+    {
+        if (const LLFolderViewModelItem* vmi = getViewModelItem())
+        {
+            return vmi->getName();
+        }
+    }
+    return LLView::getToolTip();
 }
 
 // LLView functionality
@@ -810,7 +846,7 @@ void LLFolderViewItem::drawOpenFolderArrow()
     if (hasVisibleChildren() || !isFolderComplete())
     {
         gl_draw_scaled_rotated_image(
-            mIndentation, getRect().getHeight() - mArrowSize - mTextPad - sTopPad,
+            mIndentation, getRect().getHeight() - mArrowSize - mArrowPadTop - sTopPad,
             mArrowSize, mArrowSize, mControlLabelRotation, sFolderArrowImg->getImage(), sFgColor);
     }
 }
@@ -1044,7 +1080,7 @@ void LLFolderViewItem::draw()
 
     S32 filter_string_length = mViewModelItem->hasFilterStringMatch() ? (S32)mViewModelItem->getFilterStringSize() : 0;
     F32 right_x  = 0;
-    F32 y = (F32)rect_height - line_height - (F32)mTextPad - (F32)sTopPad;
+    F32 y = (F32)rect_height - line_height - (F32)mTextPadTop - (F32)sTopPad;
     F32 text_left = (F32)getLabelXPos();
     LLWString combined_string = mLabel + mLabelSuffix;
 
@@ -1123,7 +1159,7 @@ void LLFolderViewItem::draw()
         if(mLabelSuffix.empty() || (font == sSuffixFont))
         {
             F32 match_string_left = text_left + font->getWidthF32(combined_string.c_str(), 0, filter_offset + filter_string_length) - font->getWidthF32(combined_string.c_str(), filter_offset, filter_string_length);
-            F32 yy = (F32)rect_height - line_height - (F32)mTextPad - (F32)sTopPad;
+            F32 yy = (F32)rect_height - line_height - (F32)mTextPadTop - (F32)sTopPad;
             font->render(combined_string, filter_offset, match_string_left, yy,
                 sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
                 filter_string_length, S32_MAX, &right_x);
@@ -1134,7 +1170,7 @@ void LLFolderViewItem::draw()
             if(label_filter_length > 0)
             {
                 F32 match_string_left = text_left + font->getWidthF32(mLabel.c_str(), 0, filter_offset + label_filter_length) - font->getWidthF32(mLabel.c_str(), filter_offset, label_filter_length);
-                F32 yy = (F32)rect_height - line_height - (F32)mTextPad - (F32)sTopPad;
+                F32 yy = (F32)rect_height - line_height - (F32)mTextPadTop - (F32)sTopPad;
                 font->render(mLabel, filter_offset, match_string_left, yy,
                     sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
                     label_filter_length, S32_MAX, &right_x);
@@ -1145,7 +1181,7 @@ void LLFolderViewItem::draw()
             {
                 S32 suffix_offset = llmax(0, filter_offset - (S32)mLabel.size());
                 F32 match_string_left = text_left + font->getWidthF32(mLabel.c_str(), 0, static_cast<S32>(mLabel.size())) + sSuffixFont->getWidthF32(mLabelSuffix.c_str(), 0, suffix_offset + suffix_filter_length) - sSuffixFont->getWidthF32(mLabelSuffix.c_str(), suffix_offset, suffix_filter_length);
-                F32 yy = (F32)rect_height - sSuffixFont->getLineHeight() - (F32)mTextPad - (F32)sTopPad;
+                F32 yy = (F32)rect_height - sSuffixFont->getLineHeight() - (F32)mTextPadTop - (F32)sTopPad;
                 sSuffixFont->render(mLabelSuffix, suffix_offset, match_string_left, yy, sFilterTextColor,
                     LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
                     suffix_filter_length, S32_MAX, &right_x);
@@ -1807,15 +1843,13 @@ void LLFolderViewFolder::extractItem( LLFolderViewItem* item, bool deparent_mode
 {
     if (item->isSelected())
         getRoot()->clearSelection();
+    if (getRoot() && getRoot()->getRenameItem() == item)
+        getRoot()->cancelRenaming();
     items_t::iterator it = std::find(mItems.begin(), mItems.end(), item);
     if(it == mItems.end())
     {
-        // This is an evil downcast. However, it's only doing
-        // pointer comparison to find if (which it should be ) the
-        // item is in the container, so it's pretty safe.
-        LLFolderViewFolder* f = static_cast<LLFolderViewFolder*>(item);
         folders_t::iterator ft;
-        ft = std::find(mFolders.begin(), mFolders.end(), f);
+        ft = std::find(mFolders.begin(), mFolders.end(), item);
         if (ft != mFolders.end())
         {
             mFolders.erase(ft);
@@ -1884,6 +1918,11 @@ void LLFolderViewFolder::updateHasFavorites(bool new_childs_value)
 void LLFolderViewFolder::onIdleUpdateFavorites(void* data)
 {
     LLFolderViewFolder* self = reinterpret_cast<LLFolderViewFolder*>(data);
+    if (gDisconnected || !self)
+    {
+        return;
+    }
+
     if (self->mFavoritesDirtyFlags == FAVORITE_CLEANUP)
     {
         // parent or child already processed the update, clean the callback
@@ -2359,9 +2398,10 @@ bool LLFolderViewFolder::handleDoubleClick( S32 x, S32 y, MASK mask )
         {
             // navigating is going to destroy views and change children
             // delay it untill handleDoubleClick processing is complete
-            doOnIdleOneTime([this]()
-                            {
-                                getViewModelItem()->navigateToFolder(false);
+            LLPointer<LLFolderViewModelItem> view_model_item = getViewModelItem();
+            doOnIdleOneTime([view_model_item]() mutable
+                            {;
+                                view_model_item->navigateToFolder(false);
                             });
         }
         return true;

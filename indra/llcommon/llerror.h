@@ -91,13 +91,8 @@ const int LL_ERR_NOERR = 0;
 #define llverify(func)          do {if (func) {}} while(0)
 #endif
 
-#ifdef LL_WINDOWS
 #define LL_STATIC_ASSERT(func, msg) static_assert(func, msg)
-#define LL_BAD_TEMPLATE_INSTANTIATION(type, msg) static_assert(false, msg)
-#else
-#define LL_STATIC_ASSERT(func, msg) BOOST_STATIC_ASSERT(func)
-#define LL_BAD_TEMPLATE_INSTANTIATION(type, msg) BOOST_STATIC_ASSERT(sizeof(type) != 0 && false);
-#endif
+#define LL_BAD_TEMPLATE_INSTANTIATION(type, msg) static_assert(sizeof(type) != 0 && false, msg)
 
 
 /** Error Logging Facility
@@ -314,6 +309,7 @@ namespace LLError
             ERROR_OTHER = 0,
             ERROR_BAD_ALLOC = 1,
             ERROR_MISSING_FILES = 2,
+            ERROR_INIT_FAILED = 3,
         } eLastExecEvent;
 
         // tittle, message and error code to include in error marker file

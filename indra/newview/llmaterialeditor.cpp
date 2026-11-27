@@ -177,6 +177,116 @@ void LLFloaterComboOptions::onCancel()
     closeFloater();
 }
 
+class LLMaterialEditorTaskMoveObserver : public LLInventoryAddItemByAssetObserver
+{
+public:
+    LLMaterialEditorTaskMoveObserver(
+        const LLUUID& asset_id,
+        const LLUUID& dest_folder_id,
+        const std::string& item_name,
+        LLPointer<LLInventoryCallback> cb)
+        : mDestFolderID(dest_folder_id),
+        mItemName(item_name),
+        mWatchByName(asset_id.isNull()),
+        mCallback(cb)
+    {
+        if (mWatchByName)
+        {
+            // Default materials have a null asset id, so they can't
+            // be tracked via LLInventoryAddItemByAssetObserver. Fall back to
+            // watching the destination folder for a new item with a matching
+            // name instead.
+            gInventory.addObserver(this);
+        }
+        else
+        {
+            watchAsset(asset_id);
+        }
+    }
+
+    virtual ~LLMaterialEditorTaskMoveObserver()
+    {
+        gInventory.removeObserver(this);
+    }
+
+    virtual void changed(U32 mask) override
+    {
+        if (mWatchByName)
+        {
+            if (!(mask & LLInventoryObserver::ADD) ||
+                !(mask & LLInventoryObserver::CREATE) ||
+                !(mask & LLInventoryObserver::UPDATE_CREATE))
+            {
+                return;
+            }
+
+            const uuid_set_t& added = gInventory.getAddedIDs();
+            for (uuid_set_t::const_iterator it = added.begin(); it != added.end(); ++it)
+            {
+                LLViewerInventoryItem* item = gInventory.getItem(*it);
+                // A lot of things can have a null assey UUID, so needs extra safeties.
+                if (item
+                    && item->getParentUUID() == mDestFolderID
+                    && item->getName() == mItemName
+                    && item->getType() == LLAssetType::AT_MATERIAL
+                    && item->getAssetUUID().isNull())
+                {
+                    gInventory.removeObserver(this);
+
+                    // Fire the callback
+                    if (mCallback)
+                    {
+                        mCallback->fire(item->getUUID());
+                    }
+
+                    delete this;
+                    return;
+                }
+            }
+            return;
+        }
+
+        // Call base class to populate mAddedItems
+        LLInventoryAddItemByAssetObserver::changed(mask);
+
+        // If base class completed (which calls done() and clears mAddedItems),
+        // and we set mIsDirty, that means we're finished
+        if (mIsDirty)
+        {
+            gInventory.removeObserver(this);
+            delete this;
+        }
+    }
+
+protected:
+    virtual void done() override
+    {
+        // Find the moved item
+        // There must be only one since we are watching only one item,
+        // changed wouldn't fire otherwise. But just in case.
+        if (mAddedItems.size() == 1)
+        {
+            LLUUID item_id = mAddedItems[0];
+
+            // Fire the callback
+            if (mCallback)
+            {
+                mCallback->fire(item_id);
+            }
+        }
+
+        // Todo: gInventoryMoveObserver normally opens inventory
+        // on completion, should this do the same?
+    }
+
+private:
+    LLUUID mDestFolderID;
+    std::string mItemName;
+    std::string mNewName;
+    bool mWatchByName;
+    LLPointer<LLInventoryCallback> mCallback;
+};
+
 class LLMaterialEditorCopiedCallback : public LLInventoryCallback
 {
 public:
@@ -190,6 +300,18 @@ public:
     {}
 
     LLMaterialEditorCopiedCallback(
+        const std::string & buffer,
+        const LLSD & old_key,
+        const std::string & new_name,
+        bool has_unsaved_changes)
+        : mBuffer(buffer),
+        mOldKey(old_key),
+        mNewName(new_name),
+        mHasUnsavedChanges(has_unsaved_changes)
+    {
+    }
+
+    LLMaterialEditorCopiedCallback(
         const LLSD &old_key,
         const std::string &new_name)
         : mOldKey(old_key),
@@ -201,7 +323,10 @@ public:
     {
         if (!mNewName.empty())
         {
-            // making a copy from a notecard doesn't change name, do it now
+            // making a copy from a task inventory (object, notecard)
+            // doesn't change name, do it now
+            // Todo: Can calling update_inventory_item and finishSaveAs
+            // cause a race condition?
             LLViewerInventoryItem* item = gInventory.getItem(inv_item_id);
             if (item->getName() != mNewName)
             {
@@ -1265,7 +1390,7 @@ bool LLMaterialEditor::decodeAsset(const std::vector<char>& buffer)
 
                     tinygltf::Model model_in;
 
-                    if (loader.LoadASCIIFromString(&model_in, &error_msg, &warn_msg, data.c_str(), static_cast<unsigned int>(data.length()), ""))
+                    if (LLTinyGLTFHelper::loadModelFromUntrustedString(data, model_in, warn_msg, error_msg))
                     {
                         // assets are only supposed to have one item
                         // *NOTE: This duplicates some functionality from
@@ -1811,6 +1936,53 @@ void LLMaterialEditor::onSaveAsMsgCallback(const LLSD& notification, const LLSD&
                         mNotecardInventoryID,
                         mAuxItem.get(),
                         gInventoryCallbacks.registerCB(cb));
+
+                    mAssetStatus = PREVIEW_ASSET_LOADING;
+                    setEnabled(false);
+                }
+                else if (mObjectUUID.notNull())
+                {
+                    // Item is in task (object) inventory - must move to agent
+                    // inventory first.
+                    // Note: If this is too flimsy, just disable the 'save as'
+                    // button when in object inventory and create a server ticket,
+                    // as we need a copy with callback variant.
+                    LLViewerObject* object = gObjectList.findObject(mObjectUUID);
+                    if (object)
+                    {
+                        LLPermissions perm(item->getPermissions());
+                        if (perm.allowCopyBy(gAgent.getID(), gAgent.getGroupID())
+                            && perm.allowTransferTo(gAgent.getID()))
+                        {
+                            // Create a callback for after the item is copied/moved
+                            std::string buffer = getEncodedAsset();
+                            LLPointer<LLInventoryCallback> cb = new LLMaterialEditorCopiedCallback(
+                                buffer,
+                                getKey(),
+                                new_name,
+                                mUnsavedChanges);
+
+                            // Create observer to watch for the item arriving in inventory
+                            // The observer will fire our callback when the move completes
+                            LLMaterialEditorTaskMoveObserver* observer = new LLMaterialEditorTaskMoveObserver(
+                                item->getAssetUUID(),
+                                parent_id,
+                                item->getName(),
+                                cb
+                            );
+                            gInventory.addObserver(observer);
+
+                            // Copies(not moves) item from object to agent inventory
+                            object->moveInventory(parent_id, item->getUUID());
+
+                            mAssetStatus = PREVIEW_ASSET_LOADING;
+                            setEnabled(false);
+                        }
+                        else
+                        {
+                            LL_WARNS("MaterialEditor") << "Insufficient permissions to copy material from object inventory" << LL_ENDL;
+                        }
+                    }
                 }
                 else
                 {
@@ -1823,10 +1995,10 @@ void LLMaterialEditor::onSaveAsMsgCallback(const LLSD& notification, const LLSD&
                         parent_id,
                         new_name,
                         cb);
-                }
 
-                mAssetStatus = PREVIEW_ASSET_LOADING;
-                setEnabled(false);
+                    mAssetStatus = PREVIEW_ASSET_LOADING;
+                    setEnabled(false);
+                }
             }
             else
             {
@@ -1909,7 +2081,8 @@ void LLMaterialEditor::uploadMaterialFromModel(
     const std::string& filename,
     tinygltf::Model& model_in,
     S32 index,
-    const LLUUID& dest)
+    const LLUUID& dest,
+    const LLUUID& texture_dest)
 {
     if (index < 0 || !LLMaterialEditor::capabilitiesAvailable())
     {
@@ -1932,11 +2105,12 @@ void LLMaterialEditor::uploadMaterialFromModel(
     // This uses 'filename' to make sure multiple bulk uploads work
     // instead of fighting for a single instance.
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", LLSD().with("filename", filename).with("index", LLSD::Integer(index)));
+    if (!me) return;
     me->mUploadFolder = dest;
+    me->mTextureUploadFolder = texture_dest;
     me->loadMaterial(model_in, filename, index, false);
     me->saveIfNeeded();
 }
-
 
 void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 index, const LLUUID& dest_folder)
 {
@@ -3582,7 +3756,7 @@ void LLMaterialEditor::saveTexture(LLImageJ2C* img, const std::string& name, con
         LLFloaterPerms::getGroupPerms("Uploads"),
         LLFloaterPerms::getEveryonePerms("Uploads"),
         expected_upload_cost,
-        mUploadFolder,
+        mTextureUploadFolder.notNull() ? mTextureUploadFolder : mUploadFolder,
         false,
         cb,
         failed_upload));

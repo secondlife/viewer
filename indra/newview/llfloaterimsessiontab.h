@@ -38,7 +38,6 @@
 #include "llconversationview.h"
 #include "lltexteditor.h"
 
-class LLPanelChatControlPanel;
 class LLChatEntry;
 class LLChatHistory;
 class LLPanelEmojiComplete;
@@ -85,6 +84,8 @@ public:
     void closeFloater(bool app_quitting = false) override;
     void deleteAllChildren() override;
 
+    virtual void onClickCloseBtn(bool app_quitting = false) override;
+
     // Handle the left hand participant list widgets
     void addConversationViewParticipant(LLConversationItem* item, bool update_view = true);
     void removeConversationViewParticipant(const LLUUID& participant_id);
@@ -116,6 +117,8 @@ public:
     virtual void sessionVoiceOrIMStarted(const LLUUID& session_id) override {};                              // Stub
     virtual void sessionIDUpdated(const LLUUID& old_session_id, const LLUUID& new_session_id) override {};   // Stub
 
+    bool isP2PSessionType() { return mIsP2PChat; }
+
 protected:
 
     // callback for click on any items of the visual states menu
@@ -142,6 +145,9 @@ protected:
 
     // Update the input field help text and other places that need the session name
     virtual void updateSessionName(const std::string& name);
+
+    // Use a unique root name for LEAP conversation lookups.
+    void updateUniqueName();
 
     // set the enable/disable state for the Call button
     virtual void enableDisableCallBtn();

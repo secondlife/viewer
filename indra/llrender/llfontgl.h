@@ -35,6 +35,8 @@
 #include "llrect.h"
 #include "v2math.h"
 
+#include <vector>
+
 class LLColor4;
 // Key used to request a font.
 class LLFontDescriptor;
@@ -87,7 +89,7 @@ public:
 
     void destroyGL();
 
-    bool loadFace(const std::string& filename, F32 point_size, const F32 vert_dpi, const F32 horz_dpi, bool is_fallback, S32 face_n);
+    bool loadFace(const std::string& filename, F32 point_size, const F32 vert_dpi, const F32 horz_dpi, S32 weight, bool is_fallback, S32 face_n, EFontHinting hinting, S32 flags);
 
     S32 getNumFaces(const std::string& filename);
     S32 getCacheGeneration() const;
@@ -143,6 +145,9 @@ public:
     F32 getWidthF32(const llwchar* wchars) const;
     F32 getWidthF32(const std::string& text, S32 offset, S32 max_chars) const;
     F32 getWidthF32(const llwchar* wchars, S32 offset, S32 max_chars, bool no_padding = false) const;
+
+    // widths[n] is getWidth(wchars, begin_offset, n), from n = 0 to the number of characters measured
+    void getWidths(const llwchar* wchars, S32 begin_offset, S32 max_chars, std::vector<S32>& widths) const;
 
     // The following are called often, frequently with large buffers, so do not use a string interface
 
@@ -204,6 +209,7 @@ public:
     static LLFontGL* getFontSansSerifSmallBold();
     static LLFontGL* getFontSansSerifSmallItalic();
     static LLFontGL* getFontSansSerif();
+    static LLFontGL* getFontSansSerifMedium();
     static LLFontGL* getFontSansSerifBig();
     static LLFontGL* getFontSansSerifHuge();
     static LLFontGL* getFontSansSerifBold();

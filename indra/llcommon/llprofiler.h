@@ -76,7 +76,16 @@
 
 #if defined(LL_PROFILER_CONFIGURATION) && (LL_PROFILER_CONFIGURATION > LL_PROFILER_CONFIG_NONE)
     #if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY || LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY_FAST_TIMER
+    #include "llpreprocessor.h"
+
+#if defined(LL_GNUC) && GCC_VERSION >= 130000
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wnonnull"
+#endif
         #include "tracy/Tracy.hpp"
+#if defined(LL_GNUC) && GCC_VERSION >= 130000
+#   pragma GCC diagnostic push
+#endif
 
         // Enable RenderDoc labeling
         //#define LL_PROFILER_ENABLE_RENDER_DOC 0
@@ -169,9 +178,21 @@
 #if LL_PROFILER_CONFIGURATION >= LL_PROFILER_CONFIG_TRACY
 #define LL_PROFILE_ALLOC(ptr, size)             TracyAlloc(ptr, size)
 #define LL_PROFILE_FREE(ptr)                    TracyFree(ptr)
+#define LL_PROFILE_ALLOC_NAMED(ptr, size, name) TracyAllocN(ptr, size, name)
+#define LL_PROFILE_FREE_NAMED(ptr, name)        TracyFreeN(ptr, name)
+// Named numeric plots, visible as timeline graphs in Tracy's Plot view.
+// Useful for tracking queue depths, active counts, etc. over time.
+#define LL_PROFILE_PLOT(name, val)              TracyPlot(name, val)
+#define LL_PROFILE_PLOT_CONFIG(name, format, step, fill, color) \
+    TracyPlotConfig(name, format, step, fill, color)
 #else
 #define LL_PROFILE_ALLOC(ptr, size)             (void)(ptr); (void)(size);
 #define LL_PROFILE_FREE(ptr)                    (void)(ptr);
+#define LL_PROFILE_ALLOC_NAMED(ptr, size, name) (void)(ptr); (void)(size); (void)(name);
+#define LL_PROFILE_FREE_NAMED(ptr, name)        (void)(ptr); (void)(name);
+#define LL_PROFILE_PLOT(name, val)              (void)(name); (void)(val);
+#define LL_PROFILE_PLOT_CONFIG(name, format, step, fill, color) \
+    (void)(name); (void)(format); (void)(step); (void)(fill); (void)(color);
 #endif
 
 #if LL_PROFILER_ENABLE_RENDER_DOC

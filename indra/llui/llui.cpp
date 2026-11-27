@@ -65,7 +65,6 @@
 
 // for XUIParse
 #include "llquaternion.h"
-#include <boost/tokenizer.hpp>
 #include <boost/algorithm/string/find_iterator.hpp>
 #include <boost/algorithm/string/finder.hpp>
 
@@ -157,6 +156,7 @@ mWindow(NULL), // set later in startup
 mRootView(NULL),
 mHelpImpl(NULL)
 {
+    LL_PROFILE_ZONE_SCOPED;
     LLRender2D::createInstance(image_provider);
     LLSpellChecker::createInstance();
 

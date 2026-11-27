@@ -31,6 +31,7 @@
 #include "llwin32headers.h"
 
 #include "llwindow.h"
+#include "llpreeditor.h"
 #include "llwindowcallbacks.h"
 #include "lldragdropwin32.h"
 #include "llthread.h"
@@ -38,104 +39,119 @@
 #include "llmutex.h"
 #include "workqueue.h"
 
+#include <atomic>
+
 // Hack for async host by name
 #define LL_WM_HOST_RESOLVED      (WM_APP + 1)
+// For requesting shutdown on uninstall,
+// make sure it does not conflict with messages like WM_DUMMY_
+inline constexpr UINT WM_POST_UNINSTALL_ = WM_USER + 0x0019;
+inline constexpr DWORD WM_POST_UNINSTALL_MSG_SHUTDOWN = 1;
+inline constexpr DWORD WM_POST_UNINSTALL_MSG_UPDATE = 2;
+
 typedef void (*LLW32MsgCallback)(const MSG &msg);
+
+struct LLImeCompositionSnapshot;
 
 class LLWindowWin32 : public LLWindow
 {
 public:
-    /*virtual*/ void show();
-    /*virtual*/ void hide();
-    /*virtual*/ void close();
-    /*virtual*/ bool getVisible();
-    /*virtual*/ bool getMinimized();
-    /*virtual*/ bool getMaximized();
-    /*virtual*/ bool maximize();
-    /*virtual*/ void minimize();
-    /*virtual*/ void restore();
-    /*virtual*/ bool getFullscreen();
-    /*virtual*/ bool getPosition(LLCoordScreen *position);
-    /*virtual*/ bool getSize(LLCoordScreen *size);
-    /*virtual*/ bool getSize(LLCoordWindow *size);
-    /*virtual*/ bool setPosition(LLCoordScreen position);
-    /*virtual*/ bool setSizeImpl(LLCoordScreen size);
-    /*virtual*/ bool setSizeImpl(LLCoordWindow size);
-    /*virtual*/ bool switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync, const LLCoordScreen * const posp = NULL);
-    /*virtual*/ void setTitle(const std::string title);
+    void show() override;
+    void hide() override;
+    void close() override;
+    bool getVisible() const override;
+    bool getMinimized() const override;
+    bool getMaximized() const override;
+    bool maximize() override;
+    void minimize() override;
+    void restore() override;
+    bool getPosition(LLCoordScreen *position) const override;
+
+    // Outer window frame size in pixels (includes title bar and borders).
+    // Note OS Specific behavior: On macOS excludes title bar.
+    bool getSize(LLCoordScreen *size) const override;
+    bool getSize(LLCoordWindow *size) const override;
+
+    bool setPosition(LLCoordScreen position) override;
+    bool setSizeImpl(LLCoordScreen size) override;
+    bool setSizeImpl(LLCoordWindow size) override;
+    bool switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync, const LLCoordScreen * const posp = NULL) override;
+    void setTitle(const std::string title) override;
     void* createSharedContext() override;
     void makeContextCurrent(void* context) override;
     void destroySharedContext(void* context) override;
-    /*virtual*/ void toggleVSync(bool enable_vsync);
-    /*virtual*/ bool setCursorPosition(LLCoordWindow position);
-    /*virtual*/ bool getCursorPosition(LLCoordWindow *position);
-    /*virtual*/ bool getCursorDelta(LLCoordCommon* delta);
-    /*virtual*/ bool isWrapMouse() const override { return !mAbsoluteCursorPosition; };
-    /*virtual*/ void showCursor();
-    /*virtual*/ void hideCursor();
-    /*virtual*/ void showCursorFromMouseMove();
-    /*virtual*/ void hideCursorUntilMouseMove();
-    /*virtual*/ bool isCursorHidden();
-    /*virtual*/ void updateCursor();
-    /*virtual*/ ECursorType getCursor() const;
-    /*virtual*/ void captureMouse();
-    /*virtual*/ void releaseMouse();
-    /*virtual*/ void setMouseClipping( bool b );
-    /*virtual*/ bool isClipboardTextAvailable();
-    /*virtual*/ bool pasteTextFromClipboard(LLWString &dst);
-    /*virtual*/ bool copyTextToClipboard(const LLWString &src);
-    /*virtual*/ void flashIcon(F32 seconds);
-    /*virtual*/ F32 getGamma();
-    /*virtual*/ bool setGamma(const F32 gamma); // Set the gamma
-    /*virtual*/ void setFSAASamples(const U32 fsaa_samples);
-    /*virtual*/ U32 getFSAASamples();
-    /*virtual*/ bool restoreGamma();            // Restore original gamma table (before updating gamma)
-    /*virtual*/ ESwapMethod getSwapMethod() { return mSwapMethod; }
-    /*virtual*/ void gatherInput();
-    /*virtual*/ void delayInputProcessing();
-    /*virtual*/ void swapBuffers();
-    /*virtual*/ void restoreGLContext() {};
+    void toggleVSync(bool enable_vsync) override;
+    bool setCursorPosition(LLCoordWindow position) override;
+    bool getCursorPosition(LLCoordWindow *position) override;
+    bool getCursorDelta(LLCoordCommon* delta) const override;
+    bool isWrapMouse() const override { return !mAbsoluteCursorPosition; };
+    void showCursor() override;
+    void hideCursor() override;
+    void showCursorFromMouseMove() override;
+    void hideCursorUntilMouseMove() override;
+    bool isCursorHidden() override;
+    void updateCursor() override;
+    ECursorType getCursor() const override;
+    void captureMouse() override;
+    void releaseMouse() override;
+    void setMouseClipping( bool b ) override;
+    bool isClipboardTextAvailable() override;
+    bool pasteTextFromClipboard(LLWString &dst) override;
+    bool copyTextToClipboard(const LLWString &src) override;
+    void flashIcon(F32 seconds) override;
+    F32 getGamma() const override;
+    bool setGamma(const F32 gamma) override; // Set the gamma
+    void setFSAASamples(const U32 fsaa_samples) override;
+    U32 getFSAASamples() const override;
+    bool restoreGamma() override;            // Restore original gamma table (before updating gamma)
+    void gatherInput(bool app_has_focus) override;
+    void delayInputProcessing() override;
+    void swapBuffers() override;
 
     // handy coordinate space conversion routines
-    /*virtual*/ bool convertCoords(LLCoordScreen from, LLCoordWindow *to);
-    /*virtual*/ bool convertCoords(LLCoordWindow from, LLCoordScreen *to);
-    /*virtual*/ bool convertCoords(LLCoordWindow from, LLCoordGL *to);
-    /*virtual*/ bool convertCoords(LLCoordGL from, LLCoordWindow *to);
-    /*virtual*/ bool convertCoords(LLCoordScreen from, LLCoordGL *to);
-    /*virtual*/ bool convertCoords(LLCoordGL from, LLCoordScreen *to);
+    bool convertCoords(LLCoordScreen from, LLCoordWindow *to) const override;
+    bool convertCoords(LLCoordWindow from, LLCoordScreen *to) const override;
+    bool convertCoords(LLCoordWindow from, LLCoordGL *to) const override;
+    bool convertCoords(LLCoordGL from, LLCoordWindow *to) const override;
+    bool convertCoords(LLCoordScreen from, LLCoordGL *to) const override;
+    bool convertCoords(LLCoordGL from, LLCoordScreen *to) const override;
 
-    /*virtual*/ LLWindowResolution* getSupportedResolutions(S32 &num_resolutions);
-    /*virtual*/ F32 getNativeAspectRatio();
-    /*virtual*/ F32 getPixelAspectRatio();
-    /*virtual*/ void setNativeAspectRatio(F32 ratio) { mOverrideAspectRatio = ratio; }
+    LLWindowResolution* getSupportedResolutions(S32 &num_resolutions) override;
+    F32 getNativeAspectRatio() override;
+    F32 getPixelAspectRatio() override;
+    void setNativeAspectRatio(F32 ratio) override { mOverrideAspectRatio = ratio; }
 
-    /*virtual*/ bool dialogColorPicker(F32 *r, F32 *g, F32 *b );
+    bool dialogColorPicker(F32 *r, F32 *g, F32 *b ) override;
 
-    /*virtual*/ void *getPlatformWindow();
-    /*virtual*/ void bringToFront();
-    /*virtual*/ void focusClient();
+    void* getPlatformWindow() const override;
+    void bringToFront() override;
+    void focusClient() override;
 
-    /*virtual*/ void allowLanguageTextInput(LLPreeditor *preeditor, bool b);
-    /*virtual*/ void setLanguageTextInput( const LLCoordGL & pos );
-    /*virtual*/ void updateLanguageTextInputArea();
-    /*virtual*/ void interruptLanguageTextInput();
-    /*virtual*/ void spawnWebBrowser(const std::string& escaped_url, bool async);
+    void allowLanguageTextInput(LLPreeditor *preeditor, bool b) override;
+    void setLanguageTextInput( const LLCoordGL & pos ) override;
+    void updateLanguageTextInputArea() override;
+    void interruptLanguageTextInput() override;
+    void spawnWebBrowser(const std::string& escaped_url, bool async) override;
 
-    /*virtual*/ F32 getSystemUISize();
+    F32 getSystemUISize() const override;
 
     LLWindowCallbacks::DragNDropResult completeDragNDropRequest( const LLCoordGL gl_coord, const MASK mask, LLWindowCallbacks::DragNDropAction action, const std::string url );
 
+    static PROC WINAPI getProcAddress(const char* func);
     static std::vector<std::string> getDisplaysResolutionList();
     static std::vector<std::string> getDynamicFallbackFontList();
+    static LLFontFallbackMatch findFallbackFontForChar(llwchar wch);
     static void setDPIAwareness();
 
-    /*virtual*/ void* getDirectInput8();
-    /*virtual*/ bool getInputDevices(U32 device_type_filter,
+    void* getDirectInput8() override;
+    bool getInputDevices(U32 device_type_filter,
                                      std::function<bool(std::string&, LLSD&, void*)> osx_callback,
                                      void* win_callback,
-                                     void* userdata);
+                                     void* userdata) override;
 
-    U32 getRawWParam() { return mRawWParam; }
+    U32 getRawWParam() const { return mRawWParam; }
+
+    void initWatchdog() override;
 
 protected:
     LLWindowWin32(LLWindowCallbacks* callbacks,
@@ -147,8 +163,10 @@ protected:
     void    initCursors();
     HCURSOR loadColorCursor(LPCTSTR name);
     bool    isValid();
+    void    setThreadPriorityHigh();
+    void    setThreadPriorityNormal();
     void    moveWindow(const LLCoordScreen& position,const LLCoordScreen& size);
-    virtual LLSD    getNativeKeyData();
+    LLSD    getNativeKeyData() const override;
 
     // Changes display resolution. Returns true if successful
     bool    setDisplayResolution(S32 width, S32 height, S32 refresh);
@@ -163,18 +181,30 @@ protected:
 
     void    fillCandidateForm(const LLCoordGL& caret, const LLRect& bounds, CANDIDATEFORM *form);
     void    fillCharPosition(const LLCoordGL& caret, const LLRect& bounds, const LLRect& control, IMECHARPOSITION *char_position);
-    void    fillCompositionLogfont(LOGFONT *logfont);
+    void    fillCompositionLogfont(LOGFONT *logfont, S32 font_size);
     U32     fillReconvertString(const LLWString &text, S32 focus, S32 focus_length, RECONVERTSTRING *reconvert_string);
-    void    handleStartCompositionMessage();
-    void    handleCompositionMessage(U32 indexes);
+    void    handleStartCompositionMessage(HWND h_wnd);
+    void    handleCompositionMessage(const LLImeCompositionSnapshot& snapshot);
     bool    handleImeRequests(WPARAM request, LPARAM param, LRESULT *result);
+    void    updateImeCache();
+
+    // Additional function to request and hold a high-performance GPU on Windows 10+
+    //
+    // Laptops can dynamically switch between integrated and discrete GPUs.
+    // The Viewer has gpu-specific optimizations, and this switching can cause problems and crashes.
+    // The login screen requires low performance, which can lead to the OS deciding to switch to the integrated GPU.
+    // To avoid this, we request and hold a high-performance GPU using A D3D11 context until login.
+    // For diagnostics, we also log GPU changes.
+    void    requestHighPerformanceGPU() const;
+    bool    detectGPUChange() const;
+    void    clearHighPerformanceGPURequest() const;
 
 protected:
     //
     // Platform specific methods
     //
 
-    bool    getClientRectInScreenSpace(RECT* rectp);
+    bool    getClientRectInScreenSpace(RECT* rectp) const;
 
     static LRESULT CALLBACK mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_param, LPARAM l_param);
 
@@ -218,6 +248,7 @@ protected:
     LPWSTR      mIconResource;
     LPWSTR      mIconSmallResource;
     bool        mInputProcessingPaused;
+    bool        mReceivedSCClose; // received SC_CLOSE and expecting WM_CLOSE
 
     // The following variables are for Language Text Input control.
     // They are all static, since one context is shared by all LLWindowWin32
@@ -232,6 +263,35 @@ protected:
     LLRect          mLanguageTextInputAreaGL;
 
     LLPreeditor     *mPreeditor;
+    std::atomic<bool> mHasPreeditor{ false }; // mPreeditor is set, for the window thread
+
+    // WM_IME_REQUEST is answered synchronously on the window thread, which has no GL context and races with the main thread.
+    // The main thread keeps what the requests need here, see updateImeCache().
+    typedef LLPreeditor::Location ImeLocation;
+    struct ImeCache
+    {
+        bool                        mValid = false;
+        ImeLocation                 mCursor;            // IMR_CANDIDATEWINDOW
+        LLWString                   mPreeditText;       // IMR_QUERYCHARPOSITION, preedit characters only
+        std::vector<S32>            mPreeditPositions;  // preedit character at each UTF-16 position, plus one past the end
+        LLPreeditor::locations_t    mPreeditLocations;  // one per preedit character, plus one past the end
+        LLWString                   mFeedContext;       // IMR_DOCUMENTFEED, context without the preedit
+        S32                         mFeedContextOffset = 0; // position of mFeedContext in the text
+        S32                         mFeedPreedit = 0;   // preedit position in mFeedContext
+        LLWString                   mSelectionContext;  // IMR_RECONVERTSTRING, context around the selection
+        S32                         mSelectionContextOffset = 0; // position of mSelectionContext in the text
+        S32                         mSelect = 0;        // selection, in the text
+        S32                         mSelectLength = 0;
+        S32                         mFontSize = 0;      // IMR_COMPOSITIONFONT
+
+        // What the cache was built from
+        LLPreeditor*                mPreeditor = nullptr;
+        S32                         mPreeditStart = 0;
+        S32                         mTextLength = 0;
+        S32                         mTextGeneration = 0; // see LLPreeditor::getPreeditTextGeneration()
+    };
+    LLMutex         mImeCacheMutex;
+    ImeCache        mImeCache;
 
     LLDragDropWin32* mDragDrop;
 
@@ -243,6 +303,8 @@ protected:
     U32             mRawLParam;
 
     bool            mMouseVanish;
+
+    static HMODULE sGLDLLHandle;
 
     // Cached values of GetWindowRect and GetClientRect to be used by app thread
     void updateWindowRect();
@@ -272,9 +334,9 @@ public:
     LLSplashScreenWin32();
     virtual ~LLSplashScreenWin32();
 
-    /*virtual*/ void showImpl();
-    /*virtual*/ void updateImpl(const std::string& mesg);
-    /*virtual*/ void hideImpl();
+    void showImpl() override;
+    void updateImpl(const std::string& mesg) override;
+    void hideImpl() override;
 
 #if LL_WINDOWS
     static LRESULT CALLBACK windowProc(HWND h_wnd, UINT u_msg,

@@ -41,6 +41,7 @@
                     mouse_opaque="true"
                     name="icon_settingsdays"
                     left="4"
+                    top="9"
                     width="16" />
             <check_box
                     height="16"
@@ -48,7 +49,7 @@
                     layout="topleft"
                     left_pad="2"
                     name="chk_days"
-                    top_delta="0"
+                    top_delta="2"
                     width="60" />
             <icon
                     height="16"
@@ -57,6 +58,7 @@
                     mouse_opaque="true"
                     name="icon_settingsskies"
                     left_pad="10"
+                    top="9"
                     width="16" />
             <check_box
                     height="16"
@@ -64,7 +66,7 @@
                     layout="topleft"
                     left_pad="2"
                     name="chk_skies"
-                    top_delta="0"
+                    top_delta="2"
                     width="60" />
             <icon
                     height="16"
@@ -73,6 +75,7 @@
                     mouse_opaque="true"
                     name="icon_settingswater"
                     left_pad="10"
+                    top="9"
                     width="16" />
             <check_box
                     height="16"
@@ -80,7 +83,7 @@
                     layout="topleft"
                     left_pad="2"
                     name="chk_water"
-                    top_delta="0"
+                    top_delta="2"
                     width="60" />
           <filter_editor
                   follows="left|top|right"
@@ -89,7 +92,7 @@
                   layout="topleft"
                   left="4"
                   name="flt_search"
-                  top_pad="6"
+                  top_pad="4"
                   right="-4" />
         </layout_panel>
         <layout_panel

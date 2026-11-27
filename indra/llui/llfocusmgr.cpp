@@ -464,6 +464,11 @@ F32 LLFocusMgr::getFocusFlashAmt() const
     return clamp_rescale(mFocusFlashTimer.getElapsedTimeF32(), 0.f, FOCUS_FADE_TIME, 1.f, 0.f);
 }
 
+S32 LLFocusMgr::getFocusFlashWidth() const
+{
+    return ll_round(lerp(1.f, 2.f, getFocusFlashAmt()));
+}
+
 LLColor4 LLFocusMgr::getFocusColor() const
 {
     static LLUIColor focus_color_cached = LLUIColorTable::instance().getColor("FocusColor");

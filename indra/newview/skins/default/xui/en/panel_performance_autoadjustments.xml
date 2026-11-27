@@ -144,7 +144,7 @@
   <button
    follows="top|left"
    height="22"
-   image_pressed="PushButton_Press"
+   image_pressed="PushButton_Selected"
    image_pressed_selected="PushButton_Selected_Press"
    image_selected="PushButton_Selected_Press"
    label="Auto-adjust now"
@@ -157,7 +157,7 @@
   <button
    follows="top|left"
    height="22"
-   image_pressed="PushButton_Press"
+   image_pressed="PushButton_Selected"
    image_pressed_selected="PushButton_Selected_Press"
    image_selected="PushButton_Selected_Press"
    label="Cancel"
@@ -183,7 +183,7 @@
    follows="top|left"
    height="20"
    initial_value="true"
-   image_pressed="PushButton_Press"
+   image_pressed="PushButton_Selected"
    image_pressed_selected="PushButton_Selected_Press"
    image_selected="PushButton_Selected_Press"
    is_toggle="true"

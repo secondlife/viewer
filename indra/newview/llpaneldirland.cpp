@@ -62,20 +62,6 @@ bool LLPanelDirLand::postBuild()
 
     childSetValue("type", gSavedSettings.getString("FindLandType"));
 
-    bool adult_enabled = gAgent.canAccessAdult();
-    bool mature_enabled = gAgent.canAccessMature();
-    childSetVisible("incpg", true);
-    if (!mature_enabled)
-    {
-        childSetValue("incmature", false);
-        childDisable("incmature");
-    }
-    if (!adult_enabled)
-    {
-        childSetValue("incadult", false);
-        childDisable("incadult");
-    }
-
     childSetCommitCallback("pricecheck", onCommitPrice, this);
     childSetCommitCallback("areacheck", onCommitArea, this);
 
@@ -197,7 +183,7 @@ void LLPanelDirLand::performQuery()
     if (list)
     {
         std::string sort_name = list->getSortColumnName();
-        BOOL sort_asc = list->getSortAscending();
+        bool sort_asc = list->getSortAscending();
 
         if (sort_name == "name")
         {

@@ -155,7 +155,7 @@ void LLTextureAnim::unpackTAMessage(LLDataPacker &dp)
 {
     S32 size;
     U8 data[TA_BLOCK_SIZE];
-    dp.unpackBinaryData(data, size, "TextureAnimation");
+    dp.unpackBinaryData(data, TA_BLOCK_SIZE, size, "TextureAnimation");
     if (size != TA_BLOCK_SIZE)
     {
         if (size)

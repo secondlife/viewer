@@ -754,6 +754,27 @@ bool LLVOAvatarSelf::setVisualParamWeight(S32 index, F32 weight)
     return setParamWeight(param,weight);
 }
 
+bool LLVOAvatarSelf::setVisualParamWeight(S32 index, S32 type, F32 weight)
+{
+    LLViewerVisualParam* param = (LLViewerVisualParam*)LLCharacter::getVisualParam(index);
+    if (!param)
+    {
+        return false;
+    }
+    if (param->getWearableType() == type)
+    {
+        return setParamWeight(param, weight);
+    }
+    else
+    {
+        // setVisualParamWeight at the moment is only used in writeToAvatar.
+        // The type is supposed to match since wearable is a subset of avatar by type.
+        llassert(false);
+        LL_WARNS() << "Visual param index " << index << " is not of type " << type << LL_ENDL;
+    }
+    return false;
+}
+
 bool LLVOAvatarSelf::setParamWeight(const LLViewerVisualParam *param, F32 weight)
 {
     if (!param)
@@ -1066,7 +1087,11 @@ void LLVOAvatarSelf::updateAttachmentVisibility(U32 camera_mode)
             switch (camera_mode)
             {
                 case CAMERA_MODE_MOUSELOOK:
-                    if ((LLVOAvatar::sVisibleInFirstPerson && attachment->getVisibleInFirstPerson()) || gPipeline.mHeroProbeManager.isMirrorPass())
+                    // Flycam entered from mouselook stops hiding the avatar once
+                    // it's out of view (see LLAgentCamera::mFlycamHidingAvatar).
+                    if (!gAgentCamera.isHidingAvatarForFirstPerson()
+                        || (LLVOAvatar::sVisibleInFirstPerson && attachment->getVisibleInFirstPerson())
+                        || gPipeline.mHeroProbeManager.isMirrorPass())
                     {
                         attachment->setAttachmentVisibility(true);
                     }

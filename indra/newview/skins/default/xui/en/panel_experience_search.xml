@@ -47,12 +47,14 @@
     <text
       name="lbl name part"
       left="0"
+      top_pad="1"
       follows="top|left|right"
       right="-1">
       Enter part of the name:
     </text>
     <line_editor
       left="0"
+      top_pad="9"
       follows="left|top|right"
       name="edit"
       height="18"
@@ -121,7 +123,7 @@
       draw_heading="true"
       left="0"
       right="-1"
-      height="239"
+      height="236"
       top_pad="4"
       follows="all" 
       column_padding="5"

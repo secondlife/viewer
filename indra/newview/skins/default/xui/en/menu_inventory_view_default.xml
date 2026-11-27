@@ -53,11 +53,7 @@
          function="Inventory.GearDefault.Visible"
          parameter="multi_folder_view" />
     </menu_item_check>
-    <menu_item_separator>
-        <menu_item_separator.on_visible
-         function="Inventory.GearDefault.Visible"
-         parameter="single_folder_view" />
-    </menu_item_separator>
+    <menu_item_separator/>
     <menu_item_check
      label="List view"
      layout="topleft"
@@ -99,5 +95,47 @@
         <on_visible
          function="Inventory.GearDefault.Visible"
          parameter="single_folder_view" />
+    </menu_item_check>
+    <menu_item_check
+     label="Recent tab"
+     layout="topleft"
+     name="recent_tab">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="toggle_recent_tab" />
+        <on_check
+         function="Inventory.GearDefault.Check"
+         parameter="recent_tab" />
+        <on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="multi_folder_view" />
+    </menu_item_check>
+    <menu_item_check
+     label="Worn tab"
+     layout="topleft"
+     name="worn_tab">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="toggle_worn_tab" />
+        <on_check
+         function="Inventory.GearDefault.Check"
+         parameter="worn_tab" />
+        <on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="multi_folder_view" />
+    </menu_item_check>
+    <menu_item_check
+     label="Favorites tab"
+     layout="topleft"
+     name="favorites_tab">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="toggle_favorites_tab" />
+        <on_check
+         function="Inventory.GearDefault.Check"
+         parameter="favorites_tab" />
+        <on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="multi_folder_view" />
     </menu_item_check>
 </toggleable_menu>

@@ -37,6 +37,7 @@
 class LLButton;
 class LLLineEditor;
 class LLCheckBoxCtrl;
+class LLComboBox;
 
 //////////////////////////////////////////////////////////////////////////////
 // floater class
@@ -122,11 +123,15 @@ class LLFloaterColorPicker
                void onClickPipette ( );
         static void onTextCommit ( LLUICtrl* ctrl, void* data );
         static void onImmediateCheck ( LLUICtrl* ctrl, void* data );
-               void onColorSelect( const class LLTextureEntry& te );
+               void onColorSelect(const LLColor4& color); // from pipette
     private:
         // mutators for color values, can raise event to preview changes at object
         void selectCurRgb ( F32 curRIn, F32 curGIn, F32 curBIn );
         void selectCurHsl ( F32 curHIn, F32 curSIn, F32 curLIn );
+
+        // utility functions for manipulating hex colors
+        bool isValidHexColor(std::string& hex_color, F32& hr, F32& hg, F32& hb);
+
         // draws color selection palette
         void drawPalette ();
 
@@ -192,11 +197,15 @@ class LLFloaterColorPicker
 
         LLButton* mPipetteBtn;
 
+        LLComboBox* mCopyColorAsCombo;
+        void onCopyColor();
+
         F32       mContextConeOpacity;
         F32       mContextConeInAlpha;
         F32       mContextConeOutAlpha;
         F32       mContextConeFadeTime;
 
+        boost::signals2::scoped_connection  mPipetteConnection;
 };
 
 #endif // LL_LLFLOATERCOLORPICKER_H

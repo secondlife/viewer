@@ -57,6 +57,10 @@ LLFetchedGLTFMaterial& LLFetchedGLTFMaterial::operator=(const LLFetchedGLTFMater
     mNormalTexture = rhs.mNormalTexture;
     mMetallicRoughnessTexture = rhs.mMetallicRoughnessTexture;
     mEmissiveTexture = rhs.mEmissiveTexture;
+    for (S32 i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    {
+        mLocalBakeTextures[i] = rhs.mLocalBakeTextures[i];
+    }
 
     return *this;
 }
@@ -69,9 +73,17 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
 
     LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
+    // a locally composited avatar bake takes the place of the fetched texture
+    auto render_texture = [this](S32 index, LLViewerTexture* fetched) -> LLViewerTexture*
+    {
+        return mLocalBakeTextures[index].notNull() ? mLocalBakeTextures[index].get() : fetched;
+    };
+    LLViewerTexture* normalTex = render_texture(GLTF_TEXTURE_INFO_NORMAL, mNormalTexture);
+    LLViewerTexture* metallicRoughnessTex = render_texture(GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS, mMetallicRoughnessTexture);
+
     // override emissive and base color textures with media tex if present
-    LLViewerTexture* baseColorTex = media_tex ? media_tex : mBaseColorTexture;
-    LLViewerTexture* emissiveTex = media_tex ? media_tex : mEmissiveTexture;
+    LLViewerTexture* baseColorTex = media_tex ? media_tex : render_texture(GLTF_TEXTURE_INFO_BASE_COLOR, mBaseColorTexture);
+    LLViewerTexture* emissiveTex = media_tex ? media_tex : render_texture(GLTF_TEXTURE_INFO_EMISSIVE, mEmissiveTexture);
 
     if (!LLPipeline::sShadowRender || (mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK))
     {
@@ -97,18 +109,18 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
 
     if (!LLPipeline::sShadowRender)
     {
-        if (mNormalTexture.notNull() && mNormalTexture->getDiscardLevel() <= 4)
+        if (normalTex != nullptr && normalTex->getDiscardLevel() <= 4)
         {
-            shader->bindTexture(LLShaderMgr::BUMP_MAP, mNormalTexture);
+            shader->bindTexture(LLShaderMgr::BUMP_MAP, normalTex);
         }
         else
         {
             shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
         }
 
-        if (mMetallicRoughnessTexture.notNull())
+        if (metallicRoughnessTex != nullptr)
         {
-            shader->bindTexture(LLShaderMgr::SPECULAR_MAP, mMetallicRoughnessTexture); // PBR linear packed Occlusion, Roughness, Metal.
+            shader->bindTexture(LLShaderMgr::SPECULAR_MAP, metallicRoughnessTex); // PBR linear packed Occlusion, Roughness, Metal.
         }
         else
         {
@@ -228,6 +240,10 @@ void LLFetchedGLTFMaterial::clearFetchedTextures()
     mNormalTexture = nullptr;
     mMetallicRoughnessTexture = nullptr;
     mEmissiveTexture = nullptr;
+    for (S32 i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    {
+        mLocalBakeTextures[i] = nullptr;
+    }
 }
 
 void LLFetchedGLTFMaterial::materialBegin()

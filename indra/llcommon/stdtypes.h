@@ -38,6 +38,11 @@ typedef signed short            S16;
 typedef unsigned short          U16;
 typedef signed int              S32;
 typedef unsigned int            U32;
+typedef long long int           S64;
+typedef long long unsigned int  U64;
+
+#define S64L(a) (a##LL)
+#define U64L(a) (a##ULL)
 
 // to express an index that might go negative
 // (ssize_t is provided by SOME compilers, don't collide)
@@ -60,21 +65,6 @@ typedef wchar_t             llwchar;
 // define, string conversion specializations. Since we don't have that, we'll
 // have to rely on #if instead. Sorry, Dr. Stroustrup.
 #define LLWCHAR_IS_WCHAR_T 1
-#endif
-
-#if LL_WINDOWS
-typedef signed __int64          S64;
-// probably should be 'hyper' or similiar
-#define S64L(a)                 (a)
-typedef unsigned __int64        U64;
-#define U64L(a)                 (a)
-#else
-typedef long long int           S64;
-typedef long long unsigned int      U64;
-#if LL_DARWIN || LL_LINUX
-#define S64L(a)             (a##LL)
-#define U64L(a)             (a##ULL)
-#endif
 #endif
 
 typedef float               F32;
@@ -120,10 +110,6 @@ typedef U32             TPACKETID;
 typedef U8 LLPCode;
 
 #define LL_ARRAY_SIZE( _kArray ) ( sizeof( (_kArray) ) / sizeof( _kArray[0] ) )
-
-#if LL_LINUX && __GNUC__ <= 2
-typedef int intptr_t;
-#endif
 
 /*****************************************************************************
 *   Narrowing

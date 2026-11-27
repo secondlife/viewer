@@ -236,11 +236,13 @@ bool LLFloaterChangeItemThumbnail::handleDragAndDrop(
     if (cargo_type == DAD_TEXTURE)
     {
         LLInventoryItem *item = (LLInventoryItem *)cargo_data;
-        if (item->getAssetUUID().notNull())
+        const LLUUID& asset_id = item->getAssetUUID();
+        if (asset_id.notNull())
         {
             if (drop)
             {
-                assignAndValidateAsset(item->getAssetUUID());
+                LLPointer<LLViewerFetchedTexture> texturep = LLViewerTextureManager::getFetchedTexture(asset_id);
+                assignAndValidateTexture(asset_id, texturep);
             }
 
             *accept = ACCEPT_YES_SINGLE;
@@ -708,6 +710,81 @@ void LLFloaterChangeItemThumbnail::assignAndValidateAsset(const LLUUID &asset_id
         }
     }
 }
+
+void LLFloaterChangeItemThumbnail::assignAndValidateTexture(const LLUUID& asset_id, LLPointer<LLViewerFetchedTexture> texturep)
+{
+    if (!texturep)
+    {
+        LL_WARNS() << "Image " << asset_id << " doesn't exist" << LL_ENDL;
+        return;
+    }
+
+    if (texturep->isMissingAsset())
+    {
+        LL_WARNS() << "Image " << asset_id << " is missing" << LL_ENDL;
+        return;
+    }
+
+    if (texturep->getFullWidth() != texturep->getFullHeight())
+    {
+        LLNotificationsUtil::add("ThumbnailDimentionsLimit");
+        return;
+    }
+
+    if (texturep->getFullWidth() < LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MIN
+        && texturep->getFullWidth() > 0)
+    {
+        LLNotificationsUtil::add("ThumbnailDimentionsLimit");
+        return;
+    }
+
+    if (texturep->getFullWidth() > LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MAX
+        || texturep->getFullWidth() == 0)
+    {
+        if (texturep->isFullyLoaded()
+            && (texturep->getRawImageLevel() == 0)
+            && (texturep->isRawImageValid()))
+        {
+            LLUUID task_id = mTaskId;
+            uuid_set_t inventory_ids = mItemList;
+            LLHandle<LLFloater> handle = getHandle();
+            LLFloaterSimpleSnapshot::completion_t callback =
+                [inventory_ids, task_id, handle](const LLUUID& asset_id)
+            {
+                onUploadComplete(asset_id, task_id, inventory_ids, handle);
+            };
+            LLFloaterSimpleSnapshot::uploadThumbnail(texturep->getRawImage(),
+                *mItemList.begin(),
+                mTaskId,
+                callback);
+        }
+        else
+        {
+            ImageLoadedData* data = new ImageLoadedData();
+            data->mTaskId = mTaskId;
+            data->mItemIds = mItemList;
+            data->mThumbnailId = asset_id;
+            data->mFloaterHandle = getHandle();
+            data->mSilent = false;
+            data->mTexturep = texturep;
+
+            texturep->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+            texturep->setMinDiscardLevel(0);
+            texturep->setLoadedCallback(onFullImageLoaded,
+                0, // Need best quality
+                true,
+                false,
+                (void*)data,
+                NULL,
+                false);
+            texturep->forceToSaveRawImage(0);
+        }
+        return;
+    }
+
+    setThumbnailId(asset_id);
+}
+
 bool LLFloaterChangeItemThumbnail::validateAsset(const LLUUID &asset_id)
 {
     if (asset_id.isNull())
@@ -922,76 +999,8 @@ void LLFloaterChangeItemThumbnail::onTexturePickerCommit()
         }
 
         LLPointer<LLViewerFetchedTexture> texturep = LLViewerTextureManager::findFetchedTexture(asset_id, TEX_LIST_STANDARD);
-        if (!texturep)
-        {
-            LL_WARNS() << "Image " << asset_id << " doesn't exist" << LL_ENDL;
-            return;
-        }
 
-        if (texturep->isMissingAsset())
-        {
-            LL_WARNS() << "Image " << asset_id << " is missing" << LL_ENDL;
-            return;
-        }
-
-        if (texturep->getFullWidth() != texturep->getFullHeight())
-        {
-            LLNotificationsUtil::add("ThumbnailDimentionsLimit");
-            return;
-        }
-
-        if (texturep->getFullWidth() < LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MIN
-            && texturep->getFullWidth() > 0)
-        {
-            LLNotificationsUtil::add("ThumbnailDimentionsLimit");
-            return;
-        }
-
-        if (texturep->getFullWidth() > LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MAX
-            || texturep->getFullWidth() == 0)
-        {
-            if (texturep->isFullyLoaded()
-                && (texturep->getRawImageLevel() == 0)
-                && (texturep->isRawImageValid()))
-            {
-                LLUUID task_id = mTaskId;
-                uuid_set_t inventory_ids = mItemList;
-                LLHandle<LLFloater> handle = getHandle();
-                LLFloaterSimpleSnapshot::completion_t callback =
-                    [inventory_ids, task_id, handle](const LLUUID& asset_id)
-                    {
-                        onUploadComplete(asset_id, task_id, inventory_ids, handle);
-                    };
-                LLFloaterSimpleSnapshot::uploadThumbnail(texturep->getRawImage(),
-                                                            *mItemList.begin(),
-                                                            mTaskId,
-                                                            callback);
-            }
-            else
-            {
-                ImageLoadedData* data = new ImageLoadedData();
-                data->mTaskId = mTaskId;
-                data->mItemIds = mItemList;
-                data->mThumbnailId = asset_id;
-                data->mFloaterHandle = getHandle();
-                data->mSilent = false;
-                data->mTexturep = texturep;
-
-                texturep->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
-                texturep->setMinDiscardLevel(0);
-                texturep->setLoadedCallback(onFullImageLoaded,
-                                            0, // Need best quality
-                                            true,
-                                            false,
-                                            (void*)data,
-                                            NULL,
-                                            false);
-                texturep->forceToSaveRawImage(0);
-            }
-            return;
-        }
-
-        setThumbnailId(asset_id);
+        assignAndValidateTexture(asset_id, texturep);
     }
 }
 

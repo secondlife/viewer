@@ -143,17 +143,16 @@ void LLPanelDirEvents::performQueryOrDelete(U32 event_id)
     static LLUICachedControl<bool> incpg("ShowPGEvents", true);
     static LLUICachedControl<bool> incmature("ShowMatureEvents", false);
     static LLUICachedControl<bool> incadult("ShowAdultEvents", false);
+    if (!(incpg || incmature || incadult))
+    {
+        LLNotificationsUtil::add("NoContentToSearch");
+        return;
+    }
 
     U32 scope = DFQ_DATE_EVENTS;
     if (incpg) scope |= DFQ_INC_PG;
     if (incmature && gAgent.canAccessMature()) scope |= DFQ_INC_MATURE;
     if (incadult && gAgent.canAccessAdult()) scope |= DFQ_INC_ADULT;
-
-    if ( !( scope & (DFQ_INC_PG | DFQ_INC_MATURE | DFQ_INC_ADULT )))
-    {
-        LLNotificationsUtil::add("NoContentToSearch");
-        return;
-    }
 
     setupNewSearch();
 

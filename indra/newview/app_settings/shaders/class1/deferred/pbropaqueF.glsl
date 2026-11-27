@@ -146,6 +146,9 @@ vec3 srgb_to_linear(vec3 c);
 void main()
 {
     vec4 basecolor = texture(diffuseMap, base_color_texcoord.xy).rgba;
+
+    basecolor.a *= vertex_color.a;
+
     if (basecolor.a < minimum_alpha)
     {
         discard;

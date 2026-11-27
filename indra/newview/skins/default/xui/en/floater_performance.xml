@@ -65,10 +65,10 @@
        text_color="White"
        height="20"
        layout="topleft"
-       left="395"
+       left="392"
        top="7"
        name="fps_desc1_lbl"
-       width="150">
+       width="153">
         Allow 5-10 seconds for
       </text>
       <text
@@ -78,7 +78,7 @@
        layout="topleft"
        top_pad="-3"
        name="fps_desc2_lbl"
-       width="150">
+       width="153">
         changes to take full effect.
       </text>
     </panel>
@@ -265,7 +265,7 @@
        left="10"
        name="complexity_info"
        top_pad="0"
-       width="455">
+       width="490">
           Reduce the complexity of your avatar if you aren't satisfied with current FPS.
       </text>
       <icon

@@ -483,7 +483,7 @@ void LLTabContainer::draw()
             tuple->mButton->setVisible( true );
         }
 
-        S32 max_scroll_visible = getTabCount() - getMaxScrollPos() + getScrollPos();
+        S32 max_scroll_visible = getVisibleTabCount() - getMaxScrollPos() + getScrollPos();
         S32 idx = 0;
         for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
         {
@@ -1258,7 +1258,6 @@ void LLTabContainer::removeTabPanel(LLPanel* child)
 
     bool has_focus = gFocusMgr.childHasKeyboardFocus(this);
 
-    // If the tab being deleted is the selected one, select a different tab.
     for(std::vector<LLTabTuple*>::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
     {
         LLTabTuple* tuple = *iter;
@@ -1296,6 +1295,7 @@ void LLTabContainer::removeTabPanel(LLPanel* child)
     // make sure we don't have more locked tabs than we have tabs
     mLockedTabCount = llmin(getTabCount(), mLockedTabCount);
 
+    // If the tab being deleted is the selected one, select a different tab.
     if (mCurrentTabIdx >= (S32)mTabList.size())
     {
         mCurrentTabIdx = static_cast<S32>(mTabList.size()) - 1;
@@ -1378,6 +1378,20 @@ S32 LLTabContainer::getCurrentPanelIndex() const
 S32 LLTabContainer::getTabCount() const
 {
     return static_cast<S32>(mTabList.size());
+}
+
+S32 LLTabContainer::getVisibleTabCount() const
+{
+    S32 visible_count = 0;
+    for (tuple_list_t::const_iterator itr = mTabList.begin(); itr != mTabList.end(); ++itr)
+    {
+        const LLTabTuple* pTT = *itr;
+        if (pTT->mVisible)
+        {
+            visible_count++;
+        }
+    }
+    return visible_count;
 }
 
 LLPanel* LLTabContainer::getPanelByIndex(S32 index) const
@@ -1723,7 +1737,7 @@ void LLTabContainer::reshapeTuple(LLTabTuple* tuple)
     {
         S32 image_overlay_width = 0;
 
-        if(mCustomIconCtrlUsed)
+        if (mCustomIconCtrlUsed)
         {
             LLCustomButtonIconCtrl* button = dynamic_cast<LLCustomButtonIconCtrl*>(tuple->mButton);
             LLIconCtrl* icon_ctrl = button ? button->getIconCtrl() : NULL;
@@ -2109,6 +2123,14 @@ void LLTabContainer::updateMaxScrollPos()
         S32 tab_space = 0;
         S32 available_space = 0;
         tab_space = mTotalTabWidth;
+        for(tuple_list_t::const_iterator tab_it = mTabList.begin(); tab_it != mTabList.end(); ++tab_it)
+        {
+            const LLTabTuple* tuple = *tab_it;
+            if (!tuple->mVisible)
+            {
+                tab_space -= tuple->mButton->getRect().getWidth();
+            }
+        }
         available_space = getRect().getWidth() - mRightTabBtnOffset - 2 * (LLPANEL_BORDER_WIDTH + tabcntr_tab_h_pad);
 
         if( tab_space > available_space )
@@ -2118,7 +2140,7 @@ void LLTabContainer::updateMaxScrollPos()
             available_width_with_arrows -= tabcntr_tab_partial_width;
 
             S32 running_tab_width = 0;
-            setMaxScrollPos(getTabCount());
+            setMaxScrollPos(getVisibleTabCount());
             for(tuple_list_t::reverse_iterator tab_it = mTabList.rbegin(); tab_it != mTabList.rend(); ++tab_it)
             {
                 running_tab_width += (*tab_it)->mButton->getRect().getWidth();
@@ -2129,7 +2151,7 @@ void LLTabContainer::updateMaxScrollPos()
                 setMaxScrollPos(getMaxScrollPos()-1);
             }
             // in case last tab doesn't actually fit on screen, make it the last scrolling position
-            setMaxScrollPos(llmin(getMaxScrollPos(), getTabCount() - 1));
+            setMaxScrollPos(llmin(getMaxScrollPos(), getVisibleTabCount() - 1));
             no_scroll = false;
         }
     }
@@ -2173,12 +2195,22 @@ S32 LLTabContainer::getTotalTabWidth() const
 
 void LLTabContainer::setTabVisibility( LLPanel const *aPanel, bool aVisible )
 {
-    for( tuple_list_t::const_iterator itr = mTabList.begin(); itr != mTabList.end(); ++itr )
+    S32 num_tabs = S32(mTabList.size());
+    for (S32 i = 0; i < num_tabs; ++i)
     {
-        LLTabTuple const *pTT = *itr;
-        if( pTT->mTabPanel == aPanel )
+        LLTabTuple* tuple = mTabList[i];
+        if( tuple->mTabPanel == aPanel )
         {
-            pTT->mVisible = aVisible;
+            if (tuple->mVisible != aVisible)
+            {
+                tuple->mVisible = aVisible;
+                if (aVisible)
+                {
+                    this->selectTab(i);
+                    this->setVisible(true);
+                }
+                updateMaxScrollPos();
+            }
             break;
         }
     }
@@ -2194,11 +2226,20 @@ void LLTabContainer::setTabVisibility( LLPanel const *aPanel, bool aVisible )
             break;
         }
     }
-
-    if( foundTab )
-        this->setVisible( true );
-    else
-        this->setVisible( false );
+    this->setVisible( foundTab );
 
     updateMaxScrollPos();
+}
+
+bool LLTabContainer::getTabVisibility(const LLPanel* panel) const
+{
+    for (tuple_list_t::const_iterator itr = mTabList.begin(); itr != mTabList.end(); ++itr)
+    {
+        LLTabTuple const* pTT = *itr;
+        if (pTT->mTabPanel == panel)
+        {
+            return pTT->mVisible;
+        }
+    }
+    return false;
 }

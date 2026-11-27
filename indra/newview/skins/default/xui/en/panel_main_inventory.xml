@@ -34,7 +34,6 @@
   	 left="12"
   	 right="-12"
      name="ItemcountText"
-     font="SansSerifMedium"
      text_color="InventoryItemLinkColor"
      use_ellipses="true"
      top_pad="0">

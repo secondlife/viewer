@@ -19,7 +19,7 @@
          label="Inventory..."
          name="Inventory"
          shortcut="control|I"
-		     visible="true">
+         visible="true">
         <menu_item_check.on_check
          function="Floater.Visible"
          parameter="inventory" />
@@ -42,6 +42,13 @@
        shortcut="control|L">
         <menu_item_call.on_click
          function="Tools.Link"/>
+      </menu_item_call>
+      <menu_item_call
+       label="Visited places..."
+       name="Visited Places"
+       shortcut="control|shift|L">
+        <menu_item_call.on_click
+         function="Tools.Unlink"/>
       </menu_item_call>
       <menu_item_call
        label="Picks..."
@@ -436,7 +443,7 @@
            function="Agent.toggleFlying" />
           <menu_item_call.on_enable
            function="Agent.enableFlyLand" />
-        </menu_item_call>       
+        </menu_item_call>
         <menu_item_call
          label="Stop animations"
          name="Stop Animating My Avatar"
@@ -477,14 +484,14 @@
          parameter="gestures" />
       </menu_item_check>
       <menu_item_separator/>
-      <menu_item_call 
+      <menu_item_call
        label="Reset skeleton"
        layout="topleft"
        name="Reset Skeleton">
         <menu_item_call.on_click
          function="Avatar.ResetSelfSkeleton" />
       </menu_item_call>
-      <menu_item_call 
+      <menu_item_call
        label="Reset skeleton and animations"
        layout="topleft"
        name="Reset Skeleton And Animations">
@@ -721,8 +728,7 @@
              function="Floater.Show"
              parameter="snapshot" />
         </menu_item_call>
-        
-<menu_item_call
+        <menu_item_call
          label="360 snapshot"
          name="Capture 360">
             <menu_item_call.on_click
@@ -944,7 +950,7 @@
                  function="World.EnvSettings"
                  parameter="sunrise" />
                 <menu_item_check.on_check
-                 function="World.EnableEnvSettings" 
+                 function="World.EnableEnvSettings"
                  parameter="sunrise" />
             </menu_item_check>
           <menu_item_check
@@ -960,7 +966,8 @@
           </menu_item_check>
           <menu_item_check
              label="Midday (Legacy)"
-             name="legacy noon">
+             name="legacy noon"
+             shortcut="control|shift|T">
             <menu_item_check.on_click
              function="World.EnvSettings"
              parameter="legacy noon" />
@@ -976,7 +983,7 @@
                  function="World.EnvSettings"
                  parameter="sunset" />
                 <menu_item_check.on_check
-                 function="World.EnableEnvSettings" 
+                 function="World.EnableEnvSettings"
                  parameter="sunset" />
             </menu_item_check>
             <menu_item_check
@@ -987,20 +994,32 @@
                  function="World.EnvSettings"
                  parameter="midnight" />
                 <menu_item_check.on_check
-                 function="World.EnableEnvSettings" 
+                 function="World.EnableEnvSettings"
                  parameter="midnight" />
             </menu_item_check>
             <menu_item_check
              label="Use Shared Environment"
-             name="Use Shared Environment">
+             name="Use Shared Environment"
+             shortcut="control|shift|X">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="region" />
                 <menu_item_check.on_check
-                 function="World.EnableEnvSettings" 
+                 function="World.EnableEnvSettings"
                  parameter="region" />
             </menu_item_check>
         <menu_item_separator/>
+           <menu_item_check
+             label="Switch to Shared after teleport"
+             name="Switch to Shared after teleport">
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="SwitchToSharedEnvAfterTeleport" />
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="SwitchToSharedEnvAfterTeleport" />
+            </menu_item_check>
+            <menu_item_separator/>
 	     	<menu_item_call
 	     	 label="My Environments..."
 	     	 name="my_environs">
@@ -1008,7 +1027,7 @@
 	     	 	 function="World.EnvSettings"
                  parameter="my_environs" />
 	     	</menu_item_call>
-	     	
+
 <menu_item_call
 	     	 	 label="Personal Lighting..."
 	     	 	 name="adjustment_tool">
@@ -1024,12 +1043,20 @@
 	     	 	 	function="World.EnvSettings"
 	     	 	 	parameter="pause_clouds" />
 	     	 	 	<menu_item_check.on_check
-	     	 	 	function="World.EnableEnvSettings" 
+	     	 	 	function="World.EnableEnvSettings"
 	     	 	 	parameter="pause_clouds" />
 	     	 	</menu_item_check>
 	     	</menu>
-	     	
-<!--   
+        <menu_item_check
+          label="Mute/unmute sound"
+          name="toggle_sound"
+          shortcut="control|alt|shift|M">
+          <menu_item_check.on_click
+           function="World.ToggleMasterAudio"/>
+          <menu_item_check.on_check
+           function="World.IsMasterAudioMuted"/>
+        </menu_item_check>
+<!--
 	    <menu
 	     create_jump_keys="true"
 	     label="Environment Editor"
@@ -1098,8 +1125,8 @@ function="World.EnvPreset"
 </menu_item_call>
 </menu>
 </menu>
--->    
-    
+-->
+
     </menu>
     <menu
      create_jump_keys="true"
@@ -1247,7 +1274,7 @@ function="World.EnvPreset"
               parameter="pathfinding_linksets" />
           <menu_item_call.on_enable
               function="Tools.EnablePathfinding" />
-        </menu_item_call> 
+        </menu_item_call>
         <menu_item_separator/>
 
         <menu_item_call
@@ -1270,7 +1297,7 @@ function="World.EnvPreset"
           <menu_item_call.on_enable
              function="Tools.SomethingSelectedNoHUD" />
         </menu_item_call>
-		 
+
         <menu_item_separator/>
 
         <menu
@@ -1346,7 +1373,7 @@ function="World.EnvPreset"
              parameter="script_debug" />
           </menu_item_check>
           <menu_item_call
-             label="Recompile Scripts (Mono)"
+             label="Recompile LSL Scripts (Mono)"
              name="Mono">
             <menu_item_call.on_click
                function="Tools.SelectedScriptAction"
@@ -1355,13 +1382,31 @@ function="World.EnvPreset"
                function="EditableSelectedMono" />
           </menu_item_call>
           <menu_item_call
-             label="Recompile Scripts (LSL)"
+             label="Recompile LSL Scripts (Legacy LSL)"
              name="LSL">
             <menu_item_call.on_click
                function="Tools.SelectedScriptAction"
                parameter="compile lsl" />
             <menu_item_call.on_enable
                function="EditableSelected" />
+          </menu_item_call>
+          <menu_item_call
+             label="Recompile LSL Scripts (LSL on Lua)"
+             name="LSL on Luau">
+            <menu_item_call.on_click
+               function="Tools.SelectedScriptAction"
+               parameter="compile lsl-luau" />
+            <menu_item_call.on_enable
+               function="EditableSelectedLua" />
+          </menu_item_call>
+          <menu_item_call
+             label="Recompile Lua Scripts"
+             name="Lua">
+            <menu_item_call.on_click
+               function="Tools.SelectedScriptAction"
+               parameter="compile lua" />
+            <menu_item_call.on_enable
+               function="EditableSelectedLua" />
           </menu_item_call>
           <menu_item_call
              label="Reset Scripts"
@@ -1382,14 +1427,25 @@ function="World.EnvPreset"
                function="EditableSelected" />
           </menu_item_call>
           <menu_item_call
-             label="Set Scripts to Not Running"
-             name="Set Scripts to Not Running">
+              label="Set Scripts to Not Running"
+              name="Set Scripts to Not Running">
             <menu_item_call.on_click
-               function="Tools.SelectedScriptAction"
-               parameter="stop" />
+                function="Tools.SelectedScriptAction"
+                parameter="stop" />
             <menu_item_call.on_enable
-               function="EditableSelected" />
+                function="EditableSelected" />
           </menu_item_call>
+          <menu_item_separator/>
+          <menu_item_check
+              label="Script Editor Server"
+              name="Script Editor Server">
+            <menu_item_check.on_check
+                function="Tools.CheckScriptEditorServer" />
+            <menu_item_check.on_click
+                function="Tools.ToggleScriptEditorServer" />
+            <menu_item_check.on_enable
+                function="Tools.EnableScriptEditorServer" />
+          </menu_item_check>
         </menu>
 
       <menu
@@ -1569,7 +1625,7 @@ function="World.EnvPreset"
                    function="View.CheckHighlightTransparent"/>
                 </menu_item_check>
         <menu_item_separator/>
-          
+
           <menu_item_check
             label="No Post-processing"
             name="No Post">
@@ -1579,7 +1635,7 @@ function="World.EnvPreset"
              function="ToggleControl"
              parameter="RenderDisablePostProcessing" />
           </menu_item_check>
-          
+
 
           <menu
            create_jump_keys="true"
@@ -1758,17 +1814,27 @@ function="World.EnvPreset"
             <menu_item_call.on_enable
              function="File.EnableUploadMaterial" />
           </menu_item_call>
-	   <menu_item_call
-             label="Bulk..."
-             layout="topleft"
-             name="Bulk Upload">
-                <menu_item_call.on_visible
-                 function="Upload.CalculateCosts"
-                 parameter="Bulk Upload,texture" />
-                <menu_item_call.on_click
-                 function="File.UploadBulk"
-                 parameter="" />
-            </menu_item_call>
+          <menu_item_separator
+           layout="topleft" />
+          <menu_item_call
+           label="Multiple files..."
+           layout="topleft"
+           name="Bulk Upload Files">
+            <menu_item_call.on_visible
+             function="Upload.CalculateCosts"
+             parameter="Bulk Upload,texture" />
+            <menu_item_call.on_click
+             function="File.UploadBulk"
+             parameter="" />
+          </menu_item_call>
+          <menu_item_call
+           label="Folder..."
+           layout="topleft"
+           name="Bulk Upload Folder">
+            <menu_item_call.on_click
+             function="File.UploadBulkFolder"
+             parameter="" />
+          </menu_item_call>
         </menu>
 
       <menu_item_separator/>
@@ -1795,21 +1861,13 @@ function="World.EnvPreset"
              userdata="" />
             <on_enable
              function="Edit.EnableRedo" />
-        </menu_item_call>        
+        </menu_item_call>
     </menu>
     <menu
      create_jump_keys="true"
      label="Help"
      name="Help"
      tear_off="true">
-        <menu_item_call
-         label="Guidebook"
-         name="How To"
-         shortcut="F1">
-            <menu_item_call.on_click
-             function="Help.ToggleHowTo"
-             parameter="" />
-        </menu_item_call>
 <!--        <menu_item_call
          label="Tutorial"
          name="Tutorial">
@@ -1817,7 +1875,6 @@ function="World.EnvPreset"
              function="Floater.Show"
              parameter="hud" />
         </menu_item_call>-->
-		<menu_item_separator/>
         <menu_item_call
              label="Knowledge Base"
              name="Knowledge Base">
@@ -1838,13 +1895,13 @@ function="World.EnvPreset"
              <menu_item_call.on_click
                  function="Advanced.ShowURL"
                  parameter="http://community.secondlife.com/t5/Forums/ct-p/Forums"/>
-        </menu_item_call>         
+        </menu_item_call>
         <menu_item_call
              label="Support portal"
              name="Support portal">
              <menu_item_call.on_click
                  function="Advanced.ShowURL"
-                 parameter="https://support.secondlife.com/"/>         
+                 parameter="https://support.secondlife.com/"/>
         </menu_item_call>
         <menu_item_separator/>
         <menu_item_call
@@ -1877,7 +1934,7 @@ function="World.EnvPreset"
                  function="Floater.Show"
                  parameter="bumps" />
         </menu_item_call>
-        <menu_item_separator/>    
+        <menu_item_separator/>
         <menu_item_call
          label="About [APP_NAME]"
          name="About Second Life">
@@ -2150,7 +2207,7 @@ function="World.EnvPreset"
           </menu_item_check>
           <menu_item_check
              label="Fullbright"
-             name="Rendering Type Glow">
+             name="Rendering Type Fullbright">
             <menu_item_check.on_check
              function="Advanced.CheckRenderType"
              parameter="fullbright" />
@@ -2393,7 +2450,7 @@ function="World.EnvPreset"
                  function="Advanced.ToggleFeature"
                  parameter="flexible" />
             </menu_item_check>
-        </menu>        
+        </menu>
         <menu_item_check
          label="Use Plugin Read Thread"
          name="Use Plugin Read Thread">
@@ -2490,8 +2547,6 @@ function="World.EnvPreset"
                  function="View.CheckJoystickFlycam" />
                 <menu_item_check.on_click
                  function="View.JoystickFlycam" />
-                <menu_item_check.on_enable
-                 function="View.EnableJoystickFlycam" />
             </menu_item_check>
             <menu_item_call
              label="Reset View"
@@ -2555,7 +2610,7 @@ function="World.EnvPreset"
                 <menu_item_check.on_click
                  function="Advanced.ToggleConsole"
                  parameter="texture" />
-            </menu_item_check>            
+            </menu_item_check>
             <menu_item_check
              label="Debug Console"
              name="Debug Console"
@@ -2599,18 +2654,6 @@ function="World.EnvPreset"
                 <menu_item_check.on_click
                  function="Advanced.ToggleConsole"
                  parameter="fast timers" />
-            </menu_item_check>
-            <menu_item_check
-             label="Memory"
-             name="Memory"
-             shortcut="control|shift|0"
-             use_mac_ctrl="true">
-                <menu_item_check.on_check
-                 function="Advanced.CheckConsole"
-                 parameter="memory view" />
-                <menu_item_check.on_click
-                 function="Advanced.ToggleConsole"
-                 parameter="memory view" />
             </menu_item_check>
             <menu_item_check
                label="Scene Statistics"
@@ -2785,6 +2828,16 @@ function="World.EnvPreset"
                function="ToggleControl"
                parameter="DebugShowMemory" />
             </menu_item_check>
+            <menu_item_check
+             label="Show Game Controller State"
+             name="Show Game Controller State">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="DebugShowControllerState" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="DebugShowControllerState" />
+            </menu_item_check>
 
             <menu_item_separator/>
 
@@ -2822,7 +2875,7 @@ function="World.EnvPreset"
             </menu_item_call>
             <menu_item_call
              label="Force LLError, Message And Crash"
-             name="Force LLError And Crash">
+             name="Force LLError Message And Crash">
                 <menu_item_call.on_click
                  function="Advanced.ForceErrorLlerrorMsg" />
             </menu_item_call>
@@ -3522,6 +3575,16 @@ function="World.EnvPreset"
                  function="ToggleControl"
                  parameter="CollectFontVertexBuffers" />
             </menu_item_check>
+            <menu_item_check
+             label="Collect UI Image Vertex Buffers"
+             name="Collect UI Image Vertex Buffers">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="CollectUIImageVertexBuffers" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="CollectUIImageVertexBuffers" />
+            </menu_item_check>
           <menu_item_separator />
           <menu_item_check
              label="Enable Shader Cache"
@@ -3548,7 +3611,7 @@ function="World.EnvPreset"
             <menu_item_call.on_click
              function="Develop.ClearCache" />
           </menu_item_call>
-          
+
         </menu>
 
         <menu
@@ -3632,7 +3695,7 @@ function="World.EnvPreset"
          name="Dump Scripted Camera">
             <menu_item_call.on_click
              function="Advanced.DumpScriptedCamera" />
-        </menu_item_call>      
+        </menu_item_call>
         <menu
          create_jump_keys="true"
          label="Recorder"
@@ -4324,13 +4387,6 @@ function="World.EnvPreset"
          function="Advanced.CompressFileTest" />
       </menu_item_call>
 
-      <menu_item_call
-         label="Enable Visual Leak Detector"
-         name="Enable Visual Leak Detector">
-        <menu_item_call.on_click
-           function="Advanced.ToggleVisualLeakDetector" />
-        </menu_item_call>
-      
         <menu_item_check
          label="Output Debug Minidump"
          name="Output Debug Minidump">

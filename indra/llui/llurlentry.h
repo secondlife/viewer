@@ -610,4 +610,40 @@ private:
     LLKeyBindingToStringHandler* pHandler;
 };
 
+
+class LLGameControllerBindingToStringHandler;
+/// LLUrlEntryGameController A way to access game controller bindings and show
+/// currently used one in text.
+/// secondlife:///app/gamecontroller/{control_name}
+class LLUrlEntryGameController: public LLUrlEntryBase
+{
+public:
+    LLUrlEntryGameController();
+    /*virtual*/ std::string getLabel(const std::string& url, const LLUrlLabelCallback& cb);
+    /*virtual*/ std::string getTooltip(const std::string& url) const;
+    void setKeyHandler(LLKeyBindingToStringHandler* handler) {pKeyHandler = handler;}
+    void setControllerHandler(LLGameControllerBindingToStringHandler* handler) {pControllerHandler = handler;}
+
+private:
+    std::string getControlName(const std::string& url) const;
+    std::string getMode(const std::string& url) const;
+    void initLocalization();
+    void initLocalizationFromFile(const std::string& filename);
+
+    struct LLLocalizationData
+    {
+        LLLocalizationData() {}
+        LLLocalizationData(const std::string& localization, const std::string& tooltip)
+            : mLocalization(localization)
+            , mTooltip(tooltip)
+        {}
+        std::string mLocalization;
+        std::string mTooltip;
+    };
+
+    std::map<std::string, LLLocalizationData> mLocalizations;
+    LLKeyBindingToStringHandler* pKeyHandler;
+    LLGameControllerBindingToStringHandler* pControllerHandler;
+};
+
 #endif

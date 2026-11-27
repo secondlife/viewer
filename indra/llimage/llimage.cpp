@@ -709,8 +709,20 @@ U8* LLImageBase::allocateData(S32 size)
         mData = (U8*)ll_aligned_malloc_16(size);
         if (!mData)
         {
-            LL_WARNS() << "Failed to allocate image data size [" << size << "]" << LL_ENDL;
-            mBadBufferAllocation = true;
+            constexpr S32 MAX_TOLERANCE = 1024 * 1024 * 4; // 4 MB
+            if (size > MAX_TOLERANCE)
+            {
+                // If a big image failed to allocate, tollerate it for now.
+                // It's insightfull when crash logs without obvious cause are being analyzed,
+                // so a crash in a random location that normally is a mystery can get proper handling.
+                LL_WARNS() << "Failed to allocate image data size [" << size << "]" << LL_ENDL;
+            }
+            else
+            {
+                // We are too far gone if we can't allocate a small buffer.
+                LLError::LLUserWarningMsg::showOutOfMemory();
+                LL_ERRS() << "Failed to allocate image data size [" << size << "]" << LL_ENDL;
+            }
         }
     }
 
@@ -2036,6 +2048,25 @@ file_extensions[] =
     { "dxt", IMG_CODEC_DXT },
     { "png", IMG_CODEC_PNG }
 };
+
+static struct
+{
+    const wchar_t* exten;
+    EImageCodec codec;
+}
+wide_file_extensions[] =
+{
+    { L"bmp", IMG_CODEC_BMP },
+    { L"tga", IMG_CODEC_TGA },
+    { L"j2c", IMG_CODEC_J2C },
+    { L"jp2", IMG_CODEC_J2C },
+    { L"texture", IMG_CODEC_J2C },
+    { L"jpg", IMG_CODEC_JPEG },
+    { L"jpeg", IMG_CODEC_JPEG },
+    { L"mip", IMG_CODEC_DXT },
+    { L"dxt", IMG_CODEC_DXT },
+    { L"png", IMG_CODEC_PNG }
+};
 #define NUM_FILE_EXTENSIONS LL_ARRAY_SIZE(file_extensions)
 #if 0
 static std::string find_file(std::string &name, S8 *codec)
@@ -2056,7 +2087,8 @@ static std::string find_file(std::string &name, S8 *codec)
     return std::string("");
 }
 #endif
-EImageCodec LLImageBase::getCodecFromExtension(const std::string& exten)
+
+EImageCodec LLImageBase::getCodecFromExtension(std::string_view exten)
 {
     if (!exten.empty())
     {
@@ -2068,6 +2100,20 @@ EImageCodec LLImageBase::getCodecFromExtension(const std::string& exten)
     }
     return IMG_CODEC_INVALID;
 }
+
+EImageCodec LLImageBase::getCodecFromExtension(std::wstring_view exten)
+{
+    if (!exten.empty())
+    {
+        for (int i = 0; i < (int)(NUM_FILE_EXTENSIONS); i++)
+        {
+            if (exten == wide_file_extensions[i].exten)
+                return wide_file_extensions[i].codec;
+        }
+    }
+    return IMG_CODEC_INVALID;
+}
+
 #if 0
 bool LLImageRaw::createFromFile(const std::string &filename, bool j2c_lowest_mip_only)
 {

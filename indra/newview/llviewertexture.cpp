@@ -533,7 +533,7 @@ void LLViewerTexture::updateClass()
         if (is_sys_low)
         {
             // Not having system memory is more serious, so discard harder
-            sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.5f * getSystemMemoryBudgetFactor());
+            sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.5f * LLMemory::getSystemMemoryBudgetFactor());
         }
         else
         {
@@ -677,20 +677,6 @@ bool LLViewerTexture::isSystemMemoryLow()
 bool LLViewerTexture::isSystemMemoryCritical()
 {
     return getFreeSystemMemory() < get_render_free_main_memory_treshold() / 2;
-}
-
-F32 LLViewerTexture::getSystemMemoryBudgetFactor()
-{
-    const S32Megabytes MIN_FREE_MAIN_MEMORY(get_render_free_main_memory_treshold() / 2);
-    S32 free_budget = (S32Megabytes)getFreeSystemMemory() - MIN_FREE_MAIN_MEMORY;
-    if (free_budget < 0)
-    {
-        // Leave some padding, otherwise we will crash out of memory before hitting factor 2.
-        const S32Megabytes PAD_BUFFER(32);
-        // Result should range from 1 at 0 free budget to 2 at -224 free budget, 2.14 at -256MB
-        return 1.f - free_budget / (MIN_FREE_MAIN_MEMORY - PAD_BUFFER);
-    }
-    return 1.f;
 }
 
 //end of static functions
@@ -1210,6 +1196,19 @@ void LLViewerFetchedTexture::init(bool firstinit)
 LLViewerFetchedTexture::~LLViewerFetchedTexture()
 {
     assert_main_thread();
+
+    // The texture lists and faces all hold LLPointers, so still being listed or used by a face means a reference was lost.
+    if (gTextureList.isInitialized() && !gTextureList.isShuttingDown()
+        && (mInImageList || mInFastCacheList || mCreatePending || mDownScalePending || getTotalNumFaces() > 0))
+    {
+        LL_WARNS("Texture") << "Texture " << mID << " deleted while still referenced:"
+            << " in_list " << mInImageList << " fast_cache " << mInFastCacheList
+            << " create_pending " << mCreatePending << " downscale_pending " << mDownScalePending
+            << " faces " << getTotalNumFaces()
+            << " light_vols " << mNumVolumes[LLRender::LIGHT_TEX] << " sculpt_vols " << mNumVolumes[LLRender::SCULPT_TEX]
+            << " boost " << mBoostLevel << " ft_type " << mFTType << LL_ENDL;
+    }
+
     //*NOTE getTextureFetch can return NULL when Viewer is shutting down.
     // This is due to LLWearableList is singleton and is destroyed after
     // LLAppViewer::cleanup() was called. (see ticket EXT-177)
@@ -1488,7 +1487,9 @@ bool LLViewerFetchedTexture::preCreateTexture(S32 usename/*= 0*/)
         // from local images, but this might become unsafe in case of changes to fetcher
         if (mBoostLevel == BOOST_PREVIEW)
         {
-            mRawImage->biasedScaleToPowerOfTwo(1024);
+            // A local file with a preview flag likely means mesh's texture upload
+            // which should follow normal upload scaling rules
+            mRawImage->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
         }
         else
         { // leave black border, do not scale image content
@@ -1896,12 +1897,10 @@ bool LLViewerFetchedTexture::processFetchResults(S32& desired_discard, S32 curre
                 mRawDiscardLevel = INVALID_DISCARD_LEVEL;
                 mIsFetching = false;
                 mLastPacketTimer.reset();
+                return false;
             }
-            else
-            {
-                mIsRawImageValid = true;
-                addToCreateTexture();
-            }
+
+            mIsRawImageValid = true;
 
             if (mBoostLevel == LLGLTexture::BOOST_ICON)
             {
@@ -1914,7 +1913,11 @@ bool LLViewerFetchedTexture::processFetchResults(S32& desired_discard, S32 curre
                     //
                     // BOOST_ICON gets scaling because profile icons can have a bunch of different formats, not just j2c
                     // Might need another pass to use discard for j2c and scaling for everything else.
-                    mRawImage = mRawImage->scaled(expected_width, expected_height);
+                    LLPointer<LLImageRaw> scaled = mRawImage->scaled(expected_width, expected_height);
+                    if (scaled.notNull())
+                    {
+                        mRawImage = scaled;
+                    }
                 }
             }
 
@@ -1929,9 +1932,15 @@ bool LLViewerFetchedTexture::processFetchResults(S32& desired_discard, S32 curre
                     //
                     // Todo: probably needs to be remade to use discard, all thumbnails are supposed to be j2c,
                     // so no need to scale, should be posible to use discard to scale image down.
-                    mRawImage = mRawImage->scaled(expected_width, expected_height);
+                    LLPointer<LLImageRaw> scaled = mRawImage->scaled(expected_width, expected_height);
+                    if (scaled.notNull())
+                    {
+                        mRawImage = scaled;
+                    }
                 }
             }
+
+            addToCreateTexture();
 
             return true;
         }
@@ -2574,14 +2583,31 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
     S32 best_raw_discard = gl_discard;  // Current GL quality level
     S32 current_aux_discard = MAX_DISCARD_LEVEL + 1;
     S32 best_aux_discard = MAX_DISCARD_LEVEL + 1;
+    LLImageRaw *current_raw_image = nullptr;
 
     if (mIsRawImageValid)
     {
-        // If we have an existing raw image, we have a baseline for the raw and auxiliary quality levels.
+        // If we have an existing raw image, we have a baseline for the raw
+        // and auxiliary quality levels.
+        // Note: we call updateImagesCreateTextures before callbacks, which
+        // leads to destroyRawImage and deletes raw image. So this case
+        // might be rare or even never trigger as there is never a raw image,
+        // only a saved one.
         current_raw_discard = mRawDiscardLevel;
         best_raw_discard = llmin(best_raw_discard, mRawDiscardLevel);
         best_aux_discard = llmin(best_aux_discard, mRawDiscardLevel); // We always decode the aux when we decode the base raw
         current_aux_discard = llmin(current_aux_discard, best_aux_discard);
+        current_raw_image = mRawImage;
+    }
+    else if (mSavedRawImage.notNull())
+    {
+        // We have a saved raw image, we can use that as our baseline for
+        // raw and auxiliary quality levels.
+        current_raw_discard = mSavedRawDiscardLevel;
+        best_raw_discard = llmin(best_raw_discard, mSavedRawDiscardLevel);
+        best_aux_discard = llmin(best_aux_discard, mSavedRawDiscardLevel); // We always decode the aux when we decode the base raw
+        current_aux_discard = llmin(current_aux_discard, best_aux_discard);
+        current_raw_image = mSavedRawImage;
     }
     else
     {
@@ -2646,12 +2672,17 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
     if (need_readback)
     {
         readbackRawImage();
+        if (mIsRawImageValid)
+        {
+            current_raw_discard = mRawDiscardLevel;
+            current_raw_image = mRawImage;
+        }
     }
 
     //
     // Run raw/auxiliary data callbacks
     //
-    if (run_raw_callbacks && mIsRawImageValid && (mRawDiscardLevel <= getMaxDiscardLevel()))
+    if (run_raw_callbacks && current_raw_image != nullptr && (current_raw_discard <= getMaxDiscardLevel()))
     {
         // Do callbacks which require raw image data.
         //LL_INFOS() << "doLoadedCallbacks raw for " << getID() << LL_ENDL;
@@ -2662,7 +2693,7 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
         {
             callback_list_t::iterator curiter = iter++;
             LLLoadedCallbackEntry *entryp = *curiter;
-            if (entryp->mNeedsImageRaw && (entryp->mLastUsedDiscard > mRawDiscardLevel))
+            if (entryp->mNeedsImageRaw && (entryp->mLastUsedDiscard > current_raw_discard))
             {
                 // If we've loaded all the data there is to load or we've loaded enough
                 // to satisfy the interested party, then this is the last time that
@@ -2673,11 +2704,11 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
                 {
                     LL_WARNS() << "Raw Image with no Aux Data for callback" << LL_ENDL;
                 }
-                bool final = mRawDiscardLevel <= entryp->mDesiredDiscard;
+                bool final = current_raw_discard <= entryp->mDesiredDiscard;
                 //LL_INFOS() << "Running callback for " << getID() << LL_ENDL;
-                //LL_INFOS() << mRawImage->getWidth() << "x" << mRawImage->getHeight() << LL_ENDL;
-                entryp->mLastUsedDiscard = mRawDiscardLevel;
-                entryp->mCallback(true, this, mRawImage, mAuxRawImage, mRawDiscardLevel, final, entryp->mUserData);
+                //LL_INFOS() << current_raw_image->getWidth() << "x" << current_raw_image->getHeight() << LL_ENDL;
+                entryp->mLastUsedDiscard = current_raw_discard;
+                entryp->mCallback(true, this, current_raw_image, mAuxRawImage, current_raw_discard, final, entryp->mUserData);
                 if (final)
                 {
                     iter = mLoadedCallbackList.erase(curiter);

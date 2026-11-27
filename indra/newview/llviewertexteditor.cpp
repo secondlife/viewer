@@ -189,7 +189,12 @@ public:
         return new LLEmbeddedItemSegment(mStart, mImage, mItem, *editor);
     }
 
-    /*virtual*/ bool getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
+    /*virtual*/ bool getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height)
+    {
+        return getSegmentDimensionsF32(first_char, num_chars, width, height);
+    }
+
+    inline bool getSegmentDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
     {
         if (num_chars == 0)
         {
@@ -213,8 +218,9 @@ public:
         }
         else
         {
-            S32 width, height;
-            getDimensions(mStart, 1, width, height);
+            F32 width;
+            S32 height;
+            getSegmentDimensionsF32(mStart, 1, width, height);
             if (width > num_pixels)
             {
                 return 0;
@@ -243,6 +249,25 @@ public:
 
     /*virtual*/ bool            canEdit() const { return false; }
 
+    /*virtual*/ bool            handleRightMouseDown(S32 x, S32 y, MASK mask)
+    {
+        bool show_menu = !mEditor.hasSelection()
+            || (mEditor.mSelectionStart == mStart && mEditor.mSelectionEnd == mStart + 1);
+        if (show_menu && mEditor.getShowContextMenu())
+        {
+            // User clicked an item, user expects the menu to be
+            // in 'context' for the item. Change selection to match.
+            // Todo: Might be better to 'smartly' deselect here
+            // and to have an object specific menu.
+            mEditor.setCursorPos(mStart + 1);
+            mEditor.mSelectionStart = mStart;
+            mEditor.mSelectionEnd = mStart + 1;
+
+            mEditor.showContextMenu(x, y);
+            return true;
+        }
+        return false;
+    }
 
     /*virtual*/ bool            handleHover(S32 x, S32 y, MASK mask)
     {

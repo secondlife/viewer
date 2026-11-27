@@ -97,6 +97,7 @@
 #include "llpanelface.h"
 #include "llglheaders.h"
 #include "llinventoryobserver.h"
+#include "llscripteditorws.h"
 
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 //
@@ -252,7 +253,6 @@ LLSelectMgr::LLSelectMgr()
 LLSelectMgr::~LLSelectMgr()
 {
     clearSelections();
-    mSlectionLodModChangedConnection.disconnect();
 }
 
 void LLSelectMgr::clearSelections()
@@ -3054,7 +3054,6 @@ void LLSelectMgr::logNoOp(LLSelectNode* node, void *)
 // static
 void LLSelectMgr::logAttachmentRequest(LLSelectNode* node, void *)
 {
-    LLAttachmentsMgr::instance().onAttachmentRequested(node->mItemID);
 }
 
 // static
@@ -3247,13 +3246,18 @@ void LLSelectMgr::adjustTexturesByScale(bool send_to_sim, bool stretch)
 
                             LLVector2 scales = selectNode->mGLTFScales[te_num][i];
                             LLVector2 offsets = selectNode->mGLTFOffsets[te_num][i];
+                            F32 scale_delta_x = (scales[VX] - scale_x) * 0.5f;
+                            F32 scale_delta_y = (scales[VY] - scale_y) * 0.5f;
+                            F32 rotation = material->mTextureTransform[i].mRotation;
+                            F32 cos_rotation = cosf(rotation);
+                            F32 sin_rotation = sinf(rotation);
                             F64 int_part = 0;
-                            offset_x = (F32)modf((offsets[VX] + (scales[VX] - scale_x)) / 2, &int_part);
+                            offset_x = (F32)modf(offsets[VX] + cos_rotation * scale_delta_x + sin_rotation * scale_delta_y, &int_part);
                             if (offset_x < 0)
                             {
                                 offset_x++;
                             }
-                            offset_y = (F32)modf((offsets[VY] + (scales[VY] - scale_y)) / 2, &int_part);
+                            offset_y = (F32)modf(offsets[VY] - sin_rotation * scale_delta_x + cos_rotation * scale_delta_y, &int_part);
                             if (offset_y < 0)
                             {
                                 offset_y++;
@@ -6110,6 +6114,14 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
             node->mSitName.assign(sit_name);
             node->mTouchName.assign(touch_name);
         }
+
+        // Published objects need property updates even when not selected.
+        LLScriptEditorWSServer::ptr_t ws_server = LLScriptEditorWSServer::getServer();
+        if (ws_server)
+        {
+            ws_server->onObjectPropertyChanged(id, name, desc, inv_serial);
+            ws_server->onObjectPermissionsReceived(id, owner_id, owner_mask, next_owner_mask);
+        }
     }
 
     dialog_refresh_all();
@@ -6193,9 +6205,24 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
         node->mCategory = category;
         node->mName.assign(name);
         node->mDescription.assign(desc);
+
+        LLViewerObject* obj = node->getObject();
+        if (obj && LLViewerObject::isObjectInPendingUpdate(owner_id, obj))
+        {
+            // current response doesn't return modify permissions flags,
+            // so we should request it separately if needed
+            obj->requestObjectUpdate();
+        }
+
     }
 
     dialog_refresh_all();
+
+    if (auto ws_server = LLScriptEditorWSServer::getServer())
+    {
+        ws_server->onObjectPropertyChanged(id, name, desc);
+        ws_server->onObjectPermissionsReceived(id, owner_id, owner_mask, next_owner_mask);
+    }
 }
 
 
@@ -6511,6 +6538,7 @@ void LLSelectMgr::updateSelectionSilhouette(LLObjectSelectionHandle object_handl
         }
     }
 }
+
 void LLSelectMgr::renderSilhouettes(bool for_hud)
 {
     if (!mRenderSilhouettes || !mRenderHighlightSelections)
@@ -6553,6 +6581,37 @@ void LLSelectMgr::renderSilhouettes(bool for_hud)
     sParentColor.mV[VALPHA] = LLSelectMgr::sHighlightAlpha;
     LLColor4 sChildColor = sSilhouetteChildColor;
     sChildColor.mV[VALPHA] = LLSelectMgr::sHighlightAlpha;
+
+    // A selected media face (MOAP) selects only that face, see LLViewerMediaFocus::setFocusFace()
+    auto isMediaSelectionOutsideBuildMode_f = [](LLSelectNode* node, LLViewerObject* objectp)
+    {
+        if (gFloaterTools && gFloaterTools->getVisible())
+        {
+            return false;
+        }
+
+        LLViewerMediaFocus* media_focus = LLViewerMediaFocus::getInstance();
+        if (!media_focus->getFocusedMediaImpl() || objectp->getID() != media_focus->getFocusedObjectID())
+        {
+            return false;
+        }
+
+        S32 media_face = media_focus->getFocusedFace();
+        const LLTextureEntry* tep = objectp->getTE(media_face);
+        if (!tep || !tep->hasMedia())
+        {
+            return false;
+        }
+
+        for (S32 te = 0; te < objectp->getNumTEs(); ++te)
+        {
+            if (node->isTESelected(te) != (te == media_face))
+            {
+                return false;
+            }
+        }
+        return true;
+    };
 
     auto renderMeshSelection_f = [fogCfx, wireframe_selection](LLSelectNode* node, LLViewerObject* objectp, LLColor4 hlColor)
     {
@@ -6614,7 +6673,7 @@ void LLSelectMgr::renderSilhouettes(bool for_hud)
         gGL.popMatrix();
         gGL.popMatrix();
 
-        glLineWidth(1.f);
+        gGL.setLineWidth(1.f);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         if (shader)
@@ -6659,6 +6718,12 @@ void LLSelectMgr::renderSilhouettes(bool for_hud)
                     && objectp->mDrawable->getVOVolume()
                     && objectp->mDrawable->getVOVolume()->isMesh())
                 {
+                    if (isMediaSelectionOutsideBuildMode_f(node, objectp))
+                    {
+                        // While only a MOAP face is selected outside build mode:
+                        // do not draw an unnecessary wireframe
+                        continue;
+                    }
                     LLColor4 hlColor = objectp->isRootEdit() ? sParentColor : sChildColor;
                     if (objectp->getID() == inspect_item_id)
                     {
@@ -7885,6 +7950,9 @@ LLObjectSelection::~LLObjectSelection()
 
 void LLObjectSelection::cleanupNodes()
 {
+    std::for_each(mRemovedNodes.begin(), mRemovedNodes.end(), DeletePointer());
+    mRemovedNodes.clear();
+
     for (list_t::iterator iter = mList.begin(); iter != mList.end(); )
     {
         list_t::iterator curiter = iter++;
@@ -7935,6 +8003,7 @@ void LLObjectSelection::removeNode(LLSelectNode *nodep)
     }
     nodep->setObject(NULL); // Will get erased in cleanupNodes()
     mList.remove(nodep);
+    mRemovedNodes.push_back(nodep);
 }
 
 void LLObjectSelection::deleteAllNodes()
@@ -7943,6 +8012,9 @@ void LLObjectSelection::deleteAllNodes()
     mList.clear();
     mSelectNodeMap.clear();
     mPrimaryObject = NULL;
+
+    std::for_each(mRemovedNodes.begin(), mRemovedNodes.end(), DeletePointer());
+    mRemovedNodes.clear();
 }
 
 LLSelectNode* LLObjectSelection::findNode(LLViewerObject* objectp)

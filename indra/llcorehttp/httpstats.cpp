@@ -41,6 +41,7 @@ HTTPStats::~HTTPStats()
 
 void HTTPStats::resetStats()
 {
+    std::lock_guard<std::mutex> lock(mStatsMutex);
     mResutCodes.clear();
     mDataDown.reset();
     mDataUp.reset();
@@ -50,6 +51,7 @@ void HTTPStats::resetStats()
 
 void HTTPStats::recordResultCode(S32 code)
 {
+    std::lock_guard<std::mutex> lock(mStatsMutex);
     std::map<S32, S32>::iterator it;
 
     it = mResutCodes.find(code);
@@ -86,6 +88,7 @@ namespace
 
 void HTTPStats::dumpStats()
 {
+    std::lock_guard<std::mutex> lock(mStatsMutex);
     std::stringstream out;
 
     out << "HTTP DATA SUMMARY" << std::endl;

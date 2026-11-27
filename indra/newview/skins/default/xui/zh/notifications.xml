@@ -1446,7 +1446,6 @@
 		你的人物很快將會出現。
 
 用方向鍵行走。
-任何時候你都可按 F1 鍵察看幫助，進一步瞭解 [SECOND_LIFE]。
 請選擇男性或女性化身。 以後你仍可改變這個選擇。
 		<usetemplate name="okcancelbuttons" notext="女性" yestext="男性"/>
 	</notification>

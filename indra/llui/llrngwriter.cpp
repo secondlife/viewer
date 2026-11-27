@@ -94,7 +94,7 @@ void LLRNGWriter::addDefinition(const std::string& type_name, const LLInitParam:
     block.inspectBlock(*this);
 
     // add includes for all possible children
-    const std::type_info* type = *LLWidgetTypeRegistry::instance().getValue(type_name);
+    const std::type_index& type = *LLWidgetTypeRegistry::instance().getValue(type_name);
     const widget_registry_t* widget_registryp = LLChildRegistryRegistry::instance().getValue(type);
 
     // add include declarations for all valid children

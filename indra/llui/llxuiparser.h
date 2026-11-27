@@ -40,7 +40,7 @@ class LLView;
 
 // lookup widget type by name
 class LLWidgetTypeRegistry
-:   public LLRegistrySingleton<std::string, const std::type_info*, LLWidgetTypeRegistry>
+:   public LLRegistrySingleton<std::string, std::type_index, LLWidgetTypeRegistry>
 {
     LLSINGLETON_EMPTY_CTOR(LLWidgetTypeRegistry);
 };
@@ -52,7 +52,7 @@ typedef std::function<LLView* (LLXMLNodePtr node, LLView *parent, LLXMLNodePtr o
 typedef LLRegistry<std::string, LLWidgetCreatorFunc> widget_registry_t;
 
 class LLChildRegistryRegistry
-: public LLRegistrySingleton<const std::type_info*, widget_registry_t, LLChildRegistryRegistry>
+: public LLRegistrySingleton<std::type_index, widget_registry_t, LLChildRegistryRegistry>
 {
     LLSINGLETON_EMPTY_CTOR(LLChildRegistryRegistry);
 };
@@ -247,7 +247,7 @@ private:
     S32                             mCurReadDepth;
     std::string                     mCurFileName;
     std::string                     mTextContents;
-    const char*                     mCurAttributeValueBegin;
+    std::string                     mCurAttributeValueBegin;
     std::vector<S32>                mTokenSizeStack;
     std::vector<std::string>        mScope;
     std::vector<bool>               mEmptyLeafNode;

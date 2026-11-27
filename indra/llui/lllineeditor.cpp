@@ -97,6 +97,7 @@ LLLineEditor::Params::Params()
     ignore_tab("ignore_tab", true),
     is_password("is_password", false),
     allow_emoji("allow_emoji", true),
+    draw_focus_border("draw_focus_border", true),
     cursor_color("cursor_color"),
     use_bg_color("use_bg_color", false),
     bg_color("bg_color"),
@@ -122,6 +123,7 @@ LLLineEditor::Params::Params()
 
 LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 :   LLUICtrl(p),
+    mDefaultText(p.default_text),
     mMaxLengthBytes(p.max_length.bytes),
     mMaxLengthChars(p.max_length.chars),
     mCursorPos( 0 ),
@@ -146,6 +148,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
     mIgnoreTab( p.ignore_tab ),
     mDrawAsterixes( p.is_password ),
     mAllowEmoji( p.allow_emoji ),
+    mDrawFocusBorder(p.draw_focus_border),
     mSpellCheck( p.spellcheck ),
     mSpellCheckStart(-1),
     mSpellCheckEnd(-1),
@@ -490,12 +493,13 @@ void LLLineEditor::setCursor( S32 pos )
     S32 pixels_after_scroll = findPixelNearestPos();
     if( pixels_after_scroll > mTextRightEdge )
     {
-        S32 width_chars_to_left = mGLFont->getWidth(mText.getWString().c_str(), 0, mScrollHPos);
-        S32 last_visible_char = mGLFont->maxDrawableChars(mText.getWString().c_str(), llmax(0.f, (F32)(mTextRightEdge - mTextLeftEdge + width_chars_to_left)));
+        const LLWString& wtext = mText.getWString();
+        S32 width_chars_to_left = mGLFont->getWidth(wtext.c_str(), 0, mScrollHPos);
+        S32 last_visible_char = mGLFont->maxDrawableChars(wtext.c_str(), llmax(0.f, (F32)(mTextRightEdge - mTextLeftEdge + width_chars_to_left)));
         // character immediately to left of cursor should be last one visible (SCROLL_INCREMENT_ADD will scroll in more characters)
         // or first character if cursor is at beginning
         S32 new_last_visible_char = llmax(0, getCursor() - 1);
-        S32 min_scroll = mGLFont->firstDrawableChar(mText.getWString().c_str(), (F32)(mTextRightEdge - mTextLeftEdge), mText.length(), new_last_visible_char);
+        S32 min_scroll = mGLFont->firstDrawableChar(wtext.c_str(), (F32)(mTextRightEdge - mTextLeftEdge), mText.length(), new_last_visible_char);
         if (old_cursor_pos == last_visible_char)
         {
             mScrollHPos = llmin(mText.length(), llmax(min_scroll, mScrollHPos + SCROLL_INCREMENT_ADD));
@@ -1794,7 +1798,7 @@ void LLLineEditor::drawBackground()
 
         if (!image) return;
         // optionally draw programmatic border
-        if (has_focus)
+        if (has_focus && mDrawFocusBorder)
         {
             LLColor4 tmp_color = gFocusMgr.getFocusColor();
             tmp_color.setAlpha(alpha);
@@ -1954,12 +1958,11 @@ void LLLineEditor::draw()
             width = llmin(width, mTextRightEdge - ll_round(rendered_pixels_right));
             gl_rect_2d(ll_round(rendered_pixels_right), cursor_top, ll_round(rendered_pixels_right)+width, cursor_bottom, color);
 
-            LLColor4 tmp_color( 1.f - text_color.mV[0], 1.f - text_color.mV[1], 1.f - text_color.mV[2], alpha );
             rendered_text += mFontBufferSelection.render(
                 mGLFont,
                 mText, mScrollHPos + rendered_text,
                 rendered_pixels_right, text_bottom,
-                tmp_color,
+                LLColor4::black,
                 LLFontGL::LEFT, LLFontGL::BOTTOM,
                 0,
                 LLFontGL::NO_SHADOW,
@@ -2618,9 +2621,22 @@ bool LLLineEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
         return false;
     }
 
+    // Without a preedit the query and both preedit ends are the caret, measured once then
+    S32 measured_offset = S32_MIN;
+    S32 measured_pixel = 0;
+    auto pixel = [&](S32 cursor_offset)
+    {
+        if (cursor_offset != measured_offset)
+        {
+            measured_offset = cursor_offset;
+            measured_pixel = findPixelNearestPos(cursor_offset);
+        }
+        return measured_pixel;
+    };
+
     if (coord)
     {
-        S32 query_local = findPixelNearestPos(query - getCursor());
+        S32 query_local = pixel(query - getCursor());
         S32 query_screen_x, query_screen_y;
         localPointToScreen(query_local, getRect().getHeight() / 2, &query_screen_x, &query_screen_y);
         LLUI::getInstance()->screenPointToGL(query_screen_x, query_screen_y, &coord->mX, &coord->mY);
@@ -2628,8 +2644,8 @@ bool LLLineEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
 
     if (bounds)
     {
-        S32 preedit_left_local = findPixelNearestPos(llmax(preedit_left_column, mScrollHPos) - getCursor());
-        S32 preedit_right_local = llmin(findPixelNearestPos(preedit_right_column - getCursor()), getRect().getWidth() - mBorderThickness);
+        S32 preedit_left_local = pixel(llmax(preedit_left_column, mScrollHPos) - getCursor());
+        S32 preedit_right_local = llmin(pixel(preedit_right_column - getCursor()), getRect().getWidth() - mBorderThickness);
         if (preedit_left_local > preedit_right_local)
         {
             // Is this condition possible?
@@ -2643,6 +2659,42 @@ bool LLLineEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
     }
 
     return true;
+}
+
+void LLLineEditor::getPreeditLocations(locations_t& locations) const
+{
+    S32 preedit_left_column, preedit_length;
+    getPreeditRange(&preedit_left_column, &preedit_length);
+    const S32 preedit_right_column = preedit_left_column + preedit_length;
+    locations.assign(preedit_length + 1, Location());
+
+    // Bounds and control are the same for every position, only the caret moves.
+    // getPreeditLocation() accepts the positions from the first visible one on.
+    const S32 first_query = llmax(preedit_left_column, mScrollHPos);
+    if (first_query > preedit_right_column)
+    {
+        return;
+    }
+    Location first;
+    first.mValid = getPreeditLocation(first_query - preedit_left_column, &first.mCaret, &first.mBounds, &first.mControl);
+    if (!first.mValid)
+    {
+        return;
+    }
+
+    // widths[n] is what findPixelNearestPos() measures for the position mScrollHPos + n
+    std::vector<S32> widths;
+    mGLFont->getWidths(mText.getWString().c_str(), mScrollHPos, preedit_right_column - mScrollHPos, widths);
+
+    for (S32 query = first_query; query <= preedit_right_column; ++query)
+    {
+        Location& location = locations[query - preedit_left_column];
+        location = first;
+        const S32 query_local = widths[llmin(query - mScrollHPos, (S32)widths.size() - 1)] + mTextLeftEdge;
+        S32 query_screen_x, query_screen_y;
+        localPointToScreen(query_local, getRect().getHeight() / 2, &query_screen_x, &query_screen_y);
+        LLUI::getInstance()->screenPointToGL(query_screen_x, query_screen_y, &location.mCaret.mX, &location.mCaret.mY);
+    }
 }
 
 void LLLineEditor::getPreeditRange(S32 *position, S32 *length) const

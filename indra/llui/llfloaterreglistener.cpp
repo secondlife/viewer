@@ -60,6 +60,10 @@ LLFloaterRegListener::LLFloaterRegListener():
         "Ask to toggle the state of the floater specified in [\"name\"]",
         &LLFloaterRegListener::toggleInstance,
         requiredName);
+    add("toggleInstanceOrBringToFront",
+        "Ask to toggle the state of the floater specified in [\"name\"] or bring it to front if already opened",
+        &LLFloaterRegListener::toggleInstance,
+        requiredName);
     add("instanceVisible",
         "Return on [\"reply\"] an event whose [\"visible\"] indicates the visibility "
         "of the floater specified in [\"name\"]",
@@ -105,6 +109,11 @@ void LLFloaterRegListener::hideInstance(const LLSD& event) const
 void LLFloaterRegListener::toggleInstance(const LLSD& event) const
 {
     LLFloaterReg::toggleInstance(event["name"].asString(), event["key"]);
+}
+
+void LLFloaterRegListener::toggleInstanceOrBringToFront(const LLSD& event) const
+{
+    LLFloaterReg::toggleInstanceOrBringToFront(event["name"].asString(), event["key"]);
 }
 
 void LLFloaterRegListener::instanceVisible(const LLSD& event) const

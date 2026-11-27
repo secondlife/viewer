@@ -6,7 +6,7 @@
   bg_alpha_color="PanelNotificationBackground"
   bg_opaque_color="PanelNotificationBackground"
   chrome="true"
-  height="270"
+  height="220"
   label="script_question_panel"
   layout="topleft"
   left="0"
@@ -39,9 +39,9 @@
       width="285">
     </panel>
     <text
-      follows="all"
+      follows="left|right|top"
       font="SansSerifBold"
-      height="55"
+      height="15"
       layout="topleft"
       mouse_opaque="false"
       name="bottom_info_message"

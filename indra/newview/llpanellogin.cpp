@@ -37,6 +37,9 @@
 
 #include "llappviewer.h"
 #include "llbutton.h"
+#if LL_VELOPACK
+#include "llvelopack.h"
+#endif
 #include "llcheckboxctrl.h"
 #include "llcommandhandler.h"       // for secondlife:///app/login/
 #include "llcombobox.h"
@@ -48,6 +51,7 @@
 #include "llstartup.h"
 #include "lltextbox.h"
 #include "llui.h"
+#include "llframetimer.h"
 #include "lluiconstants.h"
 #include "llslurl.h"
 #include "llversioninfo.h"
@@ -61,6 +65,7 @@
 #include "llmediactrl.h"
 #include "llrootview.h"
 
+#include "llfloaterjoin.h"
 #include "llfloatertos.h"
 #include "lltrans.h"
 #include "llglheaders.h"
@@ -174,6 +179,19 @@ public:
 };
 LLLoginLocationAutoHandler gLoginLocationAutoHandler;
 
+std::string getShortGridLabel(const std::string& slurl_grid)
+{
+    if (slurl_grid == MAINGRID)
+    {
+        return LLTrans::getString("AgniGridLabelShort");
+    }
+    if (slurl_grid == BETAGRID)
+    {
+        return LLTrans::getString("AditiGridLabelShort");
+    }
+    return LLGridManager::getInstance()->getGridLabel(slurl_grid);
+}
+
 //---------------------------------------------------------------------------
 // Public methods
 //---------------------------------------------------------------------------
@@ -184,12 +202,12 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
     mCallback(callback),
     mCallbackData(cb_data),
     mListener(std::make_unique<LLPanelLoginListener>(this)),
-    mFirstLoginThisInstall(gSavedSettings.getBOOL("FirstLoginThisInstall")),
     mUsernameLength(0),
     mPasswordLength(0),
     mLocationLength(0),
     mShowFavorites(false),
-    mAlertNotif(false)
+    mAlertNotif(false),
+    mLoginBtn(nullptr)
 {
     setBackgroundVisible(false);
     setBackgroundOpaque(true);
@@ -204,15 +222,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
         login_holder->addChild(this);
     }
 
-    if (mFirstLoginThisInstall)
-    {
-        buildFromFile( "panel_login_first.xml");
-    }
-    else
-    {
-        buildFromFile( "panel_login.xml");
-    }
-
+    buildFromFile( "panel_login.xml");
     reshape(rect.getWidth(), rect.getHeight());
 
     LLLineEditor* password_edit(getChild<LLLineEditor>("password_edit"));
@@ -220,13 +230,20 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
     // STEAM-14: When user presses Enter with this field in focus, initiate login
     password_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, false));
 
+    childSetAction("connect_btn", onClickConnect, this);
+    childSetAction("sign_btn", onClickSignUp, this);
+
+    mLoginBtn = getChild<LLButton>("connect_btn");
+    setDefaultBtn(mLoginBtn);
+
     // change z sort of clickable text to be behind buttons
     sendChildToBack(getChildView("forgot_password_text"));
-    sendChildToBack(getChildView("sign_up_text"));
+
+    mLoginStack = getChild<LLLayoutStack>("login_stack");
+    mGridPanel = getChild<LLLayoutPanel>("grid_panel");
 
     std::string current_grid = LLGridManager::getInstance()->getGrid();
-    if (!mFirstLoginThisInstall)
-    {
+
         LLComboBox* favorites_combo = getChild<LLComboBox>("start_location_combo");
         updateLocationSelectorsVisibility(); // separate so that it can be called from preferences
         favorites_combo->setReturnCallback(boost::bind(&LLPanelLogin::onClickConnect, false));
@@ -246,17 +263,16 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
             if (!grid_choice->first.empty() && current_grid != grid_choice->first)
             {
                 LL_DEBUGS("AppInit") << "adding " << grid_choice->first << LL_ENDL;
-                server_choice_combo->add(grid_choice->second, grid_choice->first);
+                server_choice_combo->add(getShortGridLabel(grid_choice->first), grid_choice->first);
             }
         }
         server_choice_combo->sortByName();
 
         LL_DEBUGS("AppInit") << "adding current " << current_grid << LL_ENDL;
-        server_choice_combo->add(LLGridManager::getInstance()->getGridLabel(),
+        server_choice_combo->add(getShortGridLabel(current_grid),
             current_grid,
             ADD_TOP);
         server_choice_combo->selectFirstItem();
-    }
 
     LLSLURL start_slurl(LLStartUp::getStartSLURL());
     // The StartSLURL might have been set either by an explicit command-line
@@ -296,11 +312,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
         onUpdateStartSLURL(start_slurl); // updates grid if needed
     }
 
-    childSetAction("connect_btn", onClickConnect, this);
-
-    mLoginBtn = getChild<LLButton>("connect_btn");
-    setDefaultBtn(mLoginBtn);
-
     std::string channel = LLVersionInfo::instance().getChannel();
     std::string version = stringize(LLVersionInfo::instance().getShortVersion(), " (",
                                     LLVersionInfo::instance().getBuild(), ')');
@@ -308,12 +319,9 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
     LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
     forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
 
-    LLTextBox* sign_up_text = getChild<LLTextBox>("sign_up_text");
-    sign_up_text->setClickedCallback(onClickSignUp, NULL);
-
     // get the web browser control
-    LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("login_html");
-    web_browser->addObserver(this);
+    mWebBrowser = getChild<LLMediaCtrl>("login_html");
+    mWebBrowser->addObserver(this);
 
     loadLoginPage();
 
@@ -334,15 +342,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 void LLPanelLogin::addFavoritesToStartLocation()
 {
-    if (mFirstLoginThisInstall)
-    {
-        // first login panel has no favorites, just update name length and buttons
-        std::string user_defined_name = getChild<LLComboBox>("username_combo")->getSimple();
-        mUsernameLength = static_cast<unsigned int>(user_defined_name.length());
-        updateLoginButtons();
-        return;
-    }
-
     // Clear the combo.
     LLComboBox* combo = getChild<LLComboBox>("start_location_combo");
     if (!combo) return;
@@ -538,6 +537,24 @@ void LLPanelLogin::reshapePanel()
 }
 
 //static
+void LLPanelLogin::setCredentialFields(const std::string& username, const std::string& password)
+{
+    if (!sInstance)
+        return;
+    sInstance->getChild<LLComboBox>("username_combo")->setLabel(username);
+    sInstance->mUsernameLength = static_cast<unsigned int>(username.length());
+    sInstance->getChild<LLUICtrl>("password_edit")->setValue(password);
+    sInstance->mPasswordLength = static_cast<unsigned int>(password.length());
+    sInstance->mPasswordModified = true;
+    sInstance->updateLoginButtons();
+
+    sInstance->getChild<LLUICtrl>("remember_name")->setValue(true);
+    LLUICtrl* remember_password = sInstance->getChild<LLUICtrl>("remember_password");
+    remember_password->setValue(true);
+    remember_password->setEnabled(true);
+}
+
+//static
 void LLPanelLogin::populateFields(LLPointer<LLCredential> credential, bool remember_user, bool remember_psswrd)
 {
     if (!sInstance)
@@ -562,16 +579,8 @@ void LLPanelLogin::resetFields()
         // function is used to reset list in case of changes by external sources
         return;
     }
-    if (sInstance->mFirstLoginThisInstall)
-    {
-        // no list to populate
-        LL_WARNS() << "Shouldn't happen, user should have no ability to modify list on first install" << LL_ENDL;
-    }
-    else
-    {
-        LLPointer<LLCredential> cred = gSecAPIHandler->loadCredential(LLGridManager::getInstance()->getGrid());
-        sInstance->populateUserList(cred);
-    }
+    LLPointer<LLCredential> cred = gSecAPIHandler->loadCredential(LLGridManager::getInstance()->getGrid());
+    sInstance->populateUserList(cred);
 }
 
 // static
@@ -752,6 +761,11 @@ void LLPanelLogin::updateLocationSelectorsVisibility()
         {
             server_combo->setVisible(show_server);
         }
+        if (LLTextBox* grid_txt = sInstance->getChild<LLTextBox>("grid_text"))
+        {
+            grid_txt->setVisible(show_server);
+        }
+        sInstance->collapseGridPanel(!show_server);
     }
 }
 
@@ -787,7 +801,7 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
 
                 // update the grid selector to match the slurl
                 LLComboBox* server_combo = sInstance->getChild<LLComboBox>("server_combo");
-                std::string server_label(LLGridManager::getInstance()->getGridLabel(slurl_grid));
+                std::string server_label(getShortGridLabel(slurl_grid));
                 server_combo->setSimple(server_label);
 
                 updateServer(); // to change the links and splash screen
@@ -812,6 +826,8 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
 
     case LLSLURL::HOME_LOCATION:
         //location_combo->setCurrentByIndex(0); // home location
+        break;
+    case LLSLURL::LAST_LOCATION:
         break;
 
     default:
@@ -860,11 +876,9 @@ void LLPanelLogin::setAlwaysRefresh(bool refresh)
 {
     if (sInstance && LLStartUp::getStartupState() < STATE_LOGIN_CLEANUP)
     {
-        LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
-
-        if (web_browser)
+        if (sInstance->mWebBrowser)
         {
-            web_browser->setAlwaysRefresh(refresh);
+            sInstance->mWebBrowser->setAlwaysRefresh(refresh);
         }
     }
 }
@@ -921,16 +935,35 @@ void LLPanelLogin::loadLoginPage()
 
     gViewerWindow->setMenuBackgroundColor(false, !LLGridManager::getInstance()->isInProductionGrid());
 
-    LLMediaCtrl* web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
-    if (web_browser->getCurrentNavUrl() != login_uri.asString())
+    if (sInstance->mWebBrowser)
     {
-        LL_DEBUGS("AppInit") << "loading:    " << login_uri << LL_ENDL;
-        web_browser->navigateTo( login_uri.asString(), "text/html" );
+        if (sInstance->mWebBrowser->getCurrentNavUrl() != login_uri.asString())
+        {
+            LL_DEBUGS("AppInit") << "loading:    " << login_uri << LL_ENDL;
+            sInstance->mWebBrowser->navigateTo(login_uri.asString(), "text/html");
+        }
+    }
+    else
+    {
+        LL_WARNS("AppInit") << "No web browser control for login panel" << LL_ENDL;
     }
 }
 
-void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent event)
+void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 {
+    constexpr F32 REFRESH_DELAY = 2.f;
+    switch (event)
+    {
+        case MEDIA_EVENT_SIZE_CHANGED:
+        {
+            mForceRefreshTimer.reset();
+            mForceRefreshTimer.setTimerExpirySec(REFRESH_DELAY);
+            mForceRefresh = true;
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -939,6 +972,19 @@ void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
 // static
 void LLPanelLogin::onClickConnect(bool commit_fields)
 {
+#if LL_VELOPACK
+    // In theory, you should never be able to get here.
+    // If there's a required update, try as you might you're not supposed to actually close the downloading update dialog.
+    // But just in case...
+    if (velopack_is_required_update_in_progress())
+    {
+        LLSD args;
+        args["VERSION"] = velopack_get_required_update_version();
+        LLNotificationsUtil::add("DownloadingUpdate", args);
+        return;
+    }
+#endif
+
     if (sInstance && sInstance->mCallback && !sInstance->mAlertNotif)
     {
         if (commit_fields)
@@ -1030,10 +1076,7 @@ void LLPanelLogin::onClickForgotPassword(void*)
 //static
 void LLPanelLogin::onClickSignUp(void*)
 {
-    if (sInstance)
-    {
-        LLWeb::loadURLExternal(sInstance->getString("sign_up_url"));
-    }
+    LLFloaterReg::showInstance("join");
 }
 
 // static
@@ -1084,8 +1127,7 @@ void LLPanelLogin::onRememberUserCheck(void*)
         LLComboBox* user_combo(sInstance->getChild<LLComboBox>("username_combo"));
 
         bool remember = remember_name->getValue().asBoolean();
-        if (!sInstance->mFirstLoginThisInstall
-            && user_combo->getCurrentIndex() != -1
+        if (user_combo->getCurrentIndex() != -1
             && !remember)
         {
             remember = true;
@@ -1196,19 +1238,20 @@ void LLPanelLogin::updateServer()
 
 void LLPanelLogin::updateLoginButtons()
 {
+    if (!mLoginBtn)
+    {
+        return;
+    }
     mLoginBtn->setEnabled(mUsernameLength != 0 && mPasswordLength != 0 && !mAlertNotif);
 
-    if (!mFirstLoginThisInstall)
+    LLComboBox* user_combo = getChild<LLComboBox>("username_combo");
+    LLCheckBoxCtrl* remember_name = getChild<LLCheckBoxCtrl>("remember_name");
+    if (user_combo->getCurrentIndex() != -1)
     {
-        LLComboBox* user_combo = getChild<LLComboBox>("username_combo");
-        LLCheckBoxCtrl* remember_name = getChild<LLCheckBoxCtrl>("remember_name");
-        if (user_combo->getCurrentIndex() != -1)
-        {
-            remember_name->setValue(true);
-            LLCheckBoxCtrl* remember_pass = getChild<LLCheckBoxCtrl>("remember_password");
-            remember_pass->setEnabled(true);
-        } // Note: might be good idea to do "else remember_name->setValue(mRememberedState)" but it might behave 'weird' to user
-    }
+        remember_name->setValue(true);
+        LLCheckBoxCtrl* remember_pass = getChild<LLCheckBoxCtrl>("remember_password");
+        remember_pass->setEnabled(true);
+    } // Note: might be good idea to do "else remember_name->setValue(mRememberedState)" but it might behave 'weird' to user
 }
 
 void LLPanelLogin::populateUserList(LLPointer<LLCredential> credential)
@@ -1386,4 +1429,30 @@ bool LLPanelLogin::onUpdateNotification(const LLSD& notify)
         updateLoginButtons();
     }
     return false;
+}
+
+void LLPanelLogin::collapseGridPanel(bool collapse)
+{
+    if (mGridPanel->isCollapsed() == collapse)
+    {
+        return;
+    }
+    mLoginStack->collapsePanel(mGridPanel, collapse);
+    mLoginStack->updateLayout();
+}
+
+void LLPanelLogin::draw()
+{
+    LLPanel::draw();
+
+    // Workaround for the black screen issue (see #5607)
+    // Should be removed after the proper fix for resizing is implemented
+    if (mForceRefresh && mForceRefreshTimer.hasExpired())
+    {
+        if (mWebBrowser->getMediaPlugin())
+        {
+            mWebBrowser->getMediaPlugin()->forceRenderRefresh();
+        }
+        mForceRefresh = false;
+    }
 }

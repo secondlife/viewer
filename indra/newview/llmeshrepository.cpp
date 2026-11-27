@@ -1169,7 +1169,17 @@ void LLMeshRepoThread::run()
                     }
                     else
                     {
-                        LL_DEBUGS() << "mHeaderReqQ failed: " << req.mMeshParams << LL_ENDL;
+                        // too many fails -- can't get the header so none of the LODs will
+                        // be available either.  Without this, objects waiting on this
+                        // header never learn it's gone and stay at their placeholder
+                        // shape forever (mirrors LLMeshHeaderHandler::processFailure).
+                        LL_WARNS() << "mHeaderReqQ failed too many times: " << req.mMeshParams << " , skip" << LL_ENDL;
+
+                        LLMutexLock lock(mLoadedMutex);
+                        for (int i = 0; i < LLVolumeLODGroup::NUM_LODS; ++i)
+                        {
+                            mUnavailableQ.push_back(LODRequest(req.mMeshParams, i));
+                        }
                     }
                 }
             }
@@ -2847,8 +2857,44 @@ void LLMeshUploadThread::packModelIntance(
                 texture_index.find(texture) == texture_index.end())
             {
                 texture_index[texture] = texture_num;
-                std::string str = texture_str.str();
-                res["texture_list"][texture_num] = LLSD::Binary(str.begin(), str.end());
+                if (include_textures)
+                {
+                    std::string str = texture_str.str();
+                    res["texture_list"][texture_num] = LLSD::Binary(str.begin(), str.end());
+                }
+                else
+                {   // When not including the whole texture, we need to send some metadata about the image
+                    // to ensure accurate price estimation. If not included, the server will assume all
+                    // textures are 1024 x 1024, which could lead to a low estimate.
+                    LLSD info = LLSD::emptyMap();
+
+                    S32 texture_width = 0;
+                    S32 texture_height = 0;
+                    if (texture->hasSavedRawImage())
+                    {
+                        LLImageDataLock lock(texture->getSavedRawImage());
+
+                        LLPointer<LLImageJ2C> upload_file = LLViewerTextureList::convertToUploadFile(texture->getSavedRawImage());
+
+                        if (!upload_file.isNull() && upload_file->getDataSize() && !upload_file->isBufferInvalid())
+                        {
+                            texture_width  = upload_file->getWidth();
+                            texture_height = upload_file->getHeight();
+                        }
+                    }
+
+                    if ((texture_width <= 0) || (texture_height <= 0))
+                    {
+                        // Fall back to the texture's stored dimensions if we can't get dimensions from the raw image.
+                        texture_width = texture->getFullWidth();
+                        texture_height = texture->getFullHeight();
+                    }
+
+                    info["width"] = texture_width;
+                    info["height"] = texture_height;
+                    res["texture_info"][texture_num] = info;
+                    res["texture_list"][texture_num] = LLSD::Binary(); // empty binary to indicate texture is not included, for older server compatibility
+                }
                 // store indexes for error handling;
                 texture_list_dest.push_back(material.mDiffuseMapFilename);
                 texture_num++;
@@ -2881,8 +2927,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, std::vector<std::string>& 
     LLSD res;
     if (mDestinationFolderId.isNull())
     {
-    result["folder_id"] = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_OBJECT);
-    result["texture_folder_id"] = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_TEXTURE);
+        result["folder_id"] = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_OBJECT);
+        result["texture_folder_id"] = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_TEXTURE);
     }
     else
     {
@@ -3331,6 +3377,8 @@ void LLMeshRepoThread::notifyLoadedMeshes()
             loaded_queue.swap(mLoadedQ);
             mLoadedMutex->unlock();
 
+            LL_PROFILE_ZONE_NAMED("notify loaded meshes");
+
             update_metrics = true;
 
             // Process the elements free of the lock
@@ -3362,6 +3410,8 @@ void LLMeshRepoThread::notifyLoadedMeshes()
             unavil_queue.swap(mUnavailableQ);
             mLoadedMutex->unlock();
 
+            LL_PROFILE_ZONE_NAMED("notify unavail meshes");
+
             update_metrics = true;
 
             // Process the elements free of the lock
@@ -3380,6 +3430,7 @@ void LLMeshRepoThread::notifyLoadedMeshes()
     {
         if (mLoadedMutex->trylock())
         {
+            LL_PROFILE_ZONE_NAMED("notify misc meshes");
             std::deque<LLPointer<LLMeshSkinInfo>> skin_info_q;
             std::deque<UUIDBasedRequest> skin_info_unavail_q;
             std::list<LLModel::Decomposition*> decomp_q;
@@ -4236,15 +4287,17 @@ void LLMeshRepository::shutdown()
     delete mMeshMutex;
     mMeshMutex = NULL;
 
-    LL_INFOS(LOG_MESH) << "Shutting down decomposition system." << LL_ENDL;
-
     if (mDecompThread)
     {
         mDecompThread->shutdown();
         delete mDecompThread;
         mDecompThread = NULL;
     }
+}
 
+void LLMeshRepository::shutdownDecomposition()
+{
+    LL_INFOS(LOG_MESH) << "Shutting down decomposition system." << LL_ENDL;
     LLConvexDecomposition::quitSystem();
 }
 
@@ -4271,20 +4324,63 @@ S32 LLMeshRepository::update()
     return static_cast<S32>(size);
 }
 
-void LLMeshRepository::unregisterMesh(LLVOVolume* vobj)
+void LLMeshRepository::unregisterMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail)
 {
-    for (auto& lod : mLoadingMeshes)
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
+
+    llassert((mesh_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH);
+    llassert(mesh_params.getSculptID().notNull());
+    auto& lod = mLoadingMeshes[detail];
+    auto param_iter = lod.find(mesh_params.getSculptID());
+    if (param_iter != lod.end())
     {
-        for (auto& param : lod)
+        param_iter->second.mVolumes.erase(vobj);
+        llassert(!param_iter->second.mVolumes.contains(vobj));
+        if (param_iter->second.mVolumes.empty())
         {
-            vector_replace_with_last(param.second.mVolumes, vobj);
+            lod.erase(param_iter);
         }
     }
+}
 
-    for (auto& skin_pair : mLoadingSkins)
+void LLMeshRepository::unregisterSkinInfo(const LLUUID& mesh_id, LLVOVolume* vobj)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
+
+    llassert(mesh_id.notNull());
+    auto skin_pair_iter = mLoadingSkins.find(mesh_id);
+    if (skin_pair_iter != mLoadingSkins.end())
     {
-        vector_replace_with_last(skin_pair.second.mVolumes, vobj);
+        skin_pair_iter->second.mVolumes.erase(vobj);
+        llassert(!skin_pair_iter->second.mVolumes.contains(vobj));
+        if (skin_pair_iter->second.mVolumes.empty())
+        {
+            mLoadingSkins.erase(skin_pair_iter);
+        }
     }
+}
+
+// Lots of dead objects make expensive calls to
+// LLMeshRepository::unregisterMesh which may delay shutdown. Avoid this by
+// preemptively unregistering all meshes.
+// We can also do this safely if all objects are confirmed dead for some other
+// reason.
+void LLMeshRepository::unregisterAllMeshes()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
+
+    // The size of mLoadingMeshes and mLoadingSkins may be large and thus
+    // expensive to iterate over in LLVOVolume::~LLVOVolume.
+    // This is unnecessary during shutdown, so we ignore the referenced objects in the
+    // least expensive way which is still safe: by clearing these containers.
+    // Clear now and not in LLMeshRepository::shutdown because
+    // LLMeshRepository::notifyLoadedMeshes could (depending on invocation
+    // order) reference a pointer to an object after it has been deleted.
+    for (auto& lod : mLoadingMeshes)
+    {
+        lod.clear();
+    }
+    mLoadingSkins.clear();
 }
 
 S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 new_lod, S32 last_lod)
@@ -4306,7 +4402,7 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
         mesh_load_map::iterator iter = mLoadingMeshes[new_lod].find(mesh_id);
         if (iter != mLoadingMeshes[new_lod].end())
         { //request pending for this mesh, append volume id to list
-            auto it = std::find(iter->second.mVolumes.begin(), iter->second.mVolumes.end(), vobj);
+            auto it = iter->second.mVolumes.find(vobj);
             if (it == iter->second.mVolumes.end()) {
                 iter->second.addVolume(vobj);
             }
@@ -4496,7 +4592,7 @@ void LLMeshRepository::notifyLoadedMeshes()
             // erase from background thread
             mThread->mWorkQueue.post([=, this]()
                 {
-                    LLMutexLock(mThread->mSkinMapMutex);
+                    LLMutexLock skin_lock(mThread->mSkinMapMutex);
                     mThread->mSkinMap.erase(id);
                 });
         }
@@ -4804,7 +4900,7 @@ const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, LLVOV
             skin_load_map::iterator iter = mLoadingSkins.find(mesh_id);
             if (iter != mLoadingSkins.end())
             { //request pending for this mesh, append volume id to list
-                auto it = std::find(iter->second.mVolumes.begin(), iter->second.mVolumes.end(), requesting_obj);
+                auto it = iter->second.mVolumes.find(requesting_obj);
                 if (it == iter->second.mVolumes.end()) {
                     iter->second.addVolume(requesting_obj);
                 }

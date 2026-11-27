@@ -105,9 +105,16 @@ LLPreviewTexture::~LLPreviewTexture()
 
 void LLPreviewTexture::populateRatioList()
 {
-    // Fill in ratios list with common aspect ratio values
+    // Fill in ratios list with common aspect ratio values, portrait and landscape,
+    // ordered by increasing width relative to height
     mRatiosList.clear();
     mRatiosList.push_back(LLTrans::getString("Unconstrained"));
+    mRatiosList.push_back("1:2");
+    mRatiosList.push_back("9:16");
+    mRatiosList.push_back("10:16");
+    mRatiosList.push_back("2:3");
+    mRatiosList.push_back("7:10");
+    mRatiosList.push_back("3:4");
     mRatiosList.push_back("1:1");
     mRatiosList.push_back("4:3");
     mRatiosList.push_back("10:7");
@@ -300,7 +307,8 @@ void LLPreviewTexture::saveAs()
     if( mLoadingFullImage )
         return;
 
-    std::string filename = getItem() ? LLDir::getScrubbedFileName(getItem()->getName()) : LLStringUtil::null;
+    // startPicker will sanitize the name
+    std::string filename = getItem() ? getItem()->getName() : LLStringUtil::null;
     LLFilePickerReplyThread::startPicker(boost::bind(&LLPreviewTexture::saveTextureToFile, this, _1), LLFilePicker::FFSAVE_TGAPNG, filename);
 }
 
@@ -682,9 +690,15 @@ void LLPreviewTexture::adjustAspectRatio()
         LLComboBox* combo = getChild<LLComboBox>("combo_aspect_ratio");
         if (combo)
         {
-            std::ostringstream ratio;
-            ratio << num << ":" << denom;
-            std::vector<std::string>::const_iterator found = std::find(mRatiosList.begin(), mRatiosList.end(), ratio.str());
+            // Match by value: num:denom is reduced, so a 1024x640 image is 8:5, which must find "16:10"
+            std::vector<std::string>::const_iterator found = std::find_if(mRatiosList.begin(), mRatiosList.end(),
+                [num, denom](const std::string& entry)
+                {
+                    S32 entry_num = 0;
+                    S32 entry_denom = 0;
+                    return sscanf(entry.c_str(), "%d:%d", &entry_num, &entry_denom) == 2 && entry_num > 0 && entry_denom > 0 &&
+                           entry_num * denom == entry_denom * num;
+                });
             if (found == mRatiosList.end())
             {
                 // No existing ratio found, create an element that will show image at original ratio

@@ -108,12 +108,11 @@ private:
     // Storage for the "version and channel" string.
     // This will get reset too.
     mutable std::string mVersionChannel;
-    std::string build_configuration;
     std::string mReleaseNotes;
     // Store unique_ptrs to the next couple things so we don't have to explain
     // to every consumer of this header file all the details of each.
-    // mPump is the LLEventMailDrop on which we listen for SLVersionChecker to
-    // post the release-notes URL from the Viewer Version Manager.
+    // mPump is the LLEventMailDrop on which we listen for the
+    // release-notes URL from the Viewer Version Manager.
     std::unique_ptr<LLEventMailDrop> mPump;
     // mStore is an adapter that stores the release-notes URL in mReleaseNotes.
     std::unique_ptr<LLStoreListener<std::string>> mStore;

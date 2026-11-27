@@ -2,11 +2,9 @@
 <fonts>
 	<font name="default" comment="default font files (global fallbacks)">
 		<file>
-			NotoSansCJKjp-Medium.otf
+			NotoSansCJKjp-SemiBold.otf
 		</file>
-		<file>
-			DejaVuSans.ttf
-		</file>
+        <file load_collection="true" font_weight="400">InterVariableFont.ttf</file>
 		<os name="Windows">
 			<file load_collection="true">
 				YuGothM.ttc
@@ -41,7 +39,7 @@
 		</os>
 		<os name="Mac">
 			<file>
-				YuGothic-Medium.otf
+				YuGothic-SemiBold.otf
 			</file>
 			<file>
 				ヒラギノ角ゴシック W3.ttc
@@ -82,9 +80,7 @@
 		<file>
 			NotoSansCJKjp-Bold.otf
 		</file>
-		<file>
-			DejaVuSans-Bold.ttf
-		</file>
+        <file load_collection="true" font_weight="700" flags="bold">InterVariableFont.ttf</file>
 		<os name="Windows">
 			<file load_collection="true">
 				YuGothB.ttc
@@ -104,11 +100,9 @@
 	</font>
 	<font name="SansSerif" comment="Name of san-serif font (Truetype file name)">
 		<file>
-			NotoSansCJKjp-Bold.otf
+			NotoSansCJKjp-SemiBold.otf
 		</file>
-		<file>
-			DejaVuSans.ttf
-		</file>
+        <file load_collection="true" font_weight="400">InterVariableFont.ttf</file>
 		<os name="Windows">
 			<file>
 				arial.ttf
@@ -121,19 +115,13 @@
 		</os>
 	</font>
 	<font name="SansSerif" comment="Name of bold sans-serif font" font_style="BOLD">
-		<file>
-			DejaVuSans-Bold.ttf
-		</file>
+        <file load_collection="true" font_weight="700" flags="bold">InterVariableFont.ttf</file>
 	</font>
 	<font name="SansSerif" comment="Name of italic sans-serif font" font_style="ITALIC">
-		<file>
-			DejaVuSans-Oblique.ttf
-		</file>
+        <file load_collection="true" font_weight="400">InterItalicVariableFont.ttf</file>
 	</font>
 	<font name="SansSerif" comment="Name of bold italic sans-serif font" font_style="BOLD|ITALIC">
-		<file>
-			DejaVuSans-BoldOblique.ttf
-		</file>
+        <file load_collection="true" flags="bold" font_weight="700">InterItalicVariableFont.ttf</file>
 	</font>
 	<font name="Monospace" comment="Name of monospace font">
 		<file>
@@ -144,29 +132,25 @@
 		</file>
 	</font>
 	<font name="DejaVu" comment="Name of DejaVu font">
-		<file>
-			DejaVuSans.ttf
-		</file>
+        <file>DejaVuSans.ttf</file>
 	</font>
 	<font name="DejaVu" comment="Name of DejaVu font (bold)" font_style="BOLD">
-		<file>
-			DejaVuSans-Bold.ttf
-		</file>
+        <file>
+            DejaVuSans-Bold.ttf
+        </file>
 	</font>
 	<font name="DejaVu" comment="Name of DejaVu font (italic)" font_style="ITALIC">
-		<file>
-			DejaVuSans-Oblique.ttf
-		</file>
+        <file>
+            DejaVuSans-Oblique.ttf
+        </file>
 	</font>
 	<font name="DejaVu" comment="Name of DejaVu font (bold italic)" font_style="BOLD|ITALIC">
-		<file>
-			DejaVuSans-BoldOblique.ttf
-		</file>
+        <file>
+            DejaVuSans-BoldOblique.ttf
+        </file>
 	</font>
 	<font name="Helvetica" comment="Name of Helvetica font">
-		<file>
-			DejaVuSans.ttf
-		</file>
+        <file load_collection="true" font_weight="400">InterVariableFont.ttf</file>
 		<os name="Windows">
 			<file>
 				arial.ttf
@@ -179,9 +163,7 @@
 		</os>
 	</font>
 	<font name="Helvetica" comment="Name of Helvetica font (bold)" font_style="BOLD">
-		<file>
-			DejaVuSans-Bold.ttf
-		</file>
+        <file load_collection="true" font_weight="700" flags="bold">InterVariableFont.ttf</file>
 		<os name="Windows">
 			<file>
 				arialbd.ttf
@@ -194,9 +176,7 @@
 		</os>
 	</font>
 	<font name="Helvetica" comment="Name of Helvetica font (italic)" font_style="ITALIC">
-		<file>
-			DejaVuSans-Oblique.ttf
-		</file>
+        <file load_collection="true" font_weight="400">InterItalicVariableFont.ttf</file>
 		<os name="Windows">
 			<file>
 				ariali.ttf
@@ -209,9 +189,7 @@
 		</os>
 	</font>
 	<font name="Helvetica" comment="Name of Helvetica font (bold italic)" font_style="BOLD|ITALIC">
-		<file>
-			DejaVuSans-BoldOblique.ttf
-		</file>
+        <file load_collection="true" flags="bold" font_weight="700">InterItalicVariableFont.ttf</file>
 		<os name="Windows">
 			<file>
 				arialbi.ttf
@@ -227,13 +205,11 @@
 		<file>
 			times.ttf
 		</file>
-		<file>
-			DejaVuSans.ttf
-		</file>
+        <file font_weight="400">InterVariableFont.ttf</file>
 	</font>
 	<font_size name="Monospace" comment="Size for monospaced font (points, or 1/72 of an inch)" size="8.0"/>
 	<font_size name="Huge" comment="Size of huge font (points, or 1/72 of an inch)" size="16.0"/>
-	<font_size name="Large" comment="Size of large font (points, or 1/72 of an inch)" size="10.6"/>
-	<font_size name="Medium" comment="Size of medium font (points, or 1/72 of an inch)" size="8.6"/>
-	<font_size name="Small" comment="Size of small font (points, or 1/72 of an inch)" size="7.6"/>
+	<font_size name="Large" comment="Size of large font (points, or 1/72 of an inch)" size="11"/>
+	<font_size name="Medium" comment="Size of medium font (points, or 1/72 of an inch)" size="9"/>
+	<font_size name="Small" comment="Size of small font (points, or 1/72 of an inch)" size="8"/>
 </fonts>

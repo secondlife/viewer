@@ -17,7 +17,7 @@
     You don't have any outfits yet. Try [secondlife:///app/search/all/ Search]
   </string>
   <string name="no_matched_outfits_msg">
-    Didn't find what you're looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search].
+    No matching items.
   </string>
   <text
     type="string"

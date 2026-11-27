@@ -95,7 +95,8 @@ public:
                                         show_label_focused,
                                         is_password,
                                         allow_emoji,
-                                        use_bg_color;
+                                        use_bg_color,
+                                        draw_focus_border;
 
         // colors
         Optional<LLUIColor>             cursor_color,
@@ -202,6 +203,7 @@ public:
     void            setLabel(const LLStringExplicit &new_label) { mLabel = new_label; }
     const std::string&  getLabel()  { return mLabel.getString(); }
 
+    void            setDefaultText() { setText(mDefaultText); }
     void            setText(const LLStringExplicit &new_text);
 
     const std::string& getText() const override { return mText.getString(); }
@@ -323,8 +325,10 @@ public:
     /*virtual*/ void    markAsPreedit(S32 position, S32 length) override;
     /*virtual*/ void    getPreeditRange(S32 *position, S32 *length) const override;
     /*virtual*/ bool    getPreeditLocation(S32 query_position, LLCoordGL *coord, LLRect *bounds, LLRect *control) const override;
+    /*virtual*/ void    getPreeditLocations(locations_t& locations) const override;
     /*virtual*/ S32     getPreeditFontSize() const override;
-    /*virtual*/ LLWString getPreeditString() const override { return getWText(); }
+    /*virtual*/ const LLWString& getPreeditString() const override { return getWText(); }
+    /*virtual*/ bool    getPreeditTextGeneration(S32 * /*generation*/) const override { return false; }
 
     void            setText(const LLStringExplicit &new_text, bool use_size_limit);
 
@@ -347,6 +351,7 @@ protected:
     LLFontVertexBuffer mFontBufferSelection;
     LLFontVertexBuffer mFontBufferPostSelection;
     LLFontVertexBuffer mFontBufferLabel;
+    std::string mDefaultText;
     S32         mMaxLengthBytes;            // Max length of the UTF8 string in bytes
     S32         mMaxLengthChars;            // Maximum number of characters in the string
     S32         mCursorPos;                 // I-beam is just after the mCursorPos-th character.
@@ -409,6 +414,7 @@ protected:
 
     bool        mAllowEmoji;
     bool        mUseBgColor;
+    bool        mDrawFocusBorder;
 
     LLWString   mPreeditWString;
     LLWString   mPreeditOverwrittenWString;

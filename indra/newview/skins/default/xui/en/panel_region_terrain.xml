@@ -42,7 +42,7 @@
      max_val="100"
      name="water_height_spin"
      top="40"
-     width="180" />
+     width="190" />
     <spinner
      follows="left|top"
      height="20"
@@ -54,7 +54,7 @@
      max_val="100"
      name="terrain_raise_spin"
      top="40"
-     width="180" />
+     width="190" />
     <spinner
      follows="left|top"
      height="20"
@@ -67,7 +67,7 @@
      min_val="-100"
      name="terrain_lower_spin"
      top="60"
-     width="180" />
+     width="190" />
     <view_border
      bevel_style="none"
      follows="top|left"
@@ -330,7 +330,7 @@
      follows="left|top"
      height="20"
      layout="topleft"
-     left_pad="10"
+     left_pad="15"
      name="height_text_lbl7"
      top_delta="0"
      width="100">
@@ -349,7 +349,7 @@
       min_val="-500"
       name="height_start_spin_1"
       top_delta="15"
-      width="100" />  
+      width="105" />  
 <!--    northeast low-->
       <spinner
        follows="left|top"
@@ -363,7 +363,7 @@
        min_val="-500"
        name="height_start_spin_3"
        top_delta="0"
-       width="100" />
+       width="105" />
 <!--  northwest high-->
      <spinner
       follows="left|top"
@@ -377,7 +377,7 @@
       min_val="-500"
       name="height_range_spin_1"
       top_delta="20"
-      width="100" />
+      width="105" />
 <!--  northeast high-->
     <spinner
        follows="left|top"
@@ -391,7 +391,7 @@
        min_val="-500"
        name="height_range_spin_3"
        top_delta="0"
-       width="100" />
+       width="105" />
     <text
      follows="left|top"
      height="20"
@@ -406,7 +406,7 @@
      follows="left|top"
      height="20"
      layout="topleft"
-     left_pad="10"
+     left_pad="15"
      name="height_text_lbl9"
      top_delta="0"
      width="100">
@@ -425,7 +425,7 @@
      min_val="-500"
      name="height_start_spin_0"
      top_delta="15"
-     width="100" />
+     width="105" />
 <!--  southeast low-->
     <spinner
      follows="left|top"
@@ -439,7 +439,7 @@
      min_val="-500"
      name="height_start_spin_2"
      top_delta="0"
-     width="100" />
+     width="105" />
 <!--southwest high-->
     <spinner
      follows="left|top"
@@ -453,7 +453,7 @@
      min_val="-500"
      name="height_range_spin_0"
      top_delta="20"
-     width="100" />
+     width="105" />
 <!--  southeast high-->
     <spinner
      follows="left|top"
@@ -467,7 +467,7 @@
      min_val="-500"
      name="height_range_spin_2"
      top_delta="0"
-     width="100" />
+     width="105" />
 <!-- Terrain Download/Upload/Bake buttons -->
     <button
      follows="left|top"

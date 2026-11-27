@@ -67,6 +67,10 @@ LLConsole::LLConsole(const LLConsole::Params& p)
     {
         setFontSize(p.font_size_index);
     }
+    if (mFont == nullptr)
+    {
+        setFontSize(0); // sans-serif
+    }
     mFadeTime = mLinePersistTime - FADE_DURATION;
     setMaxLines(LLUI::getInstance()->mSettingGroups["config"]->getS32("ConsoleMaxLines"));
 }
@@ -79,6 +83,13 @@ void LLConsole::setLinePersistTime(F32 seconds)
 
 void LLConsole::reshape(S32 width, S32 height, bool called_from_parent)
 {
+    if (mFont == nullptr)
+    {
+        // not initialized yet
+        LL_WARNS() << "LLConsole::reshape called before font is set" << LL_ENDL;
+        return;
+    }
+
     S32 new_width = llmax(50, llmin(getRect().getWidth(), width));
     S32 new_height = llmax(mFont->getLineHeight() + 15, llmin(getRect().getHeight(), height));
 

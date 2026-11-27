@@ -37,6 +37,8 @@ class LLView;
 class LLParcelSelection;
 class LLObjectSelection;
 class LLSelectNode;
+class LLViewerObject;
+class LLVector3;
 
 void initialize_edit_menu();
 void initialize_spellcheck_menu();
@@ -74,6 +76,7 @@ void handle_take(bool take_separate = false);
 void handle_take_copy();
 void handle_look_at_selection(const LLSD& param);
 bool handle_zoom_to_object(const LLUUID& object_id);
+bool save_object_back_to_contents(LLViewerObject* object, const LLUUID& source_task_id);
 void handle_object_return();
 void handle_object_delete();
 void handle_object_edit();
@@ -104,7 +107,9 @@ bool for_sale_selection(LLSelectNode* nodep);
 void handle_toggle_flycam();
 
 void handle_object_sit_or_stand();
+void handle_object_sit(LLViewerObject* object, const LLVector3& offset);
 void handle_object_sit(const LLUUID& object_id);
+LLViewerObject* find_nearby_seat();
 void handle_give_money_dialog();
 bool enable_pay_object();
 bool enable_buy_object();

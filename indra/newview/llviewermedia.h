@@ -251,7 +251,7 @@ public:
     void navigateHome();
     void unload();
     void navigateTo(const std::string& url, const std::string& mime_type = "", bool rediscover_type = false, bool server_request = false, bool clean_browser = false);
-    void navigateInternal();
+    void navigateInternal(bool should_log = true);
     void navigateStop();
     bool handleKeyHere(KEY key, MASK mask);
     bool handleKeyUpHere(KEY key, MASK mask);
@@ -511,6 +511,7 @@ private:
     void mimeDiscoveryCoro(std::string url);
     LLCoreHttpUtil::HttpCoroutineAdapter::wptr_t mMimeProbe;
     bool mCanceling;
+    U32 mPluginInitGeneration = 0;
 
 private:
     LLViewerMediaTexture *updateMediaImage();

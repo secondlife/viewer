@@ -51,6 +51,7 @@ const LLTransactionID LLTransactionID::tnull;
 // static
 LLMutex* LLUUID::mMutex = NULL;
 
+static const U8 nullUUID[UUID_BYTES] = {};
 
 
 /*
@@ -150,6 +151,48 @@ U32 janky_fast_random_seeded_bytes(U32 seed, U32 val)
     return (U32)(seed) % val;
 }
 #endif
+
+void LLUUID::to_chars(char* out) const
+{
+    snprintf(out, UUID_STR_LENGTH, "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                   (U8)(mData[0]),
+                   (U8)(mData[1]),
+                   (U8)(mData[2]),
+                   (U8)(mData[3]),
+                   (U8)(mData[4]),
+                   (U8)(mData[5]),
+                   (U8)(mData[6]),
+                   (U8)(mData[7]),
+                   (U8)(mData[8]),
+                   (U8)(mData[9]),
+                   (U8)(mData[10]),
+                   (U8)(mData[11]),
+                   (U8)(mData[12]),
+                   (U8)(mData[13]),
+                   (U8)(mData[14]),
+                   (U8)(mData[15]));
+}
+
+void LLUUID::to_wchars(wchar_t* out) const
+{
+    swprintf(out, UUID_STR_LENGTH, L"%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                   (U8)(mData[0]),
+                   (U8)(mData[1]),
+                   (U8)(mData[2]),
+                   (U8)(mData[3]),
+                   (U8)(mData[4]),
+                   (U8)(mData[5]),
+                   (U8)(mData[6]),
+                   (U8)(mData[7]),
+                   (U8)(mData[8]),
+                   (U8)(mData[9]),
+                   (U8)(mData[10]),
+                   (U8)(mData[11]),
+                   (U8)(mData[12]),
+                   (U8)(mData[13]),
+                   (U8)(mData[14]),
+                   (U8)(mData[15]));
+}
 
 // Common to all UUID implementations
 void LLUUID::toString(std::string& out) const
@@ -368,11 +411,9 @@ bool LLUUID::validate(const std::string& in_string)
 
 const LLUUID& LLUUID::operator^=(const LLUUID& rhs)
 {
-    U32* me = (U32*)&(mData[0]);
-    const U32* other = (U32*)&(rhs.mData[0]);
-    for (S32 i = 0; i < 4; ++i)
+    for (S32 i = 0; i < UUID_BYTES; ++i)
     {
-        me[i] = me[i] ^ other[i];
+        mData[i] ^= rhs.mData[i];
     }
     return *this;
 }
@@ -405,8 +446,8 @@ LLUUID LLUUID::combine(const LLUUID& other) const
 
 std::ostream& operator<<(std::ostream& s, const LLUUID& uuid)
 {
-    std::string uuid_str;
-    uuid.toString(uuid_str);
+    char uuid_str[UUID_STR_LENGTH];
+    uuid.to_chars(uuid_str);
     s << uuid_str;
     return s;
 }
@@ -414,12 +455,17 @@ std::ostream& operator<<(std::ostream& s, const LLUUID& uuid)
 std::istream& operator>>(std::istream& s, LLUUID& uuid)
 {
     U32 i;
-    char uuid_str[UUID_STR_LENGTH];     /* Flawfinder: ignore */
+    char uuid_str[UUID_STR_LENGTH] = {};     /* Flawfinder: ignore */
     for (i = 0; i < UUID_STR_LENGTH - 1; i++)
     {
         s >> uuid_str[i];
     }
     uuid_str[i] = '\0';
+    if (s.fail())
+    {
+        uuid.setNull();
+        return s;
+    }
     uuid.set(std::string(uuid_str));
     return s;
 }
@@ -456,7 +502,7 @@ S32 LLUUID::getNodeID(unsigned char* node_id)
     ASTAT Adapter;
     NCB Ncb;
     UCHAR uRetCode;
-    LANA_ENUM   lenum;
+    LANA_ENUM lenum = {};
     int      i;
     int retval = 0;
 
@@ -528,6 +574,10 @@ S32 LLUUID::getNodeID(unsigned char* node_id)
 
     for (ifa = ifap; ifa != NULL; ifa = ifa->ifa_next)
     {
+        if (ifa->ifa_addr == NULL)
+        {
+            continue;
+        }
         //      printf("Interface %s, address family %d, ", ifa->ifa_name, ifa->ifa_addr->sa_family);
         for (i = 0; i < ifa->ifa_addr->sa_len; i++)
         {
@@ -855,7 +905,7 @@ void LLUUID::generate(const std::string& hash_string)
 
 U32 LLUUID::getRandomSeed()
 {
-    static unsigned char seed[16];      /* Flawfinder: ignore */
+    unsigned char seed[16] = {};        /* Flawfinder: ignore */
 
     getNodeID(&seed[0]);
 
@@ -866,7 +916,10 @@ U32 LLUUID::getRandomSeed()
 
     seed[6] = (unsigned char)(pid >> 8);
     seed[7] = (unsigned char)(pid);
-    getSystemTime((uuid_time_t*)(&seed[8]));
+    uuid_time_t timestamp;
+    getSystemTime(&timestamp);
+    std::memcpy(&seed[8], &timestamp.high, sizeof(timestamp.high));
+    std::memcpy(&seed[12], &timestamp.low, sizeof(timestamp.low));
 
    U64 seed64 = HBXXH64::digest((const void*)seed, 16);
    return U32(seed64) ^ U32(seed64 >> 32);
@@ -928,38 +981,20 @@ LLUUID::LLUUID()
 // Faster than copying from memory
 void LLUUID::setNull()
 {
-    U32* word = (U32*)mData;
-    word[0] = 0;
-    word[1] = 0;
-    word[2] = 0;
-    word[3] = 0;
+    memset(mData, 0, sizeof(mData));
 }
 
 
 // Compare
 bool LLUUID::operator==(const LLUUID& rhs) const
 {
-    U32* tmp = (U32*)mData;
-    U32* rhstmp = (U32*)rhs.mData;
-    // Note: binary & to avoid branching
-    return
-        (tmp[0] == rhstmp[0]) &
-        (tmp[1] == rhstmp[1]) &
-        (tmp[2] == rhstmp[2]) &
-        (tmp[3] == rhstmp[3]);
+    return !memcmp(mData, rhs.mData, sizeof(mData));
 }
 
 
 bool LLUUID::operator!=(const LLUUID& rhs) const
 {
-    U32* tmp = (U32*)mData;
-    U32* rhstmp = (U32*)rhs.mData;
-    // Note: binary | to avoid branching
-    return
-        (tmp[0] != rhstmp[0]) |
-        (tmp[1] != rhstmp[1]) |
-        (tmp[2] != rhstmp[2]) |
-        (tmp[3] != rhstmp[3]);
+    return memcmp(mData, rhs.mData, sizeof(mData)) != 0;
 }
 
 /*
@@ -974,17 +1009,14 @@ bool LLUUID::operator!=(const LLUUID& rhs) const
 
 bool LLUUID::notNull() const
 {
-    U32* word = (U32*)mData;
-    return (word[0] | word[1] | word[2] | word[3]) > 0;
+    return memcmp(mData, nullUUID, sizeof(mData)) != 0;
 }
 
 // Faster than == LLUUID::null because doesn't require
 // as much memory access.
 bool LLUUID::isNull() const
 {
-    U32* word = (U32*)mData;
-    // If all bits are zero, return !0 == true
-    return !(word[0] | word[1] | word[2] | word[3]);
+    return !memcmp(mData, nullUUID, sizeof(mData));
 }
 
 LLUUID::LLUUID(const char* in_string)
@@ -1040,7 +1072,8 @@ bool LLUUID::operator>(const LLUUID& rhs) const
 U16 LLUUID::getCRC16() const
 {
     // A UUID is 16 bytes, or 8 shorts.
-    U16* short_data = (U16*)mData;
+    U16 short_data[UUID_BYTES / sizeof(U16)];
+    std::memcpy(short_data, mData, sizeof(short_data));
     U16 out = 0;
     out += short_data[0];
     out += short_data[1];
@@ -1055,6 +1088,13 @@ U16 LLUUID::getCRC16() const
 
 U32 LLUUID::getCRC32() const
 {
-    U32* tmp = (U32*)mData;
-    return tmp[0] + tmp[1] + tmp[2] + tmp[3];
+    U32 ret = 0;
+    for (U32 i = 0; i < 4; ++i)
+    {
+        ret += U32(mData[i*4]) |
+               (U32(mData[i*4+1]) << 8) |
+               (U32(mData[i*4+2]) << 16) |
+               (U32(mData[i*4+3]) << 24);
+    }
+    return ret;
 }

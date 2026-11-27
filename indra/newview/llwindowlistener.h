@@ -41,12 +41,18 @@ public:
 
     void getInfo(LLSD const & evt);
     void getPaths(LLSD const & evt);
+    void getSubtree(LLSD const & evt);
     void keyDown(LLSD const & evt);
     void keyUp(LLSD const & evt);
     void mouseDown(LLSD const & evt);
     void mouseUp(LLSD const & evt);
     void mouseMove(LLSD const & evt);
     void mouseScroll(LLSD const & evt);
+    void pasteText(LLSD const & evt);
+    void cut(LLSD const & evt);
+    void copy(LLSD const & evt);
+    void paste(LLSD const & evt);
+    void selectAll(LLSD const & evt);
 
 private:
     LLViewerWindow * mWindow;

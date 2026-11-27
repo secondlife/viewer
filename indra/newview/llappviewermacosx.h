@@ -46,6 +46,7 @@ public:
 
 protected:
     virtual bool restoreErrorTrap();
+    virtual bool initSLURLHandler();
 
     std::string generateSerialNumber();
     virtual bool initParseCommandLine(LLCommandLineParser& clp);

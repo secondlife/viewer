@@ -72,6 +72,7 @@
 //=============================================================================
 /*static */bool LLPhysicsExtensions::quitSystem()
 {
+    LL_PROFILE_ZONE_SCOPED;
     return LLPhysicsExtensionsImpl::quitSystem();
 }
 //=============================================================================

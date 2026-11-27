@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater
+ height="185"
+ width="540"
+ layout="topleft"
+ name="floater_maturity_dialog"
+ title="MATURITY"
+ show_title="false"
+ header_height="0"
+ bg_opaque_image="Window_NoTitle_Foreground"
+ bg_alpha_image="Window_NoTitle_Background"
+ can_resize="false"
+ can_drag_on_left="false"
+ can_minimize="false"
+ single_instance="true"
+ can_close="false"
+ background_visible="false">
+  <floater.string
+   name="location_rated_string"
+   value="The location you've chosen is rated [MATURITY]."/>
+  <floater.string
+   name="update_maturity_string"
+   value="Your current maturity preference doesn't include [MATURITY] content. Allowing it will update your preference."/>
+  <floater.string
+   name="allow_maturity_string"
+   value="Allow [MATURITY] content"/>
+  <icon
+   color="FloaterFocusBackgroundColor"
+   follows="left|right|bottom|top"
+   image_name="Rounded_Square"
+   layout="topleft"
+   left="0"
+   top="0"
+   height="185"
+   width="540"/>
+  <text
+   type="string"
+   length="1"
+   follows="top|left|right"
+   font="SansSerifMediumBold"
+   text_color="White"
+   layout="topleft"
+   left="20"
+   height="18"
+   top="20"
+   right="-10"
+   name="location_rated_lbl">
+   The location you've chosen is rated Adult.
+  </text>
+  <text
+   type="string"
+   length="1"
+   follows="top|left|right"
+   text_color="White"
+   layout="topleft"
+   left="20"
+   height="32"
+   top_pad="10"
+   right="-10"
+   word_wrap="true"
+   name="current_maturity_lbl">
+   Your current maturity preference doesn't include Adult content. Allowing it will update your preference.
+   </text>
+
+  <button
+   follows="top|left"
+   layout="topleft"
+   height="28"
+   label="Allow content"
+   left="20"
+   top_pad="18"
+   name="continue_btn"
+   width="245" />
+
+  <button
+   follows="top|left"
+   layout="topleft"
+   height="28"
+   label="Cancel"
+   left_pad="10"
+   name="cancel_btn"
+   width="245" />
+
+  <text
+   type="string"
+   length="1"
+   follows="top|left|right"
+   text_color="White"
+   link_color="White"
+   layout="topleft"
+   left="20"
+   height="16"
+   top_pad="25"
+   right="-10"
+   parse_urls="true"
+   name="learn_more_lbl">
+[https://lindenlab.freshdesk.com/support/solutions/articles/31000135220-i-can-t-access-adult-land-and-content- Learn more] about maturity ratings.
+  </text>
+
+</floater>

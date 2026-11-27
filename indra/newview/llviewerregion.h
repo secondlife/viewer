@@ -274,10 +274,10 @@ public:
     S32 getNumSeedCapRetries();
     void setCapability(const std::string& name, const std::string& url);
     void setCapabilityDebug(const std::string& name, const std::string& url);
-    bool isCapabilityAvailable(const std::string& name) const;
+    bool isCapabilityAvailable(std::string_view name) const;
     // implements LLCapabilityProvider
-    virtual std::string getCapability(const std::string& name) const;
-    std::string getCapabilityDebug(const std::string& name) const;
+    virtual std::string getCapability(std::string_view name) const;
+    std::string getCapabilityDebug(std::string_view name) const;
 
 
     // has region received its final (not seed) capability list?
@@ -287,7 +287,7 @@ public:
     void setCapabilitiesError();
     boost::signals2::connection setCapabilitiesReceivedCallback(const caps_received_signal_t::slot_type& cb);
 
-    static bool isSpecialCapabilityName(const std::string &name);
+    static bool isSpecialCapabilityName(std::string_view name);
     void logActiveCapabilities() const;
 
     // Utilities to post and get via
@@ -350,6 +350,11 @@ public:
     bool dynamicPathfindingEnabled() const;
 
     bool avatarHoverHeightEnabled() const;
+
+    bool groupChatPostLinksEnabled() const;
+
+    // does the simulator accept GameControlData messages?
+    bool gameControlEnabled() const;
 
     typedef enum
     {
@@ -423,6 +428,8 @@ public:
     S32  getLastUpdate() const {return mLastUpdate;}
 
     std::string getSimHostName();
+
+    bool isRegionWebRTCEnabled();
 
     static bool isNewObjectCreationThrottleDisabled() {return sNewObjectCreationThrottle < 0;}
 

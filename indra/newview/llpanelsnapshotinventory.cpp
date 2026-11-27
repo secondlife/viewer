@@ -110,7 +110,11 @@ void LLPanelSnapshotInventory::updateControls(const LLSD& info)
 
 void LLPanelSnapshotInventory::onResolutionCommit(LLUICtrl* ctrl)
 {
-    bool current_window_selected = (getChild<LLComboBox>(getImageSizeComboName())->getCurrentIndex() == 3);
+    LLComboBox* combo = getChild<LLComboBox>(getImageSizeComboName());
+    // Current window likely won't ever change position from being the penultimate item
+    // Custom window is last item
+    S32  curent_window_index = combo->getItemCount() - 2;
+    bool current_window_selected = (combo->getCurrentIndex() == curent_window_index);
     getChild<LLSpinCtrl>(getWidthSpinnerName())->setVisible(!current_window_selected);
     getChild<LLSpinCtrl>(getHeightSpinnerName())->setVisible(!current_window_selected);
 }

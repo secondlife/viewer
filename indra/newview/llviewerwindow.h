@@ -66,6 +66,7 @@ class LLWindow;
 class LLRootView;
 class LLWindowListener;
 class LLViewerWindowListener;
+class LLStatsListener;
 class LLVOPartGroup;
 class LLPopupView;
 class LLCubeMap;
@@ -144,6 +145,10 @@ private:
 
 };
 
+struct MainPanel : public LLPanel
+{
+};
+
 static const U32 MAX_SNAPSHOT_IMAGE_SIZE = 7680; // max snapshot image size 7680 * 7680 UHDTV2
 
 class LLViewerWindow : public LLWindowCallbacks
@@ -195,9 +200,13 @@ public:
     /*virtual*/ bool handleTranslatedKeyDown(KEY key,  MASK mask, bool repeated);
     /*virtual*/ bool handleTranslatedKeyUp(KEY key,  MASK mask);
     /*virtual*/ void handleScanKey(KEY key, bool key_down, bool key_up, bool key_level);
+    /*virtual*/ bool keyboardFocusAcceptsText();
     /*virtual*/ bool handleUnicodeChar(llwchar uni_char, MASK mask);    // NOT going to handle extended
     /*virtual*/ bool handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask);
     /*virtual*/ bool handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask);
+    /*virtual*/ void handlePreCloseRequest();
+    /*virtual*/ void handleCloseRequestCanceled();
+    /*virtual*/ void handleSuspendRequest();
     /*virtual*/ bool handleCloseRequest(LLWindow *window, bool from_user);
     /*virtual*/ bool handleSessionExit(LLWindow* window);
     /*virtual*/ void handleQuit(LLWindow *window);
@@ -213,6 +222,7 @@ public:
                 void handleMouseDragged(LLWindow *window,  LLCoordGL pos, MASK mask);
     /*virtual*/ void handleMouseLeave(LLWindow *window);
     /*virtual*/ void handleResize(LLWindow *window,  S32 x,  S32 y);
+    /*virtual*/ void handleRequestResolutionUpdate(LLWindow* window);
     /*virtual*/ void handleFocus(LLWindow *window);
     /*virtual*/ void handleFocusLost(LLWindow *window);
     /*virtual*/ bool handleActivate(LLWindow *window, bool activated);
@@ -221,12 +231,14 @@ public:
     /*virtual*/ bool handlePaint(LLWindow *window,  S32 x,  S32 y,  S32 width,  S32 height);
     /*virtual*/ void handleScrollWheel(LLWindow *window,  S32 clicks);
     /*virtual*/ void handleScrollHWheel(LLWindow *window,  S32 clicks);
-    /*virtual*/ bool handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleLeftMouseDoubleClick(LLWindow *window,  LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleRightMouseDoubleClick(LLWindow* window, LLCoordGL pos, MASK mask);
+    /*virtual*/ bool handleMiddleMouseDoubleClick(LLWindow* window, LLCoordGL pos, MASK mask);
     /*virtual*/ void handleWindowBlock(LLWindow *window);
     /*virtual*/ void handleWindowUnblock(LLWindow *window);
     /*virtual*/ void handleDataCopy(LLWindow *window, S32 data_type, void *data);
     /*virtual*/ bool handleTimerEvent(LLWindow *window);
-    /*virtual*/ bool handleDeviceChange(LLWindow *window);
+    /*virtual*/ bool handleDeviceChange(LLWindow *window, const std::string& change_type);
     /*virtual*/ bool handleDPIChanged(LLWindow *window, F32 ui_scale_factor, S32 window_width, S32 window_height);
     /*virtual*/ bool handleDisplayChanged();
     /*virtual*/ bool handleWindowDidChangeScreen(LLWindow *window);
@@ -248,6 +260,7 @@ public:
     // ACCESSORS
     //
     LLRootView*         getRootView()       const;
+    MainPanel*          getMainView()       const { return mMainView; }
 
     // 3D world area in scaled pixels (via UI scale), use for most UI computations
     LLRect          getWorldViewRectScaled() const;
@@ -271,7 +284,6 @@ public:
 
     LLWindow*       getWindow()         const   { return mWindow; }
     void*           getPlatformWindow() const;
-    void*           getMediaWindow()    const;
     void            focusClient()       const;
 
     LLCoordGL       getLastMouse()      const   { return mLastMousePoint; }
@@ -315,6 +327,7 @@ public:
     void            hideCursor();
     bool            getCursorHidden() { return mCursorHidden; }
     void            moveCursorToCenter();                               // move to center of window
+    void            moveCursorTo(S32 x, S32 y);                         // move to an arbitrary screen-space (GL) position, clamped to the world view
 
     void            initTextures(S32 location_id);
     void            setShowProgress(const bool show);
@@ -405,6 +418,7 @@ public:
     void resetSnapshotLoc();
 
     void            playSnapshotAnimAndSound();
+    static void     onSnapshotNotificationClick(const LLSD& notification, const LLSD& response);
 
     // draws selection boxes around selected objects, must call displayObjects first
     void            renderSelections( bool for_gl_pick, bool pick_parcel_walls, bool for_hud );
@@ -501,6 +515,7 @@ private:
     LLRect          mWorldViewRectRaw;          // area of screen for 3D world
     LLRect          mWorldViewRectScaled;       // area of screen for 3D world scaled by UI size
     LLRootView*     mRootView;                  // a view of size mWindowRectRaw, containing all child views
+    MainPanel*      mMainView;                  // a view of size mWindowRectRaw, directly containing the base elements of the ui tree
     LLView*         mFloaterSnapRegion = nullptr;
     LLView*         mNavBarContainer = nullptr;
     LLPanel*        mStatusBarContainer = nullptr;
@@ -556,6 +571,7 @@ private:
 
     std::unique_ptr<LLWindowListener> mWindowListener;
     std::unique_ptr<LLViewerWindowListener> mViewerWindowListener;
+    std::unique_ptr<LLStatsListener> mStatsListener;
 
     // Object temporarily hovered over while dragging
     LLPointer<LLViewerObject>   mDragHoveredObject;

@@ -31,6 +31,8 @@
 #include "lluuid.h"
 #include "llextendedstatus.h"
 
+#include <boost/signals2/connection.hpp>
+
 class LLViewerObject;
 class LLMessageSystem;
 class LLMuteListObserver;
@@ -82,6 +84,23 @@ class LLMuteList : public LLSingleton<LLMuteList>
         ML_LOADED,
         ML_FAILED,
     };
+
+    enum EMuteListSource
+    {
+        MLS_NONE,
+        MLS_SERVER,
+        MLS_SERVER_EMPTY,
+        MLS_SERVER_CACHE,
+        MLS_FALLBACK_CACHE,
+    };
+
+    // UseCachedMuteList is an authoritative server response even though its bytes
+    // come from the viewer's CRC-matched local cache.
+    static bool isServerAuthoritativeSource(EMuteListSource source)
+    {
+        return source == MLS_SERVER || source == MLS_SERVER_EMPTY || source == MLS_SERVER_CACHE;
+    }
+
 public:
     // reasons for auto-unmuting a resident
     enum EAutoReason
@@ -115,8 +134,18 @@ public:
 
     static bool isLinden(const std::string& name);
 
-    bool isLoaded() const { return mLoadState == ML_LOADED; }
-    bool getLoadFailed() const;
+    // Load state accessors.
+    bool isLoaded() const { return mLoadState == ML_LOADED; } // Loaded, but not necessarily from server.
+    bool isFailed() const { return mLoadState == ML_FAILED; } // Unable to load any mute list. Server did not reply.
+    // Loaded from an authoritative server response, including when the server directs us to use our cached copy.
+    bool isLoadedFromServer() const { return isLoaded() && isServerAuthoritativeSource(mLoadSource); }
+    // Loaded without an authoritative server response. Would be nice to upgrade to a server load from here if possible.
+    bool isLoadedDegraded() const { return isLoaded() && !isLoadedFromServer(); }
+    const char* getLoadSourceName() const { return sourceToString(mLoadSource); }
+
+    // Advance the load state machine, trying cache fallback if necessary.
+    // Return value indicates mute list consumption readiness.
+    bool updateLoadState();
 
     std::vector<LLMute> getMutes() const;
 
@@ -126,11 +155,19 @@ public:
     // call this method on logout to save everything.
     void cache(const LLUUID& agent_id);
 
-private:
-    bool loadFromFile(const std::string& filename);
-    bool saveToFile(const std::string& filename);
+    // Handler for region change event, used for server request retries if isLoadedDegraded() is true
+    void onRegionChanged();
 
-    void setLoaded();
+private:
+    void clearCachedMutes();
+    bool loadFromFile(const std::string& filename, EMuteListSource source);
+    bool saveToFile(const std::string& filename);
+    bool tryLoadCacheFallback(const LLUUID& agent_id, const std::string& reason);
+    void setFailed(const std::string& reason);
+    static const char* sourceToString(EMuteListSource source);
+    std::string getCacheFilename(const LLUUID& agent_id) const;
+
+    void setLoaded(EMuteListSource source);
     void notifyObservers();
     void notifyObserversDetailed(const LLMute &mute);
 
@@ -177,9 +214,14 @@ private:
     observer_set_t mObservers;
 
     EMuteListState mLoadState;
+    EMuteListSource mLoadSource;
     F64 mRequestStartTime;
+    bool mTriedCacheFallback;
+    bool mTriedRegionChangeRetry;
+    boost::signals2::connection mRegionChangedCallback;
 
     friend class LLDispatchEmptyMuteList;
+    friend struct LLMuteListTestAccess;
 };
 
 class LLMuteListObserver

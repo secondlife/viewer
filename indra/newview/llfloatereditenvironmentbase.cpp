@@ -201,7 +201,7 @@ void LLFloaterEditEnvironmentBase::onAssetLoaded(LLUUID asset_id, LLSettingsBase
         LLSD args;
         args["NAME"] = (mInventoryItem) ? mInventoryItem->getName() : asset_id.asString();
         LLNotificationsUtil::add("FailedToFindSettings", args);
-        closeFloater();
+        closeFloater(LLApp::isQuitting());
         return;
     }
 

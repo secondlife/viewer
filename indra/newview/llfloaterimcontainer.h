@@ -74,7 +74,7 @@ public:
     void showConversation(const LLUUID& session_id);
     void selectConversation(const LLUUID& session_id);
     void selectNextConversationByID(const LLUUID& session_id);
-    bool selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater = true);
+    bool selectConversationPair(const LLUUID& session_id, bool select_widget, bool focus_floater = true, bool force_select_widget = false);
     void clearAllFlashStates();
     bool selectAdjacentConversation(bool focus_selected);
     bool selectNextorPreviousConversation(bool select_next, bool focus_selected = true);
@@ -123,7 +123,7 @@ public:
 
 
 private:
-    typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
+    typedef std::map<LLUUID, LLHandle<LLFloater> > avatarID_panel_map_t;
     avatarID_panel_map_t mSessions;
     boost::signals2::connection mNewMessageConnection;
 
@@ -178,6 +178,7 @@ private:
     void banSelectedMember(const LLUUID& participant_uuid);
     void openNearbyChat();
     bool isParticipantListExpanded();
+    bool isNearbyChatSpeakerSelected();
 
     void idleUpdate(); // for convenience (self) from static idle
     void idleProcessEvents();

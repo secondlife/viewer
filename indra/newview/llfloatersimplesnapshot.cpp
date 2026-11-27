@@ -54,87 +54,162 @@ void post_thumbnail_image_coro(std::string cap_url, std::string path_to_image, L
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("post_profile_image_coro", httpPolicy);
+        httpAdapter = std::make_shared<LLCoreHttpUtil::HttpCoroutineAdapter>("post_thumbnail_image_coro", httpPolicy);
     LLCore::HttpRequest::ptr_t httpRequest = std::make_shared<LLCore::HttpRequest>();
     LLCore::HttpHeaders::ptr_t httpHeaders;
 
     LLCore::HttpOptions::ptr_t httpOpts = std::make_shared<LLCore::HttpOptions>();
     httpOpts->setFollowRedirects(true);
 
-    LLSD result = httpAdapter->postAndSuspend(httpRequest, cap_url, first_data, httpOpts, httpHeaders);
+    // Retry stage-2 upload by re-requesting a fresh one-time uploader capability (up to 3 attempts total)
+    const S32 MAX_UPLOAD_RETRIES = 2;
+    S32 upload_retry_count = 0;
+    LLUUID result_uuid;
 
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-    if (!status)
+    while (upload_retry_count <= MAX_UPLOAD_RETRIES)
     {
-        // todo: notification?
-        LL_WARNS("AvatarProperties") << "Failed to get uploader cap " << status.toString() << LL_ENDL;
-        return;
-    }
-    if (!result.has("uploader"))
-    {
-        // todo: notification?
-        LL_WARNS("AvatarProperties") << "Failed to get uploader cap, response contains no data." << LL_ENDL;
-        return;
-    }
-    std::string uploader_cap = result["uploader"].asString();
-    if (uploader_cap.empty())
-    {
-        LL_WARNS("AvatarProperties") << "Failed to get uploader cap, cap invalid." << LL_ENDL;
-        return;
-    }
+        // Stage 1: Request uploader URL
+        LLSD result = httpAdapter->postAndSuspend(httpRequest, cap_url, first_data, httpOpts, httpHeaders);
 
-    // Upload the image
+        LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-    LLCore::HttpRequest::ptr_t uploaderhttpRequest = std::make_shared<LLCore::HttpRequest>();
-    LLCore::HttpHeaders::ptr_t uploaderhttpHeaders = std::make_shared<LLCore::HttpHeaders>();
-    LLCore::HttpOptions::ptr_t uploaderhttpOpts = std::make_shared<LLCore::HttpOptions>();
-    S64 length;
-
-    {
-        llifstream instream(path_to_image.c_str(), std::iostream::binary | std::iostream::ate);
-        if (!instream.is_open())
+        if (!status)
         {
-            LL_WARNS("AvatarProperties") << "Failed to open file " << path_to_image << LL_ENDL;
+            LL_WARNS("Thumbnail") << "Failed to get uploader cap " << status.toString() << LL_ENDL;
+            if (callback)
+            {
+                callback(LLUUID());
+            }
+            LLFile::remove(path_to_image);
             return;
         }
-        length = instream.tellg();
-    }
 
-    uploaderhttpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, "application/jp2"); // optional
-    uploaderhttpHeaders->append(HTTP_OUT_HEADER_CONTENT_LENGTH, llformat("%d", length)); // required!
-    uploaderhttpOpts->setFollowRedirects(true);
-
-    result = httpAdapter->postFileAndSuspend(uploaderhttpRequest, uploader_cap, path_to_image, uploaderhttpOpts, uploaderhttpHeaders);
-
-    httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-    LL_DEBUGS("Thumbnail") << result << LL_ENDL;
-
-    if (!status)
-    {
-        LL_WARNS("Thumbnail") << "Failed to upload image " << status.toString() << LL_ENDL;
-        return;
-    }
-
-    if (result["state"].asString() != "complete")
-    {
-        if (result.has("message"))
+        if (!result.has("uploader"))
         {
-            LL_WARNS("Thumbnail") << "Failed to upload image, state " << result["state"] << " message: " << result["message"] << LL_ENDL;
-        }
-        else
-        {
-            LL_WARNS("Thumbnail") << "Failed to upload image " << result << LL_ENDL;
+            LL_WARNS("Thumbnail") << "Failed to get uploader cap, response contains no data." << LL_ENDL;
+            if (callback)
+            {
+                callback(LLUUID());
+            }
+            LLFile::remove(path_to_image);
+            return;
         }
 
-        if (callback)
+        std::string uploader_cap = result["uploader"].asString();
+        if (uploader_cap.empty())
         {
-            callback(LLUUID());
+            LL_WARNS("Thumbnail") << "Failed to get uploader cap, cap invalid." << LL_ENDL;
+            if (callback)
+            {
+                callback(LLUUID());
+            }
+            LLFile::remove(path_to_image);
+            return;
         }
-        return;
+
+        // Stage 2: Upload the image
+        LLCore::HttpRequest::ptr_t uploaderhttpRequest = std::make_shared<LLCore::HttpRequest>();
+        LLCore::HttpHeaders::ptr_t uploaderhttpHeaders = std::make_shared<LLCore::HttpHeaders>();
+        LLCore::HttpOptions::ptr_t uploaderhttpOpts = std::make_shared<LLCore::HttpOptions>();
+        S64 length;
+
+        {
+            llifstream instream(path_to_image.c_str(), std::iostream::binary | std::iostream::ate);
+            if (!instream.is_open())
+            {
+                LL_WARNS("Thumbnail") << "Failed to open file " << path_to_image << LL_ENDL;
+                if (callback)
+                {
+                    callback(LLUUID());
+                }
+                LLFile::remove(path_to_image);
+                return;
+            }
+            length = instream.tellg();
+        }
+
+        uploaderhttpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, "application/jp2");
+        uploaderhttpHeaders->append(HTTP_OUT_HEADER_CONTENT_LENGTH, std::to_string(length));
+        uploaderhttpOpts->setFollowRedirects(true);
+
+        result = httpAdapter->postFileAndSuspend(uploaderhttpRequest, uploader_cap, path_to_image, uploaderhttpOpts, uploaderhttpHeaders);
+
+        httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+        LL_DEBUGS("Thumbnail") << result << LL_ENDL;
+
+        if (!status)
+        {
+            if (upload_retry_count < MAX_UPLOAD_RETRIES)
+            {
+                upload_retry_count++;
+                LL_WARNS("Thumbnail") << "Failed to upload image (attempt " << upload_retry_count
+                                     << " of " << (MAX_UPLOAD_RETRIES + 1) << "): " << status.toString()
+                                     << ", re-requesting uploader..." << LL_ENDL;
+                llcoro::suspendUntilTimeout(1.0f);
+                continue;
+            }
+            else
+            {
+                LL_WARNS("Thumbnail") << "Failed to upload image after " << (MAX_UPLOAD_RETRIES + 1)
+                                     << " attempts: " << status.toString() << LL_ENDL;
+                if (callback)
+                {
+                    callback(LLUUID());
+                }
+                LLFile::remove(path_to_image);
+                return;
+            }
+        }
+
+        if (result["state"].asString() != "complete")
+        {
+            if (upload_retry_count < MAX_UPLOAD_RETRIES)
+            {
+                upload_retry_count++;
+                if (result.has("message"))
+                {
+                    LL_WARNS("Thumbnail") << "Failed to upload image, state " << result["state"]
+                                          << " message: " << result["message"] << " (attempt "
+                                          << upload_retry_count << " of " << (MAX_UPLOAD_RETRIES + 1)
+                                          << "), re-requesting uploader..." << LL_ENDL;
+                }
+                else
+                {
+                    LL_WARNS("Thumbnail") << "Failed to upload image (attempt " << upload_retry_count
+                                         << " of " << (MAX_UPLOAD_RETRIES + 1)
+                                         << "), re-requesting uploader..." << LL_ENDL;
+                }
+                llcoro::suspendUntilTimeout(1.0f);
+                continue;
+            }
+            else
+            {
+                if (result.has("message"))
+                {
+                    LL_WARNS("Thumbnail") << "Failed to upload image after " << (MAX_UPLOAD_RETRIES + 1)
+                                          << " attempts, state " << result["state"]
+                                          << " message: " << result["message"] << LL_ENDL;
+                }
+                else
+                {
+                    LL_WARNS("Thumbnail") << "Failed to upload image after " << (MAX_UPLOAD_RETRIES + 1)
+                                          << " attempts" << LL_ENDL;
+                }
+                if (callback)
+                {
+                    callback(LLUUID());
+                }
+                LLFile::remove(path_to_image);
+                return;
+            }
+        }
+
+        // Success!
+        result_uuid = result["new_asset"].asUUID();
+        break;
     }
 
     if (first_data.has("category_id"))
@@ -143,7 +218,7 @@ void post_thumbnail_image_coro(std::string cap_url, std::string path_to_image, L
         LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
         if (cat)
         {
-            cat->setThumbnailUUID(result["new_asset"].asUUID());
+            cat->setThumbnailUUID(result_uuid);
         }
         gInventory.addChangedMask(LLInventoryObserver::INTERNAL, cat_id);
     }
@@ -153,16 +228,18 @@ void post_thumbnail_image_coro(std::string cap_url, std::string path_to_image, L
         LLViewerInventoryItem* item = gInventory.getItem(item_id);
         if (item)
         {
-            item->setThumbnailUUID(result["new_asset"].asUUID());
+            item->setThumbnailUUID(result_uuid);
         }
-        // Are we supposed to get BulkUpdateInventory?
         gInventory.addChangedMask(LLInventoryObserver::INTERNAL, item_id);
     }
 
     if (callback)
     {
-        callback(result["new_asset"].asUUID());
+        callback(result_uuid);
     }
+
+    // Cleanup
+    LLFile::remove(path_to_image);
 }
 
 ///----------------------------------------------------------------------------

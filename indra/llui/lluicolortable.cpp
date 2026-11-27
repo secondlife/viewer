@@ -198,8 +198,8 @@ LLUIColor LLUIColorTable::getColor(std::string_view name, const LLColor4& defaul
 // update user color, loaded colors are parsed on initialization
 void LLUIColorTable::setColor(std::string_view name, const LLColor4& color)
 {
-    auto it = mUserSetColors.lower_bound(name);
-    if(it != mUserSetColors.end() && !(mUserSetColors.key_comp()(name, it->first)))
+    auto it = mUserSetColors.find(name);
+    if(it != mUserSetColors.end())
     {
         it->second = color;
     }
@@ -298,7 +298,7 @@ void LLUIColorTable::saveUserSettings() const
     if(!output_node->isNull())
     {
         const std::string& filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "colors.xml");
-        LLFILE *fp = LLFile::fopen(filename, "w");
+        LLFILE *fp = LLFile::fopen(filename, LLFILE_MODE("w"));
 
         if(fp != NULL)
         {
@@ -330,9 +330,8 @@ void LLUIColorTable::clearTable(string_color_map_t& table)
 // if the color already exists it changes the color
 void LLUIColorTable::setColor(std::string_view name, const LLColor4& color, string_color_map_t& table)
 {
-    string_color_map_t::iterator it = table.lower_bound(name);
-    if(it != table.end()
-    && !(table.key_comp()(name, it->first)))
+    string_color_map_t::iterator it = table.find(name);
+    if(it != table.end())
     {
         it->second = color;
     }

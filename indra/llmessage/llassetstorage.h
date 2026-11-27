@@ -57,6 +57,7 @@ const int LL_ERR_ASSET_REQUEST_FAILED = -1;
 const int LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE = -3;
 const int LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE = -4;
 const int LL_ERR_INSUFFICIENT_PERMISSIONS = -5;
+const int LL_ERR_NO_CAP = -6;
 const int LL_ERR_PRICE_MISMATCH = -23018;
 
 // *TODO: these typedefs are passed into the cache via a legacy C function pointer

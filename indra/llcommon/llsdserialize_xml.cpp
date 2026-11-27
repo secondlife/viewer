@@ -31,6 +31,8 @@
 #include <deque>
 
 #include "apr_base64.h"
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
 #include <boost/regex.hpp>
 
 extern "C"
@@ -60,16 +62,82 @@ LLSDXMLFormatter::~LLSDXMLFormatter()
 S32 LLSDXMLFormatter::format(const LLSD& data, std::ostream& ostr,
                              EFormatterOptions options) const
 {
+    LLSDParser::LLSDClassicLocaleGuard locale_guard(ostr);
     std::streamsize old_precision = ostr.precision(25);
+    std::ios_base::iostate old_exceptions = ostr.exceptions();
+    // Merged exception mask: preserve the caller's bits and add failbit|badbit
+    // for I/O error detection, so we never drop bits the caller already enabled.
+    std::ios_base::iostate new_exceptions =
+        old_exceptions | std::ios_base::badbit | std::ios_base::failbit;
+    // Bits we are newly adding (not already in the caller's mask).
+    std::ios_base::iostate added_bits = new_exceptions & ~old_exceptions;
 
-    std::string post;
-    if (options & LLSDFormatter::OPTIONS_PRETTY)
+    // If the stream already has error-state bits that we would newly add to the
+    // exception mask, enabling those bits would throw immediately; bail out early.
+    if (added_bits && (ostr.rdstate() & added_bits))
     {
-        post = "\n";
+        LL_WARNS() << "LLSDXMLFormatter::format: Stream already in error state" << LL_ENDL;
+        ostr.precision(old_precision);
+        return -1;
     }
-    ostr << "<llsd>" << post;
-    S32 rv = format_impl(data, ostr, options, 1);
-    ostr << "</llsd>\n";
+
+    S32 rv = 0;
+
+    try
+    {
+        // Enable the merged exception mask to detect I/O errors during formatting.
+        if (added_bits)
+        {
+            ostr.exceptions(new_exceptions);
+        }
+
+        std::string post;
+        if (options & LLSDFormatter::OPTIONS_PRETTY)
+        {
+            post = "\n";
+        }
+        ostr << "<llsd>" << post;
+        rv = format_impl(data, ostr, options, 1);
+        ostr << "</llsd>\n";
+    }
+    catch (const std::ios_base::failure& e)
+    {
+        LL_WARNS() << "LLSDXMLFormatter::format: Stream I/O exception: " << e.what()
+            << " - Stream state: good=" << ostr.good()
+            << " eof=" << ostr.eof()
+            << " fail=" << ostr.fail()
+            << " bad=" << ostr.bad() << LL_ENDL;
+        rv = -1;
+    }
+    catch (const std::bad_alloc&)
+    {
+        // we might be saving something massive, don't error or crash
+        LL_WARNS() << "LLSDXMLFormatter::format: Memory allocation failed during formatting" << LL_ENDL;
+        rv = -1;
+    }
+    catch (const std::exception& e)
+    {
+        LL_WARNS() << "LLSDXMLFormatter::format: Standard exception: " << e.what() << LL_ENDL;
+        rv = -1;
+    }
+    catch (...)
+    {
+        LL_WARNS() << "LLSDXMLFormatter::format: Unknown exception during formatting" << LL_ENDL;
+        rv = -1;
+    }
+
+    // Restore original exception mask. First set to goodbit (never throws) so
+    // the subsequent restore call won't immediately throw if the stream is in
+    // error state for bits in old_exceptions.
+    try
+    {
+        ostr.exceptions(std::ios_base::goodbit);
+        ostr.exceptions(old_exceptions);
+    }
+    catch (...)
+    {
+        LL_WARNS() << "LLSDXMLFormatter::format: failed to restore exceptions" << LL_ENDL;
+    }
 
     ostr.precision(old_precision);
     return rv;
@@ -645,7 +713,7 @@ void LLSDXMLParser::Impl::startElementHandler(const XML_Char* name, const XML_Ch
         if (mCurrentKey.empty()) { return startSkipping(); }
 
         LLSD& map = *mStack.back();
-        LLSD& newElement = map[mCurrentKey];
+        LLSD& newElement = map[std::move(mCurrentKey)];
         mStack.push_back(&newElement);
 
         mCurrentKey.clear();
@@ -709,7 +777,8 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
             return;
 
         case ELEMENT_KEY:
-            mCurrentKey = mCurrentContent;
+            mCurrentKey = std::move(mCurrentContent); // This is safe to move as we are in the end element handler
+            mCurrentContent.clear(); // Ensure mCurrentContent is empty for subsequent use
             return;
 
         default:
@@ -742,14 +811,20 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
                 }
                 else
                 {
-                    value = LLSD(mCurrentContent).asInteger();
+                    // This must treat "1.23" not as an error, but as a number, which is
+                    // then truncated down to an integer.  Hence, this code doesn't call
+                    // std::istringstream::operator>>(int&), which would not consume the
+                    // ".23" portion.
+
+                    value = (int)llsd::string_to_real(mCurrentContent);
                 }
             }
             break;
 
         case ELEMENT_REAL:
             {
-                value = LLSD(mCurrentContent).asReal();
+                value = llsd::string_to_real_classic(mCurrentContent);
+
                 // removed since this breaks when locale has decimal separator that isn't '.'
                 // investigated changing local to something compatible each time but deemed higher
                 // risk that just using LLSD.asReal() each time.
@@ -766,19 +841,19 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
             break;
 
         case ELEMENT_STRING:
-            value = mCurrentContent;
+            value = std::move(mCurrentContent);  // This is safe to move as we are in the end element handler and this is cleared below
             break;
 
         case ELEMENT_UUID:
-            value = LLSD(mCurrentContent).asUUID();
+            value = LLUUID(mCurrentContent);
             break;
 
         case ELEMENT_DATE:
-            value = LLSD(mCurrentContent).asDate();
+            value = LLDate(mCurrentContent);
             break;
 
         case ELEMENT_URI:
-            value = LLSD(mCurrentContent).asURI();
+            value = LLURI(mCurrentContent);
             break;
 
         case ELEMENT_BINARY:
@@ -787,15 +862,14 @@ void LLSDXMLParser::Impl::endElementHandler(const XML_Char* name)
             // created by python and other non-linden systems - DEV-39358
             // Fortunately we have very little binary passing now,
             // so performance impact shold be negligible. + poppy 2009-09-04
-            boost::regex r;
-            r.assign("\\s");
+            static const boost::regex r("\\s");
             std::string stripped = boost::regex_replace(mCurrentContent, r, "");
             S32 len = apr_base64_decode_len(stripped.c_str());
             std::vector<U8> data;
             data.resize(len);
             len = apr_base64_decode_binary(&data[0], stripped.c_str());
             data.resize(len);
-            value = data;
+            value = std::move(data);
             break;
         }
 
