@@ -44,6 +44,7 @@
 #include "lltimer.h"
 #include "v4coloru.h"
 #include "llnotificationsutil.h"
+#include "llhttpconstants.h"
 
 // viewer includes
 #include "llimagegl.h"
@@ -1159,6 +1160,7 @@ void LLViewerFetchedTexture::init(bool firstinit)
     // Only set mIsMissingAsset true when we know for certain that the database
     // does not contain this image.
     mIsMissingAsset = false;
+    mHttpForbiddenRetryCount = 0;
 
     mLoadedCallbackDesiredDiscardLevel = S8_MAX;
     mPauseLoadedCallBacks = false;
@@ -1881,6 +1883,7 @@ bool LLViewerFetchedTexture::processFetchResults(S32& desired_discard, S32 curre
             (current_discard < 0 || mRawDiscardLevel < current_discard))
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - data good");
+            mHttpForbiddenRetryCount = 0;
 
             // This is going to conflict with Develop, just pick from develop
             // where it uses setDimensions instead of setTexelsPerImage
@@ -1963,17 +1966,54 @@ bool LLViewerFetchedTexture::processFetchResults(S32& desired_discard, S32 curre
             // We finished but received no data
             if (getDiscardLevel() < 0)
             {
-                if (getFTType() != FTT_MAP_TILE)
+                if (mLastHttpGetStatus == LLCore::HttpStatus(HTTP_FORBIDDEN))
                 {
-                    LL_WARNS() << mID
-                        << " Fetch failure, setting as missing, decode_priority " << decode_priority
-                        << " mRawDiscardLevel " << mRawDiscardLevel
-                        << " current_discard " << current_discard
-                        << " stats " << mLastHttpGetStatus.toHex()
-                        << " worker state " << mFetchState
-                        << LL_ENDL;
+                    ++mHttpForbiddenRetryCount;
+                    static const U8 MAX_HTTP_FORBIDDEN_RETRIES = 3;
+                    if (mHttpForbiddenRetryCount >= MAX_HTTP_FORBIDDEN_RETRIES)
+                    {
+                        if (getFTType() != FTT_MAP_TILE)
+                        {
+                            LL_WARNS() << mID
+                                << " HTTP 403 Forbidden retries exhausted (" << (U32)mHttpForbiddenRetryCount
+                                << "), setting as missing, decode_priority " << decode_priority
+                                << " mRawDiscardLevel " << mRawDiscardLevel
+                                << " current_discard " << current_discard
+                                << " stats " << mLastHttpGetStatus.toHex()
+                                << " worker state " << mFetchState
+                                << LL_ENDL;
+                        }
+                        setIsMissingAsset();
+                    }
+                    else
+                    {
+                        F32 cooldown = 1.0f * (1 << (mHttpForbiddenRetryCount - 1));
+                        mHttpForbiddenRetryTimer.reset();
+                        mHttpForbiddenRetryTimer.setTimerExpirySec(cooldown);
+                        if (getFTType() != FTT_MAP_TILE)
+                        {
+                            LL_WARNS() << mID
+                                << " HTTP 403 Forbidden, retry " << (U32)mHttpForbiddenRetryCount
+                                << "/" << (U32)MAX_HTTP_FORBIDDEN_RETRIES
+                                << " scheduled in " << cooldown << "s"
+                                << LL_ENDL;
+                        }
+                    }
                 }
-                setIsMissingAsset();
+                else
+                {
+                    if (getFTType() != FTT_MAP_TILE)
+                    {
+                        LL_WARNS() << mID
+                            << " Fetch failure, setting as missing, decode_priority " << decode_priority
+                            << " mRawDiscardLevel " << mRawDiscardLevel
+                            << " current_discard " << current_discard
+                            << " stats " << mLastHttpGetStatus.toHex()
+                            << " worker state " << mFetchState
+                            << LL_ENDL;
+                    }
+                    setIsMissingAsset();
+                }
                 desired_discard = -1;
             }
             else
@@ -2130,6 +2170,11 @@ bool LLViewerFetchedTexture::updateFetch()
         LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - current < min");
         make_request = false;
     }
+    else if (mHttpForbiddenRetryCount > 0 && !mHttpForbiddenRetryTimer.hasExpired())
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - 403 cooldown");
+        make_request = false;
+    }
 
     if (make_request)
     {
@@ -2246,6 +2291,7 @@ void LLViewerFetchedTexture::clearFetchedResults()
         return;
     }
 
+    mHttpForbiddenRetryCount = 0;
     cleanup();
     destroyGLTexture();
 
@@ -2303,6 +2349,7 @@ void LLViewerFetchedTexture::setIsMissingAsset(bool is_missing)
     else
     {
         LL_INFOS() << mID << ": un-flagging missing asset" << LL_ENDL;
+        mHttpForbiddenRetryCount = 0;
     }
     mIsMissingAsset = is_missing;
 }
