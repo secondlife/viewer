@@ -151,6 +151,7 @@ public:
     static void     setStringTranslatorFunc( LLKeyStringTranslatorFunc *trans_func );
 
 protected:
+    void            reconcileModifierKey(KEY key, bool is_down);
     void            addKeyName(KEY key, const std::string& name);
     virtual MASK    updateModifiers(const MASK mask) { return mask; }
 
