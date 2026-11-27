@@ -30,6 +30,7 @@
 #include "stdtypes.h"
 
 #include <map>
+#include <optional>
 
 #if LIB_NDOF
 #if LL_DARWIN
@@ -57,8 +58,10 @@ class LLViewerJoystick : public LLSingleton<LLViewerJoystick>
 public:
     void init(bool autoenable);
     void initDevice(LLSD &guid);
-    bool initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/);
-    bool initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, const std::string &name, const LLSD &guid);
+    // is_3dconnexion: caller already identified the device as 3Dconnexion
+    // (e.g. by USB vendor id), so don't reject it based on its product name.
+    bool initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, bool is_3dconnexion = false);
+    bool initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, const std::string &name, const LLSD &guid, bool is_3dconnexion = false);
     void terminate();
 
     void updateStatus();
@@ -84,7 +87,17 @@ public:
     std::string getDescription();
     void saveDeviceIdToSettings();
 
-    static bool is3DConnexionDevice(const std::string& device_name);
+    // Identifies a 3Dconnexion device by its USB ids or its product name.
+    // Returns std::nullopt if it isn't one; otherwise device_name, or a
+    // descriptive substitute (e.g. "3Dconnexion device 256F:C63A") when only
+    // the USB ids identify it: some devices (e.g. the SpaceMouse Wireless BT
+    // on Windows) report a generic product name such as "6 axis 2 button device".
+    static std::optional<std::string> get3DConnexionDeviceName(U16 vendor_id, U16 product_id, const std::string& device_name);
+
+    // macOS: true if a device from LLWindow::getInputDevices() (or a saved
+    // JoystickDeviceUUID map) is a 3Dconnexion device, by USB ids, product name
+    // or manufacturer name.
+    static bool is3DConnexionDeviceData(const LLSD& data);
 
     // Summary of 3Dconnexion usage this session, for the viewer stats:
     // { enabled, devices: [ { name, used, connected }, ... ] }
@@ -93,6 +106,7 @@ public:
 
 protected:
     void updateEnabled(bool autoenable);
+    void finishDeviceSetup(bool autoenable);
     void handleRun(F32 inc);
     void agentSlide(F32 inc);
     void agentPush(F32 inc);
@@ -103,8 +117,9 @@ protected:
     void resetDeltas(S32 axis[]);
     void loadDeviceIdFromSettings();
     // Call after a successful ndof_init_first(): marks the driver initialized
-    // only if the device is a 3Dconnexion one.  Returns true if accepted.
-    bool acceptInitializedDevice();
+    // only if the device is a 3Dconnexion one (either is_3dconnexion is true or
+    // its product/manufacturer name says so).  Returns true if accepted.
+    bool acceptInitializedDevice(bool is_3dconnexion = false);
 #if LIB_NDOF
     static NDOF_HotPlugResult HotPlugAddCallback(NDOF_Device *dev);
     static void HotPlugRemovalCallback(NDOF_Device *dev);
@@ -113,6 +128,8 @@ protected:
 private:
     // 3Dconnexion devices accepted this session (product name -> used), for viewer stats.
     std::map<std::string, bool> mSessionDevices;
+    // JoystickEnabled was switched off only because no device was connected
+    bool mDisabledForMissingDevice { false };
 
     F32                     mAxes[6];
     long                    mBtn[16];
@@ -128,7 +145,6 @@ private:
     U32                     mJoystickRun { 0 };
     bool                    mResetFlag { false };
     bool                    mCameraUpdated { true };
-    bool                    mDeviceIs3DConnexion { false };
 
     static F32              sLastDelta[7];
     static F32              sDelta[7];

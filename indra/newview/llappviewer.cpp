@@ -1139,8 +1139,20 @@ bool LLAppViewer::init()
     gSimLastTime = gRenderStartTime.getElapsedTimeF32();
     gSimFrames = (F32)gFrameCount;
 
+#if LL_WINDOWS || LL_LINUX
+    // Windows calls init() again on WM_DEVICECHANGE (LLViewerWindow::handleDeviceChange())
+    // so a device plugged in later is still found.
+    // Linux can't enumerate devices (no getInputDevices()), so init() falls back to
+    // ndof_init_first(NULL), which opens the first joystick-like device even if it's a
+    // gamepad and can't close it again.  Only probe when the joystick is enabled; the
+    // joystick preferences floater also calls init(), so users can still find a device.
     if (gSavedSettings.getBOOL("JoystickEnabled"))
+#endif
     {
+        // On macOS the ndof hotplug callbacks only work after init() has called
+        // ndof_libinit(), so always look for a 3Dconnexion device at startup.
+        // This doesn't override a user who chose "None": init() only autoenables
+        // if no device was ever set up (JoystickInitialized).
         LLViewerJoystick::getInstance()->init(false);
     }
 

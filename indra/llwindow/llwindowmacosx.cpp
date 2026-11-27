@@ -2144,6 +2144,8 @@ struct HidDevice
     char mManufacturer[256];
     long mUsage;
     long mUsagePage;
+    long mVendorID;
+    long mProductID;
 };
 
 static void populate_device_info( io_object_t io_obj_p, CFDictionaryRef device_dic, HidDevice* devicep )
@@ -2208,6 +2210,29 @@ static void populate_device_info( io_object_t io_obj_p, CFDictionaryRef device_d
                 {
                     LL_WARNS("Joystick") << "Failed to populate mManufacturer" << LL_ENDL;
                 }
+            }
+
+            // USB ids, so the viewer can recognise 3Dconnexion devices with generic names
+            dict_element = CFDictionaryGetValue( device_dic, CFSTR( kIOHIDVendorIDKey ) );
+            if ( !dict_element )
+            {
+                dict_element = CFDictionaryGetValue( io_properties, CFSTR( "idVendor" ) );
+            }
+            if ( dict_element
+                && !CFNumberGetValue( (CFNumberRef)dict_element, kCFNumberLongType, &devicep->mVendorID ) )
+            {
+                LL_WARNS("Joystick") << "Failed to populate mVendorID" << LL_ENDL;
+            }
+
+            dict_element = CFDictionaryGetValue( device_dic, CFSTR( kIOHIDProductIDKey ) );
+            if ( !dict_element )
+            {
+                dict_element = CFDictionaryGetValue( io_properties, CFSTR( "idProduct" ) );
+            }
+            if ( dict_element
+                && !CFNumberGetValue( (CFNumberRef)dict_element, kCFNumberLongType, &devicep->mProductID ) )
+            {
+                LL_WARNS("Joystick") << "Failed to populate mProductID" << LL_ENDL;
             }
 
             dict_element = CFDictionaryGetValue( device_dic, CFSTR( kIOHIDLocationIDKey ) );
@@ -2450,6 +2475,8 @@ bool LLWindowMacOSX::getInputDevices(U32 device_type_filter,
             LLSD data;
             data["manufacturer"] = std::string(iter->mManufacturer);
             data["product"] = label;
+            data["vendor_id"] = LLSD::Integer(iter->mVendorID);
+            data["product_id"] = LLSD::Integer(iter->mProductID);
 
             if (osx_callback(label, data, userdata))
             {
