@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2026, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -257,20 +257,13 @@ LLFolderView::LLFolderView(const Params& p)
 // Destroys the object
 LLFolderView::~LLFolderView( void )
 {
-    mRenamerTopLostSignalConnection.disconnect();
-    if (mRenamer)
-    {
-        // instead of using closeRenamer remove it directly,
-        // since it might already be hidden
-        LLUI::getInstance()->removePopup(mRenamer);
-    }
-
     // The release focus call can potentially call the
     // scrollcontainer, which can potentially be called with a partly
     // destroyed scollcontainer. Just null it out here, and no worries
     // about calling into the invalid scroll container.
     // Same with the renamer.
     mScrollContainer = NULL;
+    cancelRenaming();
     mRenameItem = NULL;
     mRenamer = NULL;
     mStatusTextBox = NULL;
@@ -651,9 +644,14 @@ bool LLFolderView::startDrag()
 
 void LLFolderView::commitRename( const LLSD& data )
 {
+    // Intentionally doesn't check mRenamer->getVisible(),
+    // since this can be called from 'focus lost' event.
+    // Ex: clicking inworld should commit the rename.
     finishRenamingItem();
-    arrange( NULL, NULL );
-
+    if (mRenamer && mViewModel)
+    {
+        arrange( NULL, NULL );
+    }
 }
 
 void LLFolderView::draw()
@@ -727,13 +725,17 @@ void LLFolderView::draw()
 
 void LLFolderView::finishRenamingItem( void )
 {
-    if(!mRenamer)
+    if(!mRenamer || !mViewModel)
     {
         return;
     }
     if( mRenameItem )
     {
         mRenameItem->rename( mRenamer->getText() );
+        // Clear text to avoid duplicate renames.
+        // Ex: 'return' key will trigger rename from handleKeyHere
+        // and might trigger commitRename from focus lost event.
+        mRenamer->setText(LLStringUtil::null);
     }
 
     closeRenamer();
@@ -752,12 +754,33 @@ void LLFolderView::closeRenamer( void )
     }
 }
 
+void LLFolderView::cancelRenaming( void )
+{
+    mRenamerTopLostSignalConnection.disconnect();
+
+    if (mRenamer)
+    {
+        mRenamer->setCommitOnFocusLost(false);
+        if (LLUI::instanceExists())
+        {
+            LLUI::getInstance()->removePopup(mRenamer);
+        }
+        if (gFocusMgr.childHasKeyboardFocus(mRenamer))
+        {
+            gFocusMgr.releaseFocusIfNeeded(mRenamer);
+        }
+        mRenamer->setVisible(false);
+    }
+
+    mRenameItem = NULL;
+}
+
 void LLFolderView::removeSelectedItems()
 {
     if(getVisible() && getEnabled())
     {
-        // just in case we're removing the renaming item.
-        mRenameItem = NULL;
+        // Cancel active rename in case the renaming item is among the selected items
+        cancelRenaming();
 
         // create a temporary structure which we will use to remove
         // items, since the removal will futz with internal data
@@ -1081,6 +1104,7 @@ void LLFolderView::startRenamingSelectedItem( void )
         mRenamer->setText(item->getName());
         mRenamer->selectAll();
         mRenamer->setVisible( true );
+        mRenamer->setCommitOnFocusLost( true );
         // set focus will fail unless item is visible
         mRenamer->setFocus( true );
         if (!mRenamerTopLostSignalConnection.connected())
@@ -1423,6 +1447,7 @@ bool LLFolderView::search(LLFolderViewItem* first_item, const std::string &searc
             }
         }
 
+        // Note: for inventory getSearchableName should already be 'upper' case.
         std::string current_item_label(search_item->getViewModelItem()->getSearchableName());
         LLStringUtil::toUpper(current_item_label);
         auto search_string_length = llmin(upper_case_string.size(), current_item_label.size());
@@ -1619,11 +1644,7 @@ bool LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 
 void LLFolderView::deleteAllChildren()
 {
-    mRenamerTopLostSignalConnection.disconnect();
-    if (mRenamer)
-    {
-        LLUI::getInstance()->removePopup(mRenamer);
-    }
+    cancelRenaming();
     if (mPopupMenuHandle.get())
     {
         mPopupMenuHandle.get()->die();

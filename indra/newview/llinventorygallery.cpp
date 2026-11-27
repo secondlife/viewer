@@ -842,16 +842,14 @@ void LLInventoryGallery::onIdle(void* userdata)
     const F64 MAX_TIME_VISIBLE = 0.020f;
     const F64 MAX_TIME_HIDDEN = 0.001f; // take it slow
     const F64 max_time = visible ? MAX_TIME_VISIBLE : MAX_TIME_HIDDEN;
-    F64 curent_time = LLTimer::getTotalSeconds();
-    const F64 end_time = curent_time + max_time;
+    const F64 end_time = gIdleCallbacks.getStartTime() + max_time;
 
-    while (!self->mItemBuildQuery.empty() && end_time > curent_time)
+    while (!self->mItemBuildQuery.empty() && end_time > LLTimer::getTotalSeconds())
     {
         uuid_set_t::iterator iter = self->mItemBuildQuery.begin();
         LLUUID item_id = *iter;
         self->mNeedsArrange |= self->updateAddedItem(item_id);
         self->mItemBuildQuery.erase(iter);
-        curent_time = LLTimer::getTotalSeconds();
     }
 
     if (self->mNeedsArrange && visible)
@@ -2732,7 +2730,7 @@ bool LLInventoryGallery::checkAgainstFilterType(const LLUUID& object_id)
     if (filterTypes & LLInventoryFilter::FILTERTYPE_DATE)
     {
         const U16 HOURS_TO_SECONDS = 3600;
-        time_t earliest = time_corrected() - mFilter->getHoursAgo() * HOURS_TO_SECONDS;
+        time_t earliest = time_corrected() - (time_t)((F64)mFilter->getHoursAgo() * HOURS_TO_SECONDS);
 
         if (mFilter->getMinDate() > time_min() && mFilter->getMinDate() < earliest)
         {

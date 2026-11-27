@@ -63,6 +63,7 @@ LLWindowMesaHeadless::LLWindowMesaHeadless(LLWindowCallbacks* callbacks,
 
         llverify(gGLManager.initGL());
     }
+    mFullscreen = false;
 }
 
 

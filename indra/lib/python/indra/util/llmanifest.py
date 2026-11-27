@@ -73,7 +73,7 @@ def proper_windows_path(path, current_platform = sys.platform):
     rel = None
     match = re.match("/cygdrive/([a-z])/(.*)", path)
     if not match:
-        match = re.match('([a-zA-Z]):\\\(.*)', path)
+        match = re.match(r'([a-zA-Z]):\\(.*)', path)
     if not match:
         return None         # not an absolute path
     drive_letter = match.group(1)
@@ -310,7 +310,7 @@ def main(extra=[]):
 class LLManifestRegistry(type):
     def __init__(cls, name, bases, dct):
         super(LLManifestRegistry, cls).__init__(name, bases, dct)
-        match = re.match("(\w+)Manifest", name)
+        match = re.match(r"(\w+)Manifest", name)
         if match:
            cls.manifests[match.group(1).lower()] = cls
 
@@ -796,11 +796,11 @@ class LLManifest(object, metaclass=LLManifestRegistry):
 
     def wildcard_regex(self, src_glob, dst_glob):
         src_re = re.escape(src_glob)
-        src_re = src_re.replace('\*', '([-a-zA-Z0-9._ ]*)')
+        src_re = src_re.replace(r'\*', '([-a-zA-Z0-9._ ]*)')
         dst_temp = dst_glob
         i = 1
         while dst_temp.count("*") > 0:
-            dst_temp = dst_temp.replace('*', '\g<' + str(i) + '>', 1)
+            dst_temp = dst_temp.replace('*', r'\g<' + str(i) + '>', 1)
             i = i+1
         return re.compile(src_re), dst_temp
 

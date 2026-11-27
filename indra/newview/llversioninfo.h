@@ -108,7 +108,6 @@ private:
     // Storage for the "version and channel" string.
     // This will get reset too.
     mutable std::string mVersionChannel;
-    std::string build_configuration;
     std::string mReleaseNotes;
     // Store unique_ptrs to the next couple things so we don't have to explain
     // to every consumer of this header file all the details of each.

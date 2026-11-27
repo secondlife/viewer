@@ -418,6 +418,7 @@ private:
     LLPointer<LLViewerObject> mPrimaryObject;
     std::map<LLPointer<LLViewerObject>, LLSelectNode*> mSelectNodeMap;
     ESelectType mSelectType;
+    list_t mRemovedNodes;
 };
 
 typedef LLSafeHandle<LLObjectSelection> LLObjectSelectionHandle;
@@ -943,7 +944,6 @@ private:
     bool                    mForceSelection;
 
     std::vector<LLAnimPauseRequest> mPauseRequests;
-    boost::signals2::connection mSlectionLodModChangedConnection;
 };
 
 // *DEPRECATED: For callbacks or observers, use

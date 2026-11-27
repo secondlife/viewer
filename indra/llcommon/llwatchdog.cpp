@@ -31,6 +31,8 @@
 #include "llmutex.h"
 #include "llthread.h"
 
+#include <sstream>
+
 constexpr U32 WATCHDOG_SLEEP_TIME_USEC = 1000000U;
 
 // This class runs the watchdog timing thread.
@@ -51,6 +53,7 @@ public:
     {
         mStopping = true;
         mSleepMsecs = 1;
+        setQuitting();
     }
 
     void run() override
@@ -94,7 +97,9 @@ void LLWatchdogEntry::stop()
 }
 std::string LLWatchdogEntry::getThreadName() const
 {
-    return mThreadName + llformat(": %d", mThreadID);
+    std::ostringstream id_stream;
+    id_stream << mThreadID;
+    return mThreadName + ": " + id_stream.str();
 }
 
 // LLWatchdogTimeout
@@ -114,6 +119,11 @@ LLWatchdogTimeout::~LLWatchdogTimeout()
 bool LLWatchdogTimeout::isAlive() const
 {
     return (mTimer.getStarted() && !mTimer.hasExpired());
+}
+
+bool LLWatchdogTimeout::hasExpired() const
+{
+    return mTimer.hasExpired();
 }
 
 bool LLWatchdogTimeout::started() const
@@ -225,11 +235,21 @@ void LLWatchdog::init(
     mCrashOnFreeze = crash_on_freeze;
 }
 
-void LLWatchdog::cleanup()
+void LLWatchdog::shutdown()
 {
     if (mTimer)
     {
         mTimer->stop();
+    }
+}
+
+void LLWatchdog::cleanup()
+{
+    LL_PROFILE_ZONE_SCOPED;
+    if (mTimer)
+    {
+        mTimer->stop();
+        mTimer->shutdown();
         delete mTimer;
         mTimer = nullptr;
     }

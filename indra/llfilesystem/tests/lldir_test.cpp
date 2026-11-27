@@ -27,12 +27,14 @@
 
 #include "linden_common.h"
 
+#include <filesystem>
 #include "llstring.h"
 #include "tests/StringVec.h"
 #include "../lldir.h"
 #include "../lldiriterator.h"
 
 #include "../test/lltut.h"
+#include "../test/namedtempfile.h"
 #include "stringize.h"
 
 // For some tests, use a dummy LLDir that uses memory data instead of touching
@@ -403,7 +405,7 @@ namespace tut
    std::string makeTestFile( const std::string& dir, const std::string& file )
    {
       std::string path = dir + file;
-      LLFILE* handle = LLFile::fopen( path, "w" );
+      LLFILE* handle = LLFile::fopen(path, LLFILE_MODE("w"));
       ensure("failed to open test file '"+path+"'", handle != NULL );
       // Harbison & Steele, 4th ed., p. 366: "If an error occurs, fputs
       // returns EOF; otherwise, it returns some other, nonnegative value."
@@ -412,23 +414,19 @@ namespace tut
       return path;
    }
 
-   std::string makeTestDir( const std::string& dirbase )
+   std::string makeTestDir(  )
    {
-      int counter;
-      std::string uniqueDir;
-      bool foundUnused;
-      std::string delim = gDirUtilp->getDirDelimiter();
+      auto p = NamedTempFile::temp_path();
+      std::filesystem::create_directories(p.native());
 
-      for (counter=0, foundUnused=false; !foundUnused; counter++ )
-      {
-         char counterStr[3];
-         snprintf(counterStr, sizeof(counterStr), "%02d", counter);
-         uniqueDir = dirbase + counterStr;
-         foundUnused = ! ( LLFile::isdir(uniqueDir) || LLFile::isfile(uniqueDir) );
-      }
-      ensure("test directory '" + uniqueDir + "' creation failed", !LLFile::mkdir(uniqueDir));
+      std::string ret = p.string();
 
-      return uniqueDir + delim; // HACK - apparently, the trailing delimiter is needed...
+      // There's an implicit assumtion all over this code that the returned path ends with "/" (or "\")
+
+      if(ret.size() >= 1 && ret[ ret.size()-1 ] != std::filesystem::path::preferred_separator )
+          ret += std::filesystem::path::preferred_separator;
+
+      return ret;
    }
 
    static const char* DirScanFilename[5] = { "file1.abc", "file2.abc", "file1.xyz", "file2.xyz", "file1.mno" };
@@ -484,8 +482,9 @@ namespace tut
 
       // Create the same 5 file names of the two directories
 
-      std::string dir1 = makeTestDir(dirTemp + "LLDirIterator");
-      std::string dir2 = makeTestDir(dirTemp + "LLDirIterator");
+      std::string dir1 = makeTestDir();
+      std::string dir2 = makeTestDir();
+
       std::string dir1files[5];
       std::string dir2files[5];
       for (int i=0; i<5; i++)
@@ -558,8 +557,8 @@ namespace tut
          LLFile::remove(dir1files[i]);
          LLFile::remove(dir2files[i]);
       }
-      LLFile::rmdir(dir1);
-      LLFile::rmdir(dir2);
+      LLFile::remove(dir1);
+      LLFile::remove(dir2);
    }
 
     template<> template<>

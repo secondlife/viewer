@@ -117,7 +117,7 @@ Compilation
     currently being generated with a link path of
     '@executable_path/../Resources/<library>'.  If we were to follow
     the recommendations in dyld's man page, we’d instead reference
-	'@loader_path/<library>', use -rpath on the executable link
+    '@loader_path/<library>', use -rpath on the executable link
     (pointing to the 'Resources' subdir of the main executable), and
     be able to avoid some symlinking in the .app tree.
 
@@ -162,7 +162,7 @@ Linking
 
     *  Update the autobuild.xml of ALL consumers of the library.  In
     the case of zlib, that meant updating freetype, libpng, openssl,
-    libxml2, fontconfig, curl, Boost, SDL, llqtwebkit, google-mock and
+    libxml2, fontconfig, curl, Boost, SDL3, llqtwebkit, google-mock and
     colladadom.
 
     *  Confirm by test and observation that the consumers actually use

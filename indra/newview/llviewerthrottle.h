@@ -77,8 +77,8 @@ public:
 
     static const std::string sNames[TC_EOF];
 protected:
-    F32 mMaxBandwidth;
-    F32 mCurrentBandwidth;
+    F32 mMaxBandwidth;      // bps
+    F32 mCurrentBandwidth;  // bps
     F32 mBufferLoadRate = 0;
 
     LLViewerThrottleGroup mCurrent;

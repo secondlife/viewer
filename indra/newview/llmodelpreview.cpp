@@ -783,6 +783,13 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
         return;
     }
 
+    if (!getPreviewAvatar())
+    {
+        LL_WARNS() << "No preview avatar, can't load model " << filename << LL_ENDL;
+        mLoading = false;
+        return;
+    }
+
     mLODFile[lod] = filename;
 
     std::map<std::string, std::string, std::less<>> joint_alias_map;
@@ -3597,11 +3604,11 @@ bool LLModelPreview::render()
                     gGL.diffuseColor4fv(PREVIEW_EDGE_COL.mV);
                     if (show_edges)
                     {
-                        glLineWidth(PREVIEW_EDGE_WIDTH);
+                        gGL.setLineWidth(PREVIEW_EDGE_WIDTH);
                         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                         buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts() - 1, buffer->getNumIndices(), 0);
                         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                        glLineWidth(1.f);
+                        gGL.setLineWidth(1.f);
                     }
                     buffer->unmapBuffer();
                 }
@@ -3649,7 +3656,7 @@ bool LLModelPreview::render()
                         LLPhysicsDecomp* decomp = gMeshRepo.mDecompThread;
                         if (decomp)
                         {
-                            LLMutexLock(decomp->mMutex);
+                            LLMutexLock decomp_lock(decomp->mMutex);
 
                             LLModel::Decomposition& physics = model->mPhysics;
 
@@ -3724,12 +3731,12 @@ bool LLModelPreview::render()
                                     buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts() - 1, buffer->getNumIndices(), 0);
 
                                     gGL.diffuseColor4fv(PREVIEW_PSYH_EDGE_COL.mV);
-                                    glLineWidth(PREVIEW_PSYH_EDGE_WIDTH);
+                                    gGL.setLineWidth(PREVIEW_PSYH_EDGE_WIDTH);
                                     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                                     buffer->drawRange(LLRender::TRIANGLES, 0, buffer->getNumVerts() - 1, buffer->getNumIndices(), 0);
 
                                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                                    glLineWidth(1.f);
+                                    gGL.setLineWidth(1.f);
 
                                     buffer->unmapBuffer();
                                 }
@@ -3741,7 +3748,7 @@ bool LLModelPreview::render()
                     // only do this if mDegenerate was set in the preceding mesh checks [Check this if the ordering ever breaks]
                     if (mHasDegenerate)
                     {
-                        glLineWidth(PREVIEW_DEG_EDGE_WIDTH);
+                        gGL.setLineWidth(PREVIEW_DEG_EDGE_WIDTH);
                         glPointSize(PREVIEW_DEG_POINT_SIZE);
                         gPipeline.enableLightsFullbright();
                         //show degenerate triangles
@@ -3770,7 +3777,7 @@ bool LLModelPreview::render()
                             LLPhysicsDecomp* decomp = gMeshRepo.mDecompThread;
                             if (decomp)
                             {
-                                LLMutexLock(decomp->mMutex);
+                                LLMutexLock decomp_lock(decomp->mMutex);
 
                                 LLModel::Decomposition& physics = model->mPhysics;
 
@@ -3811,7 +3818,7 @@ bool LLModelPreview::render()
 
                             gGL.popMatrix();
                         }
-                        glLineWidth(1.f);
+                        gGL.setLineWidth(1.f);
                         glPointSize(1.f);
                         gPipeline.enableLightsPreview();
                         gGL.setSceneBlendType(LLRender::BT_ALPHA);
@@ -3933,11 +3940,11 @@ bool LLModelPreview::render()
                             {
                                 gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
                                 gGL.diffuseColor4fv(PREVIEW_EDGE_COL.mV);
-                                glLineWidth(PREVIEW_EDGE_WIDTH);
+                                gGL.setLineWidth(PREVIEW_EDGE_WIDTH);
                                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                                 buffer->draw(LLRender::TRIANGLES, buffer->getNumIndices(), 0);
                                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                                glLineWidth(1.f);
+                                gGL.setLineWidth(1.f);
                             }
                         }
                     }

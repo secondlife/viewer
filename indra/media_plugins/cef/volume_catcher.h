@@ -35,7 +35,7 @@ class VolumeCatcherImpl;
 
 class VolumeCatcher
 {
- public:
+public:
     VolumeCatcher();
     ~VolumeCatcher();
 
@@ -47,8 +47,14 @@ class VolumeCatcher
 
     void pump(); // call this at least a few times a second if you can - it affects how quickly we can 'catch' a new audio source and adjust its volume
 
- private:
+#if LL_LINUX
+    void onEnablePipeWireVolumeCatcher(bool enable);
+#endif
+
+private:
+#if LL_LINUX || LL_WINDOWS
     VolumeCatcherImpl *pimpl;
+#endif
 };
 
 #endif // VOLUME_CATCHER_H

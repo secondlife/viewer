@@ -37,5 +37,5 @@ void main()
 {
     vec3 col = texture(diffuseRect, vary_tc).rgb;
 
-    frag_color = vec4(col.rgb, dot(col.rgb, vec3(0.299, 0.587, 0.144)));
+    frag_color = vec4(col.rgb, dot(col.rgb, vec3(0.299, 0.587, 0.114)));
 }

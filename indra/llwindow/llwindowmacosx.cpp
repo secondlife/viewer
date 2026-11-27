@@ -28,6 +28,7 @@
 
 #include "llwindowmacosx.h"
 
+#include "llgamecontrol.h"
 #include "llkeyboardmacosx.h"
 #include "llwindowcallbacks.h"
 #include "llpreeditor.h"
@@ -44,7 +45,7 @@
 #include <CoreGraphics/CGDisplayConfiguration.h>
 
 #include <IOKit/IOCFPlugIn.h>
-#include <IOKit/IOKitLib.h>
+#include "llwindowmacosx_iokit.h"
 #include <IOKit/IOMessage.h>
 #include <IOKit/hid/IOHIDUsageTables.h>
 #include <IOKit/hid/IOHIDLib.h>
@@ -165,6 +166,7 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
     // Route them to a dummy callback structure until the end of constructor.
     LLWindowCallbacks null_callbacks;
     mCallbacks = &null_callbacks;
+    mIsConstructing = true;
 
     // Voodoo for calling cocoa from carbon (see llwindowmacosx-objc.mm).
     setupCocoa();
@@ -236,9 +238,8 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
     }
 
     mCallbacks = callbacks;
+    mIsConstructing = false;
     stop_glerror();
-
-
 }
 
 // These functions are used as wrappers for our internal event handling callbacks.
@@ -300,6 +301,13 @@ bool callUnicodeCallback(wchar_t character, unsigned int mask)
     bool result = gWindowImplementation->getCallbacks()->handleUnicodeChar(character, mask);
     mRawKeyEvent = NULL;
     return result;
+}
+
+bool callKeyboardFocusAcceptsText()
+{
+    return gWindowImplementation
+        && gWindowImplementation->getCallbacks()
+        && gWindowImplementation->getCallbacks()->keyboardFocusAcceptsText();
 }
 
 void callFocus()
@@ -387,7 +395,7 @@ void callLeftMouseUp(float *pos, MASK mask)
 
 }
 
-void callDoubleClick(float *pos, MASK mask)
+void callLeftDoubleClick(float* pos, MASK mask)
 {
     if (!gWindowImplementation)
     {
@@ -401,7 +409,41 @@ void callDoubleClick(float *pos, MASK mask)
     LLCoordGL   outCoords;
     outCoords.mX = ll_round(pos[0]);
     outCoords.mY = ll_round(pos[1]);
-    gWindowImplementation->getCallbacks()->handleDoubleClick(gWindowImplementation, outCoords, gKeyboard->currentMask(true));
+    gWindowImplementation->getCallbacks()->handleLeftMouseDoubleClick(gWindowImplementation, outCoords, gKeyboard->currentMask(true));
+}
+
+void callRightDoubleClick(float* pos, MASK mask)
+{
+    if (!gWindowImplementation)
+    {
+        return;
+    }
+    if (gWindowImplementation->allowsLanguageInput())
+    {
+        gWindowImplementation->interruptLanguageTextInput();
+    }
+
+    LLCoordGL   outCoords;
+    outCoords.mX = ll_round(pos[0]);
+    outCoords.mY = ll_round(pos[1]);
+    gWindowImplementation->getCallbacks()->handleRightMouseDoubleClick(gWindowImplementation, outCoords, gKeyboard->currentMask(true));
+}
+
+void callMiddleDoubleClick(float* pos, MASK mask)
+{
+    if (!gWindowImplementation)
+    {
+        return;
+    }
+    if (gWindowImplementation->allowsLanguageInput())
+    {
+        gWindowImplementation->interruptLanguageTextInput();
+    }
+
+    LLCoordGL   outCoords;
+    outCoords.mX = ll_round(pos[0]);
+    outCoords.mY = ll_round(pos[1]);
+    gWindowImplementation->getCallbacks()->handleMiddleMouseDoubleClick(gWindowImplementation, outCoords, gKeyboard->currentMask(true));
 }
 
 void callResize(unsigned int width, unsigned int height)
@@ -409,6 +451,14 @@ void callResize(unsigned int width, unsigned int height)
     if (gWindowImplementation && gWindowImplementation->getCallbacks())
     {
         gWindowImplementation->getCallbacks()->handleResize(gWindowImplementation, width, height);
+    }
+}
+
+void callRequestResolutionUpdate()
+{
+    if (gWindowImplementation && gWindowImplementation->getCallbacks())
+    {
+        gWindowImplementation->getCallbacks()->handleRequestResolutionUpdate(gWindowImplementation);
     }
 }
 
@@ -705,6 +755,11 @@ void getPreeditLocation(float *location, unsigned int length)
     }
 }
 
+bool windowCallbacksReady()
+{
+    return gWindowImplementation && !gWindowImplementation->isConstructing();
+}
+
 void LLWindowMacOSX::updateMouseDeltas(float* deltas)
 {
     if (mCursorDecoupled)
@@ -724,7 +779,7 @@ void LLWindowMacOSX::updateMouseDeltas(float* deltas)
     }
 }
 
-void LLWindowMacOSX::getMouseDeltas(float* delta)
+void LLWindowMacOSX::getMouseDeltas(float* delta) const
 {
     delta[0] = mCursorLastEventDeltaX;
     delta[1] = mCursorLastEventDeltaY;
@@ -825,27 +880,18 @@ void LLWindowMacOSX::destroyContext()
         // We don't have a context
         return;
     }
-    // Unhook the GL context from any drawable it may have
-    if(mContext != NULL)
-    {
-        LL_DEBUGS("Window") << "destroyContext: unhooking drawable " << LL_ENDL;
-        CGLSetCurrentContext(NULL);
-    }
-
     // Clean up remaining GL state before blowing away window
+    CGLSetCurrentContext(mContext);
     gGLManager.shutdownGL();
+    CGLSetCurrentContext(NULL);
+    // The Cocoa view owns this context and releases it in removeGLView().
+    mContext = NULL;
 
     // Clean up the pixel format
     if(mPixelFormat != NULL)
     {
         CGLDestroyPixelFormat(mPixelFormat);
         mPixelFormat = NULL;
-    }
-
-    // Clean up the GL context
-    if(mContext != NULL)
-    {
-        CGLDestroyContext(mContext);
     }
 
     // Destroy our LLOpenGLView
@@ -929,7 +975,7 @@ bool LLWindowMacOSX::isValid()
     return (mWindow != NULL);
 }
 
-bool LLWindowMacOSX::getVisible()
+bool LLWindowMacOSX::getVisible() const
 {
     bool result = false;
 
@@ -944,12 +990,12 @@ bool LLWindowMacOSX::getVisible()
     return(result);
 }
 
-bool LLWindowMacOSX::getMinimized()
+bool LLWindowMacOSX::getMinimized() const
 {
     return mMinimized;
 }
 
-bool LLWindowMacOSX::getMaximized()
+bool LLWindowMacOSX::getMaximized() const
 {
     return mMaximized;
 }
@@ -963,17 +1009,15 @@ bool LLWindowMacOSX::maximize()
     return mMaximized;
 }
 
-bool LLWindowMacOSX::getFullscreen()
-{
-    return mFullscreen;
-}
-
-void LLWindowMacOSX::gatherInput()
+void LLWindowMacOSX::gatherInput(bool app_has_focus)
 {
     updateCursor();
+    LLGameControl::processEvents(app_has_focus);
+    // Cocoa event handling can change the current context between frames.
+    restoreGLContext();
 }
 
-bool LLWindowMacOSX::getPosition(LLCoordScreen *position)
+bool LLWindowMacOSX::getPosition(LLCoordScreen *position) const
 {
     S32 err = -1;
 
@@ -1000,7 +1044,7 @@ bool LLWindowMacOSX::getPosition(LLCoordScreen *position)
     return (err == noErr);
 }
 
-bool LLWindowMacOSX::getSize(LLCoordScreen *size)
+bool LLWindowMacOSX::getSize(LLCoordScreen *size) const
 {
     S32 err = -1;
 
@@ -1026,7 +1070,7 @@ bool LLWindowMacOSX::getSize(LLCoordScreen *size)
     return (err == noErr);
 }
 
-bool LLWindowMacOSX::getSize(LLCoordWindow *size)
+bool LLWindowMacOSX::getSize(LLCoordWindow *size) const
 {
     S32 err = -1;
 
@@ -1092,15 +1136,20 @@ bool LLWindowMacOSX::setSizeImpl(const LLCoordWindow size)
 
 void LLWindowMacOSX::swapBuffers()
 {
-    CGLFlushDrawable(mContext);
+    if (mContext)
+    {
+        llassert(mGLView && getCGLContextObj(mGLView) == mContext);
+        glSwapBuffers(mGLView);
+    }
 }
 
 void LLWindowMacOSX::restoreGLContext()
 {
     CGLSetCurrentContext(mContext);
+    llassert(CGLGetCurrentContext() == mContext);
 }
 
-F32 LLWindowMacOSX::getGamma()
+F32 LLWindowMacOSX::getGamma() const
 {
     F32 result = 2.2;   // Default to something sane
 
@@ -1134,7 +1183,7 @@ F32 LLWindowMacOSX::getGamma()
     return result;
 }
 
-U32 LLWindowMacOSX::getFSAASamples()
+U32 LLWindowMacOSX::getFSAASamples() const
 {
     return mFSAASamples;
 }
@@ -1467,21 +1516,21 @@ LLWindow::LLWindowResolution* LLWindowMacOSX::getSupportedResolutions(S32 &num_r
     return mSupportedResolutions;
 }
 
-bool LLWindowMacOSX::convertCoords(LLCoordGL from, LLCoordWindow *to)
+bool LLWindowMacOSX::convertCoords(LLCoordGL from, LLCoordWindow *to) const
 {
     to->mX = from.mX;
     to->mY = from.mY;
     return true;
 }
 
-bool LLWindowMacOSX::convertCoords(LLCoordWindow from, LLCoordGL* to)
+bool LLWindowMacOSX::convertCoords(LLCoordWindow from, LLCoordGL* to) const
 {
     to->mX = from.mX;
     to->mY = from.mY;
     return true;
 }
 
-bool LLWindowMacOSX::convertCoords(LLCoordScreen from, LLCoordWindow* to)
+bool LLWindowMacOSX::convertCoords(LLCoordScreen from, LLCoordWindow* to) const
 {
     if(mWindow)
     {
@@ -1501,7 +1550,7 @@ bool LLWindowMacOSX::convertCoords(LLCoordScreen from, LLCoordWindow* to)
     return false;
 }
 
-bool LLWindowMacOSX::convertCoords(LLCoordWindow from, LLCoordScreen *to)
+bool LLWindowMacOSX::convertCoords(LLCoordWindow from, LLCoordScreen *to) const
 {
     if(mWindow)
     {
@@ -1520,14 +1569,14 @@ bool LLWindowMacOSX::convertCoords(LLCoordWindow from, LLCoordScreen *to)
     return false;
 }
 
-bool LLWindowMacOSX::convertCoords(LLCoordScreen from, LLCoordGL *to)
+bool LLWindowMacOSX::convertCoords(LLCoordScreen from, LLCoordGL *to) const
 {
     LLCoordWindow window_coord;
 
     return(convertCoords(from, &window_coord) && convertCoords(window_coord, to));
 }
 
-bool LLWindowMacOSX::convertCoords(LLCoordGL from, LLCoordScreen *to)
+bool LLWindowMacOSX::convertCoords(LLCoordGL from, LLCoordScreen *to) const
 {
     LLCoordWindow window_coord;
 
@@ -1886,7 +1935,8 @@ void LLWindowMacOSX::spawnWebBrowser(const std::string& escaped_url, bool async)
     S32 i;
     for (i = 0; i < gURLProtocolWhitelistCount; i++)
     {
-        if (escaped_url.find(gURLProtocolWhitelist[i]) != std::string::npos)
+        // The URL must start with the allowed scheme, not just contain it
+        if (escaped_url.find(gURLProtocolWhitelist[i]) == 0)
         {
             found = true;
             break;
@@ -2379,7 +2429,7 @@ bool LLWindowMacOSX::getInputDevices(U32 device_type_filter,
     io_iterator_t io_iter = 0;
 
     // create an IO object iterator
-    result = IOServiceGetMatchingServices( kIOMasterPortDefault, device_dict_ref, &io_iter );
+    result = IOServiceGetMatchingServices( kLLIOMainPort, device_dict_ref, &io_iter );
     if ( kIOReturnSuccess != result )
     {
         LL_WARNS("Joystick") << "IOServiceGetMatchingServices failed" << LL_ENDL;
@@ -2413,7 +2463,7 @@ bool LLWindowMacOSX::getInputDevices(U32 device_type_filter,
     return return_value;
 }
 
-LLSD LLWindowMacOSX::getNativeKeyData()
+LLSD LLWindowMacOSX::getNativeKeyData() const
 {
     LLSD result = LLSD::emptyMap();
 
@@ -2460,7 +2510,7 @@ bool LLWindowMacOSX::dialogColorPicker( F32 *r, F32 *g, F32 *b)
     return (retval);
 }
 
-void *LLWindowMacOSX::getPlatformWindow()
+void *LLWindowMacOSX::getPlatformWindow() const
 {
     // NOTE: this will be NULL in fullscreen mode.  Plan accordingly.
     return (void*)mWindow;
@@ -2597,6 +2647,7 @@ void LLWindowMacOSX::interruptLanguageTextInput()
     commitCurrentPreedit(mGLView);
 }
 
+// static
 std::vector<std::string> LLWindowMacOSX::getDisplaysResolutionList()
 {
     std::vector<std::string> resolution_list;
@@ -2626,11 +2677,17 @@ std::vector<std::string> LLWindowMacOSX::getDisplaysResolutionList()
     return resolution_list;
 }
 
-//static
+// static
 std::vector<std::string> LLWindowMacOSX::getDynamicFallbackFontList()
 {
     // Fonts previously in getFontListSans() have moved to fonts.xml.
     return std::vector<std::string>();
+}
+
+LLFontFallbackMatch LLWindowMacOSX::findFallbackFontForChar(llwchar wch)
+{
+    // Not implemented on macOS; would use CoreText (CTFontCreateForString).
+    return LLFontFallbackMatch();
 }
 
 // static
@@ -2643,7 +2700,7 @@ MASK LLWindowMacOSX::modifiersToMask(S16 modifiers)
     return mask;
 }
 
-F32 LLWindowMacOSX::getSystemUISize()
+F32 LLWindowMacOSX::getSystemUISize() const
 {
     return ::getDeviceUnitSize(mGLView);
 }

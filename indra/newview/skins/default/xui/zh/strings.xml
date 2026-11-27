@@ -5531,9 +5531,6 @@ http://secondlife.com/support 求助解決問題。
 	<string name="Command_Grid_Status_Label">
 		網格狀態
 	</string>
-	<string name="Command_HowTo_Label">
-		簡易教學
-	</string>
 	<string name="Command_Inventory_Label">
 		收納區
 	</string>
@@ -5629,9 +5626,6 @@ http://secondlife.com/support 求助解決問題。
 	</string>
 	<string name="Command_Grid_Status_Tooltip">
 		顯示當前網格狀態
-	</string>
-	<string name="Command_HowTo_Tooltip">
-		如何完成常用的動作
 	</string>
 	<string name="Command_Inventory_Tooltip">
 		察看並使用你擁有的物件

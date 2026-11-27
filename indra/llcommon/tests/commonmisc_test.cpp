@@ -503,7 +503,7 @@ namespace tut
         result_str = (const char*) result;
         ensure_equals("U64_to_str converted 1.4", val_str, result_str);
 
-        val = U64L(-1); // 0xFFFFFFFFFFFFFFFF == 18446744073709551615
+        val = U64(-1); // 0xFFFFFFFFFFFFFFFF == 18446744073709551615
         val_str = "18446744073709551615";
         U64_to_str(val, result, sizeof(result));
         result_str = (const char*) result;
@@ -619,7 +619,7 @@ namespace tut
         val = U64_to_F64(U64L(2));
         ensure_equals("U64_to_F64 converted 3.6", val, result);
 
-        result = U64L(0x7FFFFFFFFFFFFFFF) * 1.0L; // 0x7FFFFFFFFFFFFFFF
+        result = F64(0x7FFFFFFFFFFFFFFF) * 1.0; // 0x7FFFFFFFFFFFFFFF
         val = U64_to_F64(U64L(0x7FFFFFFFFFFFFFFF));
         ensure_equals("U64_to_F64 converted 3.7", val, result);
     }

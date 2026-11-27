@@ -29,9 +29,12 @@
 #include "llpaneldirgroups.h"
 
 #include "llagent.h"
+#include "llgroupactions.h"
 #include "llqueryflags.h"
-#include "llviewercontrol.h"
+#include "llscrolllistctrl.h"
 #include "llsearcheditor.h"
+#include "llviewercontrol.h"
+#include "llviewermenu.h"
 
 static LLPanelInjector<LLPanelDirGroups> t_panel_dir_groups("panel_dir_groups");
 
@@ -51,11 +54,85 @@ bool LLPanelDirGroups::postBuild()
     childSetAction("Search", &LLPanelDirBrowser::onClickSearchCore, this);
     setDefaultBtn( "Search" );
 
+    if (gAgent.isTeen())
+    {
+        childSetEnabled("incmature", false);
+        gSavedSettings.setBOOL("ShowMatureGroups", false);
+    }
+
+    LLScrollListCtrl* results = getChild<LLScrollListCtrl>("results");
+    results->setRightMouseDownCallback(boost::bind(&LLPanelDirGroups::onResultsRightClick, this, _1, _2, _3));
+
+    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+    registrar.add("People.Groups.Action", boost::bind(&LLPanelDirGroups::onContextMenuItemClick, this, _2));
+    enable_registrar.add("People.Groups.Enable", boost::bind(&LLPanelDirGroups::onContextMenuItemEnable, this, _2));
+
+    LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_people_groups.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+    if (menu)
+    {
+        mPopupMenuHandle = menu->getHandle();
+    }
+
     return true;
 }
 
 LLPanelDirGroups::~LLPanelDirGroups()
 {
+}
+
+void LLPanelDirGroups::onResultsRightClick(LLUICtrl* ctrl, S32 x, S32 y)
+{
+    LLScrollListCtrl* results = getChild<LLScrollListCtrl>("results");
+    LLScrollListItem* item = results->hitItem(x, y);
+    LLToggleableMenu* menu = mPopupMenuHandle.get();
+    if (item && menu)
+    {
+        results->selectItemAt(x, y, MASK_NONE);
+        mSelectedGroupID = item->getUUID();
+        menu->buildDrawLabels();
+        menu->updateParent(LLMenuGL::sMenuContainer);
+        LLMenuGL::showPopup(ctrl, menu, x, y);
+    }
+}
+
+bool LLPanelDirGroups::onContextMenuItemClick(const LLSD& userdata)
+{
+    std::string action = userdata.asString();
+
+    if (action == "view_info")
+    {
+        LLGroupActions::show(mSelectedGroupID);
+    }
+    else if (action == "chat")
+    {
+        LLGroupActions::startIM(mSelectedGroupID);
+    }
+    else if (action == "call")
+    {
+        LLGroupActions::startCall(mSelectedGroupID);
+    }
+    else if (action == "activate")
+    {
+        LLGroupActions::activate(mSelectedGroupID);
+    }
+    else if (action == "leave")
+    {
+        LLGroupActions::leave(mSelectedGroupID);
+    }
+
+    return true;
+}
+
+bool LLPanelDirGroups::onContextMenuItemEnable(const LLSD& userdata)
+{
+    // Only "View Info" is available for groups the agent is not a member of.
+    if (userdata.asString() == "view_info")
+    {
+        return mSelectedGroupID.notNull();
+    }
+
+    return LLGroupActions::isInGroup(mSelectedGroupID);
 }
 
 // virtual
@@ -72,11 +149,25 @@ void LLPanelDirGroups::performQuery()
     U32 scope = DFQ_GROUPS;
 
     // Check group mature filter.
-    if ( !gSavedSettings.getBOOL("ShowMatureGroups")  || gAgent.isTeen() )
+    if ( gSavedSettings.getBOOL("ShowMatureGroups") && !gAgent.isTeen() )
     {
+        // Supposed behavior:
+        // if nothing is set will search for <= mature
+        // if DFQ_INC_PG is set, will look for <= PG
+        // if DFQ_INC_MATURE is set, will look for == mature
+        // if DFQ_INC_ADULT is set, will look for >= adult
+        // Not compatible with legacy DFQ_FILTER_MATURE.
+        // But there appears to be a server bug, so we only use
+        // this to show all and use legacy setting for 'pg only'
+        scope |= DFQ_INC_PG;
+        scope |= DFQ_INC_MATURE;
+        scope |= DFQ_INC_ADULT;
+    }
+    else
+    {
+        // DFQ_FILTER_MATURE is a legacy setting
         scope |= DFQ_FILTER_MATURE;
     }
-
     mCurrentSortColumn = "score";
     mCurrentSortAscending = false;
 

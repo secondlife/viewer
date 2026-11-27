@@ -135,7 +135,8 @@ void LLGridManager::initialize(const std::string& grid_file)
 
     LLSD other_grids;
     llifstream llsd_xml;
-    if (!grid_file.empty())
+    // grids.xml is not supplied by default
+    if (!grid_file.empty() && LLFile::isfile(grid_file))
     {
         LL_INFOS("GridManager")<<"Grid configuration file '"<<grid_file<<"'"<<LL_ENDL;
         llsd_xml.open( grid_file.c_str(), std::ios::in | std::ios::binary );

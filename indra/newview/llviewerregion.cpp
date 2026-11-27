@@ -1891,8 +1891,17 @@ LLViewerObject* LLViewerRegion::addNewObject(LLVOCacheEntry* entry)
     }
     else
     {
-        LLViewerRegion* old_regionp = ((LLDrawable*)entry->getEntry()->getDrawable())->getRegion();
-        if(old_regionp != this)
+        LLDrawable* drawablep = (LLDrawable*)entry->getEntry()->getDrawable();
+        if (!drawablep || drawablep->isDead() || drawablep->getVObj().isNull())
+        {
+            LL_WARNS() << "Entry: " << entry->getLocalID() << " has a dead or invalid drawable; resetting to inactive." << LL_ENDL;
+            mImpl->mVisibleEntries.erase(entry);
+            entry->setState(LLVOCacheEntry::INACTIVE);
+            return NULL;
+        }
+
+        LLViewerRegion* old_regionp = drawablep->getRegion();
+        if (old_regionp != this)
         {
             //this object exists in two regions at the same time;
             //this case can be safely ignored here because
@@ -2102,7 +2111,7 @@ void LLViewerRegion::updateNetStats()
     F32 dt = mImpl->mLastNetUpdate.getElapsedTimeAndResetF32();
 
     LLCircuitData *cdp = gMessageSystem->mCircuitInfo.findCircuit(mImpl->mHost);
-    if (!cdp)
+    if (!cdp || !cdp->isAlive())
     {
         mAlive = false;
         return;
@@ -3207,7 +3216,26 @@ void LLViewerRegion::unpackRegionHandshake()
         flags |= 0x00000002; //set the bit 1 to be 1 to tell sim the cache file is empty, no need to send cache probes.
     }
     msg->addU32("Flags", flags );
-    msg->sendReliable(host);
+
+    // build a lambda to be used as callback on ACK or timeout
+    void (*region_handshake_reply_callback)(void**, S32) = [](void**, S32 result)
+    {
+        if(LLApp::isExiting()) return;
+        if (result != LL_ERR_NOERR)
+        {
+            LL_WARNS("Messaging") << "RegionHandshakeReply failed with err=" << result << LL_ENDL;
+        }
+    };
+
+    // This is a crucial message for establishing a connection to a region
+    // (either the main region or a visible neighbor).
+    msg->sendReliable(
+        host,
+        gSavedSettings.getS32("UseCircuitCodeMaxRetries"),
+        false,
+        (F32Seconds)gSavedSettings.getF32("UseCircuitCodeTimeout"),
+        region_handshake_reply_callback,
+        NULL);
 
     mRegionTimer.reset(); //reset region timer.
 }
@@ -3226,6 +3254,8 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("AvatarRenderInfo");
     capabilityNames.append("CharacterProperties");
     capabilityNames.append("ChatSessionRequest");
+    capabilityNames.append("PersistentChatConversationsRequest");
+    capabilityNames.append("PersistentChatHistoryRequest");
     capabilityNames.append("CopyInventoryFromNotecard");
     capabilityNames.append("CreateInventoryCategory");
     capabilityNames.append("DeclineFriendship");
@@ -3243,6 +3273,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("FetchInventory2");
     capabilityNames.append("FetchInventoryDescendents2");
     capabilityNames.append("IncrementCOFVersion");
+    capabilityNames.append("CreateTaskInventoryItem");
     capabilityNames.append("RequestTaskInventory");
     AISAPI::getCapNames(capabilityNames);
 
@@ -3296,6 +3327,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("RequestTextureDownload");
     capabilityNames.append("ResourceCostSelected");
     capabilityNames.append("RetrieveNavMeshSrc");
+    capabilityNames.append("ScriptDefinitions");
     capabilityNames.append("SearchStatRequest");
     capabilityNames.append("SearchStatTracking");
     capabilityNames.append("SendPostcard");
@@ -3734,6 +3766,19 @@ bool LLViewerRegion::avatarHoverHeightEnabled() const
     return ( mSimulatorFeatures.has("AvatarHoverHeightEnabled") &&
              mSimulatorFeatures["AvatarHoverHeightEnabled"].asBoolean());
 }
+
+bool LLViewerRegion::groupChatPostLinksEnabled() const
+{
+    return ( mSimulatorFeatures.has("GroupChatPostLinksEnabled") &&
+             mSimulatorFeatures["GroupChatPostLinksEnabled"].asBoolean());
+}
+
+bool LLViewerRegion::gameControlEnabled() const
+{
+    return ( mSimulatorFeatures.has("GameControlEnabled") &&
+             mSimulatorFeatures["GameControlEnabled"].asBoolean());
+}
+
 /* Static Functions */
 
 void log_capabilities(const CapabilityMap &capmap)

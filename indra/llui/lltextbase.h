@@ -147,7 +147,7 @@ public:
     /*virtual*/ bool                canEdit() const { return mCanEdit; }
     /*virtual*/ const LLUIColor&     getColor() const                    { return mStyle->getColor(); }
     /*virtual*/ LLStyleConstSP      getStyle() const                    { return mStyle; }
-    /*virtual*/ void                setStyle(LLStyleConstSP style)  { mStyle = style; }
+    /*virtual*/ void                setStyle(LLStyleConstSP style) { mStyle = style; refreshFromStyle(); }
     /*virtual*/ void                setToken( LLKeywordToken* token )   { mToken = token; }
     /*virtual*/ LLKeywordToken*     getToken() const                    { return mToken; }
     /*virtual*/ void                setToolTip(const std::string& tooltip);
@@ -167,6 +167,7 @@ protected:
     virtual     const S32           getLength() const;
 
     void setAllowEdit(bool can_edit) { mCanEdit = can_edit; }
+    void refreshFromStyle();
 
 protected:
     class LLTextBase&   mEditor;
@@ -327,6 +328,7 @@ class LLTextBase
 public:
     friend class LLTextSegment;
     friend class LLNormalTextSegment;
+    friend class LLEmbeddedItemSegment;
     friend class LLUICtrlFactory;
 
     typedef boost::signals2::signal<bool (const LLUUID& user_id)> is_friend_signal_t;
@@ -350,7 +352,8 @@ public:
                                 bg_writeable_color,
                                 bg_focus_color,
                                 text_selected_color,
-                                bg_selected_color;
+                                bg_selected_color,
+                                link_color;
 
         Optional<bool>          bg_visible,
                                 border_visible,
@@ -491,6 +494,7 @@ public:
     void                    needsReflow(S32 index = 0);
 
     S32                     getLength() const { return static_cast<S32>(getWText().length()); }
+    bool                    isEmpty() const { return getWText().empty(); }
     S32                     getLineCount() const { return static_cast<S32>(mLineInfoList.size()); }
     S32                     removeFirstLine(); // returns removed length
 
@@ -776,6 +780,8 @@ protected:
     bool                        mAlwaysShowIcons;
 
     bool                        mSkipLinkUnderline;
+    bool                        mHasLinkColor;
+    LLUIColor                   mLinkColor;
 
     // support widgets
     LLHandle<LLContextMenu>     mPopupMenuHandle;

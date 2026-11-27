@@ -33,6 +33,7 @@
 #include "llxorcipher.h"
 #include "llsd.h"
 #include "llsdserialize.h"
+#include "llstreamtools.h"
 #include "message.h"
 #include <boost/tokenizer.hpp>
 
@@ -61,6 +62,9 @@ static const std::string INV_SALE_INFO_LABEL("sale_info");
 static const std::string INV_FLAGS_LABEL("flags");
 static const std::string INV_CREATION_DATE_LABEL("created_at");
 static const std::string INV_TOGGLED_LABEL("toggled");
+static const std::string INV_SCRIPT_LABEL("script");
+static const std::string INV_RUNTIME_LABEL("runtime");
+static const std::string INV_METADATA_LABEL("metadata");
 
 // key used by agent-inventory-service
 static const std::string INV_ASSET_TYPE_LABEL_WS("type_default");
@@ -109,6 +113,7 @@ void LLInventoryObject::copyObject(const LLInventoryObject* other)
     mName = other->mName;
     mThumbnailUUID = other->mThumbnailUUID;
     mFavorite = other->mFavorite;
+    mRuntime = other->mRuntime;
 }
 
 const LLUUID& LLInventoryObject::getUUID() const
@@ -129,6 +134,11 @@ const LLUUID& LLInventoryObject::getThumbnailUUID() const
 bool LLInventoryObject::getIsFavorite() const
 {
     return mFavorite;
+}
+
+const std::string& LLInventoryObject::getRuntime() const
+{
+    return mRuntime;
 }
 
 const std::string& LLInventoryObject::getName() const
@@ -190,9 +200,23 @@ void LLInventoryObject::setFavorite(bool favorite)
     mFavorite = favorite;
 }
 
+void LLInventoryObject::setRuntime(std::string_view runtime)
+{
+    // Store the runtime unconditionally; it will be validated/cleared
+    // when the final asset type is known (see setType()).
+    mRuntime = runtime;
+}
+
 void LLInventoryObject::setType(LLAssetType::EType type)
 {
     mType = type;
+
+    // Only LSL text assets are expected to have a runtime; clear any
+    // previously stored runtime for other asset types.
+    if (mType != LLAssetType::AT_LSL_TEXT)
+    {
+        mRuntime.clear();
+    }
 }
 
 
@@ -278,6 +302,15 @@ bool LLInventoryObject::importLegacyStream(std::istream& input_stream)
             else
             {
                 setFavorite(false);
+            }
+
+            if (metadata.has("script") && metadata["script"].has("runtime"))
+            {
+                setRuntime(metadata["script"]["runtime"].asString());
+            }
+            else
+            {
+                setRuntime(std::string());
             }
         }
         else if(0 == strcmp("name", keyword))
@@ -421,6 +454,7 @@ void LLInventoryItem::copyItem(const LLInventoryItem* other)
     mInventoryType = other->mInventoryType;
     mFlags = other->mFlags;
     mCreationDate = other->mCreationDate;
+    mRuntime = other->mRuntime;
 }
 
 // If this is a linked item, then the UUID of the base object is
@@ -784,6 +818,16 @@ bool LLInventoryItem::importLegacyStream(std::istream& input_stream)
             {
                 setFavorite(false);
             }
+
+            if (metadata.has("script") && metadata["script"].has("runtime"))
+            {
+                setRuntime(metadata["script"]["runtime"].asString());
+            }
+            else
+            {
+                setRuntime(std::string());
+            }
+
         }
         else if(0 == strcmp("inv_type", keyword))
         {
@@ -827,6 +871,42 @@ bool LLInventoryItem::importLegacyStream(std::istream& input_stream)
             }
 
             mDescription.assign(valuestr);
+
+            // Currently server side doesn't handle escaped newline right
+            // and they end up unescaped.
+            // And even if we do copy the data correctly, moving the item
+            // from notecard using CopyInventoryFromNotecard drops the
+            // content after first the new line.
+            //
+            // Check if the description ends with | on this line
+            if (strchr(buffer, '|') == nullptr)
+            {
+                // No | found, continue reading lines until we find one
+                char next_buffer[MAX_STRING];
+                while (input_stream.good())
+                {
+                    input_stream.getline(next_buffer, MAX_STRING);
+
+                    // Look for | delimiter
+                    char* pipe_pos = strchr(next_buffer, '|');
+                    if (pipe_pos != nullptr)
+                    {
+                        // Found the delimiter, add text up to it
+                        *pipe_pos = '\0';  // Terminate at the pipe
+                        mDescription += '\n';
+                        mDescription += next_buffer;
+                        break;
+                    }
+                    else
+                    {
+                        // No delimiter yet, add the whole line
+                        mDescription += '\n';
+                        mDescription += next_buffer;
+                    }
+                }
+            }
+
+            unescape_string(mDescription);
             LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
             /* TODO -- ask Ian about this code
             const char *donkey = mDescription.c_str();
@@ -920,7 +1000,12 @@ bool LLInventoryItem::exportLegacyStream(std::ostream& output_stream, bool inclu
     output_stream << buffer;
     mSaleInfo.exportLegacyStream(output_stream);
     output_stream << "\t\tname\t" << mName.c_str() << "|\n";
-    output_stream << "\t\tdesc\t" << mDescription.c_str() << "|\n";
+    // Note: Currently server side doesn't handle newline right for notecards.
+    // Even if we escape or replace all newlines with spaces, notecard's
+    // import buffer still ends up with newlines.
+    std::string desc = mDescription;
+    escape_string(desc);
+    output_stream << "\t\tdesc\t" << desc.c_str() << "|\n";
     output_stream << "\t\tcreation_date\t" << mCreationDate << "\n";
     output_stream << "\t}\n";
     return true;
@@ -941,12 +1026,19 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
 
     if (mThumbnailUUID.notNull())
     {
-        sd[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
+        LLSD& thumbnail = sd[INV_THUMBNAIL_LABEL];
+        thumbnail[INV_ASSET_ID_LABEL] = mThumbnailUUID;
     }
 
     if (mFavorite)
     {
-        sd[INV_FAVORITE_LABEL] = LLSD().with(INV_TOGGLED_LABEL, mFavorite);
+        LLSD& favorite = sd[INV_FAVORITE_LABEL];
+        favorite[INV_TOGGLED_LABEL] = mFavorite;
+    }
+
+    if (!mRuntime.empty())
+    {
+        sd[INV_SCRIPT_LABEL] = LLSD().with(INV_RUNTIME_LABEL, mRuntime);
     }
 
     U32 mask = mPermissions.getMaskBase();
@@ -963,7 +1055,7 @@ void LLInventoryItem::asLLSD( LLSD& sd ) const
         cipher.encrypt(shadow_id.mData, UUID_BYTES);
         sd[INV_SHADOW_ID_LABEL] = shadow_id;
     }
-    sd[INV_ASSET_TYPE_LABEL] = std::string(LLAssetType::lookup(mType));
+    sd[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(mType);
     const std::string inv_type_str = LLInventoryType::lookup(mInventoryType);
     if(!inv_type_str.empty())
     {
@@ -1002,171 +1094,231 @@ bool LLInventoryItem::fromLLSD(const LLSD& sd, bool is_new)
     end = sd.endMap();
     for (i = sd.beginMap(); i != end; ++i)
     {
-        if (i->first == INV_ITEM_ID_LABEL)
-        {
-            mUUID = i->second;
-            continue;
-        }
+        // Use string length as a fast pre-filter before string comparison
+        const std::string& key = i->first;
+        const LLSD& value = i->second;
+        const size_t key_len = key.length();
 
-        if (i->first == INV_PARENT_ID_LABEL)
+        switch (key_len)
         {
-            mParentUUID = i->second;
-            continue;
-        }
-
-        if (i->first == INV_THUMBNAIL_LABEL)
-        {
-            const LLSD &thumbnail_map = i->second;
-            if (thumbnail_map.has(INV_ASSET_ID_LABEL))
-            {
-                mThumbnailUUID = thumbnail_map[INV_ASSET_ID_LABEL];
-            }
-            /* Example:
-                <key> asset_id </key>
-                <uuid> acc0ec86 - 17f2 - 4b92 - ab41 - 6718b1f755f7 </uuid>
-                <key> perms </key>
-                <integer> 8 </integer>
-                <key>service</key>
-                <integer> 3 </integer>
-                <key>version</key>
-                <integer> 1 </key>
-            */
-          continue;
-        }
-
-        if (i->first == INV_THUMBNAIL_ID_LABEL)
-        {
-            mThumbnailUUID = i->second.asUUID();
-            continue;
-        }
-
-        if (i->first == INV_FAVORITE_LABEL)
-        {
-            const LLSD& favorite_map = i->second;
-            if (favorite_map.has(INV_TOGGLED_LABEL))
-            {
-                mFavorite = favorite_map[INV_TOGGLED_LABEL].asBoolean();
-            }
-            continue;
-        }
-
-        if (i->first == INV_PERMISSIONS_LABEL)
-        {
-            mPermissions.importLLSD(i->second);
-            continue;
-        }
-
-        if (i->first == INV_SALE_INFO_LABEL)
-        {
-            // Sale info used to contain next owner perm. It is now in
-            // the permissions. Thus, we read that out, and fix legacy
-            // objects. It's possible this op would fail, but it
-            // should pick up the vast majority of the tasks.
-            bool has_perm_mask = false;
-            U32  perm_mask     = 0;
-            if (!mSaleInfo.fromLLSD(i->second, has_perm_mask, perm_mask))
-            {
-                return false;
-            }
-            if (has_perm_mask)
-            {
-                if (perm_mask == PERM_NONE)
+            case 4: // "name", "desc", "type"
+                if (key == INV_NAME_LABEL) // "name"
                 {
-                    perm_mask = mPermissions.getMaskOwner();
+                    mName = value.asString();
+                    LLStringUtil::replaceNonstandardASCII(mName, ' ');
+                    LLStringUtil::replaceChar(mName, '|', ' ');
+                    continue;
                 }
-                // fair use fix.
-                if (!(perm_mask & PERM_COPY))
+                if (key == INV_DESC_LABEL) // "desc"
                 {
-                    perm_mask |= PERM_TRANSFER;
+                    mDescription = value.asString();
+                    LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
+                    continue;
                 }
-                mPermissions.setMaskNext(perm_mask);
-            }
-            continue;
-        }
+                if (key == INV_ASSET_TYPE_LABEL) // "type"
+                {
+                    if (value.isString())
+                    {
+                        mType = LLAssetType::lookup(value.asStringRef().c_str());
+                    }
+                    else if (value.isInteger())
+                    {
+                        S8 type = (U8)value.asInteger();
+                        mType = static_cast<LLAssetType::EType>(type);
+                    }
+                    continue;
+                }
+                break;
 
-        if (i->first == INV_SHADOW_ID_LABEL)
-        {
-            mAssetUUID = i->second;
-            LLXORCipher cipher(MAGIC_ID.mData, UUID_BYTES);
-            cipher.decrypt(mAssetUUID.mData, UUID_BYTES);
-            continue;
-        }
+            case 5: // "flags"
+                if (key == INV_FLAGS_LABEL)
+                {
+                    if (value.isBinary())
+                    {
+                        mFlags = ll_U32_from_sd(value);
+                    }
+                    else if (value.isInteger())
+                    {
+                        mFlags = value.asInteger();
+                    }
+                    continue;
+                }
+                break;
 
-        if (i->first == INV_ASSET_ID_LABEL)
-        {
-            mAssetUUID = i->second;
-            continue;
-        }
+            case 6: // "script"
+                if (key == INV_SCRIPT_LABEL)
+                {
+                    const LLSD& script_map = value;
+                    if (script_map.has(INV_RUNTIME_LABEL))
+                    {
+                        mRuntime = script_map[INV_RUNTIME_LABEL].asString();
+                    }
+                    else
+                    {
+                        // Clear stale runtime data when a script block is
+                        // present without an explicit runtime value.
+                        mRuntime.clear();
+                    }
+                    continue;
+                }
+                break;
 
-        if (i->first == INV_LINKED_ID_LABEL)
-        {
-            mAssetUUID = i->second;
-            continue;
-        }
+            case 7: // "item_id"
+                if (key == INV_ITEM_ID_LABEL)
+                {
+                    mUUID = value;
+                    continue;
+                }
+                break;
 
-        if (i->first == INV_ASSET_TYPE_LABEL)
-        {
-            LLSD const &label = i->second;
-            if (label.isString())
-            {
-                mType = LLAssetType::lookup(label.asStringRef().c_str());
-            }
-            else if (label.isInteger())
-            {
-                S8 type = (U8) label.asInteger();
-                mType   = static_cast<LLAssetType::EType>(type);
-            }
-            continue;
-        }
+            case 8: // "asset_id", "inv_type"
+                if (key == INV_ASSET_ID_LABEL)
+                {
+                    mAssetUUID = value;
+                    continue;
+                }
+                if (key == INV_INVENTORY_TYPE_LABEL) // "inv_type"
+                {
+                    if (value.isString())
+                    {
+                        mInventoryType = LLInventoryType::lookup(value.asStringRef().c_str());
+                    }
+                    else if (value.isInteger())
+                    {
+                        S8 type = (U8)value.asInteger();
+                        mInventoryType = static_cast<LLInventoryType::EType>(type);
+                    }
+                    continue;
+                }
+                if (key == INV_FAVORITE_LABEL) // "favorite"
+                {
+                    if (value.has(INV_TOGGLED_LABEL))
+                    {
+                        mFavorite = value[INV_TOGGLED_LABEL].asBoolean();
+                    }
+                    continue;
+                }
+                if (key == INV_METADATA_LABEL)
+                {
+                    // Server (non-AIS) exports thumbnail, favorite, and
+                    // script metadata under a "metadata" wrapper.
+                    const LLSD& metadata = value;
+                    if (metadata.has(INV_THUMBNAIL_LABEL))
+                    {
+                        const LLSD& thumbnail = metadata[INV_THUMBNAIL_LABEL];
+                        if (thumbnail.has(INV_ASSET_ID_LABEL))
+                        {
+                            mThumbnailUUID = thumbnail[INV_ASSET_ID_LABEL].asUUID();
+                        }
+                    }
+                    if (metadata.has(INV_FAVORITE_LABEL))
+                    {
+                        const LLSD& favorite = metadata[INV_FAVORITE_LABEL];
+                        if (favorite.has(INV_TOGGLED_LABEL))
+                        {
+                            mFavorite = favorite[INV_TOGGLED_LABEL].asBoolean();
+                        }
+                    }
+                    if (metadata.has(INV_SCRIPT_LABEL)
+                        && metadata[INV_SCRIPT_LABEL].has(INV_RUNTIME_LABEL))
+                    {
+                        mRuntime = metadata[INV_SCRIPT_LABEL][INV_RUNTIME_LABEL].asString();
+                    }
+                    continue;
+                }
+                break;
 
-        if (i->first == INV_INVENTORY_TYPE_LABEL)
-        {
-            LLSD const &label = i->second;
-            if (label.isString())
-            {
-                mInventoryType = LLInventoryType::lookup(label.asStringRef().c_str());
-            }
-            else if (label.isInteger())
-            {
-                S8 type        = (U8) label.asInteger();
-                mInventoryType = static_cast<LLInventoryType::EType>(type);
-            }
-            continue;
-        }
+            case 9: // "parent_id", "shadow_id", "linked_id", "sale_info", "thumbnail"
+                if (key == INV_PARENT_ID_LABEL)
+                {
+                    mParentUUID = value;
+                    continue;
+                }
+                if (key == INV_SHADOW_ID_LABEL)
+                {
+                    mAssetUUID = value;
+                    LLXORCipher cipher(MAGIC_ID.mData, UUID_BYTES);
+                    cipher.decrypt(mAssetUUID.mData, UUID_BYTES);
+                    continue;
+                }
+                if (key == INV_LINKED_ID_LABEL)
+                {
+                    mAssetUUID = value;
+                    continue;
+                }
+                if (key == INV_SALE_INFO_LABEL)
+                {
+                    // Sale info used to contain next owner perm. It is now in
+                    // the permissions. Thus, we read that out, and fix legacy
+                    // objects. It's possible this op would fail, but it
+                    // should pick up the vast majority of the tasks.
+                    bool has_perm_mask = false;
+                    U32  perm_mask     = 0;
+                    if (!mSaleInfo.fromLLSD(value, has_perm_mask, perm_mask))
+                    {
+                        return false;
+                    }
+                    if (has_perm_mask)
+                    {
+                        if (perm_mask == PERM_NONE)
+                        {
+                            perm_mask = mPermissions.getMaskOwner();
+                        }
+                        // fair use fix.
+                        if (!(perm_mask & PERM_COPY))
+                        {
+                            perm_mask |= PERM_TRANSFER;
+                        }
+                        mPermissions.setMaskNext(perm_mask);
+                    }
+                    continue;
+                }
+                if (key == INV_THUMBNAIL_LABEL)
+                {
+                    if (value.has(INV_ASSET_ID_LABEL))
+                    {
+                        mThumbnailUUID = value[INV_ASSET_ID_LABEL];
+                    }
+                    /* Example:
+                        <key> asset_id </key>
+                        <uuid> acc0ec86 - 17f2 - 4b92 - ab41 - 6718b1f755f7 </uuid>
+                        <key> perms </key>
+                        <integer> 8 </integer>
+                        <key>service</key>
+                        <integer> 3 </integer>
+                        <key>version</key>
+                        <integer> 1 </key>
+                    */
+                    continue;
+                }
+                break;
+            case 10: // "created_at"
+                if (key == INV_CREATION_DATE_LABEL)
+                {
+                    mCreationDate = value.asInteger();
+                    continue;
+                }
+                break;
 
-        if (i->first == INV_FLAGS_LABEL)
-        {
-            LLSD const &label = i->second;
-            if (label.isBinary())
-            {
-                mFlags = ll_U32_from_sd(label);
-            }
-            else if (label.isInteger())
-            {
-                mFlags = label.asInteger();
-            }
-            continue;
-        }
+            case 11: // "permissions"
+                if (key == INV_PERMISSIONS_LABEL)
+                {
+                    mPermissions.importLLSD(value);
+                    continue;
+                }
+                break;
 
-        if (i->first == INV_NAME_LABEL)
-        {
-            mName = i->second.asString();
-            LLStringUtil::replaceNonstandardASCII(mName, ' ');
-            LLStringUtil::replaceChar(mName, '|', ' ');
-            continue;
-        }
+            case 12: // "thumbnail_id"
+                if (key == INV_THUMBNAIL_ID_LABEL)
+                {
+                    mThumbnailUUID = value.asUUID();
+                    continue;
+                }
+                break;
 
-        if (i->first == INV_DESC_LABEL)
-        {
-            mDescription = i->second.asString();
-            LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
-            continue;
-        }
-
-        if (i->first == INV_CREATION_DATE_LABEL)
-        {
-            mCreationDate = i->second.asInteger();
-            continue;
+            default:
+                // Unknown field - skip
+                break;
         }
     }
 
@@ -1242,12 +1394,14 @@ LLSD LLInventoryCategory::asLLSD() const
 
     if (mThumbnailUUID.notNull())
     {
-        sd[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
+        LLSD& thumbnail = sd[INV_THUMBNAIL_LABEL];
+        thumbnail[INV_ASSET_ID_LABEL] = mThumbnailUUID;
     }
 
     if (mFavorite)
     {
-        sd[INV_FAVORITE_LABEL] = LLSD().with(INV_TOGGLED_LABEL, mFavorite);
+        LLSD& favorite = sd[INV_FAVORITE_LABEL];
+        favorite[INV_TOGGLED_LABEL] = mFavorite;
     }
 
     return sd;
@@ -1469,6 +1623,8 @@ bool LLInventoryCategory::importLegacyStream(std::istream& input_stream)
             {
                 setFavorite(false);
             }
+            setRuntime(std::string());
+
         }
         else
         {
@@ -1507,17 +1663,19 @@ void LLInventoryCategory::exportLLSD(LLSD& cat_data) const
 {
     cat_data[INV_FOLDER_ID_LABEL] = mUUID;
     cat_data[INV_PARENT_ID_LABEL] = mParentUUID;
-    cat_data[INV_ASSET_TYPE_LABEL] = std::string(LLAssetType::lookup(mType));
+    cat_data[INV_ASSET_TYPE_LABEL] = LLAssetType::lookup(mType);
     cat_data[INV_PREFERRED_TYPE_LABEL] = LLFolderType::lookup(mPreferredType);
     cat_data[INV_NAME_LABEL] = mName;
 
     if (mThumbnailUUID.notNull())
     {
-        cat_data[INV_THUMBNAIL_LABEL] = LLSD().with(INV_ASSET_ID_LABEL, mThumbnailUUID);
+        LLSD& thumbnail = cat_data[INV_THUMBNAIL_LABEL];
+        thumbnail[INV_ASSET_ID_LABEL] = mThumbnailUUID;
     }
     if (mFavorite)
     {
-        cat_data[INV_FAVORITE_LABEL] = LLSD().with(INV_TOGGLED_LABEL, mFavorite);
+        LLSD& favorite = cat_data[INV_FAVORITE_LABEL];
+        favorite[INV_TOGGLED_LABEL] = mFavorite;
     }
 }
 

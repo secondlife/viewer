@@ -70,7 +70,6 @@ volatile HttpService::EState HttpService::sState(NOT_INITIALIZED);
 HttpService::HttpService()
     : mRequestQueue(NULL),
       mExitRequested(0U),
-      mThread(NULL),
       mPolicy(NULL),
       mTransport(NULL),
       mLastPolicy(0)
@@ -89,23 +88,30 @@ HttpService::~HttpService()
         {
             if (mRequestQueue->stopQueue())
             {
-                // Give mRequestQueue a chance to finish
-                ms_sleep(10);
+                // Now wait a bit for the thread to exit
+                S32       counter  = 0;
+                const S32 MAX_WAIT = 600;
+                while (counter < MAX_WAIT)
+                {
+                    if (STOPPED == sState)
+                    {
+                        break;
+                    }
+                    // Sleep for a tenth of a second
+                    ms_sleep(100);
+                    std::this_thread::yield();
+                    counter++;
+                }
             }
         }
 
-        if (mThread)
+        if (mThread && RUNNING == sState)
         {
-            if (! mThread->timedJoin(250))
-            {
-                // Failed to join, expect problems ahead so do a hard termination.
-                LL_WARNS(LOG_CORE) << "Destroying HttpService with running thread.  Expect problems." << LL_NEWLINE
-                                    << "State: " << S32(sState)
-                                    << " Last policy: " << U32(mLastPolicy)
-                                    << LL_ENDL;
+            // Failed to shutdown, expect problems ahead so do a hard termination.
+            LL_WARNS(LOG_CORE) << "Destroying HttpService with running thread.  Expect problems." << LL_NEWLINE << "State: " << S32(sState)
+                               << " Last policy: " << U32(mLastPolicy) << LL_ENDL;
 
-                mThread->cancel();
-            }
+            mThread->cancel();
         }
     }
 
@@ -121,11 +127,7 @@ HttpService::~HttpService()
     delete mPolicy;
     mPolicy = NULL;
 
-    if (mThread)
-    {
-        mThread->release();
-        mThread = NULL;
-    }
+    mThread.reset();
 }
 
 
@@ -161,6 +163,22 @@ void HttpService::term()
             for (int i(0); i < 10 && RUNNING == sState; ++i)
             {
                 ms_sleep(100);
+            }
+
+            if (RUNNING == sState)
+            {
+                // Thread did not stop cooperatively in time.  Since callers
+                // (e.g. HttpRequest::destroyService()) are about to tear down
+                // objects (HTTPStats, HttpPolicy, HttpLibcurl, ...) that the
+                // worker thread may still be touching, we must not proceed
+                // with a still-running thread.  Force-terminate it before
+                // deleting anything it could reference to avoid use-after-free.
+                LL_WARNS(LOG_CORE) << "HttpService worker thread failed to stop cooperatively.  "
+                    << "Forcing hard cancel."
+                    << LL_NEWLINE << "Last policy: " << U32(sInstance->mLastPolicy) << LL_ENDL;
+
+                sInstance->mThread->cancel();
+                ms_sleep(10);
             }
         }
 
@@ -204,14 +222,15 @@ void HttpService::startThread()
 
     if (mThread)
     {
-        mThread->release();
+        mThread.reset();
     }
 
     // Push current policy definitions, enable policy & transport components
     mPolicy->start();
     mTransport->start(mLastPolicy + 1);
 
-    mThread = new LLCoreInt::HttpThread(boost::bind(&HttpService::threadRun, this, _1));
+    mThread = std::make_unique<LLCoreInt::HttpThread>(boost::bind(&HttpService::threadRun, this, _1));
+    mThread->detach(); // Detach thread to let it clean its self up
     sState = RUNNING;
 }
 
@@ -282,11 +301,8 @@ void HttpService::shutdown()
 // requested to stop.
 void HttpService::threadRun(LLCoreInt::HttpThread * thread)
 {
+    set_thread_name("HttpService");
     LL_PROFILER_SET_THREAD_NAME("HttpService");
-
-    boost::this_thread::disable_interruption di;
-
-    LLThread::registerThreadID();
 
     ELoopSpeed loop(REQUEST_SLEEP);
     while (! mExitRequested)
@@ -314,7 +330,7 @@ void HttpService::threadRun(LLCoreInt::HttpThread * thread)
         {
             LOG_UNHANDLED_EXCEPTION("");
         }
-        catch (std::bad_alloc&)
+        catch (const std::bad_alloc&)
         {
             LLMemory::logMemoryInfo(true);
 

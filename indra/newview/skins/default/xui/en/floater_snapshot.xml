@@ -226,7 +226,6 @@
             Filter:
         </text>
         <combo_box
-            control_name="PhotoFilters"
             follows="left|right|top"
             name="filters_combobox"
             tool_tip="Image filters"

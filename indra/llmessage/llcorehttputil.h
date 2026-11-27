@@ -468,6 +468,16 @@ public:
             headers);
     }
 
+
+    /// Execute a byte-range Get transaction (HTTP "Range:" header) on the
+    /// supplied URL and yield execution of the coroutine until a result is
+    /// available. Returns raw bytes under HTTP_RESULTS_RAW.
+    LLSD getRawRangeAndSuspend(LLCore::HttpRequest::ptr_t request,
+        const std::string& url,
+        size_t offset, size_t len,
+        LLCore::HttpOptions::ptr_t options = std::make_shared<LLCore::HttpOptions>(),
+        LLCore::HttpHeaders::ptr_t headers = std::make_shared<LLCore::HttpHeaders>());
+
     /// These methods have the same behavior as @getAndSuspend() however they are
     /// expecting the server to return the results formatted in a JSON string.
     /// On a successful GET call the JSON results will be converted into LLSD
@@ -483,7 +493,6 @@ public:
             std::make_shared<LLCore::HttpOptions>(),
             headers);
     }
-
 
     /// Execute a DELETE transaction on the supplied URL and yield execution of
     /// the coroutine until a result is available.

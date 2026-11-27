@@ -39,6 +39,7 @@
 #include "llavatariconctrl.h"
 #include "llavatarnamecache.h"
 #include "llcallbacklist.h"
+#include "llchatservicehistory.h"
 #include "lldonotdisturbnotificationstorage.h"
 #include "llgroupactions.h"
 #include "llgroupiconctrl.h"
@@ -163,15 +164,23 @@ void LLFloaterIMContainer::sessionIDUpdated(const LLUUID& old_session_id, const 
     // Note however that the LLFloaterIMSession has its session id updated through a call to sessionInitReplyReceived()
     // and do not need to be deleted and recreated (trying this creates loads of problems). We do need however to suppress
     // its related mSessions record as it's indexed with the wrong id.
-    // Grabbing the updated LLFloaterIMSession and readding it in mSessions will eventually be done by addConversationListItem().
     mSessions.erase(old_session_id);
 
-    // Delete the model and participants related to the old session
-    bool change_focus = removeConversationListItem(old_session_id);
+    // Remove the old conversation widget without changing focus - we'll immediately re-add with
+    // the new id and select it, avoiding an unnecessary focus switch to an adjacent conversation.
+    bool was_selected = removeConversationListItem(old_session_id, false);
 
     // Create a new conversation with the new id
-    addConversationListItem(new_session_id, change_focus);
+    addConversationListItem(new_session_id, was_selected);
     LLFloaterIMSessionTab::addToHost(new_session_id);
+
+    // addToHost is a no-op for already-hosted floaters, so mSessions won't be
+    // updated by addFloater. Re-register manually so message flash works.
+    LLFloaterIMSessionTab* conversp = LLFloaterIMSessionTab::findConversation(new_session_id);
+    if (conversp && mSessions.find(new_session_id) == mSessions.end())
+    {
+        mSessions[new_session_id] = conversp->getHandle();
+    }
 
     if (was_active)
     {
@@ -367,7 +376,7 @@ void LLFloaterIMContainer::addFloater(LLFloater* floaterp,
         icon = LLUICtrlFactory::instance().create<LLGroupIconCtrl>(icon_params);
         icon_id = session_id;
 
-        mSessions[session_id] = floaterp;
+        mSessions[session_id] = floaterp->getHandle();
         floaterp->mCloseSignal.connect(boost::bind(&LLFloaterIMContainer::onCloseFloater, this, session_id));
     }
     else
@@ -379,7 +388,7 @@ void LLFloaterIMContainer::addFloater(LLFloater* floaterp,
         icon = LLUICtrlFactory::instance().create<LLAvatarIconCtrl>(icon_params);
         icon_id = avatar_id;
 
-        mSessions[session_id] = floaterp;
+        mSessions[session_id] = floaterp->getHandle();
         floaterp->mCloseSignal.connect(boost::bind(&LLFloaterIMContainer::onCloseFloater, this, session_id));
     }
 
@@ -406,10 +415,11 @@ void LLFloaterIMContainer::onCloseFloater(LLUUID& id)
 void LLFloaterIMContainer::onNewMessageReceived(const LLSD& data)
 {
     LLUUID session_id = data["session_id"].asUUID();
-    LLFloater* floaterp = get_ptr_in_map(mSessions, session_id);
+    avatarID_panel_map_t::iterator iter = mSessions.find(session_id);
+    LLFloater* floaterp = (iter != mSessions.end()) ? iter->second.get() : nullptr;
     LLFloater* current_floater = LLMultiFloater::getActiveFloater();
 
-    if(floaterp && current_floater && floaterp != current_floater)
+    if (floaterp && floaterp != current_floater)
     {
         if(LLMultiFloater::isFloaterFlashing(floaterp))
             LLMultiFloater::setFloaterFlashing(floaterp, false);
@@ -1405,6 +1415,13 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
         }
         else if("chat_history" == command)
         {
+            // The deletion latch hides every local history source until its durable
+            // sweep completes.
+            if (LLChatServiceHistory::historySuppressed())
+            {
+                return;
+            }
+
             if (selectedIDS.size() > 0)
             {
                 if(conversationItem->getType() == LLConversationItem::CONV_SESSION_GROUP)
@@ -1440,7 +1457,10 @@ void LLFloaterIMContainer::doToSelectedConversation(const std::string& command, 
         {
             if("chat_history" == command)
             {
-                LLFloaterReg::showInstance("preview_conversation", LLSD(LLUUID::null), true);
+                if (!LLChatServiceHistory::historySuppressed())
+                {
+                    LLFloaterReg::showInstance("preview_conversation", LLSD(LLUUID::null), true);
+                }
             }
 }
     }
@@ -1515,6 +1535,11 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
     //Enable Chat history item for ad-hoc and group conversations
     if ("can_chat_history" == item && uuids.size() > 0)
     {
+        // History is unavailable while an account-wide deletion is pending.
+        if (LLChatServiceHistory::historySuppressed())
+        {
+            return false;
+        }
         //Disable menu item if selected participant is user agent
         if(uuids.front() != gAgentID)
         {
@@ -1534,7 +1559,7 @@ bool LLFloaterIMContainer::enableContextMenuItem(const LLSD& userdata)
             else
             {
                 bool is_group = (getCurSelectedViewModelItem()->getType() == LLConversationItem::CONV_SESSION_GROUP);
-                return LLLogChat::isTranscriptExist(uuids.front(),is_group);
+                return LLLogChat::isTranscriptExist(uuids.front(), is_group);
             }
         }
     }
@@ -1566,7 +1591,7 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
 
     if ("can_chat_history" == item && is_single_select)
     {
-        return LLLogChat::isTranscriptExist(uuids.front(),false);
+        return LLLogChat::isTranscriptExist(uuids.front(), false);
     }
 
     // Handle options that are applicable to all including the user agent

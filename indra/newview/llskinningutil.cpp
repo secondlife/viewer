@@ -116,8 +116,14 @@ void LLSkinningUtil::scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin
         // needed for handling of any legacy bad data.
         if (!avatar->getJoint(skin->mJointNames[j]))
         {
-            LL_DEBUGS("Avatar") << avatar->getDebugName() << " mesh rigged to invalid joint " << skin->mJointNames[j] << LL_ENDL;
-            LL_WARNS_ONCE("Avatar") << avatar->getDebugName() << " mesh rigged to invalid joint" << skin->mJointNames[j] << LL_ENDL;
+            if (avatar->isSelf())
+            {
+                LL_WARNS_ONCE("Avatar") << "A mesh on own avatar is rigged to an invalid joint" << skin->mJointNames[j] << LL_ENDL;
+            }
+            else
+            {
+                LL_DEBUGS("Avatar") << avatar->getDebugName() << " mesh rigged to invalid joint " << skin->mJointNames[j] << LL_ENDL;
+            }
             skin->mJointNames[j] = "mPelvis";
             skin->mJointNumsInitialized = false; // force update after names change.
         }
@@ -138,6 +144,10 @@ void LLSkinningUtil::initSkinningMatrixPalette(
     if (skin->mInvBindMatrix.size() < count )
     {
         // faulty model? mInvBindMatrix.size() should have matched mJointNames.size()
+        for (S32 j = 0; j < count; ++j)
+        {
+            mat[j] = LLMatrix4a::identity();
+        }
         return;
     }
 

@@ -146,9 +146,6 @@ void LLMemory::updateMemoryInfo()
         LL_WARNS() << "task_info failed" << LL_ENDL;
     }
 #elif defined(LL_LINUX)
-    // Use sysinfo() to get the total physical memory.
-    struct sysinfo info;
-    sysinfo(&info);
     sAllocatedMemInKB = U32Kilobytes::convert(U64Bytes(LLMemory::getCurrentRSS())); // represents the RAM allocated by this process only (in line with the windows implementation)
 #else
     //not valid for other systems for now.

@@ -42,6 +42,7 @@
 #include "llconversationlog.h"
 #include "llfloateravatarpicker.h"  // for LLFloaterAvatarPicker
 #include "llfloaterconversationpreview.h"
+#include "llchatservicehistory.h"
 #include "llfloatergroupinvite.h"
 #include "llfloatergroups.h"
 #include "llfloaterreg.h"
@@ -335,6 +336,17 @@ void LLAvatarActions::showProfile(const LLUUID& avatar_id)
     {
         LLFloaterReg::showInstance("profile", LLSD().with("id", avatar_id));
     }
+}
+
+bool LLAvatarActions::myProfileVisible()
+{
+    LLFloater* floaterp = getProfileFloater(gAgentID);
+    return floaterp && floaterp->isInVisibleChain();
+}
+
+bool LLAvatarActions::myPicksTabVisible()
+{
+    return myProfileVisible() && isPickTabSelected(gAgentID);
 }
 
 // static
@@ -853,6 +865,13 @@ namespace action_give_inventory
                     break;
                 }
                 LLViewerInventoryItem* inv_item = gInventory.getItem(*it);
+                if (!inv_item)
+                {
+                    shared = false;
+                    LL_WARNS() << "Failed to share an item " << *it
+                        << ". Item was not found in inventory." << LL_ENDL;
+                    continue;
+                }
                 if (!inv_item->getPermissions().allowCopyBy(gAgentID))
                 {
                     if (!noncopy_item_names.empty())
@@ -1240,6 +1259,12 @@ void LLAvatarActions::inviteToGroup(const LLUUID& id)
 // static
 void LLAvatarActions::viewChatHistory(const LLUUID& id)
 {
+    // A pending account-wide deletion suppresses both transcript and service sources.
+    if (LLChatServiceHistory::historySuppressed())
+    {
+        return;
+    }
+
     const std::vector<LLConversation>& conversations = LLConversationLog::instance().getConversations();
     std::vector<LLConversation>::const_iterator iter = conversations.begin();
 
@@ -1260,6 +1285,7 @@ void LLAvatarActions::viewChatHistory(const LLUUID& id)
         LLAvatarNameCache::get(id, &avatar_name);
         extended_id[LL_FCP_COMPLETE_NAME] = avatar_name.getCompleteName();
         extended_id[LL_FCP_ACCOUNT_NAME] = avatar_name.getAccountName();
+        extended_id[LL_FCP_PARTICIPANT_ID] = id;
         LLFloaterReg::showInstance("preview_conversation", extended_id, true);
     }
 }

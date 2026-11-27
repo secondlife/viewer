@@ -37,15 +37,15 @@ public:
     LLKeyData(EMouseClickType mouse, KEY key, MASK mask);
     LLKeyData(EMouseClickType mouse, KEY key, bool ignore_mask);
     LLKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignore_mask);
+    LLKeyData(U8 actionType, U8 action);
     LLKeyData(const LLSD &key_data);
 
     LLSD asLLSD() const;
     bool isEmpty() const;
     bool empty() const { return isEmpty(); };
     void reset();
-    LLKeyData& operator=(const LLKeyData& rhs);
-    bool operator==(const LLKeyData& rhs);
-    bool operator!=(const LLKeyData& rhs);
+    bool operator==(const LLKeyData& rhs) const;
+    bool operator!=(const LLKeyData& rhs) const;
 
     bool canHandle(const LLKeyData& data) const;
     bool canHandle(EMouseClickType mouse, KEY key, MASK mask) const;
@@ -53,6 +53,8 @@ public:
     EMouseClickType mMouse;
     KEY mKey;
     MASK mMask;
+    U8 mControllerActionType;
+    U8 mControllerAction;
     // Either to expect exact match or ignore not expected masks as long as expected mask-bit is present
     bool mIgnoreMasks;
 };
@@ -64,8 +66,8 @@ public:
     LLKeyBind() {}
     LLKeyBind(const LLSD &key_bind);
 
-    bool operator==(const LLKeyBind& rhs);
-    bool operator!=(const LLKeyBind& rhs);
+    bool operator==(const LLKeyBind& rhs) const;
+    bool operator!=(const LLKeyBind& rhs) const;
     bool isEmpty() const;
     bool empty() const { return isEmpty(); };
 

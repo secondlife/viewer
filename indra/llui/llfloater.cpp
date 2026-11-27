@@ -250,6 +250,7 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
     mShortTitle(p.short_title),
     mSingleInstance(p.single_instance),
     mReuseInstance(p.reuse_instance.isProvided() ? p.reuse_instance : p.single_instance), // reuse single-instance floaters by default
+    mIsReuseInitialized(p.reuse_instance.isProvided()),
     mKey(key),
     mCanTearOff(p.can_tear_off),
     mCanMinimize(p.can_minimize),
@@ -513,19 +514,15 @@ void LLFloater::destroy()
 {
     // LLFloaterReg should be synchronized with "dead" floater to avoid returning dead instance before
     // it was deleted via LLMortician::updateClass(). See EXT-8458.
-    LLFloaterReg::removeInstance(mInstanceName, mKey);
+    LLFloaterReg::removeInstance(this);
     die();
 }
 
 // virtual
 LLFloater::~LLFloater()
 {
-    if (!isDead())
-    {
-        // If it's dead, instance is supposed to be already removed, and
-        // in case of single instance we can remove new one by accident
-        LLFloaterReg::removeInstance(mInstanceName, mKey);
-    }
+    // Remove by pointer, not by key: another live instance may share or have taken over our key.
+    LLFloaterReg::removeInstance(this);
 
     if( gFocusMgr.childHasKeyboardFocus(this))
     {
@@ -3359,6 +3356,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
     mLegacyHeaderHeight = p.legacy_header_height;
     mSingleInstance = p.single_instance;
     mReuseInstance = p.reuse_instance.isProvided() ? p.reuse_instance : p.single_instance;
+    mIsReuseInitialized = p.reuse_instance.isProvided();
 
     mDefaultRelativeX = p.rel_x;
     mDefaultRelativeY = p.rel_y;

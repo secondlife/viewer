@@ -298,7 +298,7 @@ void LLUIColorTable::saveUserSettings() const
     if(!output_node->isNull())
     {
         const std::string& filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "colors.xml");
-        LLFILE *fp = LLFile::fopen(filename, "w");
+        LLFILE *fp = LLFile::fopen(filename, LLFILE_MODE("w"));
 
         if(fp != NULL)
         {

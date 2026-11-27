@@ -1305,10 +1305,23 @@ void LLManipScale::renderGuidelinesPart( const LLBBox& bbox )
 
 void LLManipScale::updateSnapGuides(const LLBBox& bbox)
 {
+    const bool is_face = (LL_FACE_MIN <= (S32)mManipPart) && ((S32)mManipPart <= LL_FACE_MAX);
+    const bool is_corner = (LL_CORNER_MIN <= (S32)mManipPart) && ((S32)mManipPart <= LL_CORNER_MAX);
+    if (!is_face && !is_corner)
+    {
+        return;
+    }
+
     LLVector3 grid_origin;
     LLVector3 grid_scale;
     LLQuaternion grid_rotation;
     LLSelectMgr::getInstance()->getGrid(grid_origin, grid_rotation, grid_scale);
+    LLViewerCamera* camera = LLViewerCamera::getInstance();
+    if (!camera)
+    {
+        // can be null on shutdown
+        return;
+    }
 
     bool uniform = LLManipScale::getUniform();
 
@@ -1345,7 +1358,7 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
     LLVector3 off_axis_dir = mScaleDir % cam_at_axis;
     off_axis_dir.normalize();
 
-    if( (LL_FACE_MIN <= (S32)mManipPart) && ((S32)mManipPart <= LL_FACE_MAX) )
+    if (is_face)
     {
         LLVector3 bbox_relative_cam_dir = off_axis_dir * ~bbox.getRotation();
         bbox_relative_cam_dir.abs();
@@ -1370,7 +1383,7 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
         mSnapDir1 = mScaleDir;
         mSnapDir2 = mScaleDir;
     }
-    else if( (LL_CORNER_MIN <= (S32)mManipPart) && ((S32)mManipPart <= LL_CORNER_MAX) )
+    else if (is_corner)
     {
         LLVector3 local_camera_dir;
         if (mObjectSelection->getSelectType() == SELECT_TYPE_HUD)

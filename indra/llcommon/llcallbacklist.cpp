@@ -24,6 +24,8 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
 #include "llcallbacklist.h"
 #include "lleventtimer.h"
 #include "llerrorlegacy.h"
@@ -109,11 +111,16 @@ void LLCallbackList::deleteAllFunctions()
 
 void LLCallbackList::callFunctions()
 {
+    mCallStartTime = LLTimer::getTotalSeconds();
+    mInCallFunctions = true;
+
     for (callback_list_t::iterator iter = mCallbackList.begin(); iter != mCallbackList.end(); )
     {
         callback_list_t::iterator curiter = iter++;
         curiter->first(curiter->second);
     }
+
+    mInCallFunctions = false;
 }
 
 // Shim class to allow arbitrary boost::bind

@@ -111,6 +111,10 @@ inline bool is_flag_set(U64 flags, U64 flag)
     return (flags & flag) != 0;
 }
 
+constexpr U32 REGION_COMBAT_FLAG_DAMAGE_ADJUST  = 0x0001;
+constexpr U32 REGION_COMBAT_FLAG_RESTRICT_LOG   = 0x0002;
+constexpr U32 REGION_COMBAT_FLAG_RESTORE_HEALTH = 0x0004;
+
 inline bool is_prelude( U64 flags )
 {
     // definition of prelude does not depend on fixed-sun

@@ -151,7 +151,6 @@ void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 so
 {
     S32 num_output_sections = 1<<dest_sections;
     LLVector3 scale = mVO->mDrawable->getScale();
-    F32 source_section_length = scale.mV[VZ] / (F32)(1<<source_sections);
     F32 section_length = scale.mV[VZ] / (F32)num_output_sections;
     if (source_sections == -1)
     {
@@ -183,6 +182,7 @@ void LLVolumeImplFlexible::remapSections(LLFlexibleObjectSection *source, S32 so
         // Iterate from right to left since it may be an in-place computation
         S32 step_shift = dest_sections-source_sections;
         S32 num_steps = 1<<step_shift;
+        F32 source_section_length = scale.mV[VZ] / (F32)(1<<source_sections);
         for (S32 section=num_output_sections-num_steps; section>=0; section -= num_steps)
         {
             LLFlexibleObjectSection *last_source_section = &source[section>>step_shift];
@@ -303,7 +303,10 @@ void LLVolumeImplFlexible::updateRenderRes()
     F32 app_angle = mVO->getScale().mV[2]/drawablep->mDistanceWRTCamera;
 
     // Rendering sections increases with visible angle on the screen
-    mRenderRes = (S32) (12.f*app_angle);
+    F32 render_res = 12.f * app_angle;
+    mRenderRes = (render_res > (F32) FLEXIBLE_OBJECT_MAX_SECTIONS) ? (S32) FLEXIBLE_OBJECT_MAX_SECTIONS
+               : (render_res > 0.f) ? (S32) render_res : 0;
+
 #else //legacy behavior
     //number of segments only cares about z axis
     F32 app_angle = ll_round((F32) atan2( mVO->getScale().mV[2]*2.f, drawablep->mDistanceWRTCamera) * RAD_TO_DEG, 0.01f);
@@ -357,9 +360,10 @@ void LLVolumeImplFlexible::doIdleUpdate()
                 // Note: Flexies afar will be rarely updated, closer ones will be updated more frequently.
                 // But frequency differences are extremely noticeable, so consider modifying update factor,
                 // or at least clamping value a bit more from both sides.
-                U32 update_period = (U32) (llmax((S32) (LLViewerCamera::getInstance()->getScreenPixelArea()*0.01f/(pixel_area*(sUpdateFactor+1.f))),0)+1);
+                F32 period_ratio = LLViewerCamera::getInstance()->getScreenPixelArea() * 0.01f / (pixel_area * (sUpdateFactor + 1.f));
                 // MAINT-1890 Clamp the update period to ensure that the update_period is no greater than 32 frames
-                update_period = llclamp(update_period, 1U, 32U);
+                U32 update_period = (period_ratio >= 31.f) ? 32U
+                                  : (period_ratio > 0.f) ? (U32) period_ratio + 1U : 1U;
 
                 // We control how fast flexies update, buy splitting updates among frames
                 U64 virtual_frame_num = (U64)(LLTimer::getElapsedSeconds() / SEC_PER_FLEXI_FRAME);

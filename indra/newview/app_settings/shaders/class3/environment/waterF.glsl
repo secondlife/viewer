@@ -122,9 +122,7 @@ vec3 atmosLighting(vec3 light);
 vec3 scaleSoftClip(vec3 light);
 vec3 toneMapNoExposure(vec3 color);
 
-vec3 vN, vT, vB;
-
-vec3 transform_normal(vec3 vNt)
+vec3 transform_normal(vec3 vN, vec3 vT, vec3 vB, vec3 vNt)
 {
     return normalize(vNt.x * vT + vNt.y * vB + vNt.z * vN);
 }
@@ -184,9 +182,9 @@ void main()
 {
     mirrorClip(vary_position);
 
-    vN = vary_normal;
-    vT = vary_tangent;
-    vB = cross(vN, vT);
+    vec3 vN = vary_normal;
+    vec3 vT = vary_tangent;
+    vec3 vB = cross(vN, vT);
 
     vec3 pos = vary_position.xyz;
     float linear_depth = 1 / -pos.z;
@@ -222,14 +220,14 @@ void main()
 
     vec3 waver = wavef*3;
 
-    vec3 up = transform_normal(vec3(0,0,1));
+    vec3 up = transform_normal(vN, vT, vB, vec3(0,0,1));
     float vdu = -dot(viewVec, up)*2;
 
     vec3 wave_ibl = wavef * normScale;
     wave_ibl.z *= 2.0;
-    wave_ibl = transform_normal(normalize(wave_ibl));
+    wave_ibl = transform_normal(vN, vT, vB, normalize(wave_ibl));
 
-    vec3 norm = transform_normal(normalize(wavef));
+    vec3 norm = transform_normal(vN, vT, vB, normalize(wavef));
 
     vdu = clamp(vdu, 0, 1);
     //wavef.z *= max(vdu*vdu*vdu, 0.1);
@@ -237,7 +235,7 @@ void main()
     wavef = normalize(wavef);
 
     //wavef = vec3(0, 0, 1);
-    wavef = transform_normal(wavef);
+    wavef = transform_normal(vN, vT, vB, wavef);
 
     float dist2 = dist;
     dist = max(dist, 5.0);
@@ -312,7 +310,7 @@ void main()
 
     vec3 colorEmissive = vec3(0);
     float ao = 1.0;
-    vec3 light_dir = transform_normal(lightDir);
+    vec3 light_dir = transform_normal(vN, vT, vB, lightDir);
 
     float NdotV = clamp(abs(dot(norm, v)), 0.001, 1.0);
 

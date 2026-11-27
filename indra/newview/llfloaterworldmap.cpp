@@ -419,7 +419,7 @@ bool LLFloaterWorldMap::postBuild()
     mEventsMatureCheck = getChild<LLCheckBoxCtrl>("events_mature_chk");
     mEventsAdultCheck = getChild<LLCheckBoxCtrl>("events_adult_chk");
 
-    mAvatarIcon = getChild<LLUICtrl>("avatar_icon");
+    mFriendAvatarIcon = getChild<LLUICtrl>("friends_icon");
     mLandmarkIcon = getChild<LLUICtrl>("landmark_icon");
     mLocationIcon = getChild<LLUICtrl>("location_icon");
 
@@ -610,11 +610,11 @@ void LLFloaterWorldMap::draw()
     LLTracker::ETrackingStatus tracking_status = LLTracker::getTrackingStatus();
     if (LLTracker::TRACKING_AVATAR == tracking_status)
     {
-        mAvatarIcon->setColor( map_track_color);
+        mFriendAvatarIcon->setColor( map_track_color);
     }
     else
     {
-        mAvatarIcon->setColor( map_track_disabled_color);
+        mFriendAvatarIcon->setColor( map_track_disabled_color);
     }
 
     if (LLTracker::TRACKING_LANDMARK == tracking_status)

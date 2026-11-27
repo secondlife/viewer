@@ -24,6 +24,7 @@ set(llmessage_SOURCE_FILES
     llcoproceduremanager.cpp
     llcorehttputil.cpp
     lldatapacker.cpp
+    lldecodedmessage.cpp
     lldispatcher.cpp
     llexperiencecache.cpp
     llgenericstreamingmessage.cpp
@@ -67,6 +68,7 @@ set(llmessage_SOURCE_FILES
     lltransfertargetfile.cpp
     lltransfertargetvfile.cpp
     lltrustedmessageservice.cpp
+    lludpreceiverthread.cpp
     lluseroperation.cpp
     llxfer.cpp
     llxfer_file.cpp
@@ -79,7 +81,6 @@ set(llmessage_SOURCE_FILES
     message_prehash.cpp
     message_string_table.cpp
     net.cpp
-    partsyspacket.cpp
     patch_code.cpp
     patch_dct.cpp
     patch_idct.cpp
@@ -103,6 +104,7 @@ set(llmessage_HEADER_FILES
     llcorehttputil.h
     lldatapacker.h
     lldbstrings.h
+    lldecodedmessage.h
     lldispatcher.h
     lleventflags.h
     llexperiencecache.h
@@ -158,6 +160,7 @@ set(llmessage_HEADER_FILES
     lltransfertargetfile.h
     lltransfertargetvfile.h
     lltrustedmessageservice.h
+    lludpreceiverthread.h
     lluseroperation.h
     llvehicleparams.h
     llxfer.h
@@ -166,12 +169,12 @@ set(llmessage_HEADER_FILES
     llxfer_mem.h
     llxfer_vfile.h
     llxorcipher.h
+    llzerocode.h
     machine.h
     mean_collision_data.h
     message.h
     message_prehash.h
     net.h
-    partsyspacket.h
     patch_code.h
     patch_dct.h
     sound_ids.h
@@ -189,6 +192,10 @@ target_link_libraries(
         llcorehttp
 )
 target_include_directories( llmessage  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
+
+if (USE_PRECOMPILED_HEADERS)
+  target_precompile_headers(llmessage REUSE_FROM llprecompiled)
+endif ()
 
 # tests
 if (LL_TESTS)
@@ -211,9 +218,24 @@ if (LL_TESTS)
           llcommon
           )
 
-  #LL_ADD_INTEGRATION_TEST(llavatarnamecache "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(io "tests/llpipeutil.cpp" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llavatarnamecache "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llbuffer "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(lldatapacker "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llhost "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llhttpnode "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(lliohttpserver "tests/llpipeutil.cpp" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llsdmessagebuilder "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llsdmessagereader "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llmessageconfig "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llmessagetemplate "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llmessagetemplateparser "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llpartdata "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llservicebuilder "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(lltemplatemessagebuilder "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llxfer_file "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llzerocode "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llxorcipher "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(message "" "${test_libs}")
 endif (LL_TESTS)
 

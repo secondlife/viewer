@@ -65,6 +65,7 @@
 #include "llmediactrl.h"
 #include "llrootview.h"
 
+#include "llfloaterjoin.h"
 #include "llfloatertos.h"
 #include "lltrans.h"
 #include "llglheaders.h"
@@ -205,7 +206,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
     mPasswordLength(0),
     mLocationLength(0),
     mShowFavorites(false),
-    mAlertNotif(false)
+    mAlertNotif(false),
+    mLoginBtn(nullptr)
 {
     setBackgroundVisible(false);
     setBackgroundOpaque(true);
@@ -535,6 +537,24 @@ void LLPanelLogin::reshapePanel()
 }
 
 //static
+void LLPanelLogin::setCredentialFields(const std::string& username, const std::string& password)
+{
+    if (!sInstance)
+        return;
+    sInstance->getChild<LLComboBox>("username_combo")->setLabel(username);
+    sInstance->mUsernameLength = static_cast<unsigned int>(username.length());
+    sInstance->getChild<LLUICtrl>("password_edit")->setValue(password);
+    sInstance->mPasswordLength = static_cast<unsigned int>(password.length());
+    sInstance->mPasswordModified = true;
+    sInstance->updateLoginButtons();
+
+    sInstance->getChild<LLUICtrl>("remember_name")->setValue(true);
+    LLUICtrl* remember_password = sInstance->getChild<LLUICtrl>("remember_password");
+    remember_password->setValue(true);
+    remember_password->setEnabled(true);
+}
+
+//static
 void LLPanelLogin::populateFields(LLPointer<LLCredential> credential, bool remember_user, bool remember_psswrd)
 {
     if (!sInstance)
@@ -807,6 +827,8 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
     case LLSLURL::HOME_LOCATION:
         //location_combo->setCurrentByIndex(0); // home location
         break;
+    case LLSLURL::LAST_LOCATION:
+        break;
 
     default:
         LL_WARNS("AppInit")<<"invalid login slurl, using home"<<LL_ENDL;
@@ -1054,10 +1076,7 @@ void LLPanelLogin::onClickForgotPassword(void*)
 //static
 void LLPanelLogin::onClickSignUp(void*)
 {
-    if (sInstance)
-    {
-        LLWeb::loadURLExternal(sInstance->getString("sign_up_url"));
-    }
+    LLFloaterReg::showInstance("join");
 }
 
 // static
@@ -1219,6 +1238,10 @@ void LLPanelLogin::updateServer()
 
 void LLPanelLogin::updateLoginButtons()
 {
+    if (!mLoginBtn)
+    {
+        return;
+    }
     mLoginBtn->setEnabled(mUsernameLength != 0 && mPasswordLength != 0 && !mAlertNotif);
 
     LLComboBox* user_combo = getChild<LLComboBox>("username_combo");

@@ -502,6 +502,9 @@ public:
     S32 unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num); // Variable num of blocks
     S32 unpackTEMessage(LLDataPacker &dp);
     S32 parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec);
+    // Same as above, but usable before an instance exists to derive the face count from
+    // (e.g. decoding a message for an object that hasn't been created yet).
+    static S32 parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec, U8 face_count);
     S32 applyParsedTEMessage(LLTEContents& tec);
 
 #ifdef CHECK_FOR_FINITE

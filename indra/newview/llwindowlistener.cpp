@@ -90,9 +90,17 @@ LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter&
         "to list; all nodes from root if no [\"under\"].",
         &LLWindowListener::getPaths,
         LLSDMap("reply", LLSD()));
+    add("getSubtree",
+        "Send on [\"reply\"] a nested tree of info maps for all descendants of\n"
+        "optional [\"under\"] path (default: root). Each node contains the same\n"
+        "fields as getInfo plus a [\"children\"] array of child nodes.",
+        &LLWindowListener::getSubtree,
+        LLSDMap("reply", LLSD()));
     add("keyDown",
         keySomething + "keypress event.\n" + keyExplain +
-        "The [\"char\"] parameter detects and handles non-ASCII characters seperately\n" + mask,
+        "The [\"char\"] parameter detects and handles non-ASCII characters seperately\n"
+        "Optional [\"hold_key\"] also registers the key with the keyboard state, so it keeps\n"
+        "triggering per-frame actions (e.g. avatar movement) until a matching keyUp arrives.\n" + mask,
         &LLWindowListener::keyDown);
     add("keyUp",
         keySomething + "key release event.\n" + keyExplain + mask,
@@ -114,6 +122,22 @@ LLWindowListener::LLWindowListener(LLViewerWindow *window, const KeyboardGetter&
         "Paste specified [\"text\"] into the current edit field\n"
         "Optional [\"path\"] specifies target UI element (must be focusable).",
         &LLWindowListener::pasteText);
+    add("cut",
+        "Cut selected content from the focused edit field.\n"
+        "Optional [\"path\"] specifies target UI element (must be focusable).",
+        &LLWindowListener::cut);
+    add("copy",
+        "Copy selected content from the focused edit field.\n"
+        "Optional [\"path\"] specifies target UI element (must be focusable).",
+        &LLWindowListener::copy);
+    add("paste",
+        "Paste clipboard contents into the focused edit field.\n"
+        "Optional [\"path\"] specifies target UI element (must be focusable).",
+        &LLWindowListener::paste);
+    add("selectAll",
+        "Select all content in the focused edit field.\n"
+        "Optional [\"path\"] specifies target UI element (must be focusable).",
+        &LLWindowListener::selectAll);
 }
 
 template <typename MAPPED>
@@ -265,6 +289,41 @@ void LLWindowListener::getPaths(LLSD const & request)
     }
 }
 
+static LLSD buildSubtree(LLView* view)
+{
+    LLSD children;
+    LLSD node = view->getInfo();
+    for (LLView::child_list_const_iter_t it = view->beginChild(); it != view->endChild(); ++it)
+    {
+        children.append(buildSubtree(*it));
+    }
+    node["children"] = children;
+    return node;
+}
+
+void LLWindowListener::getSubtree(LLSD const & request)
+{
+    Response response(LLSD(), request);
+    LLView* root = LLUI::getInstance()->getRootView();
+    LLView* base = nullptr;
+    std::string under(request["under"]);
+
+    if (under.empty())
+    {
+        base = root;
+    }
+    else
+    {
+        base = LLUI::getInstance()->resolvePath(root, under);
+        if (!base)
+        {
+            return response.error(STRINGIZE(request["op"].asString() << " request specified invalid \"under\" path: '" << under << "'"));
+        }
+    }
+
+    response.setResponse(buildSubtree(base));
+}
+
 void LLWindowListener::keyDown(LLSD const & evt)
 {
     Response response(LLSD(), evt);
@@ -309,6 +368,9 @@ void LLWindowListener::keyDown(LLSD const & evt)
             {
                 gViewerInput.handleKey(key, mask, false);
                 if(key < 0x80) mWindow->handleUnicodeChar(key, mask);
+
+                if (evt.has("hold_key") && evt["hold_key"].asBoolean())
+                    mKbGetter()->handleTranslatedKeyDown(key, mask);
             }
         }
         else
@@ -329,6 +391,9 @@ void LLWindowListener::keyDown(LLSD const & evt)
         {
             gViewerInput.handleKey(key, mask, false);
             if(key < 0x80) mWindow->handleUnicodeChar(key, mask);
+
+            if (evt.has("hold_key") && evt["hold_key"].asBoolean())
+                mKbGetter()->handleTranslatedKeyDown(key, mask);
         }
     }
 }
@@ -615,4 +680,78 @@ void LLWindowListener::pasteText(LLSD const & evt)
     {
         LLClipboard::instance().reset();
     }
+}
+
+// Helper: optionally focus a view by path; returns false and sets response error on failure.
+static bool focusViewByPath(const LLSD& evt, LLEventAPI::Response& response)
+{
+    if (!evt.has("path"))
+        return true;
+
+    std::string path(evt["path"]);
+    LLView* target_view = LLUI::getInstance()->resolvePath(LLUI::getInstance()->getRootView(), path);
+    if (!target_view)
+    {
+        response.error(STRINGIZE(evt["op"].asString() << " request specified invalid \"path\": " << path));
+        return false;
+    }
+    if (!target_view->isAvailable())
+    {
+        response.error(STRINGIZE("Target view specified by \"path\": " << path << " is not visible"));
+        return false;
+    }
+    gFocusMgr.setKeyboardFocus(target_view);
+    return true;
+}
+
+void LLWindowListener::cut(LLSD const & evt)
+{
+    Response response(LLSD(), evt);
+    if (!focusViewByPath(evt, response))
+        return;
+    if (!LLEditMenuHandler::gEditMenuHandler)
+    {
+        response.error(STRINGIZE(evt["op"].asString() << " request failed: no edit menu handler available"));
+        return;
+    }
+    LLEditMenuHandler::gEditMenuHandler->cut();
+}
+
+void LLWindowListener::copy(LLSD const & evt)
+{
+    Response response(LLSD(), evt);
+    if (!focusViewByPath(evt, response))
+        return;
+    if (!LLEditMenuHandler::gEditMenuHandler)
+    {
+        response.error(STRINGIZE(evt["op"].asString() << " request failed: no edit menu handler available"));
+        return;
+    }
+    LLEditMenuHandler::gEditMenuHandler->copy();
+}
+
+void LLWindowListener::paste(LLSD const & evt)
+{
+    Response response(LLSD(), evt);
+    if (!focusViewByPath(evt, response))
+        return;
+    if (!LLEditMenuHandler::gEditMenuHandler)
+    {
+        response.error(STRINGIZE(evt["op"].asString() << " request failed: no edit menu handler available"));
+        return;
+    }
+    LLEditMenuHandler::gEditMenuHandler->paste();
+}
+
+void LLWindowListener::selectAll(LLSD const & evt)
+{
+    Response response(LLSD(), evt);
+    if (!focusViewByPath(evt, response))
+        return;
+    if (!LLEditMenuHandler::gEditMenuHandler)
+    {
+        response.error(STRINGIZE(evt["op"].asString() << " request failed: no edit menu handler available"));
+        return;
+    }
+    LLEditMenuHandler::gEditMenuHandler->selectAll();
 }

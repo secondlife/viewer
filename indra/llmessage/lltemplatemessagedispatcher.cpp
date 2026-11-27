@@ -24,6 +24,7 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
 
 #include "lltemplatemessagedispatcher.h"
 

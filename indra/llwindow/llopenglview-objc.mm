@@ -137,6 +137,18 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void)viewDidMoveToWindow
 {
+    // viewDidMoveToWindow is called both when the view is attached to a window
+    // and when it is detached (window == nil).
+    [NSObject cancelPreviousPerformRequestsWithTarget:self
+                                         selector:@selector(performDeferredResolutionUpdate)
+                                         object:nil];
+
+    if (![self window])
+    {
+        [[NSNotificationCenter defaultCenter] removeObserver:self];
+        return;
+    }
+
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(windowResized:) name:NSWindowDidResizeNotification
                                                object:[self window]];
@@ -157,11 +169,37 @@ attributedStringInfo getSegments(NSAttributedString *str)
                                                object:[self window]];
 
 
-    NSRect wnd_rect = [[self window] frame];
-    NSRect dev_rect = [self convertRectToBacking:wnd_rect];
-    if (!NSEqualSizes(wnd_rect.size,dev_rect.size))
+    if (windowCallbacksReady())
     {
-        callResize(dev_rect.size.width, dev_rect.size.height);
+        NSRect wnd_rect = [[self window] frame];
+        NSRect dev_rect = [self convertRectToBacking:wnd_rect];
+        if (!NSEqualSizes(wnd_rect.size,dev_rect.size))
+        {
+            // If window size actually changes, update size immediately
+            callResize(dev_rect.size.width, dev_rect.size.height);
+        }
+        else
+        {
+            // Defer size update to let the window settle on its final display
+            // before checkSettings() reads the live backing size.
+            callRequestResolutionUpdate();
+        }
+    }
+    else
+    {
+        // Defer so that mCallbacks is the real callbacks object,
+        // not the null_callbacks used during LLWindowMacOSX construction.
+        // afterDelay will fire on the next loop iteration.
+        NSLog(@"viewDidMoveToWindow triggered, but callbacks not ready, postponing resolution update", nil);
+        [self performSelector:@selector(performDeferredResolutionUpdate) withObject:nil afterDelay:0];
+    }
+}
+
+- (void)performDeferredResolutionUpdate
+{
+    if ([self window])
+    {
+        callRequestResolutionUpdate();
     }
 }
 
@@ -280,6 +318,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
         [glContext setValues:&swapInterval forParameter:NSOpenGLContextParameterSwapInterval];
     }
 
+    [glContext release]; // setOpenGLContext: retains the context for the view.
     return self;
 }
 
@@ -339,11 +378,15 @@ attributedStringInfo getSegments(NSAttributedString *str)
     {
         callRightMouseDown(mMousePos, [theEvent modifierFlags]);
         mSimulatedRightClick = true;
-    } else {
+    }
+    else
+    {
         if ([theEvent clickCount] == 2)
         {
-            callDoubleClick(mMousePos, [theEvent modifierFlags]);
-        } else if ([theEvent clickCount] >= 1) {
+            callLeftDoubleClick(mMousePos, [theEvent modifierFlags]);
+        }
+        else if ([theEvent clickCount] >= 1)
+        {
             callLeftMouseDown(mMousePos, [theEvent modifierFlags]);
         }
     }
@@ -365,7 +408,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) rightMouseDown:(NSEvent *)theEvent
 {
-    callRightMouseDown(mMousePos, [theEvent modifierFlags]);
+    if ([theEvent clickCount] == 2)
+    {
+        callRightDoubleClick(mMousePos, [theEvent modifierFlags]);
+    }
+    else
+    {
+        callRightMouseDown(mMousePos, [theEvent modifierFlags]);
+    }
 }
 
 - (void) rightMouseUp:(NSEvent *)theEvent
@@ -416,7 +466,14 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) otherMouseDown:(NSEvent *)theEvent
 {
-    callOtherMouseDown(mMousePos, [theEvent modifierFlags], [theEvent buttonNumber]);
+    if ([theEvent buttonNumber] == 2 && [theEvent clickCount] == 2)
+    {
+        callMiddleDoubleClick(mMousePos, [theEvent modifierFlags]);
+    }
+    else
+    {
+        callOtherMouseDown(mMousePos, [theEvent modifierFlags], [theEvent buttonNumber]);
+    }
 }
 
 - (void) otherMouseUp:(NSEvent *)theEvent
@@ -480,7 +537,30 @@ attributedStringInfo getSegments(NSAttributedString *str)
         (ch < 0xF700 || ch > 0xF8FF))  // 0xF700-0xF8FF: reserved for function keys on the keyboard(from NSEvent.h)
     {
         [(LLAppDelegate*)[NSApp delegate] showInputWindow:true withEvent:theEvent];
-    } else
+    }
+    else if ([theEvent isARepeat] && !mMarkedTextAllowed && !mHasMarkedText && !callKeyboardFocusAcceptsText())
+    {
+        if (mModifiers & (NSEventModifierFlagControl | NSEventModifierFlagCommand))
+        {
+            return;
+        }
+        // Held keys outside text input (e.g. WASD movement) must bypass the input context,
+        // otherwise macOS press-and-hold pops up the accent character menu. See #3841
+        NSString *chars = [theEvent characters];
+        for (NSUInteger i = 0; i < [chars length]; i++)
+        {
+            unichar c = [chars characterAtIndex:i];
+            if (c == '\r' || c == NSEnterCharacter)
+            {
+                [self insertNewline:self];
+            }
+            else if (c >= ' ' && c != NSDeleteCharacter && (c < 0xF700 || c > 0xF8FF))
+            {
+                callUnicodeCallback(c, mModifiers);
+            }
+        }
+    }
+    else
     {
         [[self inputContext] handleEvent:theEvent];
     }

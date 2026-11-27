@@ -253,11 +253,21 @@ bool LLPanelMainInventory::postBuild()
                 LLParamSDParser parser;
                 parser.readSD(recent_items, p);
                 mRecentPanel->getFilter().fromParams(p);
-                mRecentPanel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::RECENTITEMS_SORT_ORDER));
+
+                // Restore sort order if it was saved
+                if (p.order.isProvided())
+                {
+                    mRecentPanel->setSortOrder(p.order());
+                }
+                else
+                {
+                    mRecentPanel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::RECENTITEMS_SORT_ORDER));
+                }
             }
         }
         if(mActivePanel)
         {
+            // 'all items' tab
             if(savedFilterState.has(mActivePanel->getFilter().getName()))
             {
                 LLSD items = savedFilterState.get(mActivePanel->getFilter().getName());
@@ -1225,7 +1235,7 @@ void LLFloaterInventoryFinder::onTimeAgo()
         mCheckSinceLogoff->setValue(false);
 
         U32 days = (U32)mSpinSinceDays->get();
-        U32 hours = (U32)mSpinSinceHours->get();
+        F32 hours = mSpinSinceHours->get();
         if (hours >= 24)
         {
             // Try to handle both cases of spinner clicking and text input in a sensible fashion as best as possible.
@@ -1234,13 +1244,13 @@ void LLFloaterInventoryFinder::onTimeAgo()
             // current day value.
             if (24 == hours)  // Got to 24 via spinner clicking or text input of 24
             {
-                days = days + hours / 24;
+                days = days + (U32)(hours / 24);
             }
             else    // Text input, so do not add to days
             {
-                days = hours / 24;
+                days = (U32)(hours / 24);
             }
-            hours = (U32)hours % 24;
+            hours -= (U32)(hours / 24) * 24;
             mSpinSinceHours->setFocus(false);
             mSpinSinceDays->setFocus(false);
             mSpinSinceDays->set((F32)days);
@@ -1264,7 +1274,8 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
     // Get data needed for filter display
     U32 filter_types = (U32)mFilter->getFilterObjectTypes();
     LLInventoryFilter::EFolderShow show_folders = mFilter->getShowFolderState();
-    U32 hours = mFilter->getHoursAgo();
+    F32 hours = mFilter->getHoursAgo();
+    U32 days = (U32)(hours / 24);
     U32 date_search_direction = mFilter->getDateSearchDirection();
 
     LLInventoryFilter::EFilterCreatorType filter_creator = mFilter->getFilterCreatorType();
@@ -1293,8 +1304,8 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
     mCreatorOthers->setValue(show_created_by_others);
 
     mCheckSinceLogoff->setValue(mFilter->isSinceLogoff());
-    mSpinSinceHours->set((F32)(hours % 24));
-    mSpinSinceDays->set((F32)(hours / 24));
+    mSpinSinceHours->set(hours - days * 24);
+    mSpinSinceDays->set((F32)days);
     mRadioDateSearchDirection->setSelectedIndex(date_search_direction);
 }
 
@@ -1415,11 +1426,11 @@ void LLFloaterInventoryFinder::draw()
         mSpinSinceHours->set(0);
     }
     U32 days = (U32)mSpinSinceDays->get();
-    U32 hours = (U32)mSpinSinceHours->get();
+    F32 hours = mSpinSinceHours->get();
     if (hours >= 24)
     {
-        days = hours / 24;
-        hours = (U32)hours % 24;
+        days = (U32)(hours / 24);
+        hours -= days * 24;
         // A UI element that has focus will not display a new value set to it
         mSpinSinceHours->setFocus(false);
         mSpinSinceDays->setFocus(false);

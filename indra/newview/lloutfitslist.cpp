@@ -519,6 +519,22 @@ void LLOutfitsList::resetItemSelection(LLWearableItemsList* list, const LLUUID& 
     list->resetSelection();
     mItemSelected = false;
     signalSelectionOutfitUUID(category_id);
+
+    // If filtering was applied while tab was collapsed, item visibility is updated but the parent tab height might not be updated.
+    // Force rearrange to recompute the height, when tab is expanded.
+    static LLCachedControl<bool> show_all_items(gSavedSettings, "OutfitListFilterFullList", 1);
+    if (!show_all_items)
+    {
+        outfits_map_t::const_iterator tab_iter = mOutfitsMap.find(category_id);
+        if (tab_iter != mOutfitsMap.end())
+        {
+            LLOutfitAccordionCtrlTab* tab = tab_iter->second;
+            if (tab && tab->getDisplayChildren())
+            {
+                list->notify(LLSD().with("rearrange", true));
+            }
+        }
+    }
 }
 
 void LLOutfitsList::onChangeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id)
@@ -664,6 +680,8 @@ void LLOutfitsList::applyFilterToTab(
     }
     else
     {
+        // We got a match
+        tab->setVisible(true);
         // Try restoring the tab selection.
         restoreOutfitSelection(tab, category_id);
     }
@@ -1089,8 +1107,7 @@ void LLOutfitListBase::onIdleRefreshList()
     }
 
     const F64 MAX_TIME = 0.005f;
-    F64 curent_time = LLTimer::getTotalSeconds();
-    const F64 end_time = curent_time + MAX_TIME;
+    const F64 end_time = gIdleCallbacks.getStartTime() + MAX_TIME;
 
     // Handle added tabs.
     while (mRefreshListState.AddedIterator < mRefreshListState.Added.end())
@@ -1098,8 +1115,7 @@ void LLOutfitListBase::onIdleRefreshList()
         const LLUUID cat_id = (*mRefreshListState.AddedIterator++);
         updateAddedCategory(cat_id);
 
-        curent_time = LLTimer::getTotalSeconds();
-        if (curent_time >= end_time)
+        if (LLTimer::getTotalSeconds() >= end_time)
             return;
     }
     mRefreshListState.Added.clear();
@@ -1111,8 +1127,7 @@ void LLOutfitListBase::onIdleRefreshList()
         const LLUUID cat_id = (*mRefreshListState.RemovedIterator++);
         updateRemovedCategory(cat_id);
 
-        curent_time = LLTimer::getTotalSeconds();
-        if (curent_time >= end_time)
+        if (LLTimer::getTotalSeconds() >= end_time)
             return;
     }
     mRefreshListState.Removed.clear();
@@ -1133,16 +1148,14 @@ void LLOutfitListBase::onIdleRefreshList()
             updateChangedCategoryName(cat, name);
         }
 
-        curent_time = LLTimer::getTotalSeconds();
-        if (curent_time >= end_time)
+        if (LLTimer::getTotalSeconds() >= end_time)
             return;
     }
 
     // Let derived classes process their own updates.
     while (updateOneOutfit())
     {
-        curent_time = LLTimer::getTotalSeconds();
-        if (curent_time >= end_time)
+        if (LLTimer::getTotalSeconds() >= end_time)
             return;
     }
 
@@ -1648,7 +1661,7 @@ bool LLOutfitListSortMenu::onEnable(LLSD::String param)
     }
     else if ("show_entire_outfit" == param)
     {
-        static LLCachedControl<bool> filter_mode(gSavedSettings, "OutfitListFilterFullList", 0);
+        static LLCachedControl<bool> filter_mode(gSavedSettings, "OutfitListFilterFullList", 1);
         return filter_mode;
     }
 

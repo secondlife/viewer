@@ -267,8 +267,8 @@ void LLDrawPoolAlpha::forwardRender(bool rigged)
 
     gGL.setColorMask(true, false);
 
-    if (!rigged && getType() == LLDrawPoolAlpha::POOL_ALPHA_POST_WATER)
-    { //render "highlight alpha" on final non-rigged pass
+    if (!rigged && (LLPipeline::sRenderingHUDs || getType() == LLDrawPoolAlpha::POOL_ALPHA_POST_WATER))
+    { //render "highlight alpha" on final non-rigged pass for non-HUDs (HUDs only run pre-water alpha pass)
         // NOTE -- hacky call here protected by !rigged instead of alongside "forwardRender"
         // so renderDebugAlpha is executed while gls_pipeline_alpha and depth GL state
         // variables above are still in scope
@@ -278,7 +278,7 @@ void LLDrawPoolAlpha::forwardRender(bool rigged)
 
 void LLDrawPoolAlpha::renderDebugAlpha()
 {
-    if (sShowDebugAlpha && !gCubeSnapshot)
+    if (sShowDebugAlpha && !gCubeSnapshot && !LLPipeline::sReflectionRender)
     {
         gHighlightProgram.bind();
         gGL.diffuseColor4f(1, 0, 0, 1);

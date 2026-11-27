@@ -95,6 +95,7 @@ namespace {
     const uint32_t SET_HIDDEN_RESTORE_DELAY_MS = 200;  // 200 ms to unmute again after hiding during teleport
     const uint32_t MUTE_FADE_DELAY_MS       = 500;   // 20ms fade followed by 480ms silence gets rid of the click just after unmuting.
                                                      // This is because the buffers and processing is cleared by the silence.
+                                                     // With StopMicCaptureWhenMuted, this is also the delay before capture is actually stopped.
 
     const F32 SPEAKING_AUDIO_LEVEL = 0.30;
 
@@ -208,6 +209,7 @@ LLSD LLVoiceWebRTCStats::read()
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 bool LLWebRTCVoiceClient::sShuttingDown = false;
+bool LLWebRTCVoiceClient::sWebRTCTerminated = false;
 
 LLWebRTCVoiceClient::LLWebRTCVoiceClient() :
     mHidden(false),
@@ -230,9 +232,11 @@ LLWebRTCVoiceClient::LLWebRTCVoiceClient() :
     mIsProcessingChannels(false),
     mIsCoroutineActive(false),
     mWebRTCPump("WebRTCClientPump"),
-    mWebRTCDeviceInterface(nullptr)
+    mWebRTCDeviceInterface(nullptr),
+    mAudioConfigInterface(nullptr)
 {
     sShuttingDown = false;
+    sWebRTCTerminated = false;
 
     mSpeakerVolume = 0.0;
 
@@ -255,6 +259,11 @@ void LLWebRTCVoiceClient::cleanupSingleton()
     if (mAvatarNameCacheConnection.connected())
     {
         mAvatarNameCacheConnection.disconnect();
+    }
+
+    if (mStopMicCaptureOnMuteConnection.connected())
+    {
+        mStopMicCaptureOnMuteConnection.disconnect();
     }
 
     sShuttingDown = true;
@@ -286,7 +295,41 @@ void LLWebRTCVoiceClient::initWebRTC()
 
     mWebRTCDeviceInterface = llwebrtc::getDeviceInterface();
     mWebRTCDeviceInterface->setDevicesObserver(this);
-    mMainQueue = LL::WorkQueue::getInstance("mainloop");
+
+    if (!mVoiceWorkQueue)
+    {
+        mVoiceWorkQueue = std::make_shared<LL::WorkQueue>("VoiceWebRTC");
+        // Service this queue every idle tick, on the main thread.
+        doOnIdleRepeating(
+        [queue = LL::WorkQueue::weak_t(mVoiceWorkQueue)]() -> bool
+        {
+            auto locked = queue.lock();
+            if (!locked || locked->isClosed())
+            {
+                // Done
+                return true;
+            }
+            locked->runPending();
+            // Returning false means "call me again next idle".
+            return false;
+        });
+    }
+
+    // Connect StopMicCaptureWhenMuted control so the changes apply instantly
+    if (!mStopMicCaptureOnMuteConnection.connected())
+    {
+        mStopMicCaptureOnMuteConnection =
+            gSavedSettings.getControl("StopMicCaptureWhenMuted")->getSignal()->connect(
+                [this](LLControlVariable*, const LLSD& new_val, const LLSD&)
+                {
+                    if (mWebRTCDeviceInterface)
+                    {
+                        mWebRTCDeviceInterface->setStopCaptureOnMute(new_val.asInteger());
+                    }
+                });
+    }
+    mWebRTCDeviceInterface->setStopCaptureOnMute(gSavedSettings.getS32("StopMicCaptureWhenMuted"));
+
     refreshDeviceLists();
 }
 
@@ -297,13 +340,90 @@ void LLWebRTCVoiceClient::terminate()
         return;
     }
 
-    LL_INFOS("Voice") << "Terminating WebRTC" << LL_ENDL;
-
     mVoiceEnabled = false;
     sShuttingDown = true; // so that coroutines won't post more work.
+
+    LL_INFOS("Voice") << "Draining WebRTC connections" << LL_ENDL;
+    drainConnections();
+
+    LL_INFOS("Voice") << "Calling llwebrtc::terminate()" << LL_ENDL;
+    sWebRTCTerminated = true;
     llwebrtc::terminate();
 
     mWebRTCDeviceInterface = nullptr;
+}
+
+// Close the live peer connections before handing control to
+// llwebrtc::terminate().
+//
+// Anything still open when terminate() runs gets closed inline and serially on
+// the signaling thread, under a single 10s budget that is also paying for the
+// audio device shutdown.  An estate session can hold ten live connections --
+// the current region plus up to eight neighbours, plus any group or ad-hoc
+// session -- each needing a full DTLS/SCTP teardown, so that budget is not
+// generous.  Closing them here lets the teardown proceed asynchronously on the
+// signaling thread while this thread keeps pumping.
+//
+// It also quiets the per-connection stats poll before terminate() runs.  A
+// GetStats request left in flight makes PeerConnection::Close() block in
+// RTCStatsCollector::WaitForPendingRequest(), which waits on the network thread
+// with no timeout at all.
+//
+// Best effort: whatever hasn't closed by the deadline is left to
+// llwebrtc::terminate(), exactly as before.
+void LLWebRTCVoiceClient::drainConnections()
+{
+    // Marks every session and connection as shutting down.  This also stops
+    // estateSessionState::processConnectionStates() from spinning up
+    // replacement connections to neighbouring regions while we drain.
+    sessionState::for_each(boost::bind(predShutdownSession, _1));
+
+    // Long enough for a local close to complete, short enough that a wedged
+    // connection doesn't noticeably delay quitting.  The remaining budget in
+    // llwebrtc::terminate() is the real backstop.
+    constexpr F32 DRAIN_TIMEOUT_SECONDS = 3.0f;
+    constexpr U32 DRAIN_POLL_MS = 10;
+
+    LL_DEBUGS("Voice") << "Draining voice connections, timeout "
+        << DRAIN_TIMEOUT_SECONDS << "s" << LL_ENDL;
+
+    // Wait on the peer connections being closed rather than on the sessions
+    // being reaped.  A connection that still has an HTTP coroutine in flight
+    // holds its session alive until mOutstandingRequests unwinds, and those
+    // coroutines don't run from here -- but its peer connection has already
+    // been closed by then, which is all terminate() cares about.
+    LLTimer timer;
+    while (!sessionState::allSessionsClosed() && timer.getElapsedTimeF32() < DRAIN_TIMEOUT_SECONDS)
+    {
+        // OnPeerConnectionClosed comes back through the queue, so it has
+        // to be pumped or the state machines never see connections finish.
+        if (mVoiceWorkQueue)
+        {
+            mVoiceWorkQueue->runFor(std::chrono::milliseconds(DRAIN_POLL_MS));
+        }
+        sessionState::processSessionStates();
+
+        if (!sessionState::allSessionsClosed())
+        {
+            ms_sleep(DRAIN_POLL_MS);
+        }
+    }
+
+    if (!sessionState::allSessionsClosed())
+    {
+        LL_WARNS("Voice") << "Timed out draining voice connections after "
+                          << timer.getElapsedTimeF32()
+                          << "s; leaving the rest to llwebrtc::terminate()." << LL_ENDL;
+
+        // Identify exactly what's still stuck so repeat occurrences can be
+        // correlated to a specific region/session type rather than guessed at.
+        sessionState::for_each(boost::bind(predLogUnclosedConnections, _1));
+    }
+    else
+    {
+        LL_INFOS("Voice") << "Voice connections drained in "
+                          << timer.getElapsedTimeF32() << "s." << LL_ENDL;
+    }
 }
 
 //---------------------------------------------------
@@ -411,9 +531,13 @@ void LLWebRTCVoiceClient::updateSettings()
         static LLCachedControl<F32> sMicLevel(gSavedSettings, "AudioLevelMic");
         setMicGain(sMicLevel);
 
-        llwebrtc::LLWebRTCDeviceInterface::AudioConfig config;
+        // Diff against the last-applied config, not a fresh AudioConfig, so
+        // prefs matching the struct's defaults are still detected as changes.
+        llwebrtc::LLWebRTCDeviceInterface::AudioConfig config = mAudioConfig;
 
-        bool audioConfigChanged = false;
+        // Also reapply if the interface was (re)created, since a new one's
+        // audio processing starts back at hardcoded defaults.
+        bool audioConfigChanged = (mWebRTCDeviceInterface != mAudioConfigInterface);
 
         static LLCachedControl<bool> sEchoCancellation(gSavedSettings, "VoiceEchoCancellation", true);
         if (sEchoCancellation != config.mEchoCancellation)
@@ -443,6 +567,8 @@ void LLWebRTCVoiceClient::updateSettings()
         if (audioConfigChanged && mWebRTCDeviceInterface)
         {
             mWebRTCDeviceInterface->setAudioConfig(config);
+            mAudioConfig          = config;
+            mAudioConfigInterface = mWebRTCDeviceInterface;
         }
     }
 }
@@ -635,7 +761,7 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
                     updatePosition();
                 }
             }
-            LL::WorkQueue::postMaybe(mMainQueue,
+            LL::WorkQueue::postMaybe(mVoiceWorkQueue,
                 [=, this] {
                     if  (sShuttingDown)
                     {
@@ -757,7 +883,7 @@ void LLWebRTCVoiceClient::OnDevicesChanged(const llwebrtc::LLWebRTCVoiceDeviceLi
                                            const llwebrtc::LLWebRTCVoiceDeviceList& capture_devices)
 {
 
-    LL::WorkQueue::postMaybe(mMainQueue,
+    LL::WorkQueue::postMaybe(mVoiceWorkQueue,
                              [=, this]
         {
             OnDevicesChangedImpl(render_devices, capture_devices);
@@ -1638,14 +1764,20 @@ void LLWebRTCVoiceClient::setMuteMic(bool muted)
 
     mMuteMic = muted;
 
-    if (mIsInTuningMode)
+    if (mIsInTuningMode &&!gSavedSettings.getS32("StopMicCaptureWhenMuted"))
     {
         return;
     }
 
     if (mWebRTCDeviceInterface)
     {
-        mWebRTCDeviceInterface->setMute(muted, muted ? MUTE_FADE_DELAY_MS : 0);  // delay for 40ms on mute to allow buffers to empty
+        // Delay on mute to let the fade and silence flush buffers (and, if enabled, before capture stops)
+        mWebRTCDeviceInterface->setMute(muted, muted ? MUTE_FADE_DELAY_MS : 0);
+    }
+
+    if (mIsInTuningMode)
+    {
+        return;
     }
 
     // when you're hidden, your mic is always muted.
@@ -1701,6 +1833,17 @@ void LLWebRTCVoiceClient::setMicGain(F32 gain)
 void LLWebRTCVoiceClient::setVoiceEnabled(bool enabled)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
+
+    if (sShuttingDown)
+    {
+        // Don't allow voice to be re-enabled (or disabled again, which would
+        // re-run teardown paths) once terminate() has started draining
+        // connections -- mWebRTCDeviceInterface and the signaling threads
+        // may already be gone or mid-shutdown.
+        LL_INFOS("Voice") << "setVoiceEnabled(" << (enabled ? "true" : "false")
+            << ") called while shutting down; ignoring." << LL_ENDL;
+        return;
+    }
 
     if (enabled != mVoiceEnabled)
     {
@@ -1890,6 +2033,7 @@ void LLWebRTCVoiceClient::userAuthorized(const std::string& user_id, const LLUUI
     if (sShuttingDown)
     {
         sShuttingDown = false; // was terminated, restart
+        sWebRTCTerminated = false;
         initWebRTC();
     }
 }
@@ -2123,6 +2267,20 @@ void LLWebRTCVoiceClient::sessionState::shutdownAllConnections()
     }
 }
 
+void LLWebRTCVoiceClient::sessionState::logConnections() const
+{
+    for (const auto& connection : mWebRTCConnections)
+    {
+        if (connection && !connection->isClosed())
+        {
+            LL_WARNS("Voice") << "Connection channel " << mChannelID
+                << ", region " << connection->getRegionID()
+                << (connection->isPrimary() ? " (primary)" : " (secondary)")
+                << LL_ENDL;
+        }
+    }
+}
+
 // in case we drop into a session (spatial, etc.) right after
 // telling the session to shut down, revive it so it reconnects.
 void LLWebRTCVoiceClient::sessionState::revive()
@@ -2171,6 +2329,30 @@ void LLWebRTCVoiceClient::sessionState::processSessionStates()
             iter++;
         }
     }
+}
+
+bool LLWebRTCVoiceClient::sessionState::allConnectionsClosed() const
+{
+    for (const auto &connection : mWebRTCConnections)
+    {
+        if (!connection->isClosed())
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool LLWebRTCVoiceClient::sessionState::allSessionsClosed()
+{
+    for (const auto &session : sSessions)
+    {
+        if (session.second && !session.second->allConnectionsClosed())
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 // process the states on each connection associated with a session.
@@ -2320,6 +2502,19 @@ void LLWebRTCVoiceClient::predShutdownSession(const LLWebRTCVoiceClient::session
     session->shutdownAllConnections();
 }
 
+void LLWebRTCVoiceClient::predLogUnclosedConnections(const LLWebRTCVoiceClient::sessionStatePtr_t& session)
+{
+    if (!session)
+    {
+        return;
+    }
+    if (session->allConnectionsClosed())
+    {
+        return;
+    }
+    session->logConnections();
+}
+
 void LLWebRTCVoiceClient::deleteSession(const sessionStatePtr_t &session)
 {
     if (!session)
@@ -2416,21 +2611,39 @@ LLVoiceWebRTCConnection::LLVoiceWebRTCConnection(const LLUUID &regionID, const s
 
     // retries wait a short period...randomize it so
     // all clients don't try to reconnect at once.
-    mRetryWaitSecs = (F32)((F32) rand() / (RAND_MAX)) + 0.5f;
+    mRetryWaitSecs = (F32)((F32) rand() / F32(RAND_MAX)) + 0.5f;
 
     mWebRTCPeerConnectionInterface = llwebrtc::newPeerConnection();
-    mWebRTCPeerConnectionInterface->setSignalingObserver(this);
-    mMainQueue = LL::WorkQueue::getInstance("mainloop");
+    if (mWebRTCPeerConnectionInterface)
+    {
+        mWebRTCPeerConnectionInterface->setSignalingObserver(this);
+    }
+    else
+    {
+        // The webrtc library has been terminated.  Start out shut down and
+        // closed, so the state machine reports the connection gone without
+        // ever touching the (missing) peer connection.
+        LL_WARNS("Voice") << "No peer connection; webrtc is not running" << LL_ENDL;
+        mShutDown = true;
+        mVoiceConnectionState = VOICE_STATE_CLOSED;
+    }
+    mVoiceMainQueue = LLWebRTCVoiceClient::getInstance()->getVoiceWorkQueue();
 }
 
 LLVoiceWebRTCConnection::~LLVoiceWebRTCConnection()
 {
-    if (LLWebRTCVoiceClient::isShuttingDown())
+    if (LLWebRTCVoiceClient::isWebRTCTerminated() || !mWebRTCPeerConnectionInterface)
     {
-        // peer connection and observers will be cleaned up
-        // by llwebrtc::terminate() on shutdown.
+        // peer connection and observers have already been cleaned up
+        // by llwebrtc::terminate() (or there never was a peer connection).
         return;
     }
+    // Note this is deliberately keyed off isWebRTCTerminated() rather than
+    // isShuttingDown(): connections drained by drainConnections() are destroyed
+    // while the webrtc library is still fully alive, and must unregister
+    // themselves and release the peer connection like any other close.  Leaving
+    // a freed observer registered would hand llwebrtc::terminate() a dangling
+    // pointer to call OnPeerConnectionClosed() on.
     mWebRTCPeerConnectionInterface->unsetSignalingObserver(this);
     llwebrtc::freePeerConnection(mWebRTCPeerConnectionInterface);
 }
@@ -2448,7 +2661,7 @@ LLVoiceWebRTCConnection::~LLVoiceWebRTCConnection()
 // callback from llwebrtc
 void LLVoiceWebRTCConnection::OnIceGatheringState(llwebrtc::LLWebRTCSignalingObserver::EIceGatheringState state)
 {
-    LL::WorkQueue::postMaybe(mMainQueue,
+    LL::WorkQueue::postMaybe(mVoiceMainQueue,
         [=, this] {
             LL_DEBUGS("Voice") << "Ice Gathering voice account. " << state << LL_ENDL;
 
@@ -2472,11 +2685,17 @@ void LLVoiceWebRTCConnection::OnIceGatheringState(llwebrtc::LLWebRTCSignalingObs
 // callback from llwebrtc
 void LLVoiceWebRTCConnection::OnIceCandidate(const llwebrtc::LLWebRTCIceCandidate& candidate)
 {
-    LL::WorkQueue::postMaybe(mMainQueue, [=, this] { mIceCandidates.push_back(candidate); });
+    LL::WorkQueue::postMaybe(mVoiceMainQueue, [=, this] { mIceCandidates.push_back(candidate); });
 }
 
 void LLVoiceWebRTCConnection::processIceUpdates()
 {
+    // Don't launch a coroutine on every tick; only do so when there's actually ice data to send and we're not shutting down.
+    if (LLWebRTCVoiceClient::isShuttingDown() || (mIceCandidates.empty() && !mIceCompleted))
+    {
+        return;
+    }
+
     mOutstandingRequests++;
 
     LLCoros::getInstance()->launch("LLVoiceWebRTCConnection::processIceUpdatesCoro",
@@ -2588,7 +2807,7 @@ void LLVoiceWebRTCConnection::processIceUpdatesCoro(connectionPtr_t connection)
 void LLVoiceWebRTCConnection::OnOfferAvailable(const std::string &sdp)
 {
     connectionPtr_t connection = shared_from_this();
-    LL::WorkQueue::postMaybe(mMainQueue,
+    LL::WorkQueue::postMaybe(mVoiceMainQueue,
         [=] {
             if (connection->mShutDown)
             {
@@ -2616,7 +2835,7 @@ void LLVoiceWebRTCConnection::OnOfferAvailable(const std::string &sdp)
 void LLVoiceWebRTCConnection::OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface* audio_interface)
 {
     connectionPtr_t connection = shared_from_this();
-    LL::WorkQueue::postMaybe(mMainQueue,
+    LL::WorkQueue::postMaybe(mVoiceMainQueue,
         [=] {
             if (connection->mShutDown)
             {
@@ -2639,7 +2858,7 @@ void LLVoiceWebRTCConnection::OnAudioEstablished(llwebrtc::LLWebRTCAudioInterfac
 // callback from llwebrtc
 void LLVoiceWebRTCConnection::OnRenegotiationNeeded()
 {
-    LL::WorkQueue::postMaybe(mMainQueue,
+    LL::WorkQueue::postMaybe(mVoiceMainQueue,
         [=, this] {
             LL_DEBUGS("Voice") << "Voice channel requires renegotiation." << LL_ENDL;
             setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
@@ -2650,7 +2869,7 @@ void LLVoiceWebRTCConnection::OnRenegotiationNeeded()
 // callback from llwebrtc
 void LLVoiceWebRTCConnection::OnPeerConnectionClosed()
 {
-    LL::WorkQueue::postMaybe(mMainQueue,
+    LL::WorkQueue::postMaybe(mVoiceMainQueue,
         [=, this] {
             LL_DEBUGS("Voice") << "Peer connection has closed." << LL_ENDL;
             if (mVoiceConnectionState == VOICE_STATE_WAIT_FOR_CLOSE)
@@ -3031,7 +3250,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
         case VOICE_STATE_SESSION_UP:
         {
             mRetryWaitPeriod = 0;
-            mRetryWaitSecs = (F32)((F32)rand() / (RAND_MAX)) + 0.5f;
+            mRetryWaitSecs = (F32)((F32)rand() / F32(RAND_MAX)) + 0.5f;
 
             // we'll stay here as long as the session remains up.
             if (mShutDown)
@@ -3076,7 +3295,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
                 {
                     // back off the retry period, and do it by a small random
                     // bit so all clients don't reconnect at once.
-                    mRetryWaitSecs += (F32)((F32) rand() / (RAND_MAX)) + 0.5f;
+                    mRetryWaitSecs += (F32)((F32) rand() / F32(RAND_MAX)) + 0.5f;
                     mRetryWaitPeriod = 0;
                 }
             }
@@ -3092,8 +3311,10 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             }
             else
             {
-                // llwebrtc::terminate() is already shuting down the connection.
-                setVoiceConnectionState(VOICE_STATE_WAIT_FOR_CLOSE);
+                // Shutting down: skip the courtesy logout to the sim (the HTTP
+                // round trip would just delay quitting) and go straight to
+                // dropping the webrtc connection.
+                setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
             }
             break;
 
@@ -3104,11 +3325,10 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
         {
             setVoiceConnectionState(VOICE_STATE_WAIT_FOR_CLOSE);
             mOutstandingRequests++;
-            if (!LLWebRTCVoiceClient::isShuttingDown())
-            {
-                mWebRTCPeerConnectionInterface->shutdownConnection();
-            }
-            // else was already posted by llwebrtc::terminate().
+            // Always drop the connection ourselves, including during shutdown:
+            // drainConnections() runs before llwebrtc::terminate(), so nothing
+            // else has posted the close yet.
+            mWebRTCPeerConnectionInterface->shutdownConnection();
             break;
         }
 
@@ -3160,7 +3380,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
 // llwebrtc callback
 void LLVoiceWebRTCConnection::OnDataReceived(const std::string& data, bool binary)
 {
-    LL::WorkQueue::postMaybe(mMainQueue, [=, this] { LLVoiceWebRTCConnection::OnDataReceivedImpl(data, binary); });
+    LL::WorkQueue::postMaybe(mVoiceMainQueue, [=, this] { LLVoiceWebRTCConnection::OnDataReceivedImpl(data, binary); });
 }
 
 //
@@ -3197,7 +3417,14 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
         if (!mPrimary && isSpatial() && gAgent.getRegion())
         {
             is_primary_region = (mRegionID == gAgent.getRegion()->getRegionID());
-            LL_WARNS() << "mPrimary is false, expected: " << is_primary_region << " connection state: " << getVoiceConnectionState() << LL_ENDL;
+            if (is_primary_region)
+            {
+                LL_WARNS("Voice") << "mPrimary is false, expected: true, connection state: " << getVoiceConnectionState() << LL_ENDL;
+            }
+            else
+            {
+                LL_INFOS("Voice") << "mPrimary is false, expected: false, connection state: " << getVoiceConnectionState() << LL_ENDL;
+            }
         }
         boost::json::object voice_data = voice_data_parsed.as_object();
         boost::json::object mute;
@@ -3382,7 +3609,7 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
 void LLVoiceWebRTCConnection::OnDataChannelReady(llwebrtc::LLWebRTCDataInterface *data_interface)
 {
     connectionPtr_t connection = shared_from_this();
-    LL::WorkQueue::postMaybe(mMainQueue,
+    LL::WorkQueue::postMaybe(mVoiceMainQueue,
         [=] {
             if (connection->mShutDown)
             {
@@ -3424,7 +3651,7 @@ void LLVoiceWebRTCConnection::sendJoin()
 
 void LLVoiceWebRTCConnection::OnStatsDelivered(const llwebrtc::LLWebRTCStatsMap& stats_data)
 {
-    LL::WorkQueue::postMaybe(mMainQueue, [=, this]
+    LL::WorkQueue::postMaybe(mVoiceMainQueue, [=, this]
     {
         if (mShutDown)
         {

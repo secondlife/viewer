@@ -109,8 +109,9 @@ void LLFloaterGotoLine::handleBtnGoto()
         {
                 if (mEditorCore && mEditorCore->mEditor)
                 {
+            S32 target_row = mEditorCore->mEditor->getIsLuauLanguage() ? (row - 1) : row;
             mEditorCore->mEditor->deselect();
-            mEditorCore->mEditor->setCursor(row, column);
+            mEditorCore->mEditor->setCursor(target_row, column);
             mEditorCore->mEditor->setFocus(true);
                 }
         }
@@ -144,12 +145,13 @@ void LLFloaterGotoLine::onGotoBoxCommit()
         {
                 if (mEditorCore && mEditorCore->mEditor)
                 {
-            mEditorCore->mEditor->setCursor(row, column);
+            S32 target_row = mEditorCore->mEditor->getIsLuauLanguage() ? (row - 1) : row;
+            mEditorCore->mEditor->setCursor(target_row, column);
 
             S32 rownew = 0;
             S32 columnnew = 0;
             mEditorCore->mEditor->getCurrentLineAndColumn( &rownew, &columnnew, false );  // don't include wordwrap
-            if (rownew == row && columnnew == column)
+            if (rownew == target_row && columnnew == column)
             {
                     mEditorCore->mEditor->deselect();
                     mEditorCore->mEditor->setFocus(true);

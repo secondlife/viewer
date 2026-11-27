@@ -26,14 +26,12 @@
 
 // Must turn on conditional declarations in header file so definitions end up
 // with proper linkage.
-#define LLSD_DEBUG_INFO
 #include "linden_common.h"
 
 #include "llsdjson.h"
 
 #include "llsdutil.h"
 #include "llerror.h"
-#include "../llmath/llmath.h"
 
 #include <boost/json/src.hpp>
 

@@ -52,7 +52,7 @@ typedef U32 uint32_t;
 #include "llformat.h"
 #include "llmemorystream.h"
 
-#include "../test/hexdump.h"
+#include "hexdump.h"
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
 #include "stringize.h"
@@ -187,6 +187,11 @@ namespace tut
         mSD = 3287.4387;
         expected = "<llsd><real>3287</real></llsd>\n";
         xml_test("no decimal real number", expected);
+
+        mFormatter->realFormat("%0300.2f");
+        mSD = 1.0;
+        expected = "<llsd><real>" + std::string(296, '0') + "1.00</real></llsd>\n";
+        xml_test("long real format", expected);
     }
 
     template<> template<>
@@ -241,6 +246,58 @@ namespace tut
         mSD = string_to_vector("6|6|asdfhappybox|60e44ec5-305c-43c2-9a19-b4b89b1ae2a6|60e44ec5-305c-43c2-9a19-b4b89b1ae2a6|60e44ec5-305c-43c2-9a19-b4b89b1ae2a6|00000000-0000-0000-0000-000000000000|7fffffff|7fffffff|0|0|82000|450fe394-2904-c9ad-214c-a07eb7feec29|(No Description)|0|10|0");
         expected = "<llsd><binary encoding=\"base64\">Nnw2fGFzZGZoYXBweWJveHw2MGU0NGVjNS0zMDVjLTQzYzItOWExOS1iNGI4OWIxYWUyYTZ8NjBlNDRlYzUtMzA1Yy00M2MyLTlhMTktYjRiODliMWFlMmE2fDYwZTQ0ZWM1LTMwNWMtNDNjMi05YTE5LWI0Yjg5YjFhZTJhNnwwMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDB8N2ZmZmZmZmZ8N2ZmZmZmZmZ8MHwwfDgyMDAwfDQ1MGZlMzk0LTI5MDQtYzlhZC0yMTRjLWEwN2ViN2ZlZWMyOXwoTm8gRGVzY3JpcHRpb24pfDB8MTB8MA==</binary></llsd>\n";
         xml_test("binary", expected);
+    }
+
+    template<> template<>
+    void sd_xml_object::test<7>()
+    {
+        // Test that stream state (precision and exceptions) is correctly restored after format()
+        {
+            std::ostringstream ostr;
+
+            // Set custom precision
+            ostr.precision(10);
+
+            // Set some exception bits
+            ostr.exceptions(std::ios_base::badbit);
+            std::ios_base::iostate original_exceptions = ostr.exceptions();
+
+            // Format some LLSD data
+            mSD = 3.141592653589793;
+            S32 result = mFormatter->format(mSD, ostr);
+
+            // Verify formatting succeeded
+            ensure("format should succeed", result >= 0);
+
+            // Verify precision was restored
+            ensure_equals("precision should be restored",
+                ostr.precision(), 10);
+
+            // Verify exceptions were restored
+            ensure_equals("exception bits should be restored",
+                ostr.exceptions(), original_exceptions);
+        }
+
+        // Test with no bits set
+        {
+            std::ostringstream ostr;
+            ostr.precision(5);
+            std::ios_base::iostate original_exceptions = ostr.exceptions(); // 0
+
+            mSD = "test";
+            S32 result = mFormatter->format(mSD, ostr);
+
+            // Verify formatting succeeded
+            ensure("format should succeed", result >= 0);
+
+            // Verify exceptions were removed
+            ensure_equals("exception bits should remain unchanged",
+                ostr.exceptions(), original_exceptions);
+
+            // Verify precision was still restored even on failure
+            ensure_equals("precision should be restored even on stream failure",
+                ostr.precision(), (std::streamsize)5);
+        }
     }
 
     class TestLLSDSerializeData
@@ -1808,7 +1865,7 @@ namespace tut
 #if LL_WINDOWS
         std::string q("\"");
         std::string qPYTHON(q + PYTHON + q);
-        std::string qscript(q + scriptfile.getName() + q);
+        std::string qscript(q + scriptfile.getPath().string() + q);
         int rc = (int)_spawnl(_P_WAIT, PYTHON.c_str(), qPYTHON.c_str(), qscript.c_str(),
                          std::forward<ARGS>(args)..., NULL);
         if (rc == -1)
@@ -1825,7 +1882,7 @@ namespace tut
 #else  // LL_DARWIN, LL_LINUX
         LLProcess::Params params;
         params.executable = PYTHON;
-        params.args.add(scriptfile.getName());
+        params.args.add(scriptfile.getPath().string());
         for (const std::string& arg : StringVec{ std::forward<ARGS>(args)... })
         {
             params.args.add(arg);
@@ -1921,12 +1978,12 @@ namespace tut
             int bufflen{ static_cast<int>(buffstr.length()) };
             out.write(reinterpret_cast<const char*>(&bufflen), sizeof(bufflen));
             LL_DEBUGS() << "Wrote length: "
-                        << hexdump(reinterpret_cast<const char*>(&bufflen),
+                        << LL::hexdump(reinterpret_cast<const char*>(&bufflen),
                                    sizeof(bufflen))
                         << LL_ENDL;
             out.write(buffstr.c_str(), buffstr.length());
             LL_DEBUGS() << "Wrote data:   "
-                        << hexmix(buffstr.c_str(), buffstr.length())
+                        << LL::hexmix(buffstr.c_str(), buffstr.length())
                         << LL_ENDL;
         }
     }
@@ -2002,8 +2059,8 @@ namespace tut
                    "        yield frombytes\n"
                    << pydata <<
                    // Don't forget raw-string syntax for Windows pathnames.
-                   "debug = open(r'" << debug.getName() << "', 'w')\n"
-                   "verify(parse_each(open(r'" << file.getName() << "', 'rb')))\n";});
+                   "debug = open(r'" << debug.getPath().string() << "', 'w')\n"
+                   "verify(parse_each(open(r'" << file.getPath().string() << "', 'rb')))\n";});
         }
         catch (const failure&)
         {
@@ -2111,13 +2168,13 @@ namespace tut
                "]\n"
                // Don't forget raw-string syntax for Windows pathnames.
                // N.B. Using 'print' implicitly adds newlines.
-               "with open(r'" << file.getName() << "', 'wb') as f:\n"
+               "with open(r'" << (const char*)file.getPath().u8string().c_str() << "', 'wb') as f:\n"
                "    for item in DATA:\n"
                "        serialized = llsd." << pyformatter << "(item)\n"
                "        f.write(lenformat.pack(len(serialized)))\n"
                "        f.write(serialized)\n";});
 
-        std::ifstream inf(file.getName().c_str());
+        llifstream inf(file.getPath());
         LLSD item;
         try
         {
@@ -2182,16 +2239,66 @@ namespace tut
                         { return LLSDSerialize::fromNotation(data, istr, max_bytes) > 0; });
     }
 
-/*==========================================================================*|
     template<> template<>
-    void TestPythonCompatibleObject::test<13>()
+    void sd_xml_object::test<13>()
     {
-        set_test_name("from Python binary using fromBinary()");
-        // We don't expect this to work because format_binary() emits a
-        // header, but fromBinary() won't recognize a header.
-        fromPythonUsing("format_binary",
-                        [](std::istream& istr, LLSD& data, llssize max_bytes)
-                        { return LLSDSerialize::fromBinary(data, istr, max_bytes) > 0; });
+        // Streaming integer values while the formatter's stream precision
+        // is set to 25 (done internally by LLSDXMLFormatter::format()
+        // to preserve TypeReal round-tripping) must not corrupt std::num_put's
+        // internal sprintf_s buffer sizing.
+        std::string expected;
+
+        // Boundary integer values most likely to stress internal
+        // format-string / buffer-size computations.
+        mSD = (LLSD::Integer)0;
+        expected = "<llsd><integer>0</integer></llsd>\n";
+        xml_test("integer zero under high precision", expected);
+
+        mSD = (LLSD::Integer)-1;
+        expected = "<llsd><integer>-1</integer></llsd>\n";
+        xml_test("negative integer under high precision", expected);
+
+        mSD = std::numeric_limits<LLSD::Integer>::max();
+        expected = "<llsd><integer>" + std::to_string(std::numeric_limits<LLSD::Integer>::max())
+            + "</integer></llsd>\n";
+        xml_test("INT_MAX under high precision", expected);
+
+        mSD = std::numeric_limits<LLSD::Integer>::min();
+        expected = "<llsd><integer>" + std::to_string(std::numeric_limits<LLSD::Integer>::min())
+            + "</integer></llsd>\n";
+        xml_test("INT_MIN under high precision", expected);
+
+        // Non-boolalpha boolean path also streams a raw int (0/1) while
+        // precision(25) is active - exercise it explicitly here too.
+        mFormatter->boolalpha(false);
+        mSD = true;
+        expected = "<llsd><boolean>1</boolean></llsd>\n";
+        xml_test("bool-as-int under high precision", expected);
+
+        // Nested/repeated formatting: many integers interleaved with reals
+        // in the same ostream, matching the real-world pattern in
+        // LLVOCache::writeGenericExtrasToCache where a single stream is
+        // reused across many map/array entries containing both ints and
+        // reals, repeatedly entering and leaving the TypeReal precision(25)
+        // context.
+        LLSD array = LLSD::emptyArray();
+        for (S32 i = 0; i < 200; ++i)
+        {
+            LLSD entry = LLSD::emptyMap();
+            entry["index"] = i;
+            entry["neg"] = -i;
+            entry["big"] = std::numeric_limits<LLSD::Integer>::max() - i;
+            entry["value"] = (LLSD::Real)(i)+0.123456789012345;
+            array.append(entry);
+        }
+        mSD = array;
+
+        std::ostringstream ostr;
+        S32 rv = mFormatter->format(mSD, ostr);
+        ensure_equals("stress integer/real interleave returns success", rv, (S32)(1 + 200 * 5));
+        std::istringstream istr(ostr.str());
+        LLSD parsed;
+        ensure_equals("stress output parses all entries", LLSDSerialize::fromXML(parsed, istr), rv);
+        ensure_equals("stress integer/real interleave round-trip", parsed, mSD);
     }
-|*==========================================================================*/
 }

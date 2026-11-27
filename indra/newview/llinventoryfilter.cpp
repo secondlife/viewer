@@ -30,6 +30,7 @@
 
 // viewer includes
 #include "llagent.h"
+#include "llcallbacklist.h"
 #include "llfolderviewmodel.h"
 #include "llfolderviewitem.h"
 #include "llinventorymodel.h"
@@ -399,7 +400,7 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
     if (filterTypes & FILTERTYPE_DATE)
     {
         const U16 HOURS_TO_SECONDS = 3600;
-        time_t earliest = time_corrected() - (U64)mFilterOps.mHoursAgo * HOURS_TO_SECONDS;
+        time_t earliest = time_corrected() - (time_t)((F64)mFilterOps.mHoursAgo * HOURS_TO_SECONDS);
 
         if (mFilterOps.mMinDate > time_min() && mFilterOps.mMinDate < earliest)
         {
@@ -1233,7 +1234,7 @@ void LLInventoryFilter::clearModified()
     mFilterModified = FILTER_NONE;
 }
 
-void LLInventoryFilter::setHoursAgo(U32 hours)
+void LLInventoryFilter::setHoursAgo(F32 hours)
 {
     if (mFilterOps.mHoursAgo != hours)
     {
@@ -1718,7 +1719,7 @@ time_t LLInventoryFilter::getMaxDate() const
 {
     return mFilterOps.mMaxDate;
 }
-U32 LLInventoryFilter::getHoursAgo() const
+F32 LLInventoryFilter::getHoursAgo() const
 {
     return mFilterOps.mHoursAgo;
 }
@@ -1743,8 +1744,18 @@ bool LLInventoryFilter::isTimedOut()
 
 void LLInventoryFilter::resetTime(S32 timeout)
 {
-    mFilterTime.reset();
     F32 time_in_sec = (F32)(timeout)/1000.0f;
+
+    if (gIdleCallbacks.isInCallFunctions())
+    {
+        // LLInventoryFilter is used in a variety of places, including
+        // gIdleCallbacks. If we are inside gIdleCallbacks, use
+        // gIdleCallbacks's time instead of unattached time limit.
+        F64 elapsed_since_pass_start = LLTimer::getTotalSeconds() - gIdleCallbacks.getStartTime();
+        time_in_sec -= (F32)llmax(elapsed_since_pass_start, 0.0);
+    }
+
+    mFilterTime.reset();
     mFilterTime.setTimerExpirySec(time_in_sec);
 }
 

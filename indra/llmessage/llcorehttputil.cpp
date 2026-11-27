@@ -40,7 +40,7 @@
 #include "workqueue.h"
 
 #include "message.h" // for getting the port
-
+#include "llstl.h"
 
 using namespace LLCore;
 
@@ -113,15 +113,17 @@ bool responseToLLSD(HttpResponse * response, bool log, LLSD & out_llsd)
 {
     // Convert response to LLSD
     BufferArray * body(response->getBody());
-    if (!body || !body->size())
+    size_t body_size(body ? body->size() : 0);
+    if (!body || !body_size)
     {
         return false;
     }
 
     LLCore::BufferArrayStream bas(body);
     LLSD body_llsd;
-    S32 parse_status(LLSDSerialize::fromXML(body_llsd, bas, log));
-    if (LLSDParser::PARSE_FAILURE == parse_status){
+
+    if (!LLSDSerialize::deserialize(body_llsd, bas, body_size))
+    {
         return false;
     }
     out_llsd = body_llsd;
@@ -466,28 +468,6 @@ LLSD HttpCoroLLSDHandler::handleSuccess(LLCore::HttpResponse * response, LLCore:
     bool success(false);
 
     result = parseBody(response, success);
-
-#if 0
-    bool parsed = !((response->getBodySize() == 0) ||
-        !LLCoreHttpUtil::responseToLLSD(response, emit_parse_errors, result));
-
-    if (!parsed)
-    {
-        // Only emit a warning if we failed to parse when 'content-type' == 'application/llsd+xml'
-        LLCore::HttpHeaders::ptr_t headers(response->getHeaders());
-        const std::string *contentType = (headers) ? headers->find(HTTP_IN_HEADER_CONTENT_TYPE) : NULL;
-
-        if (contentType && (HTTP_CONTENT_LLSD_XML == *contentType))
-        {
-            std::string thebody = LLCoreHttpUtil::responseToString(response);
-            LL_WARNS("CoreHTTP") << "Failed to deserialize . " << response->getRequestURL() << " [status:" << response->getStatus().toString() << "] "
-                << " body: " << thebody << LL_ENDL;
-
-            // Replace the status with a new one indicating the failure.
-            status = LLCore::HttpStatus(499, "Failed to deserialize LLSD.");
-        }
-    }
-#endif
 
     if (!success)
     {
@@ -1004,6 +984,32 @@ LLSD HttpCoroutineAdapter::getRawAndSuspend(LLCore::HttpRequest::ptr_t request,
     return getAndSuspend_(request, url, options, headers, httpHandler);
 }
 
+LLSD HttpCoroutineAdapter::getRawRangeAndSuspend(LLCore::HttpRequest::ptr_t request,
+    const std::string& url,
+    size_t offset, size_t len,
+    LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
+{
+    LLEventStream  replyPump(mAdapterName + "Reply", true);
+    HttpCoroHandler::ptr_t httpHandler = std::make_shared<HttpCoroRawHandler>(replyPump);
+
+    HttpRequestPumper pumper(request);
+    checkDefaultHeaders(headers);
+
+    LLCore::HttpHandle hhandle = request->requestGetByteRange(mPolicyId,
+        url, offset, len, options, headers, httpHandler);
+
+    if (hhandle == LLCORE_HTTP_HANDLE_INVALID)
+    {
+        return HttpCoroutineAdapter::buildImmediateErrorResult(request, url);
+    }
+
+    saveState(hhandle, request, httpHandler);
+    LLSD results = llcoro::suspendUntilEventOn(httpHandler->getReplyPump());
+    cleanState();
+
+    return results;
+}
+
 LLSD HttpCoroutineAdapter::getJsonAndSuspend(LLCore::HttpRequest::ptr_t request,
     const std::string & url, LLCore::HttpOptions::ptr_t options, LLCore::HttpHeaders::ptr_t headers)
 {
@@ -1012,7 +1018,6 @@ LLSD HttpCoroutineAdapter::getJsonAndSuspend(LLCore::HttpRequest::ptr_t request,
 
     return getAndSuspend_(request, url, options, headers, httpHandler);
 }
-
 
 LLSD HttpCoroutineAdapter::getAndSuspend_(LLCore::HttpRequest::ptr_t &request,
     const std::string & url,

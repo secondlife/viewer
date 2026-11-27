@@ -133,7 +133,7 @@ def main(command, arguments=[], libpath=[], vars={}):
             raise
         # In practice, the pathnames into CMake's build tree are so long as to
         # obscure the name of the test program. Just log its basename.
-        log.warn("No such program %s; check for preceding build errors" % \
+        log.warning("No such program %s; check for preceding build errors" % \
                  os.path.basename(command[0]))
         # What rc should we simulate for missing executable? Windows produces
         # 9009.

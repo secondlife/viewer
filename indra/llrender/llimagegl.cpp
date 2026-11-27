@@ -138,7 +138,6 @@ U32 LLImageGL::sUniqueCount             = 0;
 U32 LLImageGL::sBindCount               = 0;
 S32 LLImageGL::sCount                   = 0;
 
-bool LLImageGL::sGlobalUseAnisotropic   = false;
 F32 LLImageGL::sLastFrameTime           = 0.f;
 LLImageGL* LLImageGL::sDefaultGLTexture = NULL ;
 bool LLImageGL::sCompressTextures = false;
@@ -293,6 +292,7 @@ void LLImageGL::cleanupClass()
     }
 
     delete[] sManualScratch;
+    sManualScratch = nullptr;
 }
 
 
@@ -541,6 +541,7 @@ void LLImageGL::init(bool usemipmaps, bool allow_compression)
 
     mIsMask = false;
     mNeedsAlphaAndPickMask = true ;
+    mAlphaAnalysisSerial = 0;
     mAlphaStride = 0 ;
     mAlphaOffset = 0 ;
 
@@ -837,14 +838,6 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
 
                     mMipLevels = wpo2(llmax(w, h));
 
-                    //use legacy mipmap generation mode (note: making this condional can cause rendering issues)
-                    // -- but making it not conditional triggers deprecation warnings when core profile is enabled
-                    //      (some rendering issues while core profile is enabled are acceptable at this point in time)
-                    if (!LLRender::sGLCoreProfile)
-                    {
-                        glTexParameteri(mTarget, GL_GENERATE_MIPMAP, GL_TRUE);
-                    }
-
                     LLImageGL::setManualImage(mTarget, 0, mFormatInternal,
                                  w, h,
                                  mFormatPrimary, mFormatType,
@@ -860,7 +853,6 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
                         stop_glerror();
                     }
 
-                    if (LLRender::sGLCoreProfile)
                     {
                         LL_PROFILE_GPU_ZONE("generate mip map");
                         glGenerateMipmap(mTarget);
@@ -1053,7 +1045,11 @@ U32 type_width_from_pixtype(U32 pixtype)
 
 bool should_stagger_image_set(bool compressed)
 {
-#if LL_DARWIN
+#if LL_MESA_HEADLESS
+    return false;
+#elif LL_LINUX
+    return !compressed && on_main_thread() && gGLManager.mIsNVIDIA;
+#elif LL_DARWIN
     return !compressed && on_main_thread() && gGLManager.mIsAMD;
 #else
     // glTexSubImage2D doesn't work with compressed textures on select tested Nvidia GPUs on Windows 10 -Cosmic,2023-03-08
@@ -1317,6 +1313,56 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
     if (LLRender::sGLCoreProfile)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
+#if LL_DARWIN
+        // Explicitly strip the alpha channel from BGRA/RGBA source data when the
+        // requested internal storage format has no alpha channel (e.g. GL_RGB).
+        // This avoids relying on the GL driver/OS to perform this conversion
+        // implicitly.
+        if ((pixformat == GL_BGRA || pixformat == GL_RGBA)
+            && pixtype == GL_UNSIGNED_BYTE
+            && (intformat == GL_RGB || intformat == GL_RGB8)
+            && pixels != nullptr)
+        {
+            static thread_local std::vector<U32> media_scratch;
+            try
+            {
+                media_scratch.resize((U32)(width * height));
+            }
+            catch (std::bad_alloc&)
+            {
+                LLError::LLUserWarningMsg::showOutOfMemory();
+                LL_ERRS() << "Failed to allocate media conversion scratch buffer" << LL_ENDL;
+            }
+
+            U32 pixel_count = (U32)(width * height);
+            const U8* src = (const U8*)pixels;
+            U8* dst = (U8*)media_scratch.data();
+
+            if (pixformat == GL_BGRA)
+            {
+                for (U32 i = 0; i < pixel_count; i++)
+                {
+                    dst[i * 3 + 0] = src[i * 4 + 2]; // R
+                    dst[i * 3 + 1] = src[i * 4 + 1]; // G
+                    dst[i * 3 + 2] = src[i * 4 + 0]; // B
+                }
+            }
+            else // GL_RGBA
+            {
+                for (U32 i = 0; i < pixel_count; i++)
+                {
+                    dst[i * 3 + 0] = src[i * 4 + 0]; // R
+                    dst[i * 3 + 1] = src[i * 4 + 1]; // G
+                    dst[i * 3 + 2] = src[i * 4 + 2]; // B
+                }
+            }
+
+            pixels = media_scratch.data();
+            pixformat = GL_RGB;
+        }
+#endif
+
         if (gGLManager.mGLVersion >= CONVERSION_SCRATCH_BUFFER_GL_VERSION)
         {
             if (pixformat == GL_ALPHA)
@@ -1951,6 +1997,9 @@ void LLImageGL::destroyGLTexture()
         mTexName = 0;
         mGLTextureCreated = false ;
     }
+
+    // Invalidate pending jobs
+    ++mAlphaAnalysisSerial;
 }
 
 //force to invalidate the gl texture, most likely a sculpty texture
@@ -2006,7 +2055,7 @@ bool LLImageGL::getIsResident(bool test_now)
     {
         if (mTexName != 0)
         {
-            glAreTexturesResident(1, (GLuint*)&mTexName, &mIsResident);
+            mIsResident = true;
         }
         else
         {
@@ -2021,7 +2070,7 @@ S32 LLImageGL::getHeight(S32 discard_level) const
 {
     if (discard_level < 0)
     {
-        discard_level = mCurrentDiscardLevel;
+        discard_level = llmax(mCurrentDiscardLevel, 0);
     }
     S32 height = mHeight >> discard_level;
     if (height < 1) height = 1;
@@ -2032,7 +2081,7 @@ S32 LLImageGL::getWidth(S32 discard_level) const
 {
     if (discard_level < 0)
     {
-        discard_level = mCurrentDiscardLevel;
+        discard_level = llmax(mCurrentDiscardLevel, 0);
     }
     S32 width = mWidth >> discard_level;
     if (width < 1) width = 1;
@@ -2043,7 +2092,7 @@ S64 LLImageGL::getBytes(S32 discard_level) const
 {
     if (discard_level < 0)
     {
-        discard_level = mCurrentDiscardLevel;
+        discard_level = llmax(mCurrentDiscardLevel, 0);
     }
     S32 w = mWidth>>discard_level;
     S32 h = mHeight>>discard_level;
@@ -2056,7 +2105,7 @@ S64 LLImageGL::getMipBytes(S32 discard_level) const
 {
     if (discard_level < 0)
     {
-        discard_level = mCurrentDiscardLevel;
+        discard_level = llmax(mCurrentDiscardLevel, 0);
     }
     S32 w = mWidth>>discard_level;
     S32 h = mHeight>>discard_level;
@@ -2110,6 +2159,9 @@ void LLImageGL::setNeedsAlphaAndPickMask(bool need_mask)
         {
             mAlphaOffset = INVALID_OFFSET ;
             mIsMask = false;
+
+            // Invalidate pending jobs
+            ++mAlphaAnalysisSerial;
         }
     }
 }
@@ -2141,7 +2193,7 @@ void LLImageGL::calcAlphaChannelOffsetAndStride()
     case GL_SRGB_ALPHA:
         mAlphaStride = 4;
         break;
-    case GL_BGRA_EXT:
+    case GL_BGRA:
         mAlphaStride = 4;
         break;
     default:
@@ -2178,7 +2230,7 @@ void LLImageGL::calcAlphaChannelOffsetAndStride()
 
     if( mAlphaStride < 1 || //unsupported format
         mAlphaOffset < 0 || //unsupported type
-        (mFormatPrimary == GL_BGRA_EXT && mFormatType != GL_UNSIGNED_BYTE)) //unknown situation
+        (mFormatPrimary == GL_BGRA && mFormatType != GL_UNSIGNED_BYTE)) //unknown situation
     {
         LL_WARNS() << "Cannot analyze alpha for image with format type " << std::hex << mFormatType << std::dec << LL_ENDL;
 
@@ -2187,11 +2239,16 @@ void LLImageGL::calcAlphaChannelOffsetAndStride()
     }
 }
 
-void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
+bool LLImageGL::analyzeAlphaData(
+    const void* data_in,
+    U32 w,
+    U32 h,
+    S8 alpha_offset,
+    S8 alpha_stride)
 {
-    if(!data_in || sSkipAnalyzeAlpha || !mNeedsAlphaAndPickMask)
+    if (!data_in)
     {
-        return ;
+        return false;
     }
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
@@ -2200,7 +2257,7 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
     U32 alphatotal = 0;
 
     U32 sample[16];
-    memset(sample, 0, sizeof(U32)*16);
+    memset(sample, 0, sizeof(U32) * 16);
 
     // generate histogram of quantized alpha.
     // also add-in the histogram of a 2x2 box-sampled version.  The idea is
@@ -2211,46 +2268,46 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
     {
         llassert(w % 2 == 0);
         llassert(h % 2 == 0);
-        const GLubyte* rowstart = ((const GLubyte*) data_in) + mAlphaOffset;
+        const GLubyte* rowstart = ((const GLubyte*)data_in) + alpha_offset;
         for (U32 y = 0; y < h; y += 2)
         {
-            const GLubyte* current = rowstart;
+            const unsigned char* current = rowstart;
             for (U32 x = 0; x < w; x += 2)
             {
                 const U32 s1 = current[0];
                 alphatotal += s1;
-                const U32 s2 = current[w * mAlphaStride];
+                const U32 s2 = current[w * alpha_stride];
                 alphatotal += s2;
-                current += mAlphaStride;
+                current += alpha_stride;
                 const U32 s3 = current[0];
                 alphatotal += s3;
-                const U32 s4 = current[w * mAlphaStride];
+                const U32 s4 = current[w * alpha_stride];
                 alphatotal += s4;
-                current += mAlphaStride;
+                current += alpha_stride;
 
-                ++sample[s1/16];
-                ++sample[s2/16];
-                ++sample[s3/16];
-                ++sample[s4/16];
+                ++sample[s1 / 16];
+                ++sample[s2 / 16];
+                ++sample[s3 / 16];
+                ++sample[s4 / 16];
 
-                const U32 asum = (s1+s2+s3+s4);
+                const U32 asum = (s1 + s2 + s3 + s4);
                 alphatotal += asum;
-                sample[asum/(16*4)] += 4;
+                sample[asum / (16 * 4)] += 4;
             }
 
-            rowstart += 2 * w * mAlphaStride;
+            rowstart += 2 * w * alpha_stride;
         }
         length *= 2; // we sampled everything twice, essentially
     }
     else
     {
-        const GLubyte* current = ((const GLubyte*) data_in) + mAlphaOffset;
+        const unsigned char* current = ((const unsigned char*)data_in) + alpha_offset;
         for (U32 i = 0; i < length; i++)
         {
             const U32 s1 = *current;
             alphatotal += s1;
-            ++sample[s1/16];
-            current += mAlphaStride;
+            ++sample[s1 / 16];
+            current += alpha_stride;
         }
     }
 
@@ -2277,15 +2334,103 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
         upperhalftotal += sample[i];
     }
 
-    if (midrangetotal > length/48 || // lots of midrange, or
-        (lowerhalftotal == length && alphatotal != 0) || // all close to transparent but not all totally transparent, or
-        (upperhalftotal == length && alphatotal != 255*length)) // all close to opaque but not all totally opaque
+    if (midrangetotal > length / 48 ||
+        (lowerhalftotal == length && alphatotal != 0) ||
+        (upperhalftotal == length && alphatotal != 255 * length))
     {
-        mIsMask = false; // not suitable for masking
+        return false; // not suitable for masking
     }
     else
     {
-        mIsMask = true;
+        return true; // is a mask
+    }
+}
+
+void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
+{
+    // if mNeedsAlphaAndPickMask is true, then offset and stride are supposed to be valid.
+    if (!data_in || sSkipAnalyzeAlpha || !mNeedsAlphaAndPickMask)
+        return;
+
+    // Already on a worker thread or a small image - analyze immediately
+    if (!on_main_thread() || (w < 64 && h < 64))
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+        // Should have been incremented by destroyGLTexture,
+        // but increment either way, for extra safety.
+        ++mAlphaAnalysisSerial;
+
+        mIsMask = analyzeAlphaData(data_in, w, h, mAlphaOffset, mAlphaStride);
+        return;
+    }
+
+    // On main thread - defer to worker thread
+
+    // Capture context
+    const S8 alpha_offset = mAlphaOffset;
+    const S8 alpha_stride = mAlphaStride;
+    const U32 request_serial = ++mAlphaAnalysisSerial;
+
+    // Copy data for worker thread
+    const size_t data_size = size_t(w) * size_t(h) * size_t(alpha_stride);
+    U8* data_copy = new (std::nothrow) U8[data_size];
+
+    if (!data_copy)
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+        mIsMask = analyzeAlphaData(data_in, w, h, alpha_offset, alpha_stride);
+        return;
+    }
+    memcpy(data_copy, static_cast<const U8*>(data_in), data_size);
+
+    // Viewer can rapidly switch between lods, which would invalidate
+    // previous analysis results.
+    // Use a serial number to filter out obsolete analysis results.
+
+    ref(); // Keep texture alive
+
+    auto mainq = mMainQueue.lock();
+
+    // Get the GL thread queue
+    auto workerq = LLImageGLThread::sEnabledTextures ?
+        LL::WorkQueue::getInstance("LLImageGL") : // Use the image processing queue if available
+        LL::WorkQueue::getInstance("General"); // Fallback to general
+
+    bool posted_job = false;
+    if (mainq && workerq)
+    {
+        posted_job = mainq->postTo(
+            workerq,
+            // Worker thread: analyze alpha
+            [data_copy, w, h, alpha_offset, alpha_stride]() -> bool
+        {
+            LL_PROFILE_ZONE_NAMED("Deffered alpha mask analysis");
+            bool is_mask = LLImageGL::analyzeAlphaData(data_copy, w, h, alpha_offset, alpha_stride);
+            delete[] data_copy;
+            return is_mask;
+        },
+            // Main thread: apply result
+            [this, request_serial](bool is_mask)
+        {
+            // Only apply if no newer analysis has been requested
+            if (mAlphaAnalysisSerial == request_serial)
+            {
+                mIsMask = is_mask;
+            }
+            unref();
+        }
+        );
+
+        // Conservative default until analysis completes
+        mIsMask = false;
+    }
+    if (!posted_job)
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+        // Queues not available - fall back to synchronous analysis
+        delete[] data_copy;
+        mIsMask = analyzeAlphaData(data_in, w, h, mAlphaOffset, mAlphaStride);
+        unref();
     }
 }
 
@@ -2488,6 +2633,12 @@ bool LLImageGL::scaleDown(S32 desired_discard)
         if (gGL.getTexUnit(0)->bind(this, true, true))
         {
             glDrawArrays(GL_TRIANGLES, 0, 3);
+
+#if LL_DARWIN
+            // On mac OS, flush before freeing, otherwise the texture may be
+            // freed before Metal's 'lazy' evaluation/restoration behavior triggers.
+            glFlush();
+#endif
 
             free_tex_image(mTexName);
             glTexImage2D(mTarget, 0, mFormatInternal, desired_width, desired_height, 0, mFormatPrimary, mFormatType, nullptr);
