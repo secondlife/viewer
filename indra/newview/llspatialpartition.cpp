@@ -128,6 +128,12 @@ LLSpatialGroup::~LLSpatialGroup()
     sNodeCount--;
 
     clearDrawMap();
+
+    if (mReflectionProbe.notNull())
+    {
+        gPipeline.mReflectionMapManager.unregisterSpatialGroup(this);
+        mReflectionProbe = nullptr;
+    }
 }
 
 void LLSpatialGroup::clearDrawMap()
