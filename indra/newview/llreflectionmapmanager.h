@@ -124,6 +124,7 @@ public:
     // called by LLSpatialGroup constructor
     // If spatial group should receive a Reflection Probe, will create one for the specified spatial group
     LLReflectionMap* registerSpatialGroup(LLSpatialGroup* group);
+    void unregisterSpatialGroup(LLSpatialGroup* group);
 
     // presently hacked into LLViewerObject::setTE
     // Used by LLViewerObjects that are Reflection Probes

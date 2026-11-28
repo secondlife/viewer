@@ -671,6 +671,16 @@ LLReflectionMap* LLReflectionMapManager::registerSpatialGroup(LLSpatialGroup* gr
     return addProbe(group);
 }
 
+void LLReflectionMapManager::unregisterSpatialGroup(LLSpatialGroup* group)
+{
+    LLReflectionMap* probe = group->mReflectionProbe;
+    if (probe && probe->mGroup == group)
+    {
+        probe->mGroup = nullptr;
+        mKillList.push_back(probe);
+    }
+}
+
 LLReflectionMap* LLReflectionMapManager::registerViewerObject(LLViewerObject* vobj)
 {
     if (!LLPipeline::sReflectionProbesEnabled)
