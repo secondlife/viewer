@@ -1093,6 +1093,21 @@ void LLIMModel::LLIMSession::addMessagesFromHistoryCache(const chat_message_list
     }
 }
 
+static int compare_history_datetime(const std::string& left, const std::string& right)
+{
+    F64 left_wall = 0.0;
+    F64 right_wall = 0.0;
+    if (LLChatServiceHistory::parseTranscriptWallTime(left, left_wall) &&
+        LLChatServiceHistory::parseTranscriptWallTime(right, right_wall))
+    {
+        S64 left_minute = static_cast<S64>(left_wall) / 60;
+        S64 right_minute = static_cast<S64>(right_wall) / 60;
+        return left_minute < right_minute ? -1 : (left_minute > right_minute ? 1 : 0);
+    }
+    int order = left.compare(right);
+    return order < 0 ? -1 : (order > 0 ? 1 : 0);
+}
+
 void LLIMModel::LLIMSession::addMessagesFromServerHistory(const LLSD& history,             // Array of chat messages from chat server
                                                         const std::string& target_from,    // Sender of message that opened chat
                                                         const std::string& target_message, // Message text that opened chat
@@ -1226,19 +1241,21 @@ void LLIMModel::LLIMSession::addMessagesFromServerHistory(const LLSD& history,  
                     history_datetime = cur_server_hist[LL_IM_TIME].asString();
                 }
 
-                if (history_datetime < mLastHistoryCacheDateTime)
+                // Compare the parsed times to the minute, since 12-hour times and seconds don't sort correctly as text.
+                const int history_vs_cache = compare_history_datetime(history_datetime, mLastHistoryCacheDateTime);
+                if (history_vs_cache < 0)
                 {
                     LL_DEBUGS("ChatHistoryCompare") << "Skipping message from chat server history since it's older than messages the session already has."
                         << history_datetime << " vs  " << mLastHistoryCacheDateTime << LL_ENDL;
                     add_chat_to_conversation = false;
                 }
-                else if (history_datetime > mLastHistoryCacheDateTime)
+                else if (history_vs_cache > 0)
                 {   // The message from the chat server is more recent than the last one from the local cache file.   Add it
                     LL_DEBUGS("ChatHistoryCompare") << "Found message dated "
                         << history_datetime << " vs " << mLastHistoryCacheDateTime
                         << ", adding new message from chat server history " << cur_server_hist << LL_ENDL;
                 }
-                else   // (history_datetime == mLastHistoryCacheDateTime)
+                else   // (history_vs_cache == 0)
                 {      // Messages are in the same minute as the last from the cache log file.
                     const std::string & history_msg_text = cur_server_hist[LL_IM_TEXT];
 
@@ -1386,6 +1403,20 @@ void LLIMModel::LLIMSession::loadHistory()
     // Group and ad-hoc history retain the synchronous legacy loader.
     chat_message_list_t history;
     LLLogChat::loadChatHistory(mHistoryFileName, history, LLSD(), isGroupChat());
+
+    // Remember the newest minute of the local log so addMessagesFromServerHistory()
+    // can skip server history messages that are already in the log.
+    for (const LLSD& msg : history)
+    {
+        const std::string& msg_time_str = msg[LL_IM_DATE_TIME].asStringRef();
+        if (compare_history_datetime(mLastHistoryCacheDateTime, msg_time_str) != 0)
+        {
+            mLastHistoryCacheDateTime = msg_time_str;
+            mLastHistoryCacheMsgs.clear();
+        }
+        mLastHistoryCacheMsgs.push_front(msg);
+    }
+
     replaceHistoricalMessages(history);
 }
 

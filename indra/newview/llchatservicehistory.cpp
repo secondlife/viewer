@@ -2441,6 +2441,11 @@ bool LLChatServiceHistory::localHistoryExists(const LLUUID& resident_id)
     return found->second.summary.has_oldest;
 }
 
+bool LLChatServiceHistory::parseTranscriptWallTime(const std::string& text, F64& wall_epoch)
+{
+    return legacyWallEpoch(text, wall_epoch);
+}
+
 bool LLChatServiceHistory::isPersistedDirectDialog(EInstantMessage dialog)
 {
     return persistedDirectDialog(static_cast<S32>(dialog));

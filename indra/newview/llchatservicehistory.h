@@ -75,6 +75,8 @@ namespace LLChatServiceHistory
     bool localHistoryExists();
     bool localHistoryExists(const LLUUID& resident_id);
 
+    bool parseTranscriptWallTime(const std::string& text, F64& wall_epoch);
+
     // Opens and due direct-message activity share one account-scoped priority queue.
     bool isPersistedDirectDialog(EInstantMessage dialog);
     void prioritizeResident(const LLUUID& resident_id, bool follow_active_request = false);
