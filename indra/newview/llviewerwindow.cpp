@@ -1558,8 +1558,15 @@ void LLViewerWindow::handleMouseDragged(LLWindow *window,  LLCoordGL pos, MASK m
 
 void LLViewerWindow::handleMouseLeave(LLWindow *window)
 {
-    // Note: we won't get this if we have captured the mouse.
-    llassert( gFocusMgr.getMouseCapture() == NULL );
+    // The window can report the pointer leaving while a view holds the mouse capture: a modal dialog
+    // holds the UI's capture for as long as it is open, and that capture is not the window system's,
+    // so SDL sends the leave event regardless. That is not an error.
+    if (gFocusMgr.getMouseCapture())
+    {
+        LL_DEBUGS("Window") << "Mouse left the window while "
+                            << gFocusMgr.getMouseCapture()->getName()
+                            << " holds the mouse capture" << LL_ENDL;
+    }
     mMouseInWindow = false;
     LLToolTipMgr::instance().blockToolTips();
 }

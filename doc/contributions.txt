@@ -956,6 +956,8 @@ Luban Yiyuan
 Luc Starsider
 Luminous Luminos
 	STORM-959
+Luna Witch
+	secondlife/viewer#6810
 Lunita Savira
 Maccus McCullough
 maciek marksman
